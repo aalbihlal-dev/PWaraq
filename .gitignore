@@ -1,2 +1,4 @@
 node_modules/
 spike/*.png
+public/_test/
+dist/
