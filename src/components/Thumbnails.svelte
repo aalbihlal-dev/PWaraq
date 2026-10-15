@@ -23,7 +23,12 @@
     list.querySelectorAll('[data-n]').forEach((el) => io.observe(el));
     return () => io.disconnect();
   });
-  $effect(() => { list?.querySelector(`[data-n="${current - 1}"]`)?.scrollIntoView({ block: 'nearest' }); });
+  // keep the current page's thumbnail in view, scrolling only this list
+  $effect(() => {
+    const el = list?.querySelector<HTMLElement>(`[data-n="${current - 1}"]`); if (!el) return;
+    const r = el.getBoundingClientRect(), box = list.getBoundingClientRect();
+    if (r.top < box.top) list.scrollTop -= box.top - r.top + 8; else if (r.bottom > box.bottom) list.scrollTop += r.bottom - box.bottom + 8;
+  });
 </script>
 
 <nav class="thumbs" bind:this={list} aria-label={t('thumbnails')}>

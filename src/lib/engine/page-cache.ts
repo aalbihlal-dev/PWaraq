@@ -4,7 +4,7 @@ const NAME = 'waraq-pages-v1';
 let docKey = '';
 
 export async function setDocument(bytes: Uint8Array) {
-  const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes));
+  const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes as Uint8Array<ArrayBuffer>));
   docKey = Array.from(hash.slice(0, 16), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 const url = (page: number, scale: number) => `/__waraq-page/${docKey}/${page}/${scale.toFixed(4)}.png`;

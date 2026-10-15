@@ -53,8 +53,16 @@ const ops: Record<string, (r: Req) => any> = {
     l.run(dev, mupdf.Matrix.identity); dev.close(); dev.destroy();
     return bitmap(pix);
   },
+  // text lines with their box (points, top-left origin), for the selectable text layer
+  text(r) {
+    const p = doc!.loadPage(r.page), st = p.toStructuredText('preserve-whitespace'), out: any[] = [];
+    for (const b of JSON.parse(st.asJSON()).blocks) if (b.type === 'text') for (const l of b.lines)
+      if (l.text.trim()) out.push({ x: l.bbox.x, y: l.bbox.y, w: l.bbox.w, h: l.bbox.h, text: l.text, size: l.font.size, rtl: /[֐-ࣿ]/.test(l.text) });
+    st.destroy(); p.destroy();
+    return out;
+  },
   search(r) {
-    const p = doc!.loadPage(r.page), hits = p.search(r.query, 500).map((quads) => quads.map((q) => [...q]));
+    const p = doc!.loadPage(r.page), hits = p.search(r.query, '').map((quads) => quads.map((q) => [...q]));
     p.destroy();
     return hits;
   },

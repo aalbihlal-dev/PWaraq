@@ -16,7 +16,7 @@
   const dpr = () => Math.min(window.devicePixelRatio || 1, 3);
   const widest = $derived(Math.max(...sizes.map((s) => s.w)));
 
-  type PageState = { el?: HTMLDivElement; canvas?: HTMLCanvasElement; tile?: HTMLCanvasElement; drawn: number; visible: boolean };
+  type PageState = { el?: HTMLDivElement; canvas?: HTMLCanvasElement; tile?: HTMLCanvasElement; text?: HTMLDivElement; marks?: HTMLDivElement; drawn: number; visible: boolean; textLoaded?: boolean };
   // svelte-ignore state_referenced_locally (a new document gets a new workspace, so the page count is fixed here)
   const pages: PageState[] = sizes.map(() => ({ drawn: 0, visible: false }));
 
@@ -57,6 +57,43 @@
       } catch { return; }
     }
     drawTile(n);
+    loadText(n);
+  }
+
+  // Invisible text over the page so it can be selected and copied. Positions are in points times --s (the zoom),
+  // so zooming needs no rebuild; each line is stretched to the width the PDF gives it.
+  const measure = document.createElement('canvas').getContext('2d')!;
+  async function loadText(n: number) {
+    const p = pages[n];
+    if (p.textLoaded || !p.text) return;
+    p.textLoaded = true;
+    let lines: { x: number; y: number; w: number; h: number; text: string; rtl: boolean }[];
+    try { lines = await pool.run({ op: 'text', page: n, priority: 3, key: 'text' + n, args: {} }); } catch { p.textLoaded = false; return; }
+    const frag = document.createDocumentFragment();
+    for (const l of lines) {
+      const span = document.createElement('span'), size = l.h * 0.85;
+      measure.font = `${size}px sans-serif`;
+      const natural = measure.measureText(l.text).width || 1;
+      span.textContent = l.text; span.dir = l.rtl ? 'rtl' : 'ltr';
+      span.style.cssText = `left:calc(${l.x}px*var(--s));top:calc(${l.y}px*var(--s));font-size:calc(${size}px*var(--s));transform:scaleX(${l.w / natural})`;
+      frag.append(span);
+    }
+    p.text.replaceChildren(frag);
+  }
+
+  // Search highlights: rectangles in points; the active one is scrolled into view.
+  export function showHits(hits: { page: number; rects: number[][] }[], active: number) {
+    pages.forEach((p) => p.marks?.replaceChildren());
+    hits.forEach((h, i) => {
+      for (const [x, y, w, hh] of h.rects) {
+        const m = document.createElement('i');
+        m.className = i === active ? 'on' : '';
+        m.style.cssText = `left:calc(${x}px*var(--s));top:calc(${y}px*var(--s));width:calc(${w}px*var(--s));height:calc(${hh}px*var(--s))`;
+        pages[h.page].marks?.append(m);
+      }
+    });
+    const on = pages[hits[active]?.page]?.marks?.querySelector('.on');
+    if (on) centre(on as HTMLElement);
   }
 
   // Zoomed in beyond one image: draw just the visible part of the page at full sharpness.
@@ -92,7 +129,13 @@
     schedule(160);
   }
   export const zoomBy = (factor: number) => zoomTo(scale * factor);
-  export function goTo(n: number) { pages[n - 1]?.el?.scrollIntoView({ block: 'start' }); }
+  // Scroll only the page area (scrollIntoView would also scroll the window and hide the top bars).
+  function centre(el: HTMLElement) {
+    const r = el.getBoundingClientRect(), box = scroller.getBoundingClientRect();
+    scroller.scrollLeft += r.left + r.width / 2 - (box.left + box.width / 2);
+    scroller.scrollTop += r.top + r.height / 2 - (box.top + box.height / 2);
+  }
+  export function goTo(n: number) { const el = pages[n - 1]?.el; if (el) scroller.scrollTop += el.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 16; }
   export const zoomLabel = () => Math.round(scale * 100) + '%';
 
   function onWheel(e: WheelEvent) {
@@ -137,9 +180,11 @@
   onpointerup={() => (drag = null)} onscroll={() => schedule(120)} class:grab={space} role="document" aria-label={t('pages')}>
   {#each sizes as size, n}
     <div class="page" data-n={n} bind:this={pages[n].el} style:width="{size.w * scale}px" style:height="{size.h * scale}px"
-      role="img" aria-label="{t('page')} {n + 1}">
+      style:--s={scale} aria-label="{t('page')} {n + 1}">
       <canvas bind:this={pages[n].canvas}></canvas>
       <canvas class="tile" bind:this={pages[n].tile} hidden></canvas>
+      <div class="marks" bind:this={pages[n].marks}></div>
+      <div class="text" bind:this={pages[n].text}></div>
     </div>
   {/each}
 </div>
@@ -150,4 +195,10 @@
   .page { position: relative; margin: 0 auto var(--s-16); background: #fff; box-shadow: var(--shadow); }
   .page canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .page canvas.tile { inset: auto; }
+  .text, .marks { position: absolute; inset: 0; overflow: hidden; }
+  .text :global(span) { position: absolute; white-space: pre; color: transparent; line-height: 1; transform-origin: 0 0; cursor: text; }
+  .text :global(span::selection) { background: #15775d55; }
+  .marks :global(i) { position: absolute; background: #f5c51866; border-radius: 2px; }
+  .marks :global(i.on) { background: #f5a51899; outline: 2px solid #c7780a; }
+  .scroller.grab .text { pointer-events: none; }
 </style>

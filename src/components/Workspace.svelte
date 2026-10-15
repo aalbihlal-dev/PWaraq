@@ -14,8 +14,29 @@
   $effect(() => { pageInput = String(current); });
   const tasks: Key[] = ['view', 'organize', 'edit', 'convert', 'sign', 'protect', 'ocr'];
 
+  // Find: every page is searched in the background (heavy pages take seconds); matches appear as they come in.
+  let findOpen = $state(false), query = $state(''), hits = $state<{ page: number; rects: number[][] }[]>([]), active = $state(0), searching = $state(false);
+  let findInput = $state<HTMLInputElement>(), searchRun = 0, findTimer: ReturnType<typeof setTimeout>;
+  async function search(q: string) {
+    const run = ++searchRun; hits = []; active = 0; viewer.showHits([], 0);
+    if (q.trim().length < 2) return;
+    searching = true;
+    await Promise.all(sizes.map(async (_, page) => {
+      try {
+        const found: number[][][] = await pool.run({ op: 'search', page, priority: 4, key: 'search' + page, args: { query: q } });
+        if (run !== searchRun || !found.length) return;
+        const add = found.map((quads) => ({ page, rects: quads.map((q) => { const xs = [q[0], q[2], q[4], q[6]], ys = [q[1], q[3], q[5], q[7]]; return [Math.min(...xs), Math.min(...ys), Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)]; }) }));
+        hits = [...hits, ...add].sort((a, b) => a.page - b.page);
+        viewer.showHits(hits, active);
+      } catch {}
+    }));
+    if (run === searchRun) searching = false;
+  }
+  function step(d: number) { if (!hits.length) return; active = (active + d + hits.length) % hits.length; viewer.showHits(hits, active); }
+
   function onKey(e: KeyboardEvent) {
     if (e.key === 'F4') { e.preventDefault(); showThumbs = !showThumbs; }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') { e.preventDefault(); findOpen = true; setTimeout(() => findInput?.focus()); }
   }
   function go() { const n = Math.min(sizes.length, Math.max(1, Number(pageInput) || 1)); viewer.goTo(n); }
 </script>
@@ -49,6 +70,15 @@
     <button class="btn" onclick={() => viewer.zoomTo('width')}>{t('fitWidth')}</button>
     <button class="btn" onclick={() => viewer.zoomTo('page')}>{t('fitPage')}</button>
     <button class="btn icon" onclick={() => viewer.zoomBy(1.25)} title={t('zoomIn')} aria-label={t('zoomIn')}>+</button>
+    <span class="find" class:open={findOpen}>
+      <button class="btn icon" onclick={() => { findOpen = !findOpen; if (findOpen) setTimeout(() => findInput?.focus()); }} title={t('find')} aria-label={t('find')}>{@html icon('search')}</button>
+      {#if findOpen}
+        <input bind:this={findInput} bind:value={query} type="search" placeholder={t('find')} aria-label={t('find')}
+          oninput={() => { clearTimeout(findTimer); searching = query.trim().length >= 2; findTimer = setTimeout(() => search(query), 300); }}
+          onkeydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); step(e.shiftKey ? -1 : 1); } if (e.key === 'Escape') { findOpen = false; query = ''; search(''); } }} />
+        <span class="num muted" aria-live="polite">{query.trim().length < 2 ? '' : hits.length ? `${active + 1} / ${hits.length}${searching ? '…' : ''}` : searching ? '…' : t('noResults')}</span>
+      {/if}
+    </span>
   </div>
   <div class="body" class:nothumbs={!showThumbs}>
     {#if showThumbs}<Thumbnails {pool} {sizes} {current} onGo={(n) => viewer.goTo(n)} />{/if}
@@ -70,6 +100,8 @@
   .pageno { display: flex; align-items: center; gap: var(--s-8); }
   .pageno input { width: 56px; min-height: var(--control); text-align: center; border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); }
   .muted { color: var(--muted); }
+  .find { display: flex; align-items: center; gap: var(--s-8); margin-inline-start: auto; }
+  .find input { width: 220px; min-height: var(--control); padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); }
   .body { display: grid; grid-template-columns: 168px 1fr; min-height: 0; }
   .body.nothumbs { grid-template-columns: 1fr; }
   main { min-width: 0; min-height: 0; }

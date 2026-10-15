@@ -42,3 +42,4 @@ button { cursor: pointer; }
 .btn.icon:hover { background: var(--green-soft); color: var(--ink); }
 .btn:disabled { opacity: .5; cursor: default; }
 svg.icon { width: 18px; height: 18px; flex: none; }
+html, body { overflow: hidden; }
