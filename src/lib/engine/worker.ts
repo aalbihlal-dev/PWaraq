@@ -1,18 +1,24 @@
 // One MuPDF engine in a background thread. Pages are read once into display lists (kept, least recently used
 // first out), so drawing again at another zoom or drawing a zoom tile does not re-read the PDF.
-import * as mupdf from '../../../engine/mupdf-wasm/dist/mupdf.js';
+import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 
-mupdf.setGraphicsMinLineWidth(1); // CAD hairlines stay visible when zoomed out (Waraq's engine build)
+// The engine (11 MB WebAssembly) loads after this worker is already listening: a message that arrives while it
+// loads (a file opened right at start-up) waits for it instead of being lost.
+let mupdf: typeof MuPDF;
+const engine = import('../../../engine/mupdf-wasm/dist/mupdf.js').then((m) => {
+  mupdf = m;
+  m.setGraphicsMinLineWidth(1); // CAD hairlines stay visible when zoomed out (Waraq's engine build)
+});
 
 type Req = { id: number; op: string; [k: string]: any };
-let doc: mupdf.Document | null = null;
-const lists = new Map<number, { list: mupdf.DisplayList; heavy: boolean }>();
+let doc: MuPDF.Document | null = null;
+const lists = new Map<number, { list: MuPDF.DisplayList; heavy: boolean }>();
 // Pages kept in memory per worker. A heavy CAD page can need ~800 MB (A0 drawing, 14 M drawing commands), so a
 // worker keeps at most one heavy page, and up to 6 ordinary ones.
 // shortcut: "heavy" = took over 1.5 s to read (memory is not measurable from here); measure the heap if this misfires.
 const KEEP = 6, HEAVY_MS = 1500;
 
-function list(n: number): mupdf.DisplayList {
+function list(n: number): MuPDF.DisplayList {
   const hit = lists.get(n);
   if (hit) { lists.delete(n); lists.set(n, hit); return hit.list; } // most recently used goes last
   const t0 = performance.now(), page = doc!.loadPage(n), l = page.toDisplayList();
@@ -25,7 +31,7 @@ function list(n: number): mupdf.DisplayList {
 }
 
 // MuPDF RGB samples -> RGBA ImageBitmap the page can draw directly
-function bitmap(pix: mupdf.Pixmap): Promise<ImageBitmap> {
+function bitmap(pix: MuPDF.Pixmap): Promise<ImageBitmap> {
   const w = pix.getWidth(), h = pix.getHeight(), rgb = pix.getPixels(), rgba = new Uint8ClampedArray(w * h * 4);
   for (let i = 0, j = 0; i < rgb.length; i += 3, j += 4) { rgba[j] = rgb[i]; rgba[j + 1] = rgb[i + 1]; rgba[j + 2] = rgb[i + 2]; rgba[j + 3] = 255; }
   pix.destroy();
@@ -53,6 +59,8 @@ const ops: Record<string, (r: Req) => any> = {
     l.run(dev, mupdf.Matrix.identity); dev.close(); dev.destroy();
     return bitmap(pix);
   },
+  // read a page into memory ahead of time (e.g. its image came from the cache, but zooming will need it)
+  warm(r) { list(r.page); return true; },
   // text lines with their box (points, top-left origin), for the selectable text layer
   text(r) {
     const p = doc!.loadPage(r.page), st = p.toStructuredText('preserve-whitespace'), out: any[] = [];
@@ -70,6 +78,7 @@ const ops: Record<string, (r: Req) => any> = {
 
 self.onmessage = async ({ data }: MessageEvent<Req>) => {
   try {
+    await engine;
     const result = await ops[data.op](data);
     (self as any).postMessage({ id: data.id, result }, result instanceof ImageBitmap ? [result] : []);
   } catch (e) {

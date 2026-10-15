@@ -8,6 +8,18 @@ when 1.0 is better at every everyday task.
 - **Rebuild alongside** 0.3.x, in phases that each ship something usable.
 - **Tauri** desktop shell (Windows' built-in WebView2) instead of Electron.
 
+## Owner's direction (15 Oct 2026)
+- **Colours: the Waraq palette of 0.3.x** (paper #fafbf8, green #15775d, mint, ink) everywhere; no automatic dark
+  theme from Windows.
+- **Branded window top bar** in the desktop app (Tauri, Phase 4): no Windows title bar; the Waraq bar *is* the title
+  bar (logo, file name, tasks, our own minimise / maximise / close, drag to move).
+- **Drawings 100 % crisp**: page images at exactly the screen's resolution, one image pixel per screen pixel, page
+  boxes on whole screen pixels, CAD hairlines at least 1 px (engine build). Done in Phase 1.
+- **Organize and Edit like Adobe Acrobat / PDFCraft** (Phases 2–3): Organize = full-window page grid with
+  multi-select, drag to reorder, rotate / delete / insert / extract / split between pages, insert from file;
+  Edit = click text to edit it in place in its own font, select and move / resize / replace images, add text and
+  images, right-hand options panel.
+
 ## Why 0.3.x feels like a 6 (root causes)
 1. Patched, not designed: 20–50 KB files with lines up to 3,600 characters, 7 stylesheets overriding each other
    (54 `!important`). Every fix risks another break.

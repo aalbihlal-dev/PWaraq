@@ -26,12 +26,13 @@
     if (zoom === 'page') return Math.max(0.05, Math.min(w / sizes[current - 1].w, h / sizes[current - 1].h));
     return zoom;
   }
-  // device pixels per point for the whole-page image: steps of √2 so small zoom changes reuse the image
+  // Device pixels per point for the whole-page image: exactly the screen's, so the image is never resampled
+  // (any resampling softens CAD hairlines); beyond MAX_PIXELS the visible part is drawn as an exact tile instead.
   function imageScale(n: number) {
-    const want = scale * dpr(), step = Math.pow(2, Math.round(Math.log2(want) * 2) / 2);
-    const cap = Math.sqrt(MAX_PIXELS / (sizes[n].w * sizes[n].h));
-    return Math.min(step, cap);
+    return Math.min(scale * dpr(), Math.sqrt(MAX_PIXELS / (sizes[n].w * sizes[n].h)));
   }
+  // page box on whole screen pixels, so images line up with the pixel grid
+  const px = (v: number) => Math.round(v * dpr()) / dpr();
 
   let settle: ReturnType<typeof setTimeout>;
   function schedule(delay = 0) { clearTimeout(settle); settle = setTimeout(drawVisible, delay); }
@@ -44,19 +45,28 @@
 
   async function drawPage(n: number) {
     const p = pages[n], s = imageScale(n);
+    // zoomed in beyond one image: the visible part first (what you look at), the whole-page image after it
+    const deep = s < scale * dpr() - 1e-6;
+    if (deep) await drawTile(n);
     if (p.drawn !== s) {
       try {
         let bmp = await cached(n, s);
+        if (bmp) pool.run({ op: 'warm', page: n, priority: 3, key: 'warm' + n, args: {} }).catch(() => {}); // ready for zoom tiles
         if (!bmp) {
           const t0 = performance.now();
-          bmp = await pool.run<ImageBitmap>({ op: 'render', page: n, priority: n === current - 1 ? 0 : 1, key: 'page' + n, args: { scale: s } });
+          bmp = await pool.run<ImageBitmap>({ op: 'render', page: n, priority: deep ? 2 : n === current - 1 ? 0 : 1, key: 'page' + n, args: { scale: s } });
           if (performance.now() - t0 > 1500) remember(n, s, bmp); // heavy page: keep it for the next time this file is opened
         }
-        if (p.canvas) { p.canvas.width = bmp.width; p.canvas.height = bmp.height; p.canvas.getContext('2d')!.drawImage(bmp, 0, 0); p.drawn = s; }
+        if (p.canvas) {
+          p.canvas.width = bmp.width; p.canvas.height = bmp.height; p.canvas.getContext('2d')!.drawImage(bmp, 0, 0); p.drawn = s;
+          // one image pixel per screen pixel when drawn at the screen's resolution; otherwise fill the page box
+          const exact = Math.abs(s - scale * dpr()) < 1e-6;
+          p.canvas.style.width = exact ? bmp.width / dpr() + 'px' : '100%'; p.canvas.style.height = exact ? bmp.height / dpr() + 'px' : '100%';
+        }
         bmp.close();
       } catch { return; }
     }
-    drawTile(n);
+    if (!deep) drawTile(n);
     loadText(n);
   }
 
@@ -105,11 +115,12 @@
     const x0 = Math.max(0, box.left - r.left), y0 = Math.max(0, box.top - r.top);
     const x1 = Math.min(r.width, box.right - r.left), y1 = Math.min(r.height, box.bottom - r.top);
     if (x1 <= x0 || y1 <= y0) return;
-    const d = dpr(), args = { scale: s, x: Math.floor(x0 * d), y: Math.floor(y0 * d), w: Math.ceil((x1 - x0) * d), h: Math.ceil((y1 - y0) * d) };
+    // never more than 4096 x 4096 device pixels: the visible area is never larger, a bad layout must not ask for more
+    const d = dpr(), args = { scale: s, x: Math.floor(x0 * d), y: Math.floor(y0 * d), w: Math.min(4096, Math.ceil((x1 - x0) * d)), h: Math.min(4096, Math.ceil((y1 - y0) * d)) };
     try {
       const bmp = await pool.run<ImageBitmap>({ op: 'render', page: n, priority: 0, key: 'tile' + n, args });
       if (Math.abs(scale * dpr() - s) > 1e-6) { bmp.close(); return; } // zoom changed meanwhile
-      Object.assign(p.tile.style, { left: x0 + 'px', top: y0 + 'px', width: x1 - x0 + 'px', height: y1 - y0 + 'px' });
+      Object.assign(p.tile.style, { left: args.x / d + 'px', top: args.y / d + 'px', width: bmp.width / d + 'px', height: bmp.height / d + 'px' });
       p.tile.width = bmp.width; p.tile.height = bmp.height; p.tile.getContext('2d')!.drawImage(bmp, 0, 0); p.tile.hidden = false;
       bmp.close();
     } catch {}
@@ -122,7 +133,7 @@
     const fx = (scroller.scrollLeft + cx - box.left) / scroller.scrollWidth, fy = (scroller.scrollTop + cy - box.top) / scroller.scrollHeight;
     zoom = typeof next === 'number' ? Math.min(16, Math.max(0.05, next)) : next;
     scale = fitScale();
-    pages.forEach((p) => p.tile && (p.tile.hidden = true));
+    pages.forEach((p) => { if (p.tile) p.tile.hidden = true; if (p.canvas) { p.canvas.style.width = '100%'; p.canvas.style.height = '100%'; } }); // stretch until redrawn
     await tick();
     scroller.scrollLeft = fx * scroller.scrollWidth - (cx - box.left);
     scroller.scrollTop = fy * scroller.scrollHeight - (cy - box.top);
@@ -179,7 +190,7 @@
 <div class="scroller" bind:this={scroller} onwheel={onWheel} onpointerdown={onDown} onpointermove={onMove}
   onpointerup={() => (drag = null)} onscroll={() => schedule(120)} class:grab={space} role="document" aria-label={t('pages')}>
   {#each sizes as size, n}
-    <div class="page" data-n={n} bind:this={pages[n].el} style:width="{size.w * scale}px" style:height="{size.h * scale}px"
+    <div class="page" data-n={n} bind:this={pages[n].el} style:width="{px(size.w * scale)}px" style:height="{px(size.h * scale)}px"
       style:--s={scale} aria-label="{t('page')} {n + 1}">
       <canvas bind:this={pages[n].canvas}></canvas>
       <canvas class="tile" bind:this={pages[n].tile} hidden></canvas>
