@@ -68,10 +68,27 @@ Verdict: **viable, with two conditions**
    pages in parallel; whole-page images are cached per zoom step and refined with tiles; text for search is
    extracted once in the background.
 
+## Portfolio (حافظة) — centre of Phase 2 (owner approved the idea, 16 Oct 2026)
+User story (a student): *"I have a course; every week I make a file. I want an app that gathers them into one big
+file that I can keep editing each time — change the order and add pages as images when I need to."*
+A Portfolio is a project that remembers its parts; the big PDF is produced from it whenever needed.
+1. **New Portfolio** from the start screen (name = course).
+2. **Add the week's file** (PDF or images) → a new **section** ("Week 3", renameable); originals kept untouched.
+3. **Arrange:** drag sections; inside a section drag pages (multi-select), rotate, delete — the same page grid
+   as Organize, built once.
+4. **Add pages as images** (photo of notes, whiteboard, phone scan) anywhere, sized to the neighbouring pages.
+5. **Optional, one switch each:** cover page, table of contents of the sections, page numbers, bookmarks per section.
+6. **Export combined PDF** any time; the portfolio stays saved — next week: open, add, export.
+7. **Replace a section** (corrected Week 3) in place, keeping the arrangement.
+- **Saved as one portable `.waraq` file** (ZIP: `manifest.json` with sections/pages/rotations/settings + the original
+  files); recent portfolios on the start screen; on the website kept in browser storage (OPFS) with save/load `.waraq`.
+- Later: desktop **watch folder** (new files in the course folder appear automatically); add pages from the phone camera.
+
 ## Phases (each ships)
 1. **Foundation:** project, custom MuPDF WASM build, worker pool, viewer (large drawings, zoom/pan, thumbnails,
    search), new workspace shell, Open/Close/Recent, end-to-end test harness. Ships as "Waraq 1.0 preview".
-2. **Organize & everyday tools:** reorder/rotate/delete/insert, merge, split, compress, crop, page numbers,
+2. **Organize + Portfolio & everyday tools:** Organize page grid (Acrobat/PDFCraft style), Portfolio on top of it;
+   reorder/rotate/delete/insert, merge, split, compress, crop, page numbers,
    watermark, sign, protect/unlock, export.
 3. **Editing & documents:** real text/image editing (Arabic with HarfBuzz), redaction, forms, OCR (text layer),
    Office/CAD via packs.
