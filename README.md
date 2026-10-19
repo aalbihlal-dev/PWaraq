@@ -38,6 +38,8 @@ you explicitly connect a processing engine of your own.
 - **Organize like a desktop editor:** full-window grid, multi-select, drag several pages, insert between pages, undo.
 - **Page editor (first version):** add text and photos to a page, move, resize or replace photos, replace a line of
   text — opened from Organize, Portfolio or the Edit task.
+- **Signing mode:** saved signatures, signature + date in one click, finds where to sign, many files in a row.
+- **Everyday tools:** split, crop, page numbers, watermark, compress, pages as images, password protect and unlock.
 - **Portfolio (حافظة):** sections made from files, titles taken from file names, divider pages, a table of contents
   with page numbers and links, page numbers for the whole portfolio or one section, bookmarks, and a portable
   `.waraq` file.
