@@ -95,6 +95,29 @@ Still to do: drag whole sections (now ↑/↓ buttons), cover page, contents/div
 weights are embedded whole, ~120 KB), harakat and Persian letters on written pages (with HarfBuzz, Phase 3),
 desktop watch folder, phone camera pages.
 
+## Page editor — first version (19 Oct 2026; owner asked to edit one page's photos and text "full like PDFCraft")
+Opened by double-clicking a page (or its "Edit page" hover button / toolbar button) in Organize and Portfolio, and from
+the **Edit** task in the workspace (current page). Acrobat/PDFCraft layout: page large in the middle, tools on top
+(Select, Add text, Add photo, undo/redo, delete, Cancel, Save page), options on the right, no pop-ups.
+- **Add text:** click to place, type, move (bar above the box), width (corner), size, colour (black + Waraq palette),
+  bold, alignment; a new box follows the direction typed (Arabic to the right). Written as **real text in Tajawal** via
+  `pageWriter` (Arabic joined, own ToUnicode), wrapped at the box width — never a picture.
+- **Photos:** add (centre of the page), move, resize keeping the shape (corner), replace, delete; existing photos in the
+  PDF too (MuPDF lists image blocks). An existing photo is taken away by emptying its own image resource when only it
+  uses it (found by emptying each in turn), else by redaction of its box; moved photos keep their own image object.
+- **Existing text:** click a line → a text box in its place with its text, size, colour, weight; the old line is
+  removed by MuPDF redaction (text only), the new text written in Tajawal. The panel says so: the line's own font
+  comes with HarfBuzz (Phase 3). Only lines that read left to right on the page as seen can be replaced.
+- **Undo/redo** in the editor; **Save page** builds one edited page (engine job `edit`) that becomes a new one-page
+  source and replaces the page in the list (Organize: one undo step; Portfolio: kept as a file of the portfolio, so
+  sections, numbers, contents and `.waraq` keep working; Edit task: the document is rebuilt and marked changed).
+- Code: `src/lib/engine/editpage.ts` (pure: `pageObjects`, `editPage`), worker jobs `objects` / `edit`,
+  `src/components/PageEditor.svelte`. Checks: `tests/unit/editpage.test.mjs` (7), `tests/e2e/editor.spec.ts` (3),
+  editor screen in `audit.spec.ts`. Screenshots: `../Archive-2026-10-12/screenshots/waraq-1.0-preview/page-editor-2026-10-19/`.
+Still to do: text in the line's own font and harakat (HarfBuzz), editing a whole paragraph as one block (now line by
+line), turning/cropping photos, zoom inside the editor, arrow-key nudging, warning before leaving with unsaved edits,
+text on turned (vertical) lines.
+
 ## Phases (each ships)
 1. **Foundation — done (19 Oct):** project, custom MuPDF WASM build, worker pool, viewer (large drawings, zoom/pan,
    thumbnails, search), workspace shell, Open/Close/Recent, end-to-end tests + design-rule test. "Waraq 1.0 preview":
@@ -103,7 +126,7 @@ desktop watch folder, phone camera pages.
    drag several pages, turn, delete, insert file/photo/blank (toolbar, "+" between pages, drop), extract, undo/redo,
    save; applied when going back to View. Portfolio — **first version done** (see above). Next: merge, split,
    compress, crop, page numbers/watermark for ordinary files, sign, protect/unlock, export.
-3. **Editing & documents:** real text/image editing (Arabic with HarfBuzz), redaction, forms, OCR (text layer),
-   Office/CAD via packs.
+3. **Editing & documents:** page editor — **first version done (19 Oct)**, see above; next: text in its own font
+   (Arabic with HarfBuzz), redaction tool, forms, OCR (text layer), Office/CAD via packs.
 4. **Desktop & website:** Tauri shell, file associations and right-click menu, packs, signed updater, branded
    installer; new product page + /app; switch 0.3.x users over.

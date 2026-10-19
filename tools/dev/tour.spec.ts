@@ -64,4 +64,52 @@ test('tour', async ({ page }) => {
   await shot(page, '6-start-recent.png');
   await page.locator('.lang').click();
   await shot(page, '7-start-english.png');
+
+  // 6. the page editor (Arabic): a page of the portfolio gets an Arabic note and a photo, in its place in the portfolio
+  await page.locator('.lang').click();
+  await page.locator('.recent .card', { hasText: 'مقرر التصميم' }).first().click();
+  await expect(page.locator('.cell')).toHaveCount(5);
+  await page.locator('.cell').nth(1).dblclick();
+  const ready = () => expect(page.locator('.editor .sheet .hit').first()).toBeAttached({ timeout: 30_000 });
+  await ready();
+  await page.locator('.editor .tools .btn').nth(1).click(); // Add text
+  let sheet = (await page.locator('.editor .sheet').boundingBox())!, s = sheet.width / 595;
+  await page.mouse.click(sheet.x + 520 * s, sheet.y + 600 * s);
+  await page.keyboard.type('ملاحظة: راجع هذا الدرس قبل الاختبار');
+  await page.locator('.editor .side select').selectOption('20');
+  await page.locator('.editor .swatch').nth(2).click(); // green
+  await page.locator('.editor .side .row .btn').first().click(); // bold
+  const [c3] = await Promise.all([page.waitForEvent('filechooser'), page.locator('.editor .tools .btn').nth(2).click()]);
+  await c3.setFiles([photo]);
+  await page.waitForTimeout(800);
+  await shot(page, '8-editor-portfolio-page.png');
+  await page.locator('.editor .tools .btn.primary').click(); // Save page
+  await expect(page.locator('.cell')).toHaveCount(5);
+  await page.waitForTimeout(1200);
+  await shot(page, '9-portfolio-after-edit.png');
+  const [d2] = await Promise.all([page.waitForEvent('download'), page.locator('.side .btn.primary').click()]);
+  const edited = m.Document.openDocument(fs.readFileSync((await d2.path())!), 'application/pdf');
+  fs.writeFileSync(path.join(out, '10-edited-page-exported.png'), edited.loadPage(3).toPixmap(m.Matrix.scale(1.3, 1.3), m.ColorSpace.DeviceRGB, false).asPNG());
+
+  // 7. a PDF in View → Edit: a photo moved, another replaced, a heading replaced with Arabic
+  await page.locator('.end .btn').nth(2).click(); // close
+  await page.locator('input[type=file]').first().setInputFiles(fx('edit.pdf'));
+  await page.locator('.task').nth(2).click(); // Edit
+  await ready();
+  sheet = (await page.locator('.editor .sheet').boundingBox())!; s = sheet.width / 595;
+  await page.locator('.editor .hit.photo').first().click();
+  const b = (await page.locator('.obj.pic.on').boundingBox())!;
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2); await page.mouse.down();
+  await page.mouse.move(b.x + b.width / 2 + 60 * s, b.y + b.height / 2 + 260 * s, { steps: 8 }); await page.mouse.up();
+  await page.locator('.editor .hit.photo').first().click();
+  const [c4] = await Promise.all([page.waitForEvent('filechooser'), page.locator('.editor .side .btn').first().click()]); // replace photo
+  await c4.setFiles([photo]);
+  await page.locator('.editor .hit.line').first().click();
+  await page.locator('.obj.text.on textarea').fill('عنوان جديد للتقرير');
+  await page.waitForTimeout(800);
+  await shot(page, '11-editor-photo-and-heading.png');
+  await page.locator('.editor .tools .btn.primary').click();
+  await expect(page.locator('.mod')).toBeVisible({ timeout: 20_000 });
+  await page.waitForTimeout(1500);
+  await shot(page, '12-view-after-edit.png');
 });

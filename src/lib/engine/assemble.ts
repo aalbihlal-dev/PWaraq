@@ -64,15 +64,22 @@ function pageNumber(m: typeof MuPDF, out: MuPDF.PDFDocument, i: number, n: numbe
   const r = p.getInheritable('Rotate'), rot = r.isNumber() ? r.asNumber() : 0;
   const label = String(n), size = 10, half = (label.length * 0.556 * size) / 2, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, gap = 20;
   const tm = ({ 0: [1, 0, 0, 1, cx - half, y0 + gap], 90: [0, 1, -1, 0, x1 - gap, cy - half], 180: [-1, 0, 0, -1, cx + half, y1 - gap], 270: [0, -1, 1, 0, x0 + gap, cy + half] } as Record<number, number[]>)[rot] ?? [1, 0, 0, 1, cx - half, y0 + gap];
+  stamp(out, p, `q BT /WaraqN ${size} Tf 0.37 0.45 0.41 rg ${tm.map((n) => +n.toFixed(2)).join(' ')} Tm (${label}) Tj ET Q`, { Font: { WaraqN: numberFont! } });
+}
+
+/** Draws `ops` on top of page `p`, adding `resources` (e.g. { Font: { Name: ref } }) to the page's resources. The page's
+ *  own drawing is wrapped in q … Q so its graphics state cannot move or recolour what is added. */
+export function stamp(out: MuPDF.PDFDocument, p: MuPDF.PDFObject, ops: string, resources: Record<string, Record<string, MuPDF.PDFObject>>) {
   let res = p.getInheritable('Resources');
   if (!res.isDictionary()) { res = out.newDictionary(); p.put('Resources', res); }
-  let fonts = res.get('Font');
-  if (!fonts.isDictionary()) { fonts = out.newDictionary(); res.put('Font', fonts); }
-  fonts.put('WaraqN', numberFont);
-  // the page's own drawing is wrapped in q … Q so its graphics state cannot move or recolour the number
+  for (const [kind, named] of Object.entries(resources)) {
+    let dict = res.get(kind);
+    if (!dict.isDictionary()) { dict = out.newDictionary(); res.put(kind, dict); }
+    for (const [name, ref] of Object.entries(named)) dict.put(name, ref);
+  }
   const contents = p.get('Contents'), all = out.newArray();
   all.push(out.addStream('q\n', {}));
   if (contents.isArray()) contents.forEach((c) => all.push(c)); else if (!contents.isNull()) all.push(contents);
-  all.push(out.addStream(`\nQ q BT /WaraqN ${size} Tf 0.37 0.45 0.41 rg ${tm.map((n) => +n.toFixed(2)).join(' ')} Tm (${label}) Tj ET Q\n`, {}));
+  all.push(out.addStream(`\nQ ${ops}\n`, {}));
   p.put('Contents', all);
 }

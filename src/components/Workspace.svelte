@@ -6,18 +6,27 @@
   import Viewer from './Viewer.svelte';
   import Thumbnails from './Thumbnails.svelte';
   import Organize from './Organize.svelte';
+  import PageEditor, { type Saved } from './PageEditor.svelte';
 
   let { pool, sizes, name, modified, onOpen, onClose, onSave, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; modified: boolean;
     onOpen: () => void; onClose: () => void; onSave: () => void; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
-  let mode = $state<'view' | 'organize'>('view'), organize = $state<Organize>(), organized = $state(false), applying = $state(false);
+  let mode = $state<'view' | 'organize' | 'edit'>('view'), organize = $state<Organize>(), organized = $state(false), applying = $state(false);
   // leaving Organize applies its changes: the document is rebuilt and opened again in View
   async function task_(next: Key) {
     if (next === mode) return;
-    if (next === 'organize') { mode = 'organize'; return; }
-    if (organized && organize) { applying = true; try { await onReplace(await organize.build()); } finally { applying = false; } }
-    else mode = 'view';
+    if (next === 'organize' && mode === 'view') { mode = 'organize'; return; }
+    if (mode === 'organize' && organized && organize) { applying = true; try { await onReplace(await organize.build()); } finally { applying = false; } }
+    else mode = next === 'edit' ? 'edit' : next === 'organize' ? 'organize' : 'view';
+  }
+  // Edit: the page editor on the current page; saving puts the edited page in its place and opens the document again
+  let editPage = $state(1);
+  async function edited(r: Saved) {
+    applying = true;
+    try { await onReplace(await pool.build({ items: sizes.map((_, i) => (i === editPage - 1 ? { doc: r.doc, page: 0 } : { doc: 0, page: i })) })); }
+    finally { applying = false; }
   }
   async function save() {
+    if (mode === 'edit') return; // the editor saves its page first (Save page)
     if (mode === 'organize' && organized && organize) { applying = true; try { await onReplace(await organize.build()); } finally { applying = false; } }
     onSave();
   }
@@ -64,19 +73,24 @@
     <strong class="name" title={name}>{name}</strong>
     <nav class="tasks" aria-label="Tasks">
       {#each tasks as task}
-        {@const live = task === 'view' || task === 'organize'}
-        <button class="task" class:on={task === mode} disabled={!live || applying} title={live ? '' : t('soon')} onclick={() => task_(task)}>{t(task)}</button>
+        {@const live = task === 'view' || task === 'organize' || task === 'edit'}
+        <button class="task" class:on={task === mode} disabled={!live || applying} title={live ? '' : t('soon')} onclick={() => { if (task === 'edit' && mode !== 'edit') editPage = current; task_(task); }}>{t(task)}</button>
       {/each}
     </nav>
     <span class="end">
       {#if modified || organized}<span class="mod">{t('modified')}</span>{/if}
-      <button class="btn" class:primary={modified} onclick={save} disabled={applying}>{@html icon('download')}{t('save')}</button>
+      <button class="btn" class:primary={modified} onclick={save} disabled={applying || mode === 'edit'}>{@html icon('download')}{t('save')}</button>
       <button class="btn" onclick={onOpen}>{@html icon('upload')}{t('openShort')}</button>
       <button class="btn" onclick={onClose}>{@html icon('close')}{t('close')}</button>
       <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
     </span>
   </header>
-  {#if mode === 'organize'}
+  {#if mode === 'edit'}
+  <div class="orgwrap">
+    {#if applying}<p class="applying" role="status">{t('applying')}</p>{/if}
+    <PageEditor {pool} base={{ doc: 0, page: editPage - 1 }} label="{t('page')} {editPage} {t('of')} {sizes.length}" onSave={edited} onCancel={() => (mode = 'view')} />
+  </div>
+  {:else if mode === 'organize'}
   <div class="orgwrap">
     {#if applying}<p class="applying" role="status">{t('applying')}</p>{/if}
     <Organize bind:this={organize} bind:changed={organized} {pool} {sizes} {name} />
@@ -115,7 +129,7 @@
 <style>
   .ws { height: 100%; display: grid; grid-template-rows: auto auto 1fr; }
   .orgwrap { grid-row: 2 / 4; min-height: 0; position: relative; }
-  .applying { position: absolute; inset: 0; z-index: 2; margin: 0; display: grid; place-items: center; background: #fafbf8cc; font-size: var(--fs-16); font-weight: 600; }
+  .applying { position: absolute; inset: 0; z-index: 2; margin: 0; display: grid; place-items: center; background: var(--veil); font-size: var(--fs-16); font-weight: 600; }
   .mod { color: var(--muted); font-size: var(--fs-12); white-space: nowrap; }
   .bar { display: flex; align-items: center; gap: var(--s-12); padding: var(--s-8) var(--s-16); background: var(--surface); border-bottom: 1px solid var(--line); min-width: 0; }
   .name { max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-14); }

@@ -2,6 +2,7 @@
 // first out), so drawing again at another zoom or drawing a zoom tile does not re-read the PDF.
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 import { assemble } from './assemble';
+import { editPage, pageObjects, type Edit } from './editpage';
 import type { Fonts } from './textpage';
 
 // The engine (11 MB WebAssembly) loads after this worker is already listening: a message that arrives while it
@@ -100,6 +101,22 @@ const ops: Record<string, (r: Req) => any> = {
   async build(r) {
     if (r.build.items.some((it: any) => it.divider || it.toc)) await loadFonts();
     return assemble(mupdf, source, r.build, () => fonts!);
+  },
+  // page editor: the lines of text and photos on a page
+  objects(r) { const p = source(r.doc).doc.loadPage(r.page); try { return pageObjects(p); } finally { p.destroy(); } },
+  // page editor: the page with `edits` applied — a one-page PDF, or with `scale` the editor's background (what the edits
+  // take away already gone) as a picture
+  async edit(r) {
+    if (r.edits.some((e: Edit) => e.kind === 'text')) await loadFonts();
+    const pdf = source(r.doc).doc.asPDF();
+    if (!pdf) throw new Error('not a PDF: ' + r.doc);
+    const out = editPage(mupdf, pdf, r.page, r.edits, r.photos ?? [], () => fonts!, r.scale != null);
+    try {
+      if (r.scale == null) return out.saveToBuffer('garbage=compact').asUint8Array().slice();
+      const p = out.loadPage(0), pix = p.toPixmap(mupdf.Matrix.scale(r.scale, r.scale), mupdf.ColorSpace.DeviceRGB, false);
+      p.destroy();
+      return bitmap(pix);
+    } finally { out.destroy(); }
   },
 };
 

@@ -26,6 +26,16 @@ for (const lang of ['en', 'ar']) test(`design rules hold on every screen (${lang
   await clean(page, 'organize');
   await page.screenshot({ path: info.outputPath(`organize-${lang}.png`) });
 
+  await page.locator('.cell').first().dblclick(); // the page editor
+  await expect(page.locator('.editor .sheet .hit').first()).toBeAttached({ timeout: 20_000 });
+  await clean(page, 'editor');
+  await page.locator('.editor .hit.line').nth(1).click(); // a line of text: the text options
+  await expect(page.locator('.editor .swatch').first()).toBeVisible();
+  await clean(page, 'editor text options');
+  await page.screenshot({ path: info.outputPath(`editor-${lang}.png`) });
+  await page.locator('.editor .tools .btn').nth(6).click(); // Cancel
+  await expect(page.locator('.cell')).toHaveCount(3);
+
   await page.locator('.end .btn').filter({ has: page.locator('svg') }).nth(2).click(); // Close
   await page.locator('.actions .btn').nth(1).click(); // New portfolio
   await clean(page, 'empty portfolio');
