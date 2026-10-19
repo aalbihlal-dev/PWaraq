@@ -1,6 +1,7 @@
 // A pool of engine workers. Page n always goes to worker n % size, so that worker keeps the page in memory.
 // Each worker runs one job at a time; waiting jobs stay here, so they can be re-prioritised or dropped
 // (a page scrolled away) before they reach the engine, which cannot be interrupted mid-drawing.
+import type { Build } from './assemble';
 
 export type Job = { op: string; page?: number; priority: number; args: Record<string, any>; key?: string };
 type Waiting = Job & { resolve: (v: any) => void; reject: (e: Error) => void; queued?: number; started?: number };
@@ -15,6 +16,7 @@ export class EnginePool {
   private queues: Waiting[][];
   private replies = new Map<number, Waiting>();
   private nextId = 1;
+  private nextDoc = 1;
   sizes: { w: number; h: number }[] = [];
 
   // Each worker may hold a heavy page (~800 MB for an A0 CAD sheet): fewer workers on PCs with less memory.
@@ -25,12 +27,32 @@ export class EnginePool {
     this.workers.forEach((w, i) => (w.onmessage = ({ data }) => this.reply(i, data)));
   }
 
-  /** Opens the document in every worker (each keeps its own copy). */
+  /** Opens the document as source 0 in every worker (each keeps its own copy), forgetting all other sources. */
   async open(bytes: Uint8Array) {
-    this.queues.forEach((q) => q.splice(0).forEach((j) => j.reject(new Error('cancelled'))));
-    const all = await Promise.all(this.workers.map((_, i) => this.direct(i, 'open', { bytes: bytes.slice() })));
-    this.sizes = all[0].sizes;
+    await this.reset();
+    this.sizes = await this.load(0, bytes);
     return this.sizes;
+  }
+
+  /** Forgets every open source (a new document or portfolio). */
+  async reset() {
+    this.queues.forEach((q) => q.splice(0).forEach((j) => j.reject(new Error('cancelled'))));
+    this.nextDoc = 1;
+    await Promise.all(this.workers.map((_, i) => this.direct(i, 'reset', {})));
+  }
+
+  /** Opens one more source (a PDF or an image) next to the document; jobs name it by `args.doc`. */
+  async add(bytes: Uint8Array, mime = 'application/pdf') {
+    const id = this.nextDoc++;
+    return { id, sizes: await this.load(id, bytes, mime) };
+  }
+
+  /** A new PDF from pages of the open sources. */
+  build(build: Build) { return this.run<Uint8Array>({ op: 'build', page: 0, priority: 0, args: { build } }); }
+
+  private async load(doc: number, bytes: Uint8Array, mime = 'application/pdf'): Promise<{ w: number; h: number }[]> {
+    const all = await Promise.all(this.workers.map((_, i) => this.direct(i, 'open', { doc, mime, bytes: bytes.slice() })));
+    return all[0].sizes;
   }
 
   /** Queues a job; a job with the same key replaces the waiting one (e.g. a newer zoom for the same page). */

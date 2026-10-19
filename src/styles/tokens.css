@@ -7,7 +7,7 @@
 
 :root {
   /* Waraq colours (same palette as 0.3.x): paper, Waraq green, soft mint */
-  --green: #15775d; --green-deep: #0f5a46; --green-soft: #eaf3eb; --ink: #233c36; --muted: #5f7369;
+  --green: #15775d; --green-deep: #0f5a46; --green-soft: #eaf3eb; --ink: #233c36; --muted: #56695f;
   --paper: #fafbf8; --surface: #ffffff; --canvas: #eef1eb; --line: #e0e7de; --focus: #15775d; --danger: #a34438;
   --fs-12: 12px; --fs-14: 14px; --fs-16: 16px; --fs-18: 18px; --fs-20: 20px; --fs-24: 24px; --fs-32: 32px; --fs-40: 40px;
   --s-4: 4px; --s-8: 8px; --s-12: 12px; --s-16: 16px; --s-24: 24px; --s-32: 32px; --s-48: 48px;
