@@ -53,3 +53,20 @@ test('organize: extract the selected pages into a new file', async ({ page }) =>
   expect(file.name).toBe('three (Pages 2-3).pdf');
   expect(m.Document.openDocument(file.bytes, 'application/pdf').countPages()).toBe(2);
 });
+
+test('heavy CAD drawing: deleting a sheet in Organize is applied at once, the saved file keeps every drawing', async ({ page }) => {
+  const cad = (await import('node:path')).join(import.meta.dirname, '..', '..', 'public', '_test', 'mv-trenches.pdf');
+  test.skip(!(await import('node:fs')).existsSync(cad), 'owner drawing not on this machine');
+  test.setTimeout(120_000);
+  await open(page, cad);
+  await page.getByRole('button', { name: 'Organize' }).click();
+  await expect(page.locator('.cell')).toHaveCount(10);
+  await page.locator('.cell').nth(1).click();
+  await page.keyboard.press('Delete');
+  const t0 = Date.now();
+  await page.getByRole('button', { name: 'View' }).click();
+  await expect(page.locator('.page')).toHaveCount(9);
+  expect(Date.now() - t0).toBeLessThan(3000); // was 14 s while workers were busy drawing sheets
+  const file = await saved(page, () => page.getByRole('button', { name: 'Save' }).first().click());
+  expect(m.Document.openDocument(file.bytes, 'application/pdf').countPages()).toBe(9);
+});

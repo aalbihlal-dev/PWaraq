@@ -18,9 +18,10 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node -e \"require('fs').rmSync('dist/_test',{recursive:true,force:true})\"",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "preview": "vite preview",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:unit": "node --test \"tests/unit/*.test.mjs\""
   }
 }

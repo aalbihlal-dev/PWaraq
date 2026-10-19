@@ -68,28 +68,41 @@ Verdict: **viable, with two conditions**
    pages in parallel; whole-page images are cached per zoom step and refined with tiles; text for search is
    extracted once in the background.
 
-## Portfolio (حافظة) — centre of Phase 2 (owner approved the idea, 16 Oct 2026)
+## Portfolio (حافظة) — centre of Phase 2 (owner approved the idea, 16 Oct 2026; contents/divider wishes 18 Oct)
 User story (a student): *"I have a course; every week I make a file. I want an app that gathers them into one big
 file that I can keep editing each time — change the order and add pages as images when I need to."*
 A Portfolio is a project that remembers its parts; the big PDF is produced from it whenever needed.
-1. **New Portfolio** from the start screen (name = course).
-2. **Add the week's file** (PDF or images) → a new **section** ("Week 3", renameable); originals kept untouched.
-3. **Arrange:** drag sections; inside a section drag pages (multi-select), rotate, delete — the same page grid
-   as Organize, built once.
-4. **Add pages as images** (photo of notes, whiteboard, phone scan) anywhere, sized to the neighbouring pages.
-5. **Optional, one switch each:** cover page, table of contents of the sections, page numbers, bookmarks per section.
-6. **Export combined PDF** any time; the portfolio stays saved — next week: open, add, export.
-7. **Replace a section** (corrected Week 3) in place, keeping the arrangement.
-- **Saved as one portable `.waraq` file** (ZIP: `manifest.json` with sections/pages/rotations/settings + the original
-  files); recent portfolios on the start screen; on the website kept in browser storage (OPFS) with save/load `.waraq`.
-- Later: desktop **watch folder** (new files in the course folder appear automatically); add pages from the phone camera.
+Owner's additions (18 Oct): a **table of contents** whose lines carry page numbers and open their page; **page
+numbers** for the whole portfolio (renumbered as pages come and go) or for one section; each section's **title comes
+from its file** and is the contents line — if it is still the file name, the contents tool **highlights** it;
+**section divider pages** are their own feature (not "add page"): the contents jump to them and you **write the
+section name on them** in place.
+
+Built (19 Oct, `src/lib/portfolio.ts`, `src/components/Portfolio.svelte`):
+- New portfolio from the start screen; each added file (PDF or photo) becomes a section titled by its file name.
+- Sections in the page grid (same grid as Organize): drag pages within/between sections, turn, delete, "+" or drop to
+  insert pages/photos anywhere (a photo page takes the neighbouring page's size), replace a section's file in place.
+- Contents block above the sections = the contents tool: titles editable there (and in the section header and on the
+  divider card), file-name titles highlighted, live page numbers. Divider card per section, written on directly
+  (title + optional note). Options panel: contents on/off, dividers for all sections, page numbers (none / whole
+  portfolio / only one section), bookmarks per section, export PDF, save `.waraq`.
+- Export: contents pages (rows link to their page), dividers, pages, numbers, bookmarks — the contents and dividers are
+  **real text in Tajawal** (Arabic joined with the font's own letter shapes, right-to-left, copy/search give normal
+  Arabic) via `src/lib/engine/textpage.ts`.
+- Kept in browser storage at every change (OPFS folder: manifest + original files); recent portfolios on the start
+  screen; portable `.waraq` (ZIP: `manifest.json` + `files/`) opens from Open or by dropping it.
+Still to do: drag whole sections (now ↑/↓ buttons), cover page, contents/divider fonts subset (now the two Tajawal
+weights are embedded whole, ~120 KB), harakat and Persian letters on written pages (with HarfBuzz, Phase 3),
+desktop watch folder, phone camera pages.
 
 ## Phases (each ships)
-1. **Foundation:** project, custom MuPDF WASM build, worker pool, viewer (large drawings, zoom/pan, thumbnails,
-   search), new workspace shell, Open/Close/Recent, end-to-end test harness. Ships as "Waraq 1.0 preview".
-2. **Organize + Portfolio & everyday tools:** Organize page grid (Acrobat/PDFCraft style), Portfolio on top of it;
-   reorder/rotate/delete/insert, merge, split, compress, crop, page numbers,
-   watermark, sign, protect/unlock, export.
+1. **Foundation — done (19 Oct):** project, custom MuPDF WASM build, worker pool, viewer (large drawings, zoom/pan,
+   thumbnails, search), workspace shell, Open/Close/Recent, end-to-end tests + design-rule test. "Waraq 1.0 preview":
+   double-click `../Waraq 1.0 preview.cmd` (builds and opens it in its own Edge window).
+2. **Organize + Portfolio & everyday tools:** Organize page grid — **done (19 Oct)**: select (click/Ctrl/Shift),
+   drag several pages, turn, delete, insert file/photo/blank (toolbar, "+" between pages, drop), extract, undo/redo,
+   save; applied when going back to View. Portfolio — **first version done** (see above). Next: merge, split,
+   compress, crop, page numbers/watermark for ordinary files, sign, protect/unlock, export.
 3. **Editing & documents:** real text/image editing (Arabic with HarfBuzz), redaction, forms, OCR (text layer),
    Office/CAD via packs.
 4. **Desktop & website:** Tauri shell, file associations and right-click menu, packs, signed updater, branded

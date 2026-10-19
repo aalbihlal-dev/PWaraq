@@ -251,5 +251,5 @@
   .paper input { width: 100%; min-height: var(--control); border: 1px dashed var(--line); border-radius: var(--r-8); text-align: center; font-size: var(--fs-12); color: var(--muted); background: transparent; }
   .paper .rule { width: 32px; height: 3px; background: var(--green); }
   .dcell .num { font-size: var(--fs-14); color: var(--muted); }
-  @media (max-width: 900px) { .body { grid-template-columns: 1fr; } .side { display: none; } }
+  @media (max-width: 900px) { .body { grid-template-columns: 1fr; grid-template-rows: 1fr auto; } .side { max-height: 45vh; border-inline-start: 0; border-top: 1px solid var(--line); } }
 </style>

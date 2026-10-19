@@ -3,8 +3,8 @@
 // (a page scrolled away) before they reach the engine, which cannot be interrupted mid-drawing.
 import type { Build } from './assemble';
 
-export type Job = { op: string; page?: number; priority: number; args: Record<string, any>; key?: string };
-type Waiting = Job & { resolve: (v: any) => void; reject: (e: Error) => void; queued?: number; started?: number };
+export type Job = { op: string; page?: number; priority: number; args: Record<string, any>; key?: string; any?: boolean };
+type Waiting = Job & { resolve: (v: any) => void; reject: (e: Error) => void; queued?: number; started?: number; w?: number };
 // ?timing in the address: engine timings are kept in window.engineTimes (for measurements)
 const timing = typeof location !== 'undefined' && location.search.includes('timing');
 export const engineTimes: { op: string; page?: number; key?: string; waitMs: number; workMs: number; at: number }[] = [];
@@ -17,14 +17,19 @@ export class EnginePool {
   private replies = new Map<number, Waiting>();
   private nextId = 1;
   private nextDoc = 1;
+  private sources = new Map<number, { bytes: Uint8Array; mime: string }>(); // to open them again in a restarted worker
   sizes: { w: number; h: number }[] = [];
 
   // Each worker may hold a heavy page (~800 MB for an A0 CAD sheet): fewer workers on PCs with less memory.
   constructor(size = Math.max(1, Math.min((navigator as any).deviceMemory >= 8 ? 4 : 2, (navigator.hardwareConcurrency || 2) - 1))) {
-    this.workers = Array.from({ length: size }, () => new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' }));
-    this.busy = this.workers.map(() => false);
-    this.queues = this.workers.map(() => []);
-    this.workers.forEach((w, i) => (w.onmessage = ({ data }) => this.reply(i, data)));
+    this.workers = []; this.busy = []; this.queues = [];
+    for (let i = 0; i < size; i++) { this.queues.push([]); this.spawn(i); }
+  }
+
+  private spawn(i: number) {
+    const w = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
+    w.onmessage = ({ data }) => this.reply(i, data);
+    this.workers[i] = w; this.busy[i] = false;
   }
 
   /** Opens the document as source 0 in every worker (each keeps its own copy), forgetting all other sources. */
@@ -37,7 +42,9 @@ export class EnginePool {
   /** Forgets every open source (a new document or portfolio). */
   async reset() {
     this.queues.forEach((q) => q.splice(0).forEach((j) => j.reject(new Error('cancelled'))));
-    this.nextDoc = 1;
+    // a worker still drawing (a heavy CAD page takes seconds and cannot be interrupted) is replaced, not waited for
+    this.sources.clear(); this.nextDoc = 1;
+    await Promise.all(this.workers.map((_, i) => (this.busy[i] ? this.restart(i) : null)));
     await Promise.all(this.workers.map((_, i) => this.direct(i, 'reset', {})));
   }
 
@@ -48,15 +55,34 @@ export class EnginePool {
   }
 
   /** A new PDF from pages of the open sources. */
-  build(build: Build) { return this.run<Uint8Array>({ op: 'build', page: 0, priority: 0, args: { build } }); }
+  build(build: Build) {
+    this.drop(() => false); // jobs waiting in line are asked for again by their pages later: building comes first
+    return this.run<Uint8Array>({ op: 'build', priority: 0, args: { build }, any: true });
+  }
 
   private async load(doc: number, bytes: Uint8Array, mime = 'application/pdf'): Promise<{ w: number; h: number }[]> {
+    this.sources.set(doc, { bytes, mime });
     const all = await Promise.all(this.workers.map((_, i) => this.direct(i, 'open', { doc, mime, bytes: bytes.slice() })));
     return all[0].sizes;
   }
 
+  /** A fresh worker in place of worker `w` (whose job is dropped), with every source opened again. */
+  private async restart(w: number) {
+    this.workers[w].terminate();
+    for (const [id, j] of this.replies) if (j.w === w) { this.replies.delete(id); j.reject(new Error('cancelled')); }
+    this.spawn(w);
+    await Promise.all([...this.sources].map(([doc, s]) => this.direct(w, 'open', { doc, mime: s.mime, bytes: s.bytes.slice() })));
+  }
+
   /** Queues a job; a job with the same key replaces the waiting one (e.g. a newer zoom for the same page). */
   run<T = any>(job: Job): Promise<T> {
+    // every worker has every source open: a job for `any` worker goes to an idle one; when all are in the middle of
+    // a drawing (heavy CAD pages take seconds), one is restarted for it (opening the sources again is quick)
+    if (job.any) {
+      const idle = this.busy.findIndex((b, i) => !b && !this.queues[i].length);
+      if (idle < 0) return this.restart(0).then(() => this.run<T>({ ...job, any: false, page: 0 }));
+      return this.run<T>({ ...job, any: false, page: idle });
+    }
     const w = (job.page ?? 0) % this.workers.length, q = this.queues[w];
     if (job.key) { const old = q.findIndex((j) => j.key === job.key); if (old >= 0) q.splice(old, 1)[0].reject(new Error('cancelled')); }
     return new Promise<T>((resolve, reject) => { q.push({ ...job, resolve, reject, queued: performance.now() }); this.pump(w); });
@@ -72,14 +98,14 @@ export class EnginePool {
     const q = this.queues[w];
     q.sort((a, b) => a.priority - b.priority); // lower number first (visible pages)
     const job = q.shift()!, id = this.nextId++;
-    this.busy[w] = true; job.started = performance.now(); this.replies.set(id, job);
+    this.busy[w] = true; job.started = performance.now(); job.w = w; this.replies.set(id, job);
     this.workers[w].postMessage({ id, op: job.op, page: job.page, ...job.args });
   }
 
   private direct(w: number, op: string, args: Record<string, any>) {
     return new Promise<any>((resolve, reject) => {
       const id = this.nextId++;
-      this.replies.set(id, { op, priority: -1, args, resolve, reject });
+      this.replies.set(id, { op, priority: -1, args, resolve, reject, w });
       this.workers[w].postMessage({ id, op, ...args }, args.bytes ? [args.bytes.buffer] : []);
     });
   }

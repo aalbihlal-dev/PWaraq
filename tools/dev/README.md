@@ -10,3 +10,8 @@ for drawing/performance checks — a hidden pane pauses rendering and gives fals
     # SETTLE=9000 waits longer before zooming (e.g. to let a cached heavy page warm up)
 
 Automatic journeys: `pnpm test:e2e` (Playwright in Microsoft Edge, tests/e2e).
+
+Screenshot tour of the built app (Arabic, for the owner): `pnpm build`, then
+`npx playwright test -c tools/dev/tour.config.ts` (set `TOUR_OUT` for the folder; default `test-results/tour`).
+Built-version journeys: `PREVIEW=1 npx playwright test` (after `pnpm build`). Engine self-checks: `pnpm test:unit`.
+Test files: `node tests/fixtures/make-fixtures.mjs` remakes `three.pdf` and `photo.png`.
