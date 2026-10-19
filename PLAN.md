@@ -210,7 +210,10 @@ Original plan:
    **writing-paper pages** (blank, lined, grid, dotted), sections can be **hidden** (name only) or **locked**, page
    numbers **left / centre / right** (the cover is counted, not numbered), a new **page bar** (turn left / right,
    delete) on each page and **Edit page** as the main button of the side panel. Engine: `src/lib/engine/designs.ts`.
-   Still to do: drag whole sections, more designs, a photo/background on the cover.
+   Round 3 (19 Oct, owner: "the cover does not need to be green"): **8 designs** after common academic-cover
+   advice (white space, one typeface, colour as accent) — Classic, Minimal, Band, Frame, Side, Split, Geometric,
+   Editorial — in **any accent colour** (8 offered: green, navy, charcoal, maroon, teal, gold, plum, black, or own).
+   Still to do: drag whole sections, a photo/background on the cover.
 3. **Editing & documents:** page editor — **first version done (19 Oct)**, see above; next: text in its own font
    (Arabic with HarfBuzz), redaction tool, forms, OCR (text layer), Office/CAD via packs.
 4. **Desktop & website:** Tauri shell, file associations and right-click menu, packs, signed updater, branded
