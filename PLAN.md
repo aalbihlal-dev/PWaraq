@@ -219,3 +219,18 @@ Original plan:
    (Arabic with HarfBuzz), redaction tool, forms, OCR (text layer), Office/CAD via packs.
 4. **Desktop & website:** Tauri shell, file associations and right-click menu, packs, signed updater, branded
    installer; new product page + /app; switch 0.3.x users over.
+
+## Phase 3 — redact, forms, OCR (20 Oct 2026, done; tasks Redact, Forms, OCR in the task bar)
+- **Redact** (`engine/redact.ts`, `Redact.svelte`): drag areas on any page or "mark all" phone numbers (Latin and Arabic digits),
+  e-mails, a word; marks are previewed (click one to remove it); apply = MuPDF redaction (text, photo pixels, lines inside are
+  removed from the file, black box painted). Option: also remove title/author/dates and XMP. Result replaces the document.
+- **Forms** (`engine/forms.ts`, `Forms.svelte`): fields in a right-hand panel (text, checkbox, radio group, choice; read-only
+  ones locked), field boxes shown on the pages. Arabic answers keep the real value and get a Tajawal appearance (Helvetica
+  cannot draw them). Saved file stays fillable, or "flatten" (`bake`). One line per answer (long Arabic is cut, not wrapped).
+- **OCR** (`engine/ocr.ts`, `lib/ocr.ts`, `Ocr.svelte`): pages without text (or all) are drawn at ~250 dpi, read by
+  Tesseract (tesseract.js 6, own web worker, Arabic + English), and the words are written as invisible real text (render mode 3)
+  over the page; the picture is untouched. Engine files are **not in git**: `node tools/get-ocr.mjs` copies them from
+  `../waraq/dist/vendor/ocr` into `public/ocr/` (19 MB; needed for dev, build and the OCR tests).
+- Checks: `tests/unit/{redact,forms,ocr}.test.mjs`, `tests/e2e/{redact,forms,ocr}.spec.ts`, audit extended (EN + AR).
+- Still to do: redact inside the page editor; OCR on photos added as pages in Organize (works after Replace), text placement is
+  per word (selection boxes approximate); Arabic OCR accuracy depends on the scan (small/blurred print reads worse).
