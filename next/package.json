@@ -1,0 +1,27 @@
+{
+  "name": "waraq",
+  "private": true,
+  "version": "1.0.0-dev",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "dependencies": {
+    "mupdf": "^1.28.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@tsconfig/svelte": "^5.0.8",
+    "svelte": "^5.57.2",
+    "svelte-check": "^4.7.6",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.4"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node -e \"require('fs').rmSync('dist/_test',{recursive:true,force:true})\"",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "test:unit": "node --test \"tests/unit/*.test.mjs\""
+  }
+}

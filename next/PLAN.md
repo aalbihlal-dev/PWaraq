@@ -1,0 +1,109 @@
+# Waraq 1.0 — plan (15 October 2026)
+
+Owner's rating of 0.3.x: 6/10. Waraq 1.0 is a rebuild next to the live 0.3.x (in `../waraq`), switched over only
+when 1.0 is better at every everyday task.
+
+## Decisions (owner, 15 Oct 2026)
+- **Open source, GNU AGPL v3 or later**, with **MuPDF** as the PDF engine (0.3.x relicensed the same day).
+- **Rebuild alongside** 0.3.x, in phases that each ship something usable.
+- **Tauri** desktop shell (Windows' built-in WebView2) instead of Electron.
+
+## Owner's direction (15 Oct 2026)
+- **Colours: the Waraq palette of 0.3.x** (paper #fafbf8, green #15775d, mint, ink) everywhere; no automatic dark
+  theme from Windows.
+- **Branded window top bar** in the desktop app (Tauri, Phase 4): no Windows title bar; the Waraq bar *is* the title
+  bar (logo, file name, tasks, our own minimise / maximise / close, drag to move).
+- **Drawings 100 % crisp**: page images at exactly the screen's resolution, one image pixel per screen pixel, page
+  boxes on whole screen pixels, CAD hairlines at least 1 px (engine build). Done in Phase 1.
+- **Organize and Edit like Adobe Acrobat / PDFCraft** (Phases 2–3): Organize = full-window page grid with
+  multi-select, drag to reorder, rotate / delete / insert / extract / split between pages, insert from file;
+  Edit = click text to edit it in place in its own font, select and move / resize / replace images, add text and
+  images, right-hand options panel.
+
+## Why 0.3.x feels like a 6 (root causes)
+1. Patched, not designed: 20–50 KB files with lines up to 3,600 characters, 7 stylesheets overriding each other
+   (54 `!important`). Every fix risks another break.
+2. Nine ways to reach tools (sidebar, quick bar, ☆ Tools, ⋯ menu, tool grid, Ctrl+K, page action bar, View/Edit
+   modes, page-editor overlay).
+3. Three PDF engines for one job (pdf.js draws, MuPDF via a local server per request, pdf-lib writes): website
+   and desktop look and behave differently.
+4. Shallow editing: replaced text is covered and rewritten in Helvetica; Arabic edits become pictures.
+5. Website = app + marketing + downloads in one long page.
+6. Licence conflict (fixed: now AGPL). Unsigned installer (SmartScreen) remains a trust cost.
+7. No automated interface tests: bugs found by the publishing agent after release.
+
+## 1.0 architecture
+- **One engine, everywhere:** MuPDF (WebAssembly) in background workers for drawing, text, search, annotations,
+  redaction, forms and page operations; pages kept in memory as display lists (instant re-draws and zoom tiles).
+- **Code:** TypeScript + Vite + Svelte; one design-token stylesheet; English/Arabic strings in translation files;
+  RTL from the start.
+- **Arabic-first editing:** HarfBuzz shaping + embedded fonts so edited Arabic is real text.
+- **Workspace (like Acrobat / Edge):** start screen (Open, Recent, drop) → document workspace: task bar
+  (View · Edit · Organize · Convert · Sign · Protect · OCR), thumbnails left (multi-select, drag), page centre,
+  options panel right (no pop-up dialogs). One path to each tool, plus Ctrl+K search.
+- **Desktop:** Tauri 2; Office & OCR stay add-on packs (0.3.2 design); signed auto-updates (Tauri updater).
+- **Website:** product page at pwaraq.com, app at pwaraq.com/app.
+- **Quality:** Playwright end-to-end tests for ~12 real journeys + screenshot comparison on every build; the
+  existing real-engine tests carry over.
+
+## Kept from 0.3.x
+Brand, logo, installer art and branded setup idea; Arabic text repair + search normalisation; add-on pack
+system (make-packs, checksums, zstd, parallel downloads); OCR text layer; crop maths; engine tests; Cloudflare
+site and `_headers`; the hand-over workflow with the publishing agent.
+
+## Engine spike (spike/cad-speed.mjs, spike/darken.mjs) — MV Trenches A0 drawing, page 1 (~14 M commands)
+| Step | MuPDF WASM | 0.3.3 desktop | 0.3.3 website |
+|---|---|---|---|
+| Open file | 0.04 s | | |
+| First read of the page (once) | 6.4 s | ~7 s per draw | ~17 s |
+| Whole page at screen size | 3.1 s from memory | ~7 s | |
+| 800 % zoom tile | 1.6 s from memory | ~4 s | |
+| Search a word (147 hits) | 5.2 s | | |
+
+Verdict: **viable, with two conditions**
+1. **Hairlines:** the official WASM build does not expose MuPDF's minimum line width, so CAD lines come out faint.
+   Drawing at 2× and keeping the darkest pixel helps but is not as solid as native `-l 1`. → Phase 1 builds our
+   own MuPDF WASM (allowed under the AGPL) exporting `fz_set_graphics_min_line_width` (and anti-alias level).
+2. **Heavy pages are still seconds, not instant:** WebAssembly is single-threaded. → several workers draw different
+   pages in parallel; whole-page images are cached per zoom step and refined with tiles; text for search is
+   extracted once in the background.
+
+## Portfolio (حافظة) — centre of Phase 2 (owner approved the idea, 16 Oct 2026; contents/divider wishes 18 Oct)
+User story (a student): *"I have a course; every week I make a file. I want an app that gathers them into one big
+file that I can keep editing each time — change the order and add pages as images when I need to."*
+A Portfolio is a project that remembers its parts; the big PDF is produced from it whenever needed.
+Owner's additions (18 Oct): a **table of contents** whose lines carry page numbers and open their page; **page
+numbers** for the whole portfolio (renumbered as pages come and go) or for one section; each section's **title comes
+from its file** and is the contents line — if it is still the file name, the contents tool **highlights** it;
+**section divider pages** are their own feature (not "add page"): the contents jump to them and you **write the
+section name on them** in place.
+
+Built (19 Oct, `src/lib/portfolio.ts`, `src/components/Portfolio.svelte`):
+- New portfolio from the start screen; each added file (PDF or photo) becomes a section titled by its file name.
+- Sections in the page grid (same grid as Organize): drag pages within/between sections, turn, delete, "+" or drop to
+  insert pages/photos anywhere (a photo page takes the neighbouring page's size), replace a section's file in place.
+- Contents block above the sections = the contents tool: titles editable there (and in the section header and on the
+  divider card), file-name titles highlighted, live page numbers. Divider card per section, written on directly
+  (title + optional note). Options panel: contents on/off, dividers for all sections, page numbers (none / whole
+  portfolio / only one section), bookmarks per section, export PDF, save `.waraq`.
+- Export: contents pages (rows link to their page), dividers, pages, numbers, bookmarks — the contents and dividers are
+  **real text in Tajawal** (Arabic joined with the font's own letter shapes, right-to-left, copy/search give normal
+  Arabic) via `src/lib/engine/textpage.ts`.
+- Kept in browser storage at every change (OPFS folder: manifest + original files); recent portfolios on the start
+  screen; portable `.waraq` (ZIP: `manifest.json` + `files/`) opens from Open or by dropping it.
+Still to do: drag whole sections (now ↑/↓ buttons), cover page, contents/divider fonts subset (now the two Tajawal
+weights are embedded whole, ~120 KB), harakat and Persian letters on written pages (with HarfBuzz, Phase 3),
+desktop watch folder, phone camera pages.
+
+## Phases (each ships)
+1. **Foundation — done (19 Oct):** project, custom MuPDF WASM build, worker pool, viewer (large drawings, zoom/pan,
+   thumbnails, search), workspace shell, Open/Close/Recent, end-to-end tests + design-rule test. "Waraq 1.0 preview":
+   double-click `../Waraq 1.0 preview.cmd` (builds and opens it in its own Edge window).
+2. **Organize + Portfolio & everyday tools:** Organize page grid — **done (19 Oct)**: select (click/Ctrl/Shift),
+   drag several pages, turn, delete, insert file/photo/blank (toolbar, "+" between pages, drop), extract, undo/redo,
+   save; applied when going back to View. Portfolio — **first version done** (see above). Next: merge, split,
+   compress, crop, page numbers/watermark for ordinary files, sign, protect/unlock, export.
+3. **Editing & documents:** real text/image editing (Arabic with HarfBuzz), redaction, forms, OCR (text layer),
+   Office/CAD via packs.
+4. **Desktop & website:** Tauri shell, file associations and right-click menu, packs, signed updater, branded
+   installer; new product page + /app; switch 0.3.x users over.

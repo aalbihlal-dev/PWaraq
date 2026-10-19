@@ -1,0 +1,42 @@
+/* Waraq design tokens — the only place colours, type, spacing and radii are defined.
+   Rules (lintapple): type scale 12/14/16/18/20/24/32/40, contrast >= 4.5:1, controls >= 36 px (40 touch),
+   8 px between controls, sentence case, tabular numbers for counters. */
+@font-face { font-family: Tajawal; src: url('/fonts/Tajawal-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: Tajawal; src: url('/fonts/Tajawal-Medium.ttf') format('truetype'); font-weight: 500 600; font-display: swap; }
+@font-face { font-family: Tajawal; src: url('/fonts/Tajawal-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+
+:root {
+  /* Waraq colours (same palette as 0.3.x): paper, Waraq green, soft mint */
+  --green: #15775d; --green-deep: #0f5a46; --green-soft: #eaf3eb; --ink: #233c36; --muted: #56695f;
+  --paper: #fafbf8; --surface: #ffffff; --canvas: #eef1eb; --line: #e0e7de; --focus: #15775d; --danger: #a34438;
+  --fs-12: 12px; --fs-14: 14px; --fs-16: 16px; --fs-18: 18px; --fs-20: 20px; --fs-24: 24px; --fs-32: 32px; --fs-40: 40px;
+  --s-4: 4px; --s-8: 8px; --s-12: 12px; --s-16: 16px; --s-24: 24px; --s-32: 32px; --s-48: 48px;
+  --r-8: 8px; --r-12: 12px; --r-16: 16px;
+  --control: 36px; --touch: 40px;
+  --shadow: 0 5px 20px #204b3814, 0 1px 2px #204b380f;
+  --font: 'Segoe UI Variable Text', 'Segoe UI', Tajawal, system-ui, sans-serif;
+  color-scheme: light;
+}
+:root[dir='rtl'] { --font: Tajawal, 'Segoe UI', system-ui, sans-serif; }
+/* The Waraq look is the default everywhere; a dark theme can come later as an explicit choice, not from Windows. */
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--paper); color: var(--ink); font: 400 var(--fs-14)/1.5 var(--font); }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-8); min-height: var(--control);
+  padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--surface); font-weight: 600; }
+.btn:hover { background: var(--green-soft); border-color: var(--green); }
+.btn.primary { background: var(--green); border-color: var(--green); color: #fff; }
+.btn.primary:hover { background: var(--green-deep); }
+.btn.icon { width: var(--control); padding: 0; border-color: transparent; background: transparent; color: var(--muted); }
+.btn.icon:hover { background: var(--green-soft); color: var(--ink); }
+.btn:disabled { opacity: .5; cursor: default; }
+svg.icon { width: 18px; height: 18px; flex: none; }
+html, body { overflow: hidden; }
+#app { height: 100%; }
