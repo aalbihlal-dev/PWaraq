@@ -36,6 +36,8 @@ you explicitly connect a processing engine of your own.
   pool of background workers; heavy A0 drawings stay responsive.
 - **Crisp pages:** page images at exactly the screen's resolution, deep-zoom tiles when zoomed in.
 - **Organize like a desktop editor:** full-window grid, multi-select, drag several pages, insert between pages, undo.
+- **Page editor (first version):** add text and photos to a page, move, resize or replace photos, replace a line of
+  text — opened from Organize, Portfolio or the Edit task.
 - **Portfolio (حافظة):** sections made from files, titles taken from file names, divider pages, a table of contents
   with page numbers and links, page numbers for the whole portfolio or one section, bookmarks, and a portable
   `.waraq` file.
