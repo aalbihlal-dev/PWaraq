@@ -95,6 +95,63 @@ Still to do: drag whole sections (now ↑/↓ buttons), cover page, contents/div
 weights are embedded whole, ~120 KB), harakat and Persian letters on written pages (with HarfBuzz, Phase 3),
 desktop watch folder, phone camera pages.
 
+## Page editor — first version (19 Oct 2026; owner asked to edit one page's photos and text "full like PDFCraft")
+Opened by double-clicking a page (or its "Edit page" hover button / toolbar button) in Organize and Portfolio, and from
+the **Edit** task in the workspace (current page). Acrobat/PDFCraft layout: page large in the middle, tools on top
+(Select, Add text, Add photo, undo/redo, delete, Cancel, Save page), options on the right, no pop-ups.
+- **Add text:** click to place, type, move (bar above the box), width (corner), size, colour (black + Waraq palette),
+  bold, alignment; a new box follows the direction typed (Arabic to the right). Written as **real text in Tajawal** via
+  `pageWriter` (Arabic joined, own ToUnicode), wrapped at the box width — never a picture.
+- **Photos:** add (centre of the page), move, resize keeping the shape (corner), replace, delete; existing photos in the
+  PDF too (MuPDF lists image blocks). An existing photo is taken away by emptying its own image resource when only it
+  uses it (found by emptying each in turn), else by redaction of its box; moved photos keep their own image object.
+- **Existing text:** click a line → a text box in its place with its text, size, colour, weight; the old line is
+  removed by MuPDF redaction (text only), the new text written in Tajawal. The panel says so: the line's own font
+  comes with HarfBuzz (Phase 3). Only lines that read left to right on the page as seen can be replaced.
+- **Undo/redo** in the editor; **Save page** builds one edited page (engine job `edit`) that becomes a new one-page
+  source and replaces the page in the list (Organize: one undo step; Portfolio: kept as a file of the portfolio, so
+  sections, numbers, contents and `.waraq` keep working; Edit task: the document is rebuilt and marked changed).
+- Code: `src/lib/engine/editpage.ts` (pure: `pageObjects`, `editPage`), worker jobs `objects` / `edit`,
+  `src/components/PageEditor.svelte`. Checks: `tests/unit/editpage.test.mjs` (7), `tests/e2e/editor.spec.ts` (3),
+  editor screen in `audit.spec.ts`. Screenshots: `../Archive-2026-10-12/screenshots/waraq-1.0-preview/page-editor-2026-10-19/`.
+Still to do: text in the line's own font and harakat (HarfBuzz), editing a whole paragraph as one block (now line by
+line), turning/cropping photos, zoom inside the editor, arrow-key nudging, warning before leaving with unsaved edits,
+text on turned (vertical) lines.
+
+## Owner's ideas (19 Oct 2026) — to build next
+### 1. Signing mode (توقيع)
+Owner: one click adds signature + date; in one sitting he signs many files with the same date, the same signature and
+the same spacing; sometimes he wants everything at hand; Waraq should find where a page or document needs signing,
+highlight it and tell him which page; a signature image should lose its background and change colour.
+- **Signature set** ("my signature"): signature + date (+ optional name/title, stamp), laid out once with fixed
+  spacing; placed with **one click** as a group. The date is fixed for the session ("today", Gregorian or Hijri,
+  chosen format), so every file signed in that sitting carries the same date.
+- **Signature library** on this device (IndexedDB): draw, type (Tajawal / handwriting-style font) or import a photo
+  of a signature. Imported photos: **background removed** (light pixels → transparent, threshold set automatically,
+  slider to adjust), cropped to the ink, **recoloured** (black, ink, blue, Waraq green). Saved as PNG with alpha.
+- **Find where to sign:** on opening a file in signing mode, search every page for empty signature form fields
+  (/FT /Sig) and for words like "التوقيع", "توقيع", "الاسم والتوقيع", "Signature", "Signed", "Sign here", "التاريخ",
+  "Date", plus an underline/blank after them. Each spot is **highlighted** on the page; a bar in the options panel says
+  "Signature needed on page 3 — Go" (a bar, not a pop-up: owner rule); clicking a highlighted spot drops the set
+  aligned to it (signature over the line, date over the date field).
+- **Many files:** a signing queue — open several PDFs, Waraq goes file by file to each found spot (or the same
+  position as the last file), one click / Enter to sign and go to the next, then save all (same names with a suffix,
+  or overwrite on request).
+- Engine: reuse `editPage` (photo with transparency + text edits) — the set is a group of edits. Later: real digital
+  signatures with a certificate (MuPDF can sign PDFs; check the WASM API) and a visible "signed by" stamp.
+
+### 2. Arabic text keeps its own font when edited
+Owner: the Arabic font must not change when editing. Today a replaced line is written in Tajawal.
+- Take the line's own font from the PDF (the font object MuPDF reports for its characters) and write the new text
+  with it; shape Arabic with **HarfBuzz** (harfbuzzjs WASM) against that font so letters join correctly whatever the
+  font's encoding.
+- Embedded fonts are usually **subsets**: a letter the subset lacks cannot be drawn in that font. Then: use the full
+  font if it is installed on the PC (desktop) or bundled (Arial / Times / Traditional Arabic / Simplified Arabic
+  equivalents: Noto Naskh, Noto Sans Arabic, Amiri); otherwise tell the user which letters are missing and offer the
+  closest bundled font — never a silent switch to Tajawal.
+- Size, colour, weight and position as the original line (already done); keep harakat.
+- To check first: whether our MuPDF WASM build exposes the embedded font's bytes (else add it in the engine build).
+
 ## Phases (each ships)
 1. **Foundation — done (19 Oct):** project, custom MuPDF WASM build, worker pool, viewer (large drawings, zoom/pan,
    thumbnails, search), workspace shell, Open/Close/Recent, end-to-end tests + design-rule test. "Waraq 1.0 preview":
@@ -103,7 +160,7 @@ desktop watch folder, phone camera pages.
    drag several pages, turn, delete, insert file/photo/blank (toolbar, "+" between pages, drop), extract, undo/redo,
    save; applied when going back to View. Portfolio — **first version done** (see above). Next: merge, split,
    compress, crop, page numbers/watermark for ordinary files, sign, protect/unlock, export.
-3. **Editing & documents:** real text/image editing (Arabic with HarfBuzz), redaction, forms, OCR (text layer),
-   Office/CAD via packs.
+3. **Editing & documents:** page editor — **first version done (19 Oct)**, see above; next: text in its own font
+   (Arabic with HarfBuzz), redaction tool, forms, OCR (text layer), Office/CAD via packs.
 4. **Desktop & website:** Tauri shell, file associations and right-click menu, packs, signed updater, branded
    installer; new product page + /app; switch 0.3.x users over.

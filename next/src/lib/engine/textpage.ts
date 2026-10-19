@@ -69,13 +69,30 @@ export function measure(font: MuPDF.Font, text: string, size: number) {
   return visual(text).reduce((w, g) => w + font.advanceGlyph(font.encodeCharacter(g.code)) * size, 0);
 }
 
+/** Lines of `text` (its own line breaks kept) that fit `width`, broken between words. */
+export function wrap(font: MuPDF.Font, text: string, size: number, width: number) {
+  return text.split('\n').flatMap((para) => {
+    const out: string[] = [];
+    let line = '';
+    for (const word of para.split(' ')) {
+      const next = line ? line + ' ' + word : word;
+      if (line && measure(font, next, size) > width) { out.push(line); line = word; } else line = next;
+    }
+    return [...out, line];
+  });
+}
+
 /** Writes pages straight into `out`: each glyph is shown by its glyph id (the font goes in once, CID = glyph id), and
- *  `finish` gives each font a map from glyph back to the letters it was drawn for, so text copies as written. */
+ *  `finish` gives each font a map from glyph back to the letters it was drawn for, so text copies as written.
+ *  `draw` gives only the drawing commands (for text added onto an existing page, with `fonts` as its font resources). */
 export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts) {
   const faces = [fonts.regular, fonts.bold].map((font) => ({ font, ref: out.addFont(font), used: new Map<number, number[]>() }));
   const n = (v: number) => +v.toFixed(2);
+  const resources = { WqT0: faces[0].ref, WqT1: faces[1].ref };
   return {
-    add(p: TextPage): MuPDF.PDFObject {
+    fonts: resources,
+    add(p: TextPage): MuPDF.PDFObject { return out.addPage([0, 0, p.w, p.h], 0, { Font: resources }, this.draw(p)); },
+    draw(p: TextPage) {
       let ops = '';
       for (const r of p.rules ?? []) ops += `${r.slice(4, 7).map(n).join(' ')} rg ${n(r[0])} ${n(p.h - r[1] - r[3])} ${n(r[2])} ${n(r[3])} re f
 `;
@@ -89,10 +106,10 @@ export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts
           face.used.set(gid, g.uni.length > 1 ? [...g.uni].reverse() : g.uni); // a joined pair is read back right to left
           return gid.toString(16).padStart(4, '0');
         });
-        ops += `BT /W${l.bold ? 1 : 0} ${n(size)} Tf ${(l.color ?? INK).map(n).join(' ')} rg 1 0 0 1 ${n(x)} ${n(p.h - l.y)} Tm <${gids.join('')}> Tj ET
+        ops += `BT /WqT${l.bold ? 1 : 0} ${n(size)} Tf ${(l.color ?? INK).map(n).join(' ')} rg 1 0 0 1 ${n(x)} ${n(p.h - l.y)} Tm <${gids.join('')}> Tj ET
 `;
       }
-      return out.addPage([0, 0, p.w, p.h], 0, { Font: { W0: faces[0].ref, W1: faces[1].ref } }, ops);
+      return ops;
     },
     finish() { for (const f of faces) f.ref.put('ToUnicode', out.addStream(toUnicode(f.used), {})); },
   };

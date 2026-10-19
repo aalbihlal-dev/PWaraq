@@ -9,10 +9,11 @@
   import { icon } from '../lib/icons.js';
   import { move, edit, seen, turned, type Group, type GridItem } from '../lib/pages';
 
-  let { pool, groups, selected, size = 160, number, onchange, oninsert, onfiles, header, lead }: {
+  let { pool, groups, selected, size = 160, number, onchange, oninsert, onfiles, onopen, header, lead }: {
     pool: EnginePool; groups: Group[]; selected: SvelteSet<string>; size?: number;
     number: (it: GridItem, flat: number) => string; onchange: (next: Group[]) => void;
     oninsert: (group: string, index: number) => void; onfiles?: (files: File[], group: string, index: number) => void;
+    onopen?: (it: GridItem) => void; // double-click or "Edit page": the page editor
     header?: Snippet<[Group, number]>; lead?: Snippet<[Group, number]>;
   } = $props();
 
@@ -105,12 +106,13 @@
         {@const b = box(it)}
         <div class="cell" class:sel={selected.has(it.id)} class:before={drop?.group === g.id && drop.index === i} class:after={drop?.group === g.id && drop.index === i + 1 && i === g.items.length - 1}
           role="option" aria-selected={selected.has(it.id)} tabindex="-1" draggable="true" data-src="{it.doc}:{it.page}"
-          onclick={(e) => pick(e, it)} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e as unknown as MouseEvent, it); } }}
+          onclick={(e) => pick(e, it)} ondblclick={() => onopen?.(it)} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e as unknown as MouseEvent, it); } }}
           ondragstart={(e) => { if (!selected.has(it.id)) { selected.clear(); selected.add(it.id); } dragging = true; e.dataTransfer!.effectAllowed = 'move'; e.dataTransfer!.setData('text/plain', 'waraq-pages'); }}
           ondragover={(e) => overCell(e, g.id, i)} ondragend={() => { dragging = false; drop = null; }}>
           <div class="sheet" style={b.sheet}><canvas use:thumb={it} style={b.canvas}></canvas></div>
           <span class="num">{number(it, indexOf.get(it.id)!)}</span>
           <span class="acts">
+            {#if onopen}<button class="act" title={t('editPage')} aria-label={t('editPage')} onclick={(e) => { e.stopPropagation(); onopen(it); }}>{@html icon('edit')}</button>{/if}
             <button class="act" title={t('rotateLeft')} aria-label={t('rotateLeft')} onclick={(e) => { e.stopPropagation(); turn(only(it), -90); }}><span class="flip">{@html icon('rotate')}</span></button>
             <button class="act" title={t('rotateRight')} aria-label={t('rotateRight')} onclick={(e) => { e.stopPropagation(); turn(only(it), 90); }}>{@html icon('rotate')}</button>
             <button class="act" title={t('delete')} aria-label={t('delete')} onclick={(e) => { e.stopPropagation(); remove(only(it)); }}>{@html icon('delete')}</button>
@@ -135,7 +137,7 @@
   .cell.sel .num { color: var(--ink); font-weight: 600; }
   .acts { position: absolute; top: var(--s-12); inset-inline: 0; display: none; justify-content: center; gap: var(--s-8); }
   .cell:hover .acts, .cell:focus-within .acts { display: flex; }
-  .act { width: var(--control); height: var(--control); display: grid; place-items: center; border: 1px solid var(--line); border-radius: var(--r-8); background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+  .act { flex: none; width: var(--control); height: var(--control); display: grid; place-items: center; border: 1px solid var(--line); border-radius: var(--r-8); background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
   .act:hover { border-color: var(--green); color: var(--green); }
   .flip { display: grid; transform: scaleX(-1); }
   .ins { position: absolute; top: 40%; inset-inline-end: calc(-1 * var(--s-24) / 2 - 18px); z-index: 1; width: var(--control); height: var(--control); display: none; place-items: center; border: 0; border-radius: 50%; background: var(--green); color: #fff; box-shadow: var(--shadow); }

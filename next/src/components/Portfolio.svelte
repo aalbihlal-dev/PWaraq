@@ -7,11 +7,12 @@
   import type { EnginePool } from '../lib/engine/pool';
   import { i18n, t, toggleLanguage } from '../lib/i18n.svelte';
   import { icon } from '../lib/icons.js';
-  import { addFiles, uid, seen, type Group, type GridItem } from '../lib/pages';
+  import { addFiles, uid, seen, toItems, type Group, type GridItem } from '../lib/pages';
   import { build, plan, manifest, used, fileTitle, type Portfolio, type Section } from '../lib/portfolio';
   import { pickFiles, saveFile, writePortfolio, readPortfolio, remember } from '../lib/store';
   import { zip } from '../lib/zip';
   import PageGrid from './PageGrid.svelte';
+  import PageEditor, { type Saved } from './PageEditor.svelte';
 
   let { pool, portfolio, onClose }: { pool: EnginePool; portfolio: Portfolio; onClose: () => void } = $props();
   // svelte-ignore state_referenced_locally (one screen per opened portfolio)
@@ -102,8 +103,23 @@
     return `width:${d.w * k}px;height:${d.h * k}px`;
   }
   const label = (it: GridItem) => String((layout.at.get(it.id) ?? 0) + 1);
+  // the page editor on one page: the edited page is kept as a file of the portfolio and takes the old page's place, so
+  // sections, contents and numbers carry on as before
+  let editing = $state<GridItem | null>(null);
+  const allItems = () => p.sections.flatMap((s) => s.items);
+  const editBase = (it: GridItem) => toItems(allItems())[allItems().findIndex((x) => x.id === it.id)];
+  async function edited(r: Saved) {
+    const id = editing!.id, file = uid();
+    await writePortfolio(p.id, 'files/' + file, r.bytes);
+    change((p) => {
+      p.files[file] = { name: 'edited-page.pdf', mime: 'application/pdf', doc: r.doc };
+      for (const s of p.sections) s.items = s.items.map((it) => (it.id === id ? { ...it, doc: r.doc, page: 0, rotate: 0, w: r.w, h: r.h, image: false, blank: false } : it));
+    });
+    editing = null;
+  }
+
   function keys(e: KeyboardEvent) {
-    if (!(e.ctrlKey || e.metaKey) || (e.target as HTMLElement).closest('input,textarea')) return;
+    if (editing || !(e.ctrlKey || e.metaKey) || (e.target as HTMLElement).closest('input,textarea')) return;
     const k = e.key.toLowerCase();
     if (k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
     if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); redo(); }
@@ -128,10 +144,13 @@
     </span>
   </header>
 
+  {#if editing}
+    <PageEditor {pool} base={editBase(editing)} label="{t('page')} {(layout.at.get(editing.id) ?? 0) + 1}" onSave={edited} onCancel={() => (editing = null)} />
+  {:else}
   <div class="body">
     {#if p.sections.length}
       <PageGrid {pool} {groups} {selected} {size} number={label} onchange={gridChange} oninsert={addPages}
-        onfiles={(files, section, index) => run(() => insertPages(files, section, index))}>
+        onfiles={(files, section, index) => run(() => insertPages(files, section, index))} onopen={(it) => (editing = it)}>
         {#snippet header(g, gi)}
           {@const s = p.sections[gi]}
           {#if gi === 0 && p.options.toc && layout.shown.length}
@@ -199,11 +218,12 @@
       <label class="switch"><input type="checkbox" bind:checked={p.options.bookmarks} />{t('bookmarks')}</label>
       <label class="field"><span>{t('thumbSize')}</span><input type="range" min="96" max="240" step="8" bind:value={size} /></label>
       <span class="grow"></span>
-      <p class="state num" aria-live="polite">{busy || (savedAt ? `${t('saved')} Â· ${layout.slots.length} ${t('pagesCount')}` : '')}</p>
+      <p class="state num" aria-live="polite">{busy || (savedAt ? `${t('saved')} · ${layout.slots.length} ${t('pagesCount')}` : '')}</p>
       <button class="btn primary" onclick={exportPdf} disabled={!!busy || !layout.slots.length}>{@html icon('download')}{t('exportPdf')}</button>
       <button class="btn" onclick={saveCopy} disabled={!!busy}>{@html icon('library')}{t('saveWaraq')}</button>
     </aside>
   </div>
+  {/if}
 </div>
 
 <style>

@@ -9,6 +9,7 @@
   import { uid, edit, turned, toItems, addFiles, seen, type Group, type GridItem } from '../lib/pages';
   import { pickFiles, saveFile } from '../lib/store';
   import PageGrid from './PageGrid.svelte';
+  import PageEditor, { type Saved } from './PageEditor.svelte';
 
   let { pool, sizes, name, changed = $bindable(false) }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; changed?: boolean } = $props();
 
@@ -67,8 +68,17 @@
     } finally { busy = false; }
   }
 
+  // the page editor on one page; its saved page takes the old one's place (one undo step)
+  let editing = $state<GridItem | null>(null);
+  const editBase = (it: GridItem) => toItems(items())[items().findIndex((x) => x.id === it.id)];
+  function edited(r: Saved) {
+    const id = editing!.id;
+    change(edit(groups, new Set([id]), (x) => ({ ...x, doc: r.doc, page: 0, rotate: 0, w: r.w, h: r.h, image: false, blank: false })));
+    editing = null;
+  }
+
   function keys(e: KeyboardEvent) {
-    if (!(e.ctrlKey || e.metaKey) || (e.target as HTMLElement).closest('input')) return;
+    if (editing || !(e.ctrlKey || e.metaKey) || (e.target as HTMLElement).closest('input')) return;
     const k = e.key.toLowerCase();
     if (k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
     if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); redo(); }
@@ -78,6 +88,9 @@
 <svelte:window onkeydown={keys} />
 <input bind:this={picker} type="file" multiple accept="application/pdf,.pdf,image/png,image/jpeg" hidden
   onchange={(e) => { const f = [...(e.currentTarget.files ?? [])]; e.currentTarget.value = ''; if (f.length) insertFiles(f, insertAt); }} />
+{#if editing}
+  <PageEditor {pool} base={editBase(editing)} label="{t('page')} {items().findIndex((x) => x.id === editing!.id) + 1}" onSave={edited} onCancel={() => (editing = null)} />
+{:else}
 <div class="org">
   <div class="tools" role="toolbar" aria-label={t('organize')}>
     <button class="btn" onclick={() => insert()} disabled={busy}>{@html icon('plus')}{t('insertFile')}</button>
@@ -87,6 +100,7 @@
     <button class="btn icon" onclick={() => turn(-90)} disabled={!selected.size} title={t('rotateLeft')} aria-label={t('rotateLeft')}><span class="flip">{@html icon('rotate')}</span></button>
     <button class="btn icon" onclick={() => turn(90)} disabled={!selected.size} title={t('rotateRight')} aria-label={t('rotateRight')}>{@html icon('rotate')}</button>
     <button class="btn icon" onclick={remove} disabled={!selected.size} title={t('delete')} aria-label={t('delete')}>{@html icon('delete')}</button>
+    <button class="btn" onclick={() => (editing = items().find((it) => selected.has(it.id)) ?? null)} disabled={selected.size !== 1}>{@html icon('edit')}{t('editPage')}</button>
     <span class="sep"></span>
     <button class="btn icon" onclick={undo} disabled={!canUndo} title={t('undo')} aria-label={t('undo')}>{@html icon('undo')}</button>
     <button class="btn icon" onclick={redo} disabled={!canRedo} title={t('redo')} aria-label={t('redo')}><span class="flip">{@html icon('undo')}</span></button>
@@ -94,8 +108,9 @@
     <label class="zoom"><span class="sr">{t('thumbSize')}</span>{@html icon('zoom')}<input type="range" min="96" max="280" step="8" bind:value={size} aria-label={t('thumbSize')} /></label>
   </div>
   <PageGrid {pool} {groups} {selected} {size} number={(_, n) => String(n + 1)} onchange={change} oninsert={(_, i) => insert(i)}
-    onfiles={(files, _, i) => insertFiles(files, i)} />
+    onfiles={(files, _, i) => insertFiles(files, i)} onopen={(it) => (editing = it)} />
 </div>
+{/if}
 
 <style>
   .org { height: 100%; display: grid; grid-template-rows: auto 1fr; min-height: 0; }
