@@ -1,0 +1,12 @@
+'use strict';
+const {spawn}=require('node:child_process');
+const path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const packaged=process.argv.includes('--packaged');
+const electron=packaged?path.join(root,'release/win-unpacked/Waraq PDF Studio.exe'):require('electron');
+const env={...process.env};delete env.ELECTRON_RUN_AS_NODE;
+const child=spawn(electron,packaged?['--waraq-smoke-test']:[root,'--waraq-smoke-test'],{cwd:root,env,windowsHide:true,stdio:['ignore','pipe','pipe']});
+let output='';child.stdout.on('data',data=>{output+=data;process.stdout.write(data);});child.stderr.on('data',data=>process.stderr.write(data));
+const timeout=setTimeout(()=>{child.kill();console.error('Desktop smoke test timed out.');process.exitCode=1;},45000);
+child.once('error',error=>{clearTimeout(timeout);console.error(error.message);process.exitCode=1;});
+child.once('exit',code=>{clearTimeout(timeout);process.exitCode=code===0&&output.includes('WARAQ_DESKTOP_SMOKE ')?0:1;});

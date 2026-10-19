@@ -1,0 +1,261 @@
+WARAQ - UPGRADE NOTES
+======================
+As of 12 October 2026 the upgrade is APPLIED: this waraq folder is the single main system.
+Build everything with  BUILD-ALL-IN-ONE.cmd  (or "BUILD-ALL-IN-ONE.cmd lite") in this folder.
+Engines are fetched by tools\fetch-engines.ps1 into engines\win-x64 (downloads cached in engines-cache\).
+The old upgrade kit ("Cloude input": overlay, patcher, backups of the originals) is in the archive folder.
+The notes below are the history of each round; where they mention "Cloude input" or the patcher,
+that step has already been done.
+
+WARAQ - ALL-IN-ONE UPGRADE (round 2)
+=====================================
+Written by Claude, 12 October 2026. Your Waraq rebrand and the "More tools" section you added are kept.
+Nothing in the waraq folder changes until you run BUILD-ALL-IN-ONE.cmd (or tools\patch-project.cjs).
+Every original file the patch touches is backed up to Cloude input\backup\<date>\ first.
+
+
+HOW TO BUILD
+------------
+Needs: Node.js 22+, pnpm, 7-Zip, internet for the first run.
+  BUILD-ALL-IN-ONE.cmd          Full Windows installer (with Office conversion)
+  BUILD-ALL-IN-ONE.cmd lite     Lite installer (no Office, much smaller)
+Result: waraq\release-full\Waraq-...-Setup-...exe
+To update only the website: run  node "Cloude input\tools\patch-project.cjs"  then upload waraq\dist as before.
+
+
+WHAT'S NEW
+----------
+1. TWO INTERFACES: VIEW AND EDIT
+   - View is a real PDF reader. It has:
+       continuous pages; selectable, copyable text
+       find-as-you-type that ignores Arabic diacritics, with next/previous match
+       fit width, fit page and zoom levels
+       a thumbnail sidebar and a two-page layout (in Arabic, page 1 is on the right)
+       night reading, read mode (full screen, nothing else on screen) and print
+       keyboard: arrows, PgUp/PgDn, +/-, Ctrl+F
+   - Edit is the studio you already have.
+   - A View | Edit switch sits in the top bar, so you can change at any time.
+   - Preferences (the button next to the switch) set which interface a newly opened PDF uses.
+     The default is View.
+   - Ctrl+K opens a quick search over every tool, in English and Arabic.
+
+2. TOOLS EDIT THE OPEN DOCUMENT (chaining)
+   Tool results go back into the open document instead of downloading a new file each time, so you
+   can do OCR -> redact -> colors -> optimize and then download once. Undo works after every step.
+   A checkbox in the editor (and in Preferences) turns this off. If a result has a different
+   number of pages than your selection, it is downloaded instead and the app says why.
+   Certificate signatures are always downloaded, because any later change would break them.
+
+3. AUTOSAVE AND RECOVERY (idea from PdfCraft)
+   The open document is saved on this device (browser storage) a few seconds after each change.
+   If the window closes unexpectedly, the next visit offers "Continue where you left off?".
+   This can be turned off in Preferences.
+
+4. BATCH PROCESSING
+   New "Batch process" tool. Choose many files or a whole folder, pick one operation (OCR,
+   optimize, protect, unlock, repair, redact, Office->PDF ... or a background tint), and get one ZIP
+   with the same folder structure plus a _report.txt for any failures.
+
+5. "OPEN WITH" IN WINDOWS
+   The installer registers Waraq for PDF files and adds two right-click entries:
+     "Open in Waraq" opens the viewer; "Edit with Waraq" opens the editor.
+   Double-click uses your default interface. Opening a second file reuses the open window.
+   For security, only the main process reads files Windows passes in; the web page never chooses a path.
+
+6. FIX ARABIC TEXT
+   - Engine tool (More tools): finds pages whose Arabic text is broken (copies backwards, or as odd
+     letter shapes) and rebuilds only those pages with correct searchable Arabic. Other pages are
+     copied untouched. It runs on the bundled engines.
+   - In the browser, "Extract text" turns odd letter shapes into normal letters automatically (always
+     safe). If lines look reversed, it shows a before/after preview and only fixes them if you agree.
+     It only treats a line as reversed when a word starts with ة or ى (impossible in correct Arabic),
+     so words like فعلا, سهلا or أهلا are never touched.
+
+7. COLORS & BACKGROUNDS (extends the gradient tool)
+   Gradient | Solid color | Letterhead | Dark reading
+   - Letterhead: put your letterhead image (PNG/JPG) behind every page. Its white areas become
+     see-through, so text stays visible. It can fill the whole page or sit at the top or bottom at
+     full width.
+   - Dark reading: a night copy (black paper, light text). Photos are inverted too.
+   All modes keep text searchable and handle rotated pages.
+
+8. CERTIFICATE (DIGITAL) SIGNATURES
+   Tool "Certificate signature" (More tools). It signs with:
+     - a .pfx/.p12 certificate file plus its password, or
+     - a certificate installed in Windows, including USB tokens and national ID cards, which ask
+       for their PIN in a Windows window.
+   Optional reason, location and a visible signature box on the last page.
+   Format: adbe.pkcs7.detached with SHA-256, which Acrobat and other readers validate.
+   It works in the Windows desktop app and needs no extra engine. It refuses to re-sign an
+   already-signed PDF, since that would break the first signature.
+
+9. ENGINE SETUP EXPLAINED (English or Arabic, matching the interface language)
+   The Processing engines dialog explains what applies to the device you are on:
+     - Desktop app: nothing to set up, plus what is missing if the Lite edition is installed.
+     - Website on a computer: A) install the desktop app (recommended), B) run the companion on
+       this PC, or C) a team server with Docker, each step by step.
+     - Phone or tablet: what works there and what needs a computer.
+
+10. DOWNLOADS FOR THE RIGHT DEVICE
+    Computers and laptops open the Windows app download. iPhone, iPad (which pretends to be a
+    Mac, now detected), Android and other phones get the home-screen install. This also works for
+    the ?downloads link.
+
+11. UPDATES AND THE SIGNED INSTALLER
+    - Help > "Check for updates". On first launch the app asks once whether to check weekly. It
+      only reads the public version list on your website; no documents or IDs are sent. It does
+      not install by itself: it opens your download page.
+      >> ACTION NEEDED: set "pwaraq": {"updateManifest": "https://www.pwaraq.com/downloads/manifest.json"}
+         in waraq\package.json. Until then, the menu says updates are not configured.
+      The version is read from the installer file names in that manifest (the same rule the
+      website uses), so the current live manifest already works. If the list can't be read, the app
+      says so; it never reports "up to date" by mistake.
+    - Installer names: Waraq-Full-Setup-<version>-x64.exe and Waraq-Lite-Setup-<version>-x64.exe.
+      package-desktop-downloads.cjs now publishes from both release\ and release-full\. The website
+      accepts these names, shows "— Full" or "— Lite", and allows installers up to 2 GB.
+    - Signed installer: buy a code-signing certificate, then before building set
+        CSC_LINK=C:\path\your-cert.pfx   and   CSC_KEY_PASSWORD=...
+      The build then signs the installer and app with a timestamp. Without them it stays unsigned,
+      as before, and Windows shows a warning.
+
+12. FASTER, MORE RELIABLE
+    - Heavy tool modules (OCR, templates, advanced, layout, colors, batch) now load only when first
+      used, so the first screen loads less JavaScript.
+    - The viewer draws only the pages near the screen and frees pages far away, so 200-page files
+      stay light.
+    - The service-worker cache name changed, so installed copies pick up the new files.
+    - The patcher checks every edit point and stops with a clear message, rather than half-patching,
+      if a file has changed in an unexpected way.
+
+
+REVIEW ROUND 2 (REVIEW-ROUND2-2026-10-12.md): all 4 findings fixed, each with a regression test
+  (review-round2-tests.cjs, run by the build):
+  1. Arabic repair no longer changes valid text (the "ends in لا" rule was removed in the browser and
+     engine); direction changes need approval with a preview.
+  2. Turning recovery off cancels the pending save and any save in progress, re-checked after
+     serialization and after the write.
+  3. The updater reads versions with the same rule as the website, tested against the real manifest,
+     and reports unreadable manifests as a failed check.
+  4. Builder, packager, website validator and updater share one artifact-name rule
+     (desktop/release-manifest.cjs). Full/Lite installers are tested end to end through the packager.
+  Also fixed: the signing test could fail about once in 256 runs; the signer itself was correct.
+
+TESTED (on a fresh copy of your current project)
+------------------------------------------------
+- The patch applies cleanly; a second run changes nothing. Your Waraq name and icons are kept.
+- No syntax errors in any file. All suites pass: backend (20), colors, new pwaraq tests, layout,
+  advanced, naming, and certificate signing (7).
+- Signing: a PDF signed with a test certificate (made in memory, nothing added to Windows) was
+  verified by Windows over the exact signed bytes. Changing one byte makes it fail. A wrong
+  password and re-signing both give clear errors.
+- The desktop app starts: 43 tools, and certificate signing is already live on this PC.
+- In the browser I checked: View/Edit switch, default mode, viewer (fit width, find + highlight,
+  text layer, two-page view, thumbnails), recovery offer after reload, chaining two tools with
+  undo, batch to ZIP, the signing form, the Arabic engine guide, and phone vs computer downloads.
+
+NOT TESTED YET
+- Fix Arabic (engine) and the OCR pipeline still need the bundled engines; the build runs those
+  tests (test-native).
+- The installer's right-click entries and "Open with" need a real install to try (the code path
+  was tested).
+- The update check needs your real manifest address.
+
+
+WORTH KNOWING
+-------------
+- MuPDF is AGPL. Waraq calls it as a separate program; keep THIRD-PARTY-ENGINES.txt in the
+  installer.
+- Signatures made here are "basic" (no timestamp authority / long-term validation yet). For
+  government workflows that require PAdES-LTV, a timestamp server can be added later.
+
+
+ROUND 3 (12 October 2026): PAGE EDITOR, LARGE FILES, LIGHT START, ENGINE PAGE
+=============================================================================
+PAGE EDITOR (tool "Edit page", or the crop icon in the viewer for the current page)
+  - Existing photos: drag to move, drag the corner to resize, Delete to remove. The photo itself is
+    not re-compressed; only where it is drawn changes.
+  - Existing text: double-click, type, then press Enter. With the engine (MuPDF) the old text is really
+    removed. Without it, the old text is covered with the page's own colour, and the app says that the
+    old words can still be found by search or copy.
+  - Add text (English as real text; Arabic drawn with correct letter shapes), add images, white-out boxes.
+  - Undo inside the editor (Ctrl+Z). Changes are applied to the open document, with normal undo too.
+
+LARGE FILES
+  - Up to 2 GB per file in the desktop app (1 GB on the website) and 5,000 pages.
+  - Tested: a 2,500-page PDF opened in 1.2 s, the viewer laid it out in 0.65 s, and search found a word
+    on page 2,222 in 0.6 s. Thumbnails are only drawn when they scroll into view.
+  - Unchanged documents are passed on as the original file instead of being rebuilt.
+  - Engine uploads go as raw bytes (not base64). Desktop limits: 2 GB, OCR up to 5,000 pages, 4-hour jobs.
+  - Your MV Trenches PDF: 10 A0 pages, but page 1 alone has 14.6 million drawing commands. The browser
+    needs over 25 s to draw one such page. In the desktop app MuPDF now draws heavy pages (and their
+    thumbnails) instead; on the website a "Drawing page…" placeholder shows while it works.
+    >> Not tested yet: needs the bundled MuPDF (run the build).
+
+CAD DRAWINGS (DWG / DXF -> PDF, engine tool "CAD drawing to PDF", Full edition)
+  - LibreDWG converts DWG to DXF, LibreOffice lays it out as PDF. DXF works with LibreOffice alone.
+    >> Not tested yet. Quality for complex AutoCAD 2018 drawings (like your 75 MB fiber-optic DWG) may not
+       match AutoCAD: check layouts, fonts and layers after converting.
+
+LIGHT START, FASTER ENGINE
+  - pdf-lib and JSZip (about 600 KB) load in the background after the first screen.
+  - The desktop window shows at first paint; engines are checked in the background and the result is
+    kept for 10 minutes (Refresh button on the engine page). Windows certificates are only listed when
+    you open the signing form.
+
+DESIGN
+  - Engine page redesigned: status card, tools grouped by purpose with Ready / Needs engine chips,
+    friendly engine names, connection form folded away (closed in the desktop app).
+  - Viewer toolbar uses the same pill style as the View | Edit switch (page counter, zoom, search).
+  - The viewer is a fixed panel: pages scroll inside it (also sideways for huge drawings) and the toolbar
+    stays visible. Dialog titles stay visible and dialogs never scroll sideways.
+
+BUGS FOUND AND FIXED WHILE TESTING ROUND 3
+  - The editor's page list stopped drawing in the browser (a timer called the wrong way). A test now
+    reproduces the browser behaviour.
+  - A comment inserted into a one-line file hid the page counter. Fixed; the patcher output is scanned.
+  - Very wide pages could not be scrolled to their left edge.
+  - The page editor lost a text edit if Apply was pressed while the text box was still open.
+
+
+REAL-ENGINE TESTS (12 October 2026, MuPDF 1.28.5 and LibreDWG 0.14 downloaded with your OK)
+-------------------------------------------------------------------------------------------
+MV Trenches PDF (14.6 million drawing commands on page 1):
+  - MuPDF draws the page in about 6 s at any size (browser: still not done after 25 s). All 10
+    thumbnails: 7.4 s. Image quality checked: sharp and correctly rotated.
+  - Through the app's render service: upload 81 ms, first draw 6.6 s, nearby zoom from cache 6 ms.
+    Pages are drawn at fixed sizes (256 / 1024 / 2048 / 4096 / 8192 px) so zooming rarely re-draws.
+Fixed thanks to the real engine:
+  - MuPDF 1.28 reads a second argument to openDocument as the file name, which broke redaction and
+    text erase. Fixed; redaction (0.3 s) and erase (normal and rotated pages) now verified.
+  - The MuPDF download page lists builds as text, not links; fetch-engines.ps1 now finds 1.28.5.
+New test: backend\test-mupdf.cjs (5 checks), run by the build.
+
+Fiber-optic DWG (75 MB, AutoCAD 2018):
+  - LibreDWG reads it in 26 s: 185k lines, 106k polylines, 40k splines, 32k texts, 71k blocks, 4 layouts.
+    About 2,700 colour flags could not be read (those objects get default colours) and about 430
+    multi-line texts and 890 objects may be affected.
+  - The result is a 630 MB DXF, too large for LibreOffice to lay out as PDF in reasonable time. The CAD
+    tool now stops with a clear message for drawings over 250 MB of DXF and advises plotting to PDF from
+    AutoCAD or the free Autodesk DWG TrueView. Smaller drawings use the DWG -> DXF -> PDF path.
+  - The LibreOffice step itself is still untested here (LibreOffice was not downloaded).
+
+
+12 OCTOBER 2026, 19:05 RUN
+--------------------------
+- Update indicator: "Update available" pill in the top bar. Desktop: last allowed check (weekly opt-in or
+  Help > Check for updates). Website: compares its public downloads/manifest.json with the running version
+  and offers a reload. Tests: update-tests.cjs.
+- Phone fixes: screen-reader names for View/Edit and page-editor icons; viewer toolbar 197 -> 75 px tall
+  (one scrolling row); View mode fills the screen and only the pages scroll; drop-zone text shows the new
+  limits (1 GB, 2 GB in the app, 5,000 pages).
+- Redesign with lintapple's rules (github.com/gholtzap/lintapple, MIT): dist/design.css. Text sizes on a
+  fixed scale, contrast >= 4.5:1, controls >= 36 px (40 px touch), 8 px gaps and insets, matched corners,
+  sentence case, steady digits. Checked with tools/ui-audit.js: about 470 findings -> 0 on every screen,
+  English and Arabic, desktop and phone width.
+- Engines fetched and tested for real: qpdf 12.4.2, MuPDF 1.28.5, Tesseract 5.4.0 (ara+eng),
+  LibreOffice 26.8.1, LibreDWG 0.14. Arabic OCR, optimize, redaction, Word<->PDF, DXF->PDF, Fix Arabic,
+  heavy-page drawing (MV Trenches page: 6.3 s, zoom from cache 4 ms) all pass. New: test-office-cad.cjs.
+- Fixes found by the real engines: Tesseract now downloads from GitHub (the Mannheim site refuses scripts);
+  7-Zip uninstaller warning tolerated; PowerShell 5.1 stderr check; LibreOffice detected via soffice.com;
+  MuPDF 1.28 rejects "-B" banding without threads (removed).
+- Not built: the Windows installer needs Node.js 22+ and pnpm, which are not installed on this PC.

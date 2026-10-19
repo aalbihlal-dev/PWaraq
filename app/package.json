@@ -1,0 +1,130 @@
+{
+  "name": "waraq-pdf-studio",
+  "version": "0.3.3",
+  "private": true,
+  "description": "Arabic and English PDF workspace with local, offline document tools",
+  "author": "Abdullah Designs",
+  "license": "AGPL-3.0-or-later",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "desktop:start": "electron .",
+    "desktop:test": "node desktop/security.test.cjs",
+    "desktop:check": "node desktop/verify-assets.cjs",
+    "desktop:build": "node desktop/verify-assets.cjs && electron-builder --win portable nsis --x64 --publish never",
+    "desktop:unpacked": "node desktop/verify-assets.cjs && electron-builder --win --x64 --dir --publish never",
+    "desktop:smoke": "node desktop/smoke.cjs",
+    "engines:fetch": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/fetch-engines.ps1",
+    "engines:verify": "node desktop/verify-engines.cjs",
+    "engines:test": "node backend/test-native.cjs",
+    "test:sign": "node backend/test-sign.cjs",
+    "desktop:build:full": "node desktop/verify-assets.cjs && node desktop/verify-engines.cjs --require && node tools/make-packs.cjs && electron-builder --config desktop/builder-full.cjs --win --x64 --publish never && node tools/make-setup.cjs"
+  },
+  "devDependencies": {
+    "electron": "44.7.0",
+    "electron-builder": "26.17.0"
+  },
+  "build": {
+    "appId": "app.waraq.pdfstudio",
+    "productName": "Waraq PDF Studio",
+    "copyright": "Abdullah Designs",
+    "directories": {
+      "output": "release",
+      "buildResources": "desktop/resources"
+    },
+    "asar": true,
+    "electronLanguages": ["en-US", "ar"],
+    "npmRebuild": false,
+    "files": [
+      "desktop/main.cjs",
+      "desktop/preload.cjs",
+      "desktop/security.cjs",
+      "desktop/desktop-extras.cjs",
+      "desktop/release-manifest.cjs",
+      "desktop/pack-defs.cjs",
+      "desktop/packs.cjs",
+      "desktop/fetch-pieces.cjs",
+      "desktop/packs.json",
+      "desktop/README.md",
+      "desktop/resources/**",
+      "server.cjs",
+      "backend/**",
+      "dist/**",
+      "package.json",
+      "!dist/offline/**",
+      "!dist/downloads/**",
+      "!dist/packs/**",
+      "!backend/node_modules/**",
+      "!backend/.env",
+      "!backend/.env.*",
+      "!backend/**/test*",
+      "!backend/**/__pycache__/**",
+      "!backend/**/*.pyc"
+    ],
+    "extraResources": [
+      {
+        "from": "desktop/README.md",
+        "to": "README-desktop.md"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "requestedExecutionLevel": "asInvoker",
+      "signAndEditExecutable": true,
+      "artifactName": "Waraq-${version}-${arch}.${ext}",
+      "icon": "desktop/resources/waraq.ico"
+    },
+    "portable": {
+      "artifactName": "Waraq-Portable-${version}-${arch}.${ext}",
+      "requestExecutionLevel": "user"
+    },
+    "nsis": {
+      "artifactName": "Waraq-Setup-${version}-${arch}.${ext}",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": false,
+      "installerSidebar": "desktop/resources/installer-sidebar.bmp",
+      "uninstallerSidebar": "desktop/resources/installer-sidebar.bmp",
+      "installerHeader": "desktop/resources/installer-header.bmp",
+      "perMachine": false,
+      "allowElevation": false,
+      "packElevateHelper": false,
+      "createDesktopShortcut": false,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true,
+      "installerLanguages": [
+        "en_US",
+        "ar_SA"
+      ],
+      "language": "1033",
+      "installerIcon": "desktop/resources/waraq.ico",
+      "uninstallerIcon": "desktop/resources/waraq.ico",
+      "include": "desktop/installer.nsh"
+    },
+    "publish": null,
+    "fileAssociations": [
+      {
+        "ext": "pdf",
+        "name": "PDF document",
+        "description": "PDF document",
+        "role": "Viewer",
+        "icon": "desktop/resources/waraq.ico"
+      }
+    ]
+  },
+  "pwaraq": {
+    "updateManifest": "https://www.pwaraq.com/downloads/manifest.json"
+  }
+}

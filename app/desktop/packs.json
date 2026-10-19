@@ -1,0 +1,12 @@
+{
+  "office": {
+    "sha256": "d7c9b3950a6da47dd37af592d93638ff6b7392cbfafa899b987260e84f4a2200",
+    "size": 144155656,
+    "unpacked": 604520932
+  },
+  "ocr": {
+    "sha256": "d69a37e8db47854c7b28afcc11301e9ba2abcec9eec81d735a61db3bd81f8f2b",
+    "size": 50087044,
+    "unpacked": 185688600
+  }
+}

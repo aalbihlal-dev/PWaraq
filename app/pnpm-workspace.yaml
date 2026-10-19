@@ -1,0 +1,4 @@
+# pnpm 10+ runs dependency install scripts only when approved here.
+allowBuilds:
+  electron: true            # downloads the Electron runtime the desktop app ships with
+  electron-winstaller: false # Squirrel installer tool; this project builds with NSIS instead

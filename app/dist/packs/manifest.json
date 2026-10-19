@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "packs": [
+    {
+      "name": "office",
+      "sha256": "d7c9b3950a6da47dd37af592d93638ff6b7392cbfafa899b987260e84f4a2200",
+      "size": 144155656,
+      "unpacked": 604520932,
+      "chunks": [
+        {
+          "path": "a62b3632bc9d1c9edf402c95b6ddf007c4ab4b39abd03641911ac7eddc23a54e.bin",
+          "size": 16777216,
+          "sha256": "a62b3632bc9d1c9edf402c95b6ddf007c4ab4b39abd03641911ac7eddc23a54e"
+        },
+        {
+          "path": "923c8960d28370db1e4932d7587c7a0349dee3dabcdc3982a8bbff28a220e4f5.bin",
+          "size": 16777216,
+          "sha256": "923c8960d28370db1e4932d7587c7a0349dee3dabcdc3982a8bbff28a220e4f5"
+        },
+        {
+          "path": "b20cfc16b11ebd1d87e22f4d81be27652d89f70c469c774116d3f62ccd33e60d.bin",
+          "size": 16777216,
+          "sha256": "b20cfc16b11ebd1d87e22f4d81be27652d89f70c469c774116d3f62ccd33e60d"
+        },
+        {
+          "path": "87829bbf0c0770678ea3b5e74b3ed07644573bd7b01501c305f3ca5bd80693bd.bin",
+          "size": 16777216,
+          "sha256": "87829bbf0c0770678ea3b5e74b3ed07644573bd7b01501c305f3ca5bd80693bd"
+        },
+        {
+          "path": "8efd680b08408ace826e3f4345f6dc0fc0f5f36088d633f19694e4a6d889e4df.bin",
+          "size": 16777216,
+          "sha256": "8efd680b08408ace826e3f4345f6dc0fc0f5f36088d633f19694e4a6d889e4df"
+        },
+        {
+          "path": "be3b07ea3dba1cd98253bc7f8d537f7e7af09e1132a49824f1cc7c78a081aebf.bin",
+          "size": 16777216,
+          "sha256": "be3b07ea3dba1cd98253bc7f8d537f7e7af09e1132a49824f1cc7c78a081aebf"
+        },
+        {
+          "path": "4c9198bc4303220ecbd480f435d81ff955f58edd131cf3dd770eca061be0446f.bin",
+          "size": 16777216,
+          "sha256": "4c9198bc4303220ecbd480f435d81ff955f58edd131cf3dd770eca061be0446f"
+        },
+        {
+          "path": "3f32b2e25ddb09119c5dd3675fce910bdb4137e6ba1d2fba3886a358ede201d6.bin",
+          "size": 16777216,
+          "sha256": "3f32b2e25ddb09119c5dd3675fce910bdb4137e6ba1d2fba3886a358ede201d6"
+        },
+        {
+          "path": "9f1a840d28f4f35554c674bd3a18e1e4ecd195acb98a9a20eb38cf7fe2884045.bin",
+          "size": 9937928,
+          "sha256": "9f1a840d28f4f35554c674bd3a18e1e4ecd195acb98a9a20eb38cf7fe2884045"
+        }
+      ]
+    },
+    {
+      "name": "ocr",
+      "sha256": "d69a37e8db47854c7b28afcc11301e9ba2abcec9eec81d735a61db3bd81f8f2b",
+      "size": 50087044,
+      "unpacked": 185688600,
+      "chunks": [
+        {
+          "path": "7623594a65436685bfbb359d49bf93ab4938ab3ba36062ae778599f122a4921f.bin",
+          "size": 16777216,
+          "sha256": "7623594a65436685bfbb359d49bf93ab4938ab3ba36062ae778599f122a4921f"
+        },
+        {
+          "path": "f8a3df0e4afed2820186ea8577e0f6145f6d247c0315a544caa6e78ddf3361e4.bin",
+          "size": 16777216,
+          "sha256": "f8a3df0e4afed2820186ea8577e0f6145f6d247c0315a544caa6e78ddf3361e4"
+        },
+        {
+          "path": "c66f25dc551b450dc99a3bbd3abb78a4af170b5fff1837a5a63e9b27c25f001a.bin",
+          "size": 16532612,
+          "sha256": "c66f25dc551b450dc99a3bbd3abb78a4af170b5fff1837a5a63e9b27c25f001a"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#15775d">
+  <meta name="description" content="Waraq is your Arabic and English PDF workspace. Organize, edit, convert and protect documents, with private browser tools and connected processing engines.">
+  <title>Waraq | ورق — PDF Studio</title>
+  <link rel="stylesheet" href="style.css"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="app-icon.svg" type="image/svg+xml">
+  
+  
+  <script type="module" src="app.js"></script>
+<link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="stylesheet" href="typography.css"><link rel="stylesheet" href="spacing.css">
+  <link rel="stylesheet" href="workspace-plus.css">
+  <link rel="stylesheet" href="design.css"></head>
+<body>
+<a class="skip-link" href="#studio" data-en="Skip to workspace" data-ar="انتقل إلى مساحة العمل">Skip to workspace</a>
+<aside class="sidebar">
+  <a class="brand" href="#" aria-label="Waraq / ورق"><img class="mark" src="brand-mark.svg" alt="" width="44" height="44"><span class="brand-lockup"><span class="brand-ar" lang="ar">ورق</span><span class="brand-latin" aria-hidden="true">WARAQ</span></span></a>
+  <div class="eyebrow" data-en="Your workspace" data-ar="مساحة العمل">Your workspace</div>
+  <nav aria-label="Workspace / مساحة العمل">
+    <button class="nav active" id="studioNav"><span data-icon="studio"></span><span data-en="PDF studio" data-ar="استوديو PDF">PDF studio</span></button>
+    <button class="nav" id="toolsNav"><span data-icon="tools"></span><span data-en="Explore tools" data-ar="استكشف الأدوات">Explore tools</span></button>
+    <button class="nav" id="integrationsNav" aria-controls="moreToolsDisclosure" aria-expanded="false"><span data-icon="integrations"></span><span data-en="More tools" data-ar="أدوات إضافية">More tools</span></button>
+    <button class="nav" id="researchNav"><span data-icon="library"></span><span data-en="Open-source library" data-ar="مكتبة المصادر المفتوحة">Open-source library</span></button>
+  </nav>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-note"><span data-icon="document"></span><span data-en="A place for every page." data-ar="لكل صفحة مكانها.">A place for every page.</span></div>
+  <div class="aside-bottom">
+    <div class="status-heading"><span data-icon="device"></span><b id="connectionStatus" role="status" aria-live="polite" data-en="Browser mode" data-ar="وضع المتصفح">Browser mode</b><span class="status-dot" aria-hidden="true"></span></div>
+    <p data-en="Local tools keep files on your device. Connected tools use the engine you choose." data-ar="تحافظ الأدوات المحلية على ملفاتك في جهازك. تستخدم الأدوات المتصلة المحرك الذي تختاره.">Local tools keep files on your device. Connected tools use the engine you choose.</p>
+    <button class="offline-button" id="offlineDownload"><span data-icon="download"></span><span data-en="Downloads & install" data-ar="التنزيل والتثبيت">Get offline edition</span></button>
+    <button class="offline-button" id="installApp" hidden><span data-icon="install"></span><span data-en="Install Waraq" data-ar="تثبيت ورق">Install Waraq</span></button>
+  </div>
+</aside>
+<div class="shell">
+  <header>
+    <div class="breadcrumb"><span data-en="Workspace" data-ar="مساحة العمل">Workspace</span><span class="breadcrumb-divider" aria-hidden="true">/</span><strong data-en="PDF studio" data-ar="استوديو PDF">PDF studio</strong></div>
+    <div class="header-actions"><span class="privacy"><span data-icon="shield"></span><span data-en="Private by default" data-ar="الخصوصية أساساً">Private by default</span></span><button id="language" aria-label="Change language / تغيير اللغة"><span>العربية</span><span data-icon="language"></span></button></div>
+  </header>
+  <main>
+    <section class="intro">
+      <div><div class="eyebrow teal" data-en="A little order. A lot of possibilities." data-ar="ترتيب بسيط. إمكانيات واسعة.">A little order. A lot of possibilities.</div><h1 data-en="Your PDFs, beautifully in order." data-ar="ملفاتك، بترتيب أجمل.">Your PDFs, beautifully in order.</h1><p data-en="Organize, edit and finish your documents in one thoughtful workspace." data-ar="نظّم مستنداتك وعدّلها وأنجزها في مساحة واحدة متكاملة.">Organize, edit and finish your documents in one thoughtful workspace.</p></div>
+      <div class="document-art" aria-hidden="true"><div class="art-sheet back"></div><div class="art-sheet front"><span class="art-label">WARAQ</span><span class="art-title">PDF</span><span class="art-rule"></span><span class="art-rule short"></span><span class="art-stamp" data-icon="check"></span></div></div>
+    </section>
+
+    <section id="studio" aria-labelledby="workbenchTitle">
+      <div class="section-title"><div class="section-heading"><span class="section-index" aria-hidden="true">01</span><h2 id="workbenchTitle" data-en="Your workbench" data-ar="طاولة العمل">Your workbench</h2></div><button class="text-button" id="demo"><span data-en="Try a sample" data-ar="جرّب مستنداً نموذجياً">Try a sample</span><span data-icon="arrow-up-right"></span></button></div>
+      <div class="drop" id="drop"><div class="upload-icon" data-icon="upload"></div><h2 data-en="A fresh start for your documents" data-ar="بداية جديدة لمستنداتك">A fresh start for your documents</h2><p data-en="Drop PDFs or images here, or choose files to get started." data-ar="اسحب ملفات PDF أو الصور هنا، أو اختر ملفات للبدء.">Drop PDFs or images here, or choose files to get started.</p><button class="primary" id="choose"><span data-icon="plus"></span><span data-en="Choose files" data-ar="اختر الملفات">Choose files</span></button><small data-en="PDF, JPG, PNG · up to 1 GB per file (2 GB in the Windows app) · up to 5,000 pages" data-ar="PDF، JPG، PNG · حتى ١ غيغابايت للملف (٢ غيغابايت في تطبيق ويندوز) · حتى ٥٬٠٠٠ صفحة">PDF, JPG, PNG · up to 1 GB per file (2 GB in the Windows app) · up to 5,000 pages</small><div class="drop-assurance"><span data-icon="device"></span><span data-en="Opened locally in your browser" data-ar="تُفتح الملفات محلياً في متصفحك">Opened locally in your browser</span></div></div>
+      <input id="files" type="file" accept="application/pdf,image/jpeg,image/png" multiple hidden>
+      <div id="work" hidden>
+        <div class="work-toolbar"><div class="work-summary"><span class="work-summary-icon" data-icon="organize"></span><div><strong id="pageCount"></strong><span id="selectionCount"></span></div></div><div class="toolbar-actions"><button id="add"><span data-icon="plus"></span><span data-en="Add files" data-ar="إضافة ملفات">Add files</span></button><button id="undo"><span data-icon="undo"></span><span data-en="Undo" data-ar="تراجع">Undo</span></button><button id="clear"><span data-icon="clear"></span><span data-en="Clear" data-ar="مسح">Clear</span></button></div></div>
+        <div class="actionbar" role="toolbar" aria-label="Page actions / إجراءات الصفحات">
+          <button data-action="all"><span data-icon="select"></span><span data-en="Select all" data-ar="تحديد الكل">Select all</span></button>
+          <button data-action="rotate"><span data-icon="rotate"></span><span data-en="Rotate" data-ar="تدوير">Rotate</span></button>
+          <button data-action="duplicate"><span data-icon="duplicate"></span><span data-en="Duplicate" data-ar="تكرار">Duplicate</span></button>
+          <button data-action="delete" class="danger-quiet"><span data-icon="delete"></span><span data-en="Delete" data-ar="حذف">Delete</span></button>
+          <button data-action="reverse"><span data-icon="reverse"></span><span data-en="Reverse" data-ar="عكس الترتيب">Reverse</span></button>
+          <button data-action="blank"><span data-icon="blank"></span><span data-en="Blank page" data-ar="صفحة فارغة">Blank page</span></button>
+          <button data-action="crop"><span data-icon="crop"></span><span data-en="Crop" data-ar="اقتصاص">Crop</span></button>
+        </div>
+        <p class="hint"><span data-icon="move"></span><span data-en="Select pages to edit. Drag to reorder, or use the arrow buttons. Export follows this order." data-ar="حدد الصفحات لتعديلها. اسحب لإعادة الترتيب أو استخدم الأسهم. يتبع التصدير هذا الترتيب.">Select pages to edit. Drag to reorder, or use the arrow buttons. Export follows this order.</span></p>
+        <div id="pages" class="pages"></div>
+        <div class="exportbar"><label><span data-en="Output filename" data-ar="اسم الملف الناتج">Output filename</span><span class="filename-field"><input id="filename" value="waraq-document" maxlength="100"><span class="file-extension">.pdf</span></span></label><div class="export-actions"><button id="extract"><span data-icon="extract"></span><span data-en="Export selected" data-ar="تصدير المحدد">Export selected</span></button><button id="export" class="primary"><span data-icon="download"></span><span data-en="Download PDF" data-ar="تنزيل PDF">Download PDF</span></button></div></div>
+      </div>
+      <div id="message" role="status" aria-live="polite" aria-atomic="true"></div>
+    </section>
+
+    <section id="toolSection" aria-labelledby="toolsTitle"><div class="section-title"><div class="section-heading"><span class="section-index" aria-hidden="true">02</span><h2 id="toolsTitle" data-en="A tool for every next step" data-ar="أداة لكل خطوة تالية">A tool for every next step</h2></div><span class="subtle" id="toolCount" role="status" aria-live="polite"></span></div>
+      <div class="filters"><div class="filter-chips" role="group" aria-label="Tool categories / فئات الأدوات"><button class="chip active" data-filter="all" data-en="All tools" data-ar="كل الأدوات">All tools</button><button class="chip" data-filter="organize" data-en="Organize" data-ar="تنظيم">Organize</button><button class="chip" data-filter="edit" data-en="Edit" data-ar="تعديل">Edit</button><button class="chip" data-filter="convert" data-en="Convert" data-ar="تحويل">Convert</button><button class="chip" data-filter="extract" data-en="Read & extract" data-ar="قراءة واستخراج">Read & extract</button><button class="chip" data-filter="protect" data-en="Protect" data-ar="حماية">Protect</button></div><label class="search-field"><span data-icon="search"></span><input id="search" type="search" placeholder="Search tools…" aria-label="Search tools"></label></div>
+      <div class="tools" id="tools"></div>
+      <p id="localToolsEmpty" class="local-tools-empty" hidden data-en="Matching tools are in More tools below." data-ar="الأدوات المطابقة في قسم «أدوات إضافية» أدناه.">Matching tools are in More tools below.</p>
+      <p id="noResults" class="empty-search" hidden data-en="No matching tools. Try a different search or category." data-ar="لا توجد أدوات مطابقة. جرّب بحثاً آخر أو فئة أخرى.">No matching tools. Try a different search or category.</p>
+      <details id="moreToolsDisclosure" class="more-tools-disclosure">
+        <summary id="moreToolsSummary"><span class="more-tools-toggle" data-icon="plus"></span><span class="more-tools-label" data-en="More tools" data-ar="أدوات إضافية">More tools</span><span id="moreToolsCount" class="more-tools-count"></span><span class="more-tools-context" data-en="For connected processing engines" data-ar="لمحركات المعالجة المتصلة">For connected processing engines</span></summary>
+        <div class="more-tools-content">
+          <div class="more-tools-intro"><h3 data-en="Go further with a processing engine" data-ar="إمكانيات أوسع مع محرك معالجة">Go further with a processing engine</h3><p data-en="These tools use a separately installed or connected engine. Each card shows whether its engine is ready." data-ar="تستخدم هذه الأدوات محركاً مثبتاً بشكل منفصل أو متصلاً. توضح كل بطاقة ما إذا كان محركها جاهزاً.">These tools use a separately installed or connected engine. Each card shows whether its engine is ready.</p></div>
+          <div class="tools native-tools" id="nativeTools"></div>
+          <p id="nativeNoResults" class="empty-search" hidden data-en="No additional tools match this search or category." data-ar="لا توجد أدوات إضافية تطابق هذا البحث أو هذه الفئة.">No additional tools match this search or category.</p>
+          <section class="engine-strip" aria-label="Processing engines / محركات المعالجة"><span class="engine-strip-icon" data-icon="integrations"></span><div><h3 data-en="Your workspace, extended." data-ar="إمكانيات أوسع لمساحتك.">Your workspace, extended.</h3><p data-en="Connect a processing engine for Office conversion, OCR and advanced PDF operations." data-ar="اربط محرك معالجة لتحويل أوفيس والتعرف الضوئي والعمليات المتقدمة على PDF.">Connect a processing engine for Office conversion, OCR and advanced PDF operations.</p></div><div class="engine-strip-actions"><span class="engine-state" id="engineStatus" role="status" aria-live="polite" data-en="Not connected" data-ar="غير متصل">Not connected</span><button id="engineSettings"><span data-icon="settings"></span><span data-en="Manage engines" data-ar="إدارة المحركات">Manage engines</span></button></div></section>
+        </div>
+      </details>
+    </section>
+
+    <section class="foundation"><span class="foundation-icon" data-icon="open-source"></span><div><h3 data-en="Built on open foundations." data-ar="مبني على أسس مفتوحة.">Built on open foundations.</h3><p data-en="Independent tools. Shared possibilities. Explore the projects behind an open document workspace." data-ar="أدوات مستقلة وإمكانيات مشتركة. اكتشف المشاريع التي تدعم مساحة مستندات مفتوحة.">Independent tools. Shared possibilities. Explore the projects behind an open document workspace.</p></div><button id="researchLink"><span data-en="Meet the projects" data-ar="تعرّف على المشاريع">Meet the projects</span><span data-icon="arrow-up-right"></span></button></section>
+    <p style="text-align:center"><a href="guide.html" data-en="Capabilities, OCR & offline guide" data-ar="دليل الإمكانات وOCR والعمل دون اتصال">Capabilities, OCR & offline guide</a></p><footer><span>ورق / WARAQ</span><span data-en="A considered space for your documents." data-ar="مساحة مدروسة لمستنداتك.">A considered space for your documents.</span><a href="vendor/THIRD-PARTY.html" data-en="Open-source notices" data-ar="تراخيص المصادر المفتوحة">Open-source notices</a></footer><div class="design-credit">Abdullah Designs</div>
+  </main>
+</div>
+<dialog id="dialog" aria-labelledby="dialogTitle"><div class="dialog-head"><h2 id="dialogTitle"></h2><button id="closeDialog" class="icon-button" aria-label="Close / إغلاق"><span data-icon="close"></span></button></div><div id="dialogBody"></div></dialog>
+</body>
+</html>
+
+

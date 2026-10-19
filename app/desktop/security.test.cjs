@@ -1,0 +1,12 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {CSP,isLocalUrl,allowedRequest,safeExternalUrl}=require('./security.cjs');
+const origin='http://127.0.0.1:43125';
+for(const url of [origin+'/',origin+'/vendor/ocr/worker.min.js',origin+'/api/native/process'])assert.equal(isLocalUrl(url,origin),true);
+for(const url of ['http://localhost:43125','http://127.0.0.1:9','https://example.com','http://127.0.0.1:43125.evil.test','file:///C:/secrets','http://user:pass@127.0.0.1:43125','javascript:alert(1)'])assert.equal(isLocalUrl(url,origin),false,url);
+assert.equal(allowedRequest('blob:'+origin+'/id',origin),true);assert.equal(allowedRequest('data:image/png;base64,AA==',origin),true);
+assert.equal(allowedRequest('blob:https://example.com/id',origin),false);assert.equal(allowedRequest('https://cdn.jsdelivr.net/a.js',origin),false);
+assert.equal(safeExternalUrl('https://github.com/pdfarranger/pdfarranger'),'https://github.com/pdfarranger/pdfarranger');
+for(const url of ['javascript:alert(1)','file:///C:/test.exe','http://example.com','https://user:pass@example.com','https://example.com\n'])assert.equal(safeExternalUrl(url),null);
+assert.match(CSP,/connect-src 'self'/);assert.match(CSP,/object-src 'none'/);assert.doesNotMatch(CSP,/script-src[^;]*'unsafe-eval'/);
+console.log('Desktop URL isolation, external-link validation, and CSP checks passed.');

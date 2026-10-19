@@ -1,0 +1,213 @@
+/* View/Edit interfaces, viewer, preferences and command search. Uses the app's tokens from style.css. */
+.pw-mode{display:flex;align-items:center;gap:8px;margin-inline-end:12px}
+.pw-seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;padding:3px;background:var(--surface)}
+.pw-seg button{border:0;border-radius:7px;padding:7px 14px;font-size:13px;gap:6px;background:transparent;width:auto;margin:0}
+.pw-seg button.active{background:var(--teal);color:#fff}
+.pw-seg .icon{width:16px;height:16px}
+.pw-icon{width:36px;height:36px;padding:0;flex:0 0 auto;margin:0}
+.pw-icon .icon{width:18px;height:18px}
+.pw-muted{color:var(--muted);font-size:13px}
+.pw-apply{display:flex;align-items:center;gap:10px;margin:10px 0 4px;font-size:13px;color:var(--muted);cursor:pointer}
+.pw-apply input{width:18px;height:18px;accent-color:var(--teal)}
+.pw-choice{border:1px solid var(--line);border-radius:10px;padding:12px 16px;display:grid;gap:10px;margin:0 0 16px}
+.pw-choice legend{padding:0 6px;font-weight:600}
+.pw-choice label,.pw-check{display:flex;gap:8px;align-items:baseline;line-height:1.5}
+.pw-cmd{width:100%;font-size:16px;padding:12px 14px}
+.pw-cmd-list{list-style:none;margin:10px 0 0;padding:0;max-height:min(420px,60vh);overflow:auto}
+.pw-cmd-list li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer}
+.pw-cmd-list li[aria-selected="true"],.pw-cmd-list li:hover{background:var(--mint)}
+.pw-cmd-list li small{margin-inline-start:auto;color:var(--muted)}
+.pw-cmd-list .icon{width:18px;height:18px;color:var(--teal)}
+
+/* View interface: only the reader is shown inside <main>. */
+body.pw-view main>:not(#viewer){display:none!important}
+#viewer{padding:0 0 24px}
+.pw-vbar{position:sticky;top:0;z-index:4;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 16px;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.pw-group{display:inline-flex;align-items:center;gap:6px}
+.pw-end{margin-inline-start:auto}
+.pw-page-input{width:52px;text-align:center;padding:6px}
+#pwZoom{padding:6px 8px}
+.pw-find input{width:min(220px,40vw);padding:7px 10px}
+.pw-to-edit{background:var(--teal);color:#fff;border-color:var(--teal);margin:0;width:auto}
+.pw-vbody{display:grid;grid-template-columns:150px minmax(0,1fr);min-height:calc(100vh - 150px)}
+#viewer.no-thumbs .pw-vbody{grid-template-columns:minmax(0,1fr)}
+#viewer.no-thumbs .pw-thumbs{display:none}
+.pw-thumbs{position:sticky;top:58px;align-self:start;max-height:calc(100vh - 70px);overflow-y:auto;padding:14px 10px;border-inline-end:1px solid var(--line);display:grid;gap:12px;align-content:start}
+.pw-thumb{position:relative;display:block;width:100%;padding:0;margin:0;border:2px solid transparent;border-radius:6px;background:#fff;overflow:hidden;box-shadow:var(--shadow)}
+.pw-thumb.active{border-color:var(--teal)}
+.pw-thumb canvas{display:block;width:100%;height:auto}
+.pw-thumb span{position:absolute;inset-block-end:4px;inset-inline-end:6px;font-size:11px;background:#fffd;border-radius:4px;padding:0 5px;color:var(--ink)}
+.pw-pages{display:flex;flex-direction:column;align-items:center;gap:18px;padding:20px 24px;outline:none;direction:ltr}
+.pw-page{position:relative;background:#fff;box-shadow:0 2px 12px #1d3a3018,0 0 0 1px #1d3a3010;flex:0 0 auto}
+.pw-page canvas{display:block;width:100%;height:100%}
+.pw-loading{margin:40px}
+#viewer.night .pw-page canvas,#viewer.night .pw-thumb canvas{filter:invert(.92) hue-rotate(180deg) contrast(.92)}
+#viewer.night .pw-pages{background:#111816}
+/* pdf.js 4.x text layer, so text can be selected, copied and highlighted. */
+.textLayer{position:absolute;text-align:initial;inset:0;overflow:clip;opacity:1;line-height:1;text-size-adjust:none;forced-color-adjust:none;transform-origin:0 0;z-index:0;--min-font-size:1;--text-scale-factor:calc(var(--scale-factor)*var(--min-font-size));--min-font-size-inv:calc(1/var(--min-font-size))}
+.textLayer :is(span,br){color:transparent;position:absolute;white-space:pre;cursor:text;transform-origin:0 0}
+.textLayer span{font-size:calc(var(--text-scale-factor)*var(--font-height,1px));transform:rotate(var(--rotate,0deg)) scaleX(var(--scale-x,1)) scale(var(--min-font-size-inv))}
+.textLayer .markedContent{display:contents}
+.textLayer ::selection{background:#15775d40}
+.textLayer span.pw-hit{background:#f7c94888;border-radius:2px}
+/* Read mode: only the pages. */
+body.pw-read .sidebar,body.pw-read header,body.pw-read #message{display:none!important}
+body.pw-read .shell{margin-inline-start:0}
+body.pw-read .pw-thumbs{display:none}
+body.pw-read .pw-vbody{grid-template-columns:minmax(0,1fr)}
+#viewer:fullscreen{overflow:auto;background:var(--paper)}
+#viewer.night:fullscreen{background:#111816}
+/* Printing renders every page as an image into #pwPrint and hides everything else. */
+.pw-print{display:none}
+@media print{
+ body.pw-printing>*:not(.shell),body.pw-printing .sidebar,body.pw-printing header,body.pw-printing .pw-vbar,body.pw-printing .pw-vbody{display:none!important}
+ body.pw-printing .shell{margin:0!important}
+ body.pw-printing .pw-print{display:block}
+ body.pw-printing .pw-print img{display:block;width:100%;page-break-after:always;break-after:page}
+}
+@media(max-width:760px){
+ .pw-vbody{grid-template-columns:minmax(0,1fr)}
+ .pw-thumbs{display:none}
+ .pw-vbar{gap:6px;padding:8px}
+ .pw-find input{width:120px}
+ .pw-pages{padding:12px 8px}
+ .pw-seg button span{display:none}
+ .pw-mode{margin-inline-end:4px}
+}
+/* Two pages side by side; Arabic UI puts page 1 on the right like a printed Arabic book. */
+#viewer.spread .pw-pages{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:flex-start;column-gap:18px}
+[dir="rtl"] #viewer.spread .pw-pages{direction:rtl}
+/* Recovery banner */
+.pw-recover{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;margin:0 0 16px;border:1px solid var(--line);border-radius:10px;background:var(--mint)}
+.pw-recover p{margin:0;flex:1 1 220px}
+.pw-recover button{width:auto;margin:0}
+.engine-steps{margin:6px 0 14px;padding-inline-start:22px;display:grid;gap:6px;line-height:1.6}
+.engine-guide h4{margin:16px 0 4px}
+.engine-guide code{background:var(--mint);border-radius:4px;padding:1px 5px}
+.engine-warn{color:var(--danger);font-weight:500}
+.engine-ok{color:var(--teal);font-weight:500}
+.batch-log{max-height:220px;overflow:auto;font-size:13px;padding-inline-start:20px}
+.batch-log .ok{color:var(--teal)}.batch-log .fail{color:var(--danger)}
+.pw-arabic-preview{display:grid;gap:10px;padding-inline-start:20px}
+.pw-arabic-preview .pw-before{color:var(--danger);text-decoration:line-through;opacity:.8}
+.pw-arabic-preview .pw-after{color:var(--teal);font-weight:600}
+/* Page editor (full screen) */
+body.pe-open{overflow:hidden}
+.pe-root{position:fixed;inset:0;z-index:50;background:var(--paper);display:flex;flex-direction:column}
+.pe-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--surface)}
+.pe-bar button{width:auto;margin:0;padding:7px 12px;font-size:13px}
+.pe-bar .pw-icon{padding:0}
+.pe-bar .icon{width:16px;height:16px}
+.pe-title{font-size:15px;margin-inline-end:6px}
+.pe-group{display:inline-flex;align-items:center;gap:6px}
+.pe-end{margin-inline-start:auto}
+.pe-props label{display:inline-flex;align-items:center;gap:6px;font-size:13px}
+.pe-props input[type=number]{width:62px;padding:5px}
+.pe-props input[type=color]{width:40px;min-height:30px;padding:2px}
+.pe-check input{width:16px;height:16px;accent-color:var(--teal)}
+.pe-hint{margin:0;padding:8px 16px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line)}
+.pe-stage-wrap{flex:1;overflow:auto;display:grid;place-items:center;padding:20px;background:#eef1ec}
+.pe-stage{position:relative;background:#fff;box-shadow:0 4px 24px #1d3a3022}
+.pe-stage canvas{display:block}
+.pe-layer{position:absolute;inset:0}
+.pe-obj{position:absolute;cursor:move;outline:1px dashed transparent;touch-action:none}
+.pe-photo:hover,.pe-added:hover{outline-color:var(--teal)}
+.pe-obj.is-selected{outline:2px solid var(--teal)}
+.pe-added.pe-box{background:#fff;outline:1px dashed #9db3a8}
+.pe-added.pe-image{background-size:100% 100%}
+.pe-added.pe-text{white-space:pre;line-height:1.25;font-family:Tajawal,Tahoma,Arial,sans-serif;overflow:visible}
+.pe-handle{position:absolute;inset-inline-end:-6px;bottom:-6px;width:12px;height:12px;border-radius:3px;background:var(--teal);cursor:nwse-resize}
+[dir=rtl] .pe-handle{cursor:nesw-resize}
+.pe-text{position:absolute;cursor:text;border-radius:2px}
+.pe-text:hover{background:#15775d18;outline:1px solid #15775d55}
+.pe-text.is-edited{white-space:pre;line-height:1.2;font-family:Helvetica,Arial,Tajawal,sans-serif;outline:1px solid var(--teal);overflow:visible}
+.pe-inline{position:absolute;z-index:3;resize:both;line-height:1.25;font-family:Tajawal,Tahoma,Arial,sans-serif;padding:2px 4px;border:2px solid var(--teal);border-radius:4px;background:#fff}
+@media(max-width:760px){.pe-bar button span{display:none}.pe-end{margin-inline-start:0}}
+/* All dialogs: the title stays visible while scrolling, and nothing scrolls sideways. */
+dialog{overflow-x:hidden}
+.dialog-head{position:sticky;top:-26px;z-index:2;background:var(--paper);margin-top:-26px;padding-top:26px}
+#dialogBody code{overflow-wrap:anywhere}
+#dialogBody table{width:100%;table-layout:fixed}
+#dialogBody td,#dialogBody th{overflow-wrap:anywhere}
+@media(max-width:760px){.dialog-head{top:-20px;margin-top:-20px;padding-top:20px}}
+/* Engine page */
+.eng-status{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:10px}
+.eng-status div{display:grid;gap:2px;flex:1}
+.eng-status div span{font-size:13px;color:var(--muted)}
+.eng-dot{width:12px;height:12px;border-radius:50%;flex:0 0 auto;background:#b8c2bc}
+.eng-status.is-ok .eng-dot{background:var(--teal)}
+.eng-status.is-partial .eng-dot{background:#d9a441}
+.eng-msg:empty{display:none}
+.eng-msg{font-size:13px;color:var(--teal);margin:4px 0 10px}
+.eng-groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:14px}
+.eng-group{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:12px 14px}
+.eng-group h4{margin:0 0 8px;font-size:14px}
+.eng-group ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.eng-group li{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px}
+.eng-chip{font-size:11px;white-space:nowrap;border-radius:999px;padding:2px 9px;background:#f1f3ef;color:var(--muted);border:1px solid var(--line)}
+.eng-chip.is-ok{background:var(--mint);color:var(--teal);border-color:#cfe3d6}
+.eng-connect{border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px;background:var(--surface)}
+.eng-connect summary,.engine-guide summary{cursor:pointer;font-weight:600}
+.eng-connect[open] summary{margin-bottom:8px}
+.engine-guide{border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:var(--surface)}
+.pw-page.pw-capped canvas{image-rendering:auto}
+/* Viewer toolbar, modern controls: each group is one pill, like the View | Edit switch. */
+.pw-vbar .pw-group{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;box-shadow:0 1px 2px #1d3a300a}
+.pw-vbar .pw-group>button,.pw-vbar .pw-group .pw-icon{border:0;background:transparent;width:34px;height:34px;border-radius:9px;margin:0;color:var(--ink)}
+.pw-vbar .pw-group>button:hover{background:var(--mint);color:var(--teal)}
+.pw-vbar .pw-group>button:focus-visible{outline:2px solid var(--teal);outline-offset:-2px}
+.pw-vbar .pw-group>button:disabled{opacity:.35}
+.pw-page-input{width:46px;height:30px;border:0;border-radius:8px;background:var(--mint);color:var(--ink);font-weight:600;font-size:14px;text-align:center;font-variant-numeric:tabular-nums;padding:0}
+.pw-page-input:focus{outline:2px solid var(--teal);background:#fff}
+#pwPageCount{padding:0 6px 0 4px;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+#pwZoom{border:0;background:transparent;font-weight:600;font-size:13px;padding:6px 4px;min-width:96px;cursor:pointer}
+.pw-find{padding-inline-start:10px!important}
+.pw-find input{border:0;background:transparent;padding:6px 4px;box-shadow:none}
+.pw-find input:focus{outline:none}
+.pw-find:focus-within{border-color:var(--teal);box-shadow:0 0 0 3px #15775d1f}
+#pwFindCount{font-size:12px;padding:0 6px;white-space:nowrap}
+.pw-vbar .pw-end{background:transparent;border:0;box-shadow:none;padding:0;gap:6px}
+.pw-vbar .pw-end>button:not(.pw-to-edit){background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.pw-to-edit{height:36px;border-radius:10px!important;padding:0 14px!important;width:auto!important}
+/* Big pages must stay scrollable to their left edge: centre with auto margins, not flex centring. */
+.pw-pages{align-items:flex-start}
+.pw-page{margin-inline:auto}
+#viewer.spread .pw-pages{justify-content:safe center}
+#viewer.spread .pw-page{margin-inline:0}
+.pw-engine-img{display:block;width:100%;height:100%}
+.pw-rendering{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);font-size:14px;background:repeating-linear-gradient(45deg,#fafbf9,#fafbf9 12px,#f3f5f1 12px,#f3f5f1 24px)}
+.pw-spinner{width:18px;height:18px;border-radius:50%;border:2px solid #cfdcd3;border-top-color:var(--teal);animation:pw-spin .9s linear infinite}
+@keyframes pw-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.pw-spinner{animation:none}}
+.pw-vbar .pw-group>button.pw-to-edit{background:var(--teal);color:#fff;border:1px solid var(--teal);width:auto;height:36px;padding:0 14px;border-radius:10px;gap:6px}
+.pw-vbar .pw-group>button.pw-to-edit:hover{background:#0f6a52;color:#fff}
+.pw-vbar>button.pw-icon{background:var(--surface);border:1px solid var(--line);border-radius:10px;width:36px;height:36px}
+/* The viewer is a fixed-height panel: pages scroll inside it (both ways), the toolbar always stays in view. */
+#viewer{display:flex;flex-direction:column;height:calc(100dvh - 81px);padding:0}
+#viewer .pw-vbar{position:static}
+#viewer .pw-vbody{flex:1;min-height:0}
+#viewer .pw-pages{overflow:auto;height:100%}
+#viewer .pw-thumbs{position:static;max-height:none;height:100%}
+#viewer:fullscreen,body.pw-read #viewer{height:100dvh}
+.pw-rendering{display:block}
+.pw-rendering-label{position:sticky;top:40%;left:24px;display:inline-flex;align-items:center;gap:10px;margin:min(40%,240px) 24px;padding:10px 16px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted);font-size:14px;box-shadow:var(--shadow)}
+@media(max-width:760px){#viewer{height:calc(100dvh - 64px)}}
+.pw-recovery-status{margin:2px 0 6px;font-size:12px;color:var(--muted)}
+.pw-recovery-status[data-state="too-large"],.pw-recovery-status[data-state="failed"]{color:#9a6a12}
+/* Update available badge (top bar) */
+.pw-update{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid #cfe3d6;background:var(--mint);color:var(--teal);font-size:14px;font-weight:600;width:auto;margin:0}
+.pw-update .icon{width:16px;height:16px}
+.pw-update-dot{width:8px;height:8px;border-radius:50%;background:#d9534f;box-shadow:0 0 0 3px #d9534f33}
+@media(max-width:760px){.pw-update span:not(.pw-update-dot){display:none}.pw-update{padding:0 12px}}
+/* View mode: only the pages panel scrolls, so the top bar and View | Edit switch never leave the screen. */
+body.pw-view{overflow:hidden}
+body.pw-view main{padding-block:0}
+/* Phones: the viewer toolbar is one compact row that scrolls sideways instead of wrapping to four rows. */
+@media(max-width:760px){
+ .pw-vbar{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;padding:8px;gap:8px}
+ .pw-vbar::-webkit-scrollbar{display:none}
+ .pw-vbar>*{flex:0 0 auto}
+ .pw-vbar .pw-end{margin-inline-start:0}
+ .pw-find input{width:120px}
+ #viewer{height:calc(100dvh - 64px)}
+}

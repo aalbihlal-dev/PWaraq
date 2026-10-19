@@ -1,0 +1,311 @@
+/* Waraq design rules — measurable and checked by tools/ui-audit.js.
+   Approach taken from lintapple (github.com/gholtzap/lintapple, MIT): explicit rules instead of taste.
+   1. Text sizes only from the scale 12 / 14 / 16 / 18 / 20 / 24 / 32 / 40 (buttons 14).
+   2. Normal text contrast >= 4.5:1, large text >= 3:1.
+   3. Controls at least 36 px (40 px on touch screens).
+   4. At least 8 px between controls in a group and 8 px between a control and its container's edge.
+   5. Concentric corners: inner radius = outer radius - inset.
+   6. Sentence case; equal-width digits for changing numbers.
+   Loaded last so it can bring older styles onto the scale. */
+:root{
+  --muted:#56675e;            /* was #697c72 (4.44:1 on paper); now >= 5:1 */
+  --fs-caption:12px;--fs-body:14px;--fs-lead:16px;--fs-title:20px;--fs-display:32px;
+  --control:36px;--gap:8px;--inset:8px;--radius-outer:16px;--radius-inner:8px;
+}
+@media(pointer:coarse){:root{--control:40px}}
+
+/* 1. Type scale */
+h1{font-size:var(--fs-display);line-height:1.2}
+h2,.section-heading h2{font-size:var(--fs-title)}
+.tool h3,.more-tools-intro h3,.engine-strip h3{font-size:var(--fs-lead)}
+.tool p,.more-tools-intro p,.engine-strip p,.intro p{font-size:var(--fs-body)}
+.intro p{font-size:var(--fs-lead)}
+.tool-badge,.engine-state,.page-label,.section-index,.subtle,#toolCount,.more-tools-count,.more-tools-context,
+.file-extension,.eyebrow,.brand-latin,#connectionStatus,.status-heading,.aside-bottom p,.sidebar-note,.hint,
+.privacy,.privacy span,footer,footer a,#selectionCount,.eng-chip,.pw-thumb span,#pwFindCount,.gradient-layout output,
+#dialogBody code,.pw-recovery-status{font-size:var(--fs-caption)}
+.nav,.nav span,.chip,.offline-button,.offline-button span,.breadcrumb,.breadcrumb *,#language span,.text-button,.text-button span,
+.actionbar button,.actionbar button span,.toolbar-actions button,.toolbar-actions button span,.exportbar button,.exportbar button span,
+.engine-strip-actions button,.engine-strip-actions button span,#researchLink span,.more-tools-label,
+.pw-seg button,.pw-muted,.pw-apply,#pwZoom,.pe-bar button,.pe-hint,.pe-props label,#dialogBody label,label.pw-check,
+.gradient-modes button,.gradient-hint,#pageCount,.pw-update,.eng-group li,.eng-msg{font-size:var(--fs-body)}
+.pe-title{font-size:var(--fs-lead)}
+.brand-ar{font-size:40px}
+.eyebrow{text-transform:none;letter-spacing:.01em}
+
+/* 2. Contrast */
+.eyebrow,.sidebar-note,.sidebar-note span,.aside-bottom p,.breadcrumb span,.privacy,.section-index,.file-extension,
+.more-tools-context,.subtle,.page-label,.pw-muted,#pwPageCount,.engine-state,.hint,.hint span,footer,footer a{color:var(--muted)}
+.breadcrumb-divider{color:#8a988f}
+.tool-badge{color:#4f6156;background:#eef3ec;border-color:#dbe5d6}
+.tool-badge.engine{color:#6b5a36;background:#f8f1e3;border-color:#e8dcc3}
+.tool-badge.engine.is-ready{color:#145c48;background:#e6f2ea;border-color:#c9e1d2}
+
+/* 3–5. Controls, gaps, insets, concentric corners */
+.nav-list,aside nav{gap:var(--gap)}
+aside nav{display:flex;flex-direction:column}
+.pw-seg,.pw-vbar .pw-group{padding:var(--inset);gap:var(--gap);border-radius:var(--radius-outer)}
+.pw-seg button,.pw-vbar .pw-group>button,.pw-vbar .pw-group .pw-icon{min-height:var(--control);min-width:var(--control);border-radius:var(--radius-inner)}
+.pw-seg button{padding:0 14px}
+.pw-vbar .pw-end{gap:var(--gap)}
+.pw-vbar .pw-end>button:not(.pw-to-edit),.pw-vbar>button.pw-icon{width:var(--control);height:var(--control);border-radius:var(--radius-inner)}
+.pw-page-input,#pwZoom,.pw-find input{min-height:var(--control);height:var(--control)}
+.pw-page-input{border-radius:var(--radius-inner)}
+.pw-find input{border-radius:var(--radius-inner)}
+.pw-to-edit{height:var(--control)!important}
+.pw-mode{gap:var(--gap)}
+#pwPrefs{width:var(--control);height:var(--control)}
+.pe-bar .pe-group{gap:var(--gap)}
+.pe-bar button,.pe-bar .pw-icon{min-height:var(--control);min-width:var(--control)}
+.chip{min-height:var(--control)}
+.filter-chips{gap:var(--gap)}
+.actionbar,.toolbar-actions,.exportbar .advanced-actions,.advanced-actions{gap:var(--gap)}
+.eng-group li{min-height:28px}
+.gradient-modes{gap:var(--gap)}
+.gradient-modes button{min-height:var(--control)}
+.pw-update{min-height:var(--control)}
+/* Equal-width digits for counters that change */
+#pwPageCount,.pw-page-input,#pageCount,#selectionCount,#toolCount,.more-tools-count,#pwFindCount,.pw-thumb span,#pePage,.eng-status span{font-variant-numeric:tabular-nums}
+
+/* Phones: same rules, one compact scrolling toolbar row */
+@media(max-width:760px){
+  .pw-vbar{gap:var(--gap)}
+  .pw-vbar .pw-group,.pw-vbar .pw-end{padding:var(--inset);gap:var(--gap)}
+  .pw-vbar .pw-end{padding:0}
+  .aside-bottom{padding:var(--inset)}
+  .intro h1,html[dir=rtl] .intro h1{font-size:24px}
+  #toolCount,.subtle{font-size:var(--fs-caption)}
+  .drop h2{font-size:18px}
+  .drop p{font-size:var(--fs-body)}
+}
+
+/* Second audit pass */
+.brand .brand-lockup .brand-ar{font-size:40px}
+.brand .brand-lockup .brand-latin{font-size:var(--fs-caption)}
+.foundation p,.drop small,.drop-assurance span,.exportbar label>span{font-size:var(--fs-caption)}
+.foundation p{font-size:var(--fs-body)}
+.more-tools-count,.design-credit,.more-tools-intro p,.engine-strip p{color:#4d5d55}
+.eng-status div span{font-size:var(--fs-body)}
+.engine-guide code,#dialogBody code{color:var(--ink)}
+.search-field{min-height:var(--control)}
+.search-field #search{min-height:calc(var(--control) - 2px);height:100%}
+#dialogBody .advanced-actions{display:flex;flex-wrap:wrap;gap:var(--gap)}
+#dialog .gradient-modes{gap:var(--gap)}
+.pw-thumbs{gap:12px}
+#work .exportbar label>span,#work .exportbar label>span:first-child{font-size:var(--fs-caption)}
+.pw-thumbs{grid-auto-rows:max-content}
+.pw-thumb{height:auto}
+
+/* Arabic: one scale step larger where it helps legibility, still on the scale */
+html[dir=rtl] h1,html[dir=rtl] .intro h1{font-size:var(--fs-display);line-height:1.6}
+html[dir=rtl] .tool h3{font-size:18px}
+html[dir=rtl] .tool p{font-size:var(--fs-body);line-height:1.8}
+html[dir=rtl] .eyebrow{font-size:var(--fs-caption)}
+html[dir=rtl] .chip,html[dir=rtl] .nav,html[dir=rtl] .nav span{font-size:var(--fs-body)}
+html[dir=rtl] #language,#language{font-size:var(--fs-body)}
+@media(max-width:760px){h1,html[dir=rtl] h1,html[dir=rtl] .intro h1{font-size:24px}}
+
+/* View mode fills the screen exactly: top bar, then the viewer; only the pages panel scrolls. */
+body.pw-view .shell{display:flex;flex-direction:column;height:100dvh}
+body.pw-view .shell>header{flex:none}
+body.pw-view main{flex:1;min-height:0}
+body.pw-view #viewer{height:100%}
+@media(max-width:760px){
+  body.pw-view .sidebar{display:none}   /* the stacked menu would push the document off-screen */
+  body.pw-view .shell{margin:0}
+}
+.section-title #toolCount{font-size:var(--fs-caption)}
+/* Flex children must be allowed to shrink, or the one-row phone toolbar widens the whole page. */
+body.pw-view .shell,body.pw-view .shell>*,body.pw-view main,#viewer,#viewer>*,.pw-vbar{min-width:0;max-width:100%}
+@media(max-width:760px){body.pw-view .shell{margin-inline:0!important;width:100%}}
+html:has(body.pw-view){overflow:hidden} /* View mode never scrolls the outer page (also removes a stray scrollbar in RTL) */
+@media(max-width:760px){body.pw-view .breadcrumb{display:none}body.pw-view header{padding-inline:var(--inset)}}
+
+/* Download card: help for the Windows SmartScreen message (unsigned installer) */
+.download-smartscreen{margin-top:8px;font-size:var(--fs-caption);color:var(--muted)}
+.download-smartscreen summary{cursor:pointer;font-weight:600;color:var(--ink);font-size:var(--fs-caption)}
+.download-smartscreen ol{margin:8px 0;padding-inline-start:20px;display:grid;gap:4px}
+.download-smartscreen p{margin:0}
+
+/* Viewer: CAD-style zoom and pan */
+#viewer[data-tool="hand"] .pw-pages,#viewer.pw-space .pw-pages{cursor:grab}
+#viewer.pw-dragging .pw-pages{cursor:grabbing;user-select:none}
+#viewer[data-tool="box"] .pw-pages{cursor:zoom-in}
+#viewer[data-tool] .pw-pages .textLayer{pointer-events:none}
+#viewer[data-tool="select"] .pw-pages .textLayer{pointer-events:auto}
+.pw-zoombox{position:fixed;z-index:50;border:1.5px dashed var(--teal);background:color-mix(in srgb,var(--teal) 10%,transparent);pointer-events:none;border-radius:2px}
+.pw-vbar [aria-pressed="true"]{background:var(--mint);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--teal)}
+.pw-page canvas,.pw-page .pw-engine-img{transform-origin:0 0}
+.pw-pages{overscroll-behavior:contain}
+#viewer .pw-vbody{transition:grid-template-columns .2s ease}
+#viewer .pw-thumbs{transition:opacity .2s ease}
+@media (prefers-reduced-motion:reduce){#viewer .pw-vbody,#viewer .pw-thumbs,.qb,.qb-tools{transition:none}}
+
+/* Quick tools bar */
+.qb{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"tabs tabs side" "tools tools tools";align-items:center;gap:8px;margin:0 0 8px;padding:8px;border:1px solid var(--line);border-radius:16px;background:var(--surface,#fff)}
+.qb[hidden]{display:none}
+.qb-tabs{grid-area:tabs;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;min-width:0}
+.qb-tab{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 12px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-size:var(--fs-caption,12px);font-weight:600;white-space:nowrap;cursor:pointer}
+.qb-tab .icon{width:16px;height:16px}
+.qb-tab:hover{background:var(--mint);color:var(--ink)}
+.qb-tab[aria-selected="true"]{background:var(--mint);color:var(--ink);box-shadow:inset 0 -2px 0 var(--teal)}
+.qb-tab.is-drop{box-shadow:inset 0 0 0 2px var(--teal)}
+.qb-side{grid-area:side;display:flex;gap:4px;align-items:center}
+.qb-btn{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font-size:var(--fs-caption,12px);font-weight:600;cursor:pointer}
+.qb-btn .icon{width:16px;height:16px}
+.qb-btn[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
+.qb-icon{display:inline-grid;place-items:center;width:36px;height:36px;border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
+.qb-icon:hover{background:var(--mint);color:var(--ink)}
+.qb-tools{grid-area:tools;display:flex;gap:8px;overflow-x:auto;padding-block-end:2px;scrollbar-width:thin;min-width:0}
+.qb.is-collapsed{grid-template-areas:"tabs tabs side"}
+.qb.is-collapsed .qb-tools{display:none}
+.qb-tool{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper,#fff);color:var(--ink);font-size:var(--fs-body-sm,14px);white-space:nowrap;cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
+.qb-tool .icon{width:20px;height:20px;color:var(--teal)}
+.qb-tool:hover{border-color:var(--teal);background:var(--mint)}
+.qb-tool.is-dragging{opacity:.5}
+.qb-tool.is-drop{box-shadow:-3px 0 0 var(--teal)}
+[dir="rtl"] .qb-tool.is-drop{box-shadow:3px 0 0 var(--teal)}
+.qb-star{display:inline-grid;color:var(--muted)}
+.qb-star .icon{width:16px;height:16px;color:currentColor}
+.qb-tool.is-fav .qb-star{color:#b7791f}
+.qb-tool.is-fav .qb-star .icon{fill:currentColor}
+.is-customizing .qb-tool{border-style:dashed}
+.qb-empty{margin:0;padding:8px;color:var(--muted);font-size:var(--fs-caption,12px)}
+body.pw-read .qb{display:none}
+@media (max-width:640px){.qb-btn span{display:none}.qb-tool span:not(.qb-star){max-width:12ch;overflow:hidden;text-overflow:ellipsis}}
+
+/* My shortcuts dialog */
+.sc-list{list-style:none;margin:8px 0;padding:0;display:grid;gap:8px}
+.sc-row{display:grid;grid-template-columns:minmax(96px,auto) minmax(0,1fr) 36px;gap:8px;align-items:center}
+.sc-row kbd,.sc-add kbd{font:600 var(--fs-caption,12px)/1 inherit;font-variant-numeric:tabular-nums;padding:8px;border:1px solid var(--line);border-bottom-width:2px;border-radius:8px;background:var(--paper,#fff);text-align:center;white-space:nowrap}
+.sc-row select,.sc-add select{min-height:40px;min-width:0}
+.sc-add{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:8px}
+.qb-btn.is-listening{border-color:var(--teal);box-shadow:0 0 0 3px color-mix(in srgb,var(--teal) 25%,transparent)}
+/* Headline on the type scale at every width (style.css used 26-31px) */
+.intro h1{font-size:var(--fs-display)}
+@media(max-width:1180px){.intro h1,html[dir=rtl] .intro h1{font-size:32px}}
+@media(max-width:760px){.intro h1,html[dir=rtl] .intro h1{font-size:24px}}
+
+/* Calm View mode: the drawing gets the screen; tools wait until asked for */
+body.pw-view .breadcrumb,body.pw-view .privacy{display:none}
+body.pw-view .qb{display:none}
+body.pw-view.qb-open .qb{display:grid;position:fixed;z-index:40;top:var(--qb-top,120px);inset-inline-end:16px;width:min(760px,calc(100vw - 32px));margin:0;box-shadow:0 12px 32px #1d3a3026,0 0 0 1px #1d3a3014;animation:pw-pop .14s ease-out}
+@keyframes pw-pop{from{opacity:0;transform:translateY(-4px)}}
+
+/* One-row viewer toolbar */
+.pw-vbar{flex-wrap:nowrap;gap:8px;align-items:center;overflow:visible}
+.pw-vbar>.pw-group{border:0;box-shadow:none;background:transparent;padding:0;gap:2px}
+.pw-vbar>.pw-group+.pw-group:not(.pw-end){border-inline-start:1px solid var(--line);padding-inline-start:8px;border-radius:0}
+.pw-vbar>.pw-end{margin-inline-start:auto;gap:8px}
+.pw-find input{width:40px;padding-inline:0;text-indent:40px;cursor:pointer;border-color:transparent;transition:width .18s ease;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23596a62' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-4-4'/%3E%3C/svg%3E") center/18px no-repeat}
+.pw-find:not(:focus-within):not(:has(input:not(:placeholder-shown))) :is(button,#pwFindCount){display:none}
+.pw-find:focus-within input,.pw-find input:not(:placeholder-shown){width:200px;text-indent:0;padding-inline:12px;cursor:text;background:var(--paper,#fff);border-color:var(--line)}
+.pw-chip{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font-weight:600;font-size:var(--fs-body-sm,14px);cursor:pointer}
+.pw-chip .icon{width:18px;height:18px;color:var(--teal)}
+.pw-chip[aria-expanded="true"],.pw-chip:hover{background:var(--mint);border-color:var(--teal)}
+.pw-more-wrap{position:relative;display:inline-flex}
+.pw-menu{position:absolute;top:calc(100% + 8px);inset-inline-end:0;z-index:45;min-width:240px;padding:8px;display:grid;gap:2px;background:var(--surface,#fff);border-radius:12px;box-shadow:0 12px 32px #1d3a3026,0 0 0 1px #1d3a3014;animation:pw-pop .14s ease-out}
+.pw-menu[hidden]{display:none}
+.pw-menu-item{display:flex;align-items:center;gap:12px;min-height:40px;padding:0 12px;border:0;border-radius:8px;background:transparent;color:var(--ink);font-size:var(--fs-body-sm,14px);text-align:start;cursor:pointer;white-space:nowrap}
+.pw-menu-item .icon{width:18px;height:18px;color:var(--teal);flex:none}
+.pw-menu-item:hover,.pw-menu-item:focus-visible{background:var(--mint)}
+.pw-menu-item[aria-pressed="true"]{box-shadow:inset 3px 0 0 var(--teal)}
+@media (max-width:640px){.pw-chip span{display:none}.pw-vbar .pw-tools{display:none}}
+@media (prefers-reduced-motion:reduce){.pw-menu,body.pw-view.qb-open .qb{animation:none}.pw-find input{transition:none}}
+.pw-vbar .pw-end>button.pw-chip{width:auto;min-width:0;flex:none;white-space:nowrap;padding:0 12px}
+.pw-vbar .pw-menu .pw-menu-item{width:100%;height:auto;justify-content:flex-start;text-align:start}
+body.pw-view .qb-collapse{display:none}
+/* lintapple: 8px between neighbouring controls */
+.pw-vbar>.pw-group{gap:8px}
+.qb-tabs,.qb-side{gap:8px}
+.pw-menu{gap:8px}
+.pw-vbar .pw-menu .pw-menu-item{min-height:36px}
+@media (max-width:640px){.pw-vbar{flex-wrap:wrap;row-gap:8px}.pw-vbar>.pw-group+.pw-group:not(.pw-end){border-inline-start:0;padding-inline-start:0}.pw-vbar>.pw-end{margin-inline-start:auto}.pw-find:focus-within input,.pw-find input:not(:placeholder-shown){width:160px}}
+/* Side panel: collapse to a rail of icons (desktop widths only) */
+.side-toggle{position:absolute;top:16px;inset-inline-end:12px;display:inline-grid;place-items:center;width:36px;height:36px;border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
+.side-toggle:hover{background:var(--mint);color:var(--ink)}
+.side-toggle .icon{width:18px;height:18px}
+.sidebar{transition:width .2s ease,padding .2s ease}
+.shell{transition:margin .2s ease}
+@media (min-width:761px){
+  body.side-rail{--sidebar-width:72px}
+  body.side-rail .sidebar{padding-inline:12px;padding-top:64px;align-items:center}
+  body.side-rail .side-toggle{inset-inline:0;margin-inline:auto}
+  body.side-rail .sidebar .brand{justify-content:center}
+  body.side-rail .sidebar :is(.brand-lockup,.eyebrow,.sidebar-divider,.sidebar-note,.aside-bottom>p,.status-heading b){display:none}
+  body.side-rail .sidebar .nav,body.side-rail .sidebar .offline-button{width:48px;min-height:48px;padding:0;justify-content:center;gap:0}
+  body.side-rail .sidebar :is(.nav,.offline-button)>span:not([data-icon]){position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  body.side-rail .sidebar .status-heading{justify-content:center}
+  body.side-rail .sidebar .aside-bottom{padding:8px;display:grid;justify-items:center;gap:8px}
+}
+@media (max-width:760px){.side-toggle{display:none}}
+@media (prefers-reduced-motion:reduce){.sidebar,.shell{transition:none}}
+@media (min-width:761px){body.side-rail .sidebar{overflow-x:hidden}}
+.pw-page .pw-detail{position:absolute;display:block;pointer-events:none;max-width:none}
+#viewer.night .pw-page .pw-detail{filter:invert(.92) hue-rotate(180deg) contrast(.92)}
+.pw-page .pw-detail{position:absolute;display:block;pointer-events:none;max-width:none}
+#viewer.night .pw-page .pw-detail{filter:invert(.92) hue-rotate(180deg) contrast(.92)}
+
+/* Open / Close file, in the top bar while a document is open */
+.pw-file{display:inline-flex;gap:8px;margin-inline-end:8px}
+.pw-file[hidden]{display:none}
+.pw-file-btn{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface,#fff);color:var(--ink);font-weight:600;font-size:var(--fs-body-sm,14px);cursor:pointer}
+.pw-file-btn .icon{width:18px;height:18px;color:var(--teal)}
+.pw-file-btn:hover{background:var(--mint);border-color:var(--teal)}
+@media (max-width:760px){.pw-file-btn span{display:none}.pw-file-btn{width:40px;padding:0;justify-content:center}}
+/* Add-on packs list */
+.pack-list{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:12px}
+.pack-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px}
+.pack-row p{margin:4px 0 0}
+.pack-row button{min-height:40px;padding:0 16px}
+/* Undo after closing a file */
+.undo-toast{position:fixed;z-index:60;inset-inline-start:50%;bottom:24px;transform:translateX(-50%);display:flex;align-items:center;gap:12px;padding:8px 8px 8px 16px;border-radius:12px;background:var(--ink,#1f2a28);color:#fff;box-shadow:0 12px 32px #0003;font-size:var(--fs-body-sm,14px)}
+[dir="rtl"] .undo-toast{transform:translateX(50%);padding:8px 16px 8px 8px}
+.undo-toast button{min-height:36px;padding:0 12px;border:0;border-radius:8px;background:#ffffff1f;color:#fff;font-weight:700;cursor:pointer}
+.undo-toast button:hover{background:#ffffff33}
+.undo-toast .undo-toast-x{width:36px;padding:0;display:inline-grid;place-items:center;background:transparent}
+.undo-toast .icon{width:16px;height:16px}
+/* Moving pages by drag: the pages being moved fade, a line shows where they will land */
+#pages .page.is-dragging{opacity:.45}
+#pages .page.drop-before{box-shadow:-4px 0 0 var(--teal)}
+#pages .page.drop-after{box-shadow:4px 0 0 var(--teal)}
+[dir="rtl"] #pages .page.drop-before{box-shadow:4px 0 0 var(--teal)}
+[dir="rtl"] #pages .page.drop-after{box-shadow:-4px 0 0 var(--teal)}
+.drag-count{position:fixed;top:-100px;left:0;padding:8px 12px;border-radius:8px;background:var(--teal);color:#fff;font-weight:700;font-size:14px}
+/* ---- Screen clean-up from simulated everyday use (0.3.3) ---- */
+/* A document is open: the start-page headline, artwork, section title and recovery banner give their room to the pages */
+body.has-doc .intro,body.has-doc #studio>.section-title,body.has-doc .pw-recover{display:none}
+/* Rarely used: the sidebar note and the open-source library (still linked in the footer) */
+.sidebar-note,.sidebar-divider,#researchNav{display:none}
+/* The installed app needs no "browser mode" explanation */
+html.is-desktop .aside-bottom>p{display:none}
+/* Compact tool cards: icon + name; the description is the tooltip */
+.tools{grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:8px}
+.tool{min-height:0;flex-direction:row;align-items:center;gap:12px;padding:12px 16px}
+.tool .tool-icon{margin:0;flex:none}
+.tool h3{margin:0;font-size:var(--fs-body-sm,14px)}
+.tool p,.tool .arrow,.tool .tool-badge:not(.engine){display:none}
+.tool .tool-badge.engine{margin-inline-start:auto;flex:none}
+/* Crop with the mouse */
+.crop-stage{position:relative;margin:12px auto;max-width:100%;max-height:60vh;width:auto;height:min(50vh,640px);user-select:none;touch-action:none;cursor:crosshair;background:#fff;box-shadow:0 0 0 1px var(--line)}
+.crop-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
+.crop-shade{position:absolute;inset:0;background:#0d2a2280;pointer-events:none}
+.crop-box{position:absolute;outline:2px solid var(--teal);box-shadow:0 0 0 1px #fff inset;cursor:move}
+.crop-box:focus-visible{outline:3px solid var(--teal)}
+.crop-h{position:absolute;width:14px;height:14px;background:#fff;border:2px solid var(--teal);border-radius:3px}
+.crop-nw{left:-8px;top:-8px;cursor:nwse-resize}.crop-ne{right:-8px;top:-8px;cursor:nesw-resize}.crop-se{right:-8px;bottom:-8px;cursor:nwse-resize}.crop-sw{left:-8px;bottom:-8px;cursor:nesw-resize}
+.crop-n{left:calc(50% - 7px);top:-8px;cursor:ns-resize}.crop-s{left:calc(50% - 7px);bottom:-8px;cursor:ns-resize}.crop-e{right:-8px;top:calc(50% - 7px);cursor:ew-resize}.crop-w{left:-8px;top:calc(50% - 7px);cursor:ew-resize}
+.crop-size{text-align:center;margin:0 0 12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.crop-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.crop-actions button{min-height:40px;padding:0 16px}
+.download-addons{margin:8px 0 0;font-size:var(--fs-caption,12px);color:var(--muted)}
+/* download pop-up on the type scale (lintapple) */
+.download-card-tag{font-size:12px;text-transform:none;letter-spacing:0}
+.download-status{font-size:12px}
+.download-tabs{padding:8px}
+.desktop-downloads .download-card-tag,.download-pop .download-card-tag{font-size:12px}
+.download-pop .download-status{font-size:12px!important}
+body .desktop-downloads .download-card-tag{font-size:12px}
+/* with a document open the pages come first: less space above the page tools (laptop 1366x768 shows whole cards) */
+body.has-doc:not(.pw-view) main{padding-top:12px}
+body.has-doc .hint{margin-block:4px}

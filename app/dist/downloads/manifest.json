@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "artifacts": [
+    {
+      "filename": "Waraq-Setup-0.3.3-x64.exe",
+      "release": "0.3.3",
+      "size": 154588160,
+      "sha256": "1102cbf0e88558fd394a4d04641aa26c114198ed7fdb358afd6bb4302bca1b5b",
+      "label_en": "Download Windows installer",
+      "label_ar": "تنزيل مثبت ويندوز",
+      "chunks": [
+        {
+          "path": "ad4bf0a64a9c797408686c6a13d50d357817b4129341552d12b320cc03fe3654.bin",
+          "size": 1891001,
+          "sha256": "ad4bf0a64a9c797408686c6a13d50d357817b4129341552d12b320cc03fe3654"
+        },
+        {
+          "path": "7eec0c7c9eb252fe27209a072613c4dec9a2d10a33155e9c4844265efc600345.bin",
+          "size": 1275491,
+          "sha256": "7eec0c7c9eb252fe27209a072613c4dec9a2d10a33155e9c4844265efc600345"
+        },
+        {
+          "path": "e653cd021f5eca78deb29b3d99ff73fce82831ae5ac19f09db511e7127162e3c.bin",
+          "size": 1900118,
+          "sha256": "e653cd021f5eca78deb29b3d99ff73fce82831ae5ac19f09db511e7127162e3c"
+        },
+        {
+          "path": "59e52f232e20f7f51321fc990531735ac05618e3bc0d54a52d52d2128ed308d8.bin",
+          "size": 2732779,
+          "sha256": "59e52f232e20f7f51321fc990531735ac05618e3bc0d54a52d52d2128ed308d8"
+        },
+        {
+          "path": "f420190ac9ac193d8183d9e2c10aa4e249d98edecb3b6b4bf6addff597705ff5.bin",
+          "size": 4791788,
+          "sha256": "f420190ac9ac193d8183d9e2c10aa4e249d98edecb3b6b4bf6addff597705ff5"
+        },
+        {
+          "path": "a63e2a995567fd1c226a4d191707de4826952d995fd833f822a9e305af73308b.bin",
+          "size": 4435287,
+          "sha256": "a63e2a995567fd1c226a4d191707de4826952d995fd833f822a9e305af73308b"
+        },
+        {
+          "path": "65913616cf23f2e7aaaa6f43213e8a53e30355fc509983c9b99cb6b46bea1b2e.bin",
+          "size": 4838048,
+          "sha256": "65913616cf23f2e7aaaa6f43213e8a53e30355fc509983c9b99cb6b46bea1b2e"
+        },
+        {
+          "path": "1c91edbff47d5df43cc7d5c1618347f5ec73a593d2706d8bcd1f7829fec479b7.bin",
+          "size": 5241501,
+          "sha256": "1c91edbff47d5df43cc7d5c1618347f5ec73a593d2706d8bcd1f7829fec479b7"
+        },
+        {
+          "path": "fb49473168c576ec683b0bfe04ddfd178f82e1a929c1107e0520c1847f4e44b7.bin",
+          "size": 2319184,
+          "sha256": "fb49473168c576ec683b0bfe04ddfd178f82e1a929c1107e0520c1847f4e44b7"
+        },
+        {
+          "path": "11f2358675828a72401261e7a7a6252a57595b64ffaa1c0b07d71a1ef0fcf9e6.bin",
+          "size": 6900661,
+          "sha256": "11f2358675828a72401261e7a7a6252a57595b64ffaa1c0b07d71a1ef0fcf9e6"
+        },
+        {
+          "path": "0bd52178047f48fef04eb1d7fc99131e518549ee9bb928dddf6bc43a62d1ac9c.bin",
+          "size": 2526413,
+          "sha256": "0bd52178047f48fef04eb1d7fc99131e518549ee9bb928dddf6bc43a62d1ac9c"
+        },
+        {
+          "path": "bb1ede3724b31602546c66f2cd21eedfc0fc8603d85bef148f482ca553ee5525.bin",
+          "size": 8523145,
+          "sha256": "bb1ede3724b31602546c66f2cd21eedfc0fc8603d85bef148f482ca553ee5525"
+        },
+        {
+          "path": "af56bca78f8b92d4cba548d97f5381b55610eb818f1d1a6c294003dc453c48f5.bin",
+          "size": 7968436,
+          "sha256": "af56bca78f8b92d4cba548d97f5381b55610eb818f1d1a6c294003dc453c48f5"
+        },
+        {
+          "path": "0bf6390b9738aca6e0bd4ab1c3cca96a8dc64d55365d471582d01090cd7febbe.bin",
+          "size": 11609264,
+          "sha256": "0bf6390b9738aca6e0bd4ab1c3cca96a8dc64d55365d471582d01090cd7febbe"
+        },
+        {
+          "path": "4433c827aa98425b1ab119c8f75d7af53af874bc451572bcb5c7d77ed8f7bea7.bin",
+          "size": 4668886,
+          "sha256": "4433c827aa98425b1ab119c8f75d7af53af874bc451572bcb5c7d77ed8f7bea7"
+        },
+        {
+          "path": "f57e304ab1e7ef299444159c09930f6e859c5325a5f75b1ab902138e8d1d0798.bin",
+          "size": 4458280,
+          "sha256": "f57e304ab1e7ef299444159c09930f6e859c5325a5f75b1ab902138e8d1d0798"
+        },
+        {
+          "path": "b3fd7f88da6fbfc23dd606235934c65290b5c0556154f3eb470687c90b6f477c.bin",
+          "size": 4725285,
+          "sha256": "b3fd7f88da6fbfc23dd606235934c65290b5c0556154f3eb470687c90b6f477c"
+        },
+        {
+          "path": "2e960dc3dc4db2b3e62e881ae38e9a8b959e15548a752082ccc4c9e694fdd6d0.bin",
+          "size": 16777216,
+          "sha256": "2e960dc3dc4db2b3e62e881ae38e9a8b959e15548a752082ccc4c9e694fdd6d0"
+        },
+        {
+          "path": "b73a6e7675dafa6dcb72098056cde905bc20b5068b358ba82aab905ba53cdc6c.bin",
+          "size": 4578383,
+          "sha256": "b73a6e7675dafa6dcb72098056cde905bc20b5068b358ba82aab905ba53cdc6c"
+        },
+        {
+          "path": "3fc458d00082fba2806c141fb6aadad27dbee63b58d3522eb19304950f9c8ed5.bin",
+          "size": 2609194,
+          "sha256": "3fc458d00082fba2806c141fb6aadad27dbee63b58d3522eb19304950f9c8ed5"
+        },
+        {
+          "path": "78afc46be5c5b48447174461a55f44c17fc95c59e34e2ecff07b5c66acdc01ec.bin",
+          "size": 1215305,
+          "sha256": "78afc46be5c5b48447174461a55f44c17fc95c59e34e2ecff07b5c66acdc01ec"
+        },
+        {
+          "path": "969b66897b9f343737a6c042ead4bd2b976ccb1ecbda0477f0b4e667427038ce.bin",
+          "size": 3327681,
+          "sha256": "969b66897b9f343737a6c042ead4bd2b976ccb1ecbda0477f0b4e667427038ce"
+        },
+        {
+          "path": "076e8fda455e637db899d20b6881c5777890489a8fd1d461577261a2fdf8b493.bin",
+          "size": 3667051,
+          "sha256": "076e8fda455e637db899d20b6881c5777890489a8fd1d461577261a2fdf8b493"
+        },
+        {
+          "path": "a762d719108117011a030db8e9a9ea93c89e1cc07b8c62effa13c02e7505dbb8.bin",
+          "size": 2553412,
+          "sha256": "a762d719108117011a030db8e9a9ea93c89e1cc07b8c62effa13c02e7505dbb8"
+        },
+        {
+          "path": "2c40479c17e714cb0874e2a58f2f23aff4d4c14b25c6cd0b11040113037637c1.bin",
+          "size": 2268749,
+          "sha256": "2c40479c17e714cb0874e2a58f2f23aff4d4c14b25c6cd0b11040113037637c1"
+        },
+        {
+          "path": "d8e84560996935bf13e0e816b0e46da94ddb316b8308c70a6c7ae998c9111382.bin",
+          "size": 3410397,
+          "sha256": "d8e84560996935bf13e0e816b0e46da94ddb316b8308c70a6c7ae998c9111382"
+        },
+        {
+          "path": "b20d24a25b8c4a5319d43bc4bb19363d50d73bf039d69a5ec2ecd6982c1451ac.bin",
+          "size": 5806762,
+          "sha256": "b20d24a25b8c4a5319d43bc4bb19363d50d73bf039d69a5ec2ecd6982c1451ac"
+        },
+        {
+          "path": "e05f576c96bb06b7c59cecf283daffeca11a9ee7d92acb5fab8c245eb4343543.bin",
+          "size": 2480612,
+          "sha256": "e05f576c96bb06b7c59cecf283daffeca11a9ee7d92acb5fab8c245eb4343543"
+        },
+        {
+          "path": "f88f519c6f8ca78e49a110411e64fe5e13d8d79d902ecfb2da7f553f5f40ff5d.bin",
+          "size": 3081857,
+          "sha256": "f88f519c6f8ca78e49a110411e64fe5e13d8d79d902ecfb2da7f553f5f40ff5d"
+        },
+        {
+          "path": "800f5f401101a01956552d97b9a723e92bdd7d867b0f7b6d77bf7365c7d36bdd.bin",
+          "size": 4055485,
+          "sha256": "800f5f401101a01956552d97b9a723e92bdd7d867b0f7b6d77bf7365c7d36bdd"
+        },
+        {
+          "path": "7da7b9b7cc99c334951c36cbc9f551f3279e5adf273cb33a580c07014d129ba3.bin",
+          "size": 16271843,
+          "sha256": "7da7b9b7cc99c334951c36cbc9f551f3279e5adf273cb33a580c07014d129ba3"
+        },
+        {
+          "path": "16fa0084d021822dc1c37468ac0de5693eb3d075e68a8502d4d6165c4ed752c8.bin",
+          "size": 1678646,
+          "sha256": "16fa0084d021822dc1c37468ac0de5693eb3d075e68a8502d4d6165c4ed752c8"
+        }
+      ]
+    }
+  ]
+}

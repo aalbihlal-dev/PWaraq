@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#f7f5eb"/><g transform="translate(38 30) scale(.85)">
+  <title>Waraq — folded paper waw</title>
+  <defs>
+    <linearGradient id="outer" x1="117" y1="425" x2="410" y2="139" gradientUnits="userSpaceOnUse"><stop stop-color="#123e33"/><stop offset="1" stop-color="#347b55"/></linearGradient>
+    <linearGradient id="ribbon" x1="122" y1="353" x2="347" y2="152" gradientUnits="userSpaceOnUse"><stop stop-color="#477d65"/><stop offset=".5" stop-color="#adc795"/><stop offset="1" stop-color="#265744"/></linearGradient>
+    <linearGradient id="mint" x1="241" y1="56" x2="282" y2="352" gradientUnits="userSpaceOnUse"><stop stop-color="#adf0b6"/><stop offset=".43" stop-color="#76d89d"/><stop offset="1" stop-color="#208164"/></linearGradient>
+    <linearGradient id="leaf" x1="154" y1="118" x2="227" y2="367" gradientUnits="userSpaceOnUse"><stop stop-color="#bdd49d"/><stop offset="1" stop-color="#235e4b"/></linearGradient>
+    <linearGradient id="fold" x1="262" y1="272" x2="219" y2="354" gradientUnits="userSpaceOnUse"><stop stop-color="#f4f7df"/><stop offset="1" stop-color="#387961"/></linearGradient>
+  </defs>
+  <path fill="url(#outer)" d="M132 246C66 281 51 360 91 411C132 466 216 461 269 416L458 247L226 484L252 444C182 482 102 460  70 408Z" opacity="0"/>
+  <path fill="url(#outer)" d="M140 237C66 273 46 354 84 414C122 474 209 482 278 428L461 247L399 288C439 208 416 115 335 78C267 47 184 69 152 137L210 227C217 169 245 132 290 138C339 145 352 197 322 232L211 345C184 372 149 379 126 355C101 329 114 299 145 281Z"/>
+  <path fill="url(#ribbon)" d="M139 245C83 277 68 341 98 387C129 432 194 445 248 400L369 280C425 225 402 142 339 113C290 90 235 112 216 159L226 218C228 176 251 149 285 150C331 151 350 202 317 239L209 348C174 383 130 381 110 350C93 324 111 291 149 278Z"/>
+  <path fill="#c4dfaa" opacity=".6" d="M99 314C84 366 128 402 174 386C190 381 205 371 219 357L320 254C359 215 352 172 320 150C363 167 373 218 327 266L220 373C166 426 91 395  90 331Z"/>
+  <path fill="#225d47" d="M125 216L177 180L219 357Z"/>
+  <path fill="url(#leaf)" d="M157 168L213 138C190 206 207 276 219 357C181 299 162 229 157 168Z"/>
+  <path fill="url(#leaf)" d="M218 82C149 116 176 248 219 357C206 259 190 155 246 105Z"/>
+  <path fill="#c7e5af" opacity=".65" d="M219 83C168 116 175 219 211 322C182 209 179 125 227 86Z"/>
+  <path fill="url(#mint)" d="M219 357C240 306 224 260 229 213C232 144 264 102 319 104C362 105 390 128 405 155C387 90 328  50 266 62C175 79 184 182 203 270C212 311 219 335 219 357Z"/>
+  <path fill="#7ee1a4" d="M219 357C234 292 207 234 217 169C226 106 265 73 318 78C354 82 383 107 398 138C382 98 349 68 302 63C229 55 193 113 201 190C203 259 226 311 219 357Z"/>
+  <path fill="url(#fold)" d="M219 357C246 320 246 284 247 259C272 267 294 267 317 260Z"/>
+</g></svg>

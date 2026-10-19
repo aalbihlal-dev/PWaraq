@@ -1,0 +1,10 @@
+# Cloudflare Pages headers. Download pieces are named by their own SHA-256, so they never change: cache forever.
+/downloads/*.bin
+  Cache-Control: public, max-age=31536000, immutable
+/packs/*.bin
+  Cache-Control: public, max-age=31536000, immutable
+# Lists of versions and packs must always be fresh.
+/downloads/manifest.json
+  Cache-Control: no-cache
+/packs/manifest.json
+  Cache-Control: no-cache
