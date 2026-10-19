@@ -97,3 +97,32 @@ test('edit: replace a line of text from Organize', async ({ page }) => {
   expect(text).toContain('عنوان جديد');
   expect(text).toContain('Keep this line');
 });
+
+test('edit: a replaced Arabic line keeps the PDF’s own font; missing letters are named in the panel', async ({ page }, info) => {
+  test.setTimeout(90_000);
+  const { arabicDoc, SUB } = await import('../arabic-pdf.mjs');
+  const file = info.outputPath('arabic-subset.pdf');
+  fs.writeFileSync(file, arabicDoc().saveToBuffer('garbage=compact').asUint8Array());
+  await open(page, file);
+  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  await ready(page);
+  await page.getByRole('button', { name: 'Change text: السلام عليكم' }).click();
+  const box = page.locator('.obj.text.on textarea'), note = page.getByTestId('font-note');
+  await box.fill('عليكم السلام');
+  await expect(note).toContainText('own font: NotoNaskhArabic');
+  await box.fill('جديد عليكم');
+  await expect(note).toContainText('lacks these letters: ج د');
+  await expect(note).toContainText('Noto Naskh Arabic');
+  await page.screenshot({ path: info.outputPath('editor-own-font-missing.png') });
+  await box.fill('عَليكم السلام');
+  await expect(note).toContainText('own font');
+  await page.screenshot({ path: info.outputPath('editor-own-font.png') });
+  await page.getByRole('button', { name: 'Save page' }).click();
+  await expect(page.getByText('Changed — not saved yet')).toBeVisible();
+  const out = await saved(page, () => page.getByRole('button', { name: 'Save' }).first().click());
+  const p = m.Document.openDocument(out.bytes, 'application/pdf').loadPage(0);
+  expect(p.toStructuredText().asText()).toContain('عَليكم السلام');
+  let size = 0;
+  p.toStructuredText().walk({ onChar(c, _o, f) { if (c === 'س') size = f.getBuffer()!.asUint8Array().length; } });
+  expect(size).toBe(SUB.length); // the PDF's own subset font
+});

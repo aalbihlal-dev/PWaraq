@@ -2,9 +2,19 @@
 // first out), so drawing again at another zoom or drawing a zoom tile does not re-read the PDF.
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 import { assemble } from './assemble';
-import { editPage, pageObjects, type Edit } from './editpage';
+import { editPage, pageObjects, type Edit, type Own } from './editpage';
 import type { Fonts } from './textpage';
 
+import { BUNDLED_FILES, fontAt, pick } from './ownfont';
+
+// HarfBuzz and the bundled Arabic fonts, for a replaced line written in its own font (or the closest bundled one)
+let own: Own | null = null;
+async function loadOwn() {
+  if (own) return own;
+  const [hb, ...files] = await Promise.all([import('harfbuzzjs'), ...BUNDLED_FILES.map(async (f) => new Uint8Array(await (await fetch(new URL('/fonts/' + f, location.origin))).arrayBuffer()))]);
+  const bytes = new Map<string, Uint8Array>(BUNDLED_FILES.map((f, i) => [f, files[i]]));
+  return (own = { hb, file: (f) => bytes.get(f)! });
+}
 // The engine (11 MB WebAssembly) loads after this worker is already listening: a message that arrives while it
 // loads (a file opened right at start-up) waits for it instead of being lost.
 let mupdf: typeof MuPDF;
@@ -105,12 +115,18 @@ const ops: Record<string, (r: Req) => any> = {
   // page editor: the lines of text and photos on a page
   objects(r) { const p = source(r.doc).doc.loadPage(r.page); try { return pageObjects(p); } finally { p.destroy(); } },
   // page editor: the page with `edits` applied — a one-page PDF, or with `scale` the editor's background (what the edits
+  // page editor: which font a replaced line will be written in, and the letters its own font lacks
+  async fontcheck(r) {
+    const o = await loadOwn(), p = source(r.doc).doc.loadPage(r.page);
+    try { const { font, using, missing } = pick(o.hb, fontAt(p, r.from), r.text, r.bold, o.file); return { font, using, missing }; } finally { p.destroy(); }
+  },
   // take away already gone) as a picture
   async edit(r) {
     if (r.edits.some((e: Edit) => e.kind === 'text')) await loadFonts();
     const pdf = source(r.doc).doc.asPDF();
+    const o = r.scale == null && r.edits.some((e: Edit) => e.kind === 'text' && e.from) ? await loadOwn() : undefined;
     if (!pdf) throw new Error('not a PDF: ' + r.doc);
-    const out = editPage(mupdf, pdf, r.page, r.edits, r.photos ?? [], () => fonts!, r.scale != null);
+    const out = editPage(mupdf, pdf, r.page, r.edits, r.photos ?? [], () => fonts!, r.scale != null, o);
     try {
       if (r.scale == null) return out.saveToBuffer('garbage=compact').asUint8Array().slice();
       const p = out.loadPage(0), pix = p.toPixmap(mupdf.Matrix.scale(r.scale, r.scale), mupdf.ColorSpace.DeviceRGB, false);

@@ -705,6 +705,10 @@ export class Font extends Userdata {
 	isItalic() {
 		return !!libmupdf._wasm_font_is_italic(this.pointer);
 	}
+	getBuffer() {
+		let p = libmupdf._wasm_font_get_buffer(this.pointer);
+		return p ? new Buffer(p) : null;
+	}
 }
 Font._drop = libmupdf._wasm_drop_font;
 Font.SIMPLE_ENCODING = [

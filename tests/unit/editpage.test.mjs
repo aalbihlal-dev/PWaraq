@@ -3,16 +3,21 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import * as m from '../../engine/mupdf-wasm/dist/mupdf.js';
+import * as hb from 'harfbuzzjs';
 import { editPage, pageObjects } from '../../src/lib/engine/editpage.ts';
+import { fontAt, pick, shape, shaper } from '../../src/lib/engine/ownfont.ts';
+import { arabicDoc, FULL, SUB } from '../arabic-pdf.mjs';
 
 const read = (f) => fs.readFileSync(new URL('../fixtures/' + f, import.meta.url));
-const font = (f) => new m.Font(f, fs.readFileSync(new URL('../../public/fonts/' + f + '.ttf', import.meta.url)));
+const file = (f) => new Uint8Array(fs.readFileSync(new URL('../../public/fonts/' + f, import.meta.url)));
+const font = (f) => new m.Font(f, file(f + '.ttf'));
+const own = { hb, file };
 const fonts = { regular: font('Tajawal-Regular'), bold: font('Tajawal-Bold') };
 const src = () => new m.PDFDocument(read('edit.pdf'));
 const photo = read('photo.png'); // 400 x 300
 // the edited page saved and opened again, as Organize and Portfolio get it
 const apply = (edits, doc = src(), lift = false) => {
-  const bytes = editPage(m, doc, 0, edits, [photo], () => fonts, lift).saveToBuffer('garbage=compact').asUint8Array().slice();
+  const bytes = editPage(m, doc, 0, edits, [photo], () => fonts, lift, own).saveToBuffer('garbage=compact').asUint8Array().slice();
   return m.Document.openDocument(bytes, 'application/pdf').loadPage(0);
 };
 const near = (a, b) => ['x', 'y', 'w', 'h'].every((k) => Math.abs(a[k] - b[k]) < 0.5);
@@ -86,4 +91,48 @@ test('on a turned page the new text still reads left to right as the page is see
   assert.ok(line && line.w > line.h, 'horizontal');
   assert.ok(Math.abs(line.x - 100) < 1);
   fs.writeFileSync(new URL('../../test-results/editpage-turned.png', import.meta.url), page.toPixmap(m.Matrix.identity, m.ColorSpace.DeviceRGB, false).asPNG());
+});
+
+const replace = (text, bold = false) => {
+  const line = pageObjects(arabicDoc().loadPage(0)).lines[0];
+  return { line, page: apply([{ kind: 'text', from: line, text, x: line.x - 100, y: line.y, w: line.w + 100, h: line.h, size: line.size, color: line.color, bold, align: 'right' }], arabicDoc()) };
+};
+const embedded = (page, y) => fontAt(page, { x: 0, y: y - 30, w: 595, h: 40 });
+
+test('a replaced Arabic line keeps its own embedded font, joins and extracts as normal Arabic', () => {
+  const { line, page } = replace('عليكم السلام');
+  assert.equal(line.font, 'NotoNaskhArabic');
+  assert.equal(pick(hb, embedded(arabicDoc().loadPage(0), 100), 'عليكم السلام', false, file).using, null);
+  const f = embedded(page, line.base);
+  assert.match(f.getName(), /NotoNaskhArabic/);
+  assert.equal(f.getBuffer().asUint8Array().length, SUB.length, 'the PDF’s own subset, not a bundled font');
+  const text = page.toStructuredText().asText();
+  assert.match(text, /عليكم السلام/);
+  assert.doesNotMatch(text, /[ﭐ-﻿]/,'no presentation forms in the copied text');
+  // joined: the word's glyphs are the font's initial/medial/final shapes, not its isolated letters
+  const s = shaper(hb, 'sub', SUB), joined = shape(hb, s, 'عليكم', 24).glyphs.map((g) => g.gid);
+  const isolated = [...'عليكم'].map((c) => s.font.nominalGlyph(c.codePointAt(0)));
+  assert.ok(joined.every((g) => !isolated.includes(g)), JSON.stringify({ joined, isolated }));
+  const c = page.getObject().get('Contents'), contents = (c.isArray() ? [...Array(c.length).keys()].map((i) => c.get(i)) : [c]).map((x) => x.readStream().asString()).join(' ');
+  for (const g of joined) assert.ok(contents.includes('<' + g.toString(16).padStart(4, '0') + '>'), 'glyph ' + g + ' written');
+  fs.writeFileSync(new URL('../../test-results/editpage-own-font.png', import.meta.url), page.toPixmap(m.Matrix.scale(2, 2), m.ColorSpace.DeviceRGB, false).asPNG());
+});
+
+test('harakat stay: a fatha in the new text is drawn above its letter and copies back', () => {
+  const { page } = replace('عَليكم السلام');
+  assert.match(page.toStructuredText().asText(), /عَليكم السلام/);
+  const s = shaper(hb, 'sub', SUB), [g] = shape(hb, s, 'عَ', 24).glyphs.filter((g) => g.uni[0] === 0x64e);
+  assert.ok(g && g.gid && s.font.glyphToPath(g.gid), 'the fatha is a real glyph of the subset');
+});
+
+test('letters the subset lacks: the full bundled font is used and the missing letters are reported', () => {
+  const p = pick(hb, embedded(arabicDoc().loadPage(0), 100), 'جديد عليكم', false, file);
+  assert.deepEqual(p.missing.sort(), ['ج', 'د']);
+  assert.equal(p.using, 'Noto Naskh Arabic'); // the same family, whole
+  const { line, page } = replace('جديد عليكم');
+  assert.match(page.toStructuredText().asText(), /جديد عليكم/);
+  assert.equal(embedded(page, line.base).getBuffer().asUint8Array().length, FULL.length);
+  // a font Waraq does not have: the closest bundled one (here a sans line in Helvetica, not embedded)
+  const helv = pick(hb, fontAt(src().loadPage(0), pageObjects(src().loadPage(0)).lines[0]), 'عنوان', true, file);
+  assert.equal(helv.using, 'Noto Sans Arabic Bold');
 });

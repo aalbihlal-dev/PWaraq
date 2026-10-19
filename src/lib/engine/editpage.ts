@@ -2,9 +2,10 @@
 // photos added, photos moved / resized / replaced / deleted, lines of text replaced. Pure like assemble.ts: the MuPDF
 // module is passed in, so the same code runs in the engine worker and in the Node self-check (tests/unit/editpage).
 // Coordinates are points on the page as seen (MuPDF page space: top-left origin, the page's own turn applied).
-// shortcut: replaced text is written in Tajawal, not in the line's own font; keeping the font comes with HarfBuzz (Phase 3).
+// New text boxes are written in Tajawal; a replaced line keeps its own font (ownfont.ts, HarfBuzz).
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
-import { pageWriter, wrap, type Fonts, type Line } from './textpage.ts';
+import { measure, pageWriter, wrap, type Fonts, type Line } from './textpage.ts';
+import { fontAt, fontName, pick, shape, shapedWriter, type Harfbuzz } from './ownfont.ts';
 import { stamp } from './assemble.ts';
 
 export type Box = { x: number; y: number; w: number; h: number };
@@ -20,17 +21,19 @@ export type Edit =
 /** Text box layout shared with the editor screen: first baseline `BASELINE`·size below the box top, lines `LEADING`·size apart. */
 export const LEADING = 1.3, BASELINE = 1.0;
 
-export type PageLine = Box & { text: string; size: number; bold: boolean; color: number[]; rtl: boolean; base: number }; // base: baseline y
+export type PageLine = Box & { text: string; size: number; bold: boolean; color: number[]; rtl: boolean; base: number; font: string }; // base: baseline y
+/** What a replaced line is written with: HarfBuzz and the bundled fonts' bytes by file name (ownfont.ts BUNDLED). */
+export type Own = { hb: Harfbuzz; file: (name: string) => Uint8Array };
 /** Lines of text (only the ones that run left to right on the page as seen, which the editor can replace) and photos. */
 export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[] } {
   const lines: PageLine[] = [], images: Box[] = [], st = page.toStructuredText('preserve-images,preserve-whitespace');
   let line: PageLine | null = null, flat = false;
   st.walk({
     onImageBlock(b) { images.push(box(b)); },
-    beginLine(b, _wmode, dir) { flat = Math.abs(dir[1]) < 0.01 && dir[0] > 0; line = { ...box(b), text: '', size: 0, bold: false, color: [0, 0, 0], rtl: false, base: b[3] }; },
+    beginLine(b, _wmode, dir) { flat = Math.abs(dir[1]) < 0.01 && dir[0] > 0; line = { ...box(b), text: '', size: 0, bold: false, color: [0, 0, 0], rtl: false, base: b[3], font: '' }; },
     onChar(c, origin, font, size, _q, color) {
       if (!line) return;
-      if (!line.text.trim()) Object.assign(line, { size, base: origin[1], bold: /bold|black|heavy/i.test(font.getName()), color: rgb(color) });
+      if (!line.text.trim()) Object.assign(line, { size, base: origin[1], bold: /bold|black|heavy/i.test(font.getName()), color: rgb(color), font: fontName(font) });
       line.text += c;
     },
     endLine() {
@@ -46,7 +49,7 @@ const rgb = (c: number[]) => (c.length === 1 ? [c[0], c[0], c[0]] : c.length ===
 
 /** Page `index` of `src` with `edits` applied, as a new one-page PDF. `lift`: only take away what the edits replace (the
  *  editor's background while the moved photos and new text are drawn on top of it). */
-export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number, edits: Edit[], photos: Uint8Array[], fonts?: () => Fonts, lift = false): MuPDF.PDFDocument {
+export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number, edits: Edit[], photos: Uint8Array[], fonts?: () => Fonts, lift = false, own?: Own): MuPDF.PDFDocument {
   const out = new m.PDFDocument();
   out.graftPage(-1, src, index);
   let page = out.loadPage(0);
@@ -62,6 +65,11 @@ export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number,
     const k = Math.min(b.w / img.getWidth(), b.h / img.getHeight()), w = img.getWidth() * k, h = img.getHeight() * k;
     return [w, 0, 0, h, b.x + (b.w - w) / 2, b.y + (b.h - h) / 2];
   };
+
+  // a replaced line's font, read before its text is taken away
+  type Text = Extract<Edit, { kind: 'text' }>;
+  const texts = edits.filter((e): e is Text => e.kind === 'text' && !!e.text.trim());
+  const picks = new Map(own && !lift ? texts.filter((e) => e.from).map((e) => [e, pick(own.hb, fontAt(page, e.from!), e.text, e.bold, own.file)]) : []);
 
   // existing photos: taken away by emptying their own image resource when only they use it, else by redaction
   const redactImages: Box[] = [], redactText: Box[] = [];
@@ -89,18 +97,25 @@ export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number,
 
   if (!lift) {
     for (const e of edits) if (e.kind === 'photo') { const img = new m.Image(photos[e.photo]); place(out.addImage(img), upright(img, e)); }
-    const texts = edits.filter((e): e is Extract<Edit, { kind: 'text' }> => e.kind === 'text' && !!e.text.trim());
     const resources: Record<string, Record<string, MuPDF.PDFObject>> = { XObject: added };
     if (texts.length) {
-      const f = fonts!(), writer = pageWriter(m, out, f), lines: Line[] = [];
-      for (const e of texts) wrap(e.bold ? f.bold : f.regular, e.text, e.size, e.w).forEach((text, i) => lines.push({
-        text, size: e.size, bold: e.bold, color: e.color, align: e.align, y: e.y + (BASELINE + i * LEADING) * e.size,
-        x: e.align === 'right' ? e.x + e.w : e.align === 'center' ? e.x + e.w / 2 : e.x,
-      }));
-      // the writer works top-down on the page as seen; this matrix takes that to the page's own coordinates
-      draw.push(`q ${m.Matrix.concat([1, 0, 0, -1, 0, H], inv).map(n).join(' ')} cm ${writer.draw({ w: 0, h: H, lines })} Q`);
-      writer.finish();
-      resources.Font = writer.fonts;
+      const lines: Line[] = [], shaped = own && shapedWriter(m, own.hb, out);
+      let ops = '';
+      for (const e of texts) {
+        const p = picks.get(e), f = p ? null : fonts!();
+        const width = p ? (t: string) => shape(own!.hb, p.shaper, t, e.size).width : (t: string) => measure(e.bold ? f!.bold : f!.regular, t, e.size);
+        wrap(width, e.text, e.w).forEach((text, i) => {
+          const l = { text, size: e.size, color: e.color, align: e.align, y: e.y + (BASELINE + i * LEADING) * e.size, x: e.align === 'right' ? e.x + e.w : e.align === 'center' ? e.x + e.w / 2 : e.x };
+          // shortcut: a line whose own font is bold stays bold when "bold" is switched off; a regular one is thickened
+          if (p) ops += shaped!.draw(p.shaper, { ...l, fake: e.bold && !p.shaper.bold }, H); else lines.push({ ...l, bold: e.bold });
+        });
+      }
+      const writer = lines.length ? pageWriter(m, out, fonts!()) : null;
+      if (writer) ops += writer.draw({ w: 0, h: H, lines });
+      // the writers work top-down on the page as seen; this matrix takes that to the page's own coordinates
+      draw.push(`q ${m.Matrix.concat([1, 0, 0, -1, 0, H], inv).map(n).join(' ')} cm ${ops} Q`);
+      writer?.finish(); shaped?.finish();
+      resources.Font = { ...writer?.fonts, ...shaped?.fonts };
     }
     if (draw.length) { page.destroy(); stamp(out, out.findPage(0), draw.join('\n'), resources); page = out.loadPage(0); }
   }

@@ -106,15 +106,15 @@ the **Edit** task in the workspace (current page). Acrobat/PDFCraft layout: page
   PDF too (MuPDF lists image blocks). An existing photo is taken away by emptying its own image resource when only it
   uses it (found by emptying each in turn), else by redaction of its box; moved photos keep their own image object.
 - **Existing text:** click a line → a text box in its place with its text, size, colour, weight; the old line is
-  removed by MuPDF redaction (text only), the new text written in Tajawal. The panel says so: the line's own font
-  comes with HarfBuzz (Phase 3). Only lines that read left to right on the page as seen can be replaced.
+  removed by MuPDF redaction (text only), the new text written **in the line's own font** (see "Owner's ideas" 2, done
+  19 Oct). Only lines that read left to right on the page as seen can be replaced.
 - **Undo/redo** in the editor; **Save page** builds one edited page (engine job `edit`) that becomes a new one-page
   source and replaces the page in the list (Organize: one undo step; Portfolio: kept as a file of the portfolio, so
   sections, numbers, contents and `.waraq` keep working; Edit task: the document is rebuilt and marked changed).
 - Code: `src/lib/engine/editpage.ts` (pure: `pageObjects`, `editPage`), worker jobs `objects` / `edit`,
   `src/components/PageEditor.svelte`. Checks: `tests/unit/editpage.test.mjs` (7), `tests/e2e/editor.spec.ts` (3),
   editor screen in `audit.spec.ts`. Screenshots: `../Archive-2026-10-12/screenshots/waraq-1.0-preview/page-editor-2026-10-19/`.
-Still to do: text in the line's own font and harakat (HarfBuzz), editing a whole paragraph as one block (now line by
+Still to do: editing a whole paragraph as one block (now line by
 line), turning/cropping photos, zoom inside the editor, arrow-key nudging, warning before leaving with unsaved edits,
 text on turned (vertical) lines.
 
@@ -140,8 +140,19 @@ highlight it and tell him which page; a signature image should lose its backgrou
 - Engine: reuse `editPage` (photo with transparency + text edits) — the set is a group of edits. Later: real digital
   signatures with a certificate (MuPDF can sign PDFs; check the WASM API) and a visible "signed by" stamp.
 
-### 2. Arabic text keeps its own font when edited
-Owner: the Arabic font must not change when editing. Today a replaced line is written in Tajawal.
+### 2. Arabic text keeps its own font when edited — **done (19 Oct 2026)**
+Built: engine export `Font.getBuffer()` (engine/apply-waraq-changes.py) gives the embedded font file; `src/lib/engine/ownfont.ts`
+shapes the new text with **HarfBuzz** (harfbuzzjs) against it — joined letters, harakat placed by the font, mixed
+Arabic/English in direction runs — and writes it by glyph id with its own ToUnicode (letters drawn as several glyphs, e.g.
+Noto's separate dots, carry ActualText so copying gives normal Arabic). Letters the subset lacks: the full bundled font of
+the same family, else the closest (Noto Naskh Arabic for Times/Traditional/Simplified-like, Noto Sans Arabic for Arial-like,
+Tajawal last); the options panel names the font and the missing letters. Bundled OFL fonts: Noto Naskh / Noto Sans Arabic
+(regular + bold, public/fonts). Checks: tests/unit/editpage.test.mjs (3 new), tests/e2e/editor.spec.ts (1 new), tour screens
+20-22 (tools/dev/tour-ownfont.spec.ts). Left: the on-screen box while typing still shows Tajawal (the saved page is right);
+fonts without a Unicode cmap (subsets made by MuPDF, some Chrome PDFs) and bare CFF / Type 3 fonts fall back (said in the
+panel) - next: rebuild a cmap from the PDF's ToUnicode; "bold" switched off on a bold-only font stays bold; Latin lines in
+non-embedded Helvetica/Times fall back to Tajawal; Amiri not bundled; desktop: installed system fonts.
+Original plan:
 - Take the line's own font from the PDF (the font object MuPDF reports for its characters) and write the new text
   with it; shape Arabic with **HarfBuzz** (harfbuzzjs WASM) against that font so letters join correctly whatever the
   font's encoding.

@@ -1,7 +1,7 @@
 // Pages Waraq writes itself (Portfolio section dividers and table of contents) as real, selectable text in Tajawal.
 // Arabic is joined with the font's own letter shapes (Unicode presentation forms) and laid out right to left;
 // each glyph carries its original letters, so copying and searching give normal Arabic.
-// shortcut: no HarfBuzz yet — no harakat placement and no Persian/Urdu letters; HarfBuzz comes with Phase 3 editing.
+// shortcut: no HarfBuzz here yet (a replaced line in the page editor uses it, ownfont.ts) — no harakat or Persian letters on these pages.
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 
 export type Fonts = { regular: MuPDF.Font; bold: MuPDF.Font };
@@ -38,45 +38,49 @@ function join(cs: number[]): Glyph[] {
   return out;
 }
 
-/** Text in reading order -> glyphs left to right, as they appear on the page. */
-export function visual(text: string): Glyph[] {
+/** Text in reading order -> its direction runs (right-to-left ones still in reading order), left to right as they appear on the page. */
+export function runs(text: string): { rtl: boolean; cs: number[] }[] {
   const cs = [...text].map((ch) => ch.codePointAt(0)!);
   const firstStrong = cs.find((c) => isArabic(c) || isLtr(c));
   const rtl = firstStrong !== undefined && isArabic(firstStrong);
   // runs: in a right-to-left line, left-to-right words (Latin, numbers) keep their order; elsewhere the reverse
   const strong = rtl ? isLtr : (c: number) => isArabic(c) && !isMark(c);
-  const runs: { flip: boolean; cs: number[] }[] = [];
+  const runs: { rtl: boolean; cs: number[] }[] = [];
   for (let i = 0; i < cs.length;) {
     if (strong(cs[i])) {
       let j = i + 1, end = i + 1;
       for (; j < cs.length && !(rtl ? isArabic(cs[j]) : isLtr(cs[j])); j++) if (strong(cs[j]) || isMark(cs[j])) end = j + 1;
-      runs.push({ flip: !rtl, cs: cs.slice(i, end) }); i = end;
+      runs.push({ rtl: !rtl, cs: cs.slice(i, end) }); i = end;
     } else {
       let j = i + 1;
       while (j < cs.length && !strong(cs[j])) j++;
-      runs.push({ flip: rtl, cs: cs.slice(i, j) }); i = j;
+      runs.push({ rtl, cs: cs.slice(i, j) }); i = j;
     }
   }
-  const shaped = runs.map((r) => {
+  return rtl ? runs.reverse() : runs;
+}
+
+/** Text in reading order -> glyphs left to right, as they appear on the page. */
+export function visual(text: string): Glyph[] {
+  return runs(text).flatMap((r) => {
     const g = join(r.cs); // letters other than Arabic pass through unchanged
-    if (!r.flip) return g;
+    if (!r.rtl) return g;
     return g.reverse().map((x) => (MIRROR[String.fromCodePoint(x.code)] ? { code: MIRROR[String.fromCodePoint(x.code)].codePointAt(0)!, uni: x.uni } : x));
   });
-  return (rtl ? shaped.reverse() : shaped).flat();
 }
 
 export function measure(font: MuPDF.Font, text: string, size: number) {
   return visual(text).reduce((w, g) => w + font.advanceGlyph(font.encodeCharacter(g.code)) * size, 0);
 }
 
-/** Lines of `text` (its own line breaks kept) that fit `width`, broken between words. */
-export function wrap(font: MuPDF.Font, text: string, size: number, width: number) {
+/** Lines of `text` (its own line breaks kept) that fit `width` (as `measure` measures them), broken between words. */
+export function wrap(measure: (text: string) => number, text: string, width: number) {
   return text.split('\n').flatMap((para) => {
     const out: string[] = [];
     let line = '';
     for (const word of para.split(' ')) {
       const next = line ? line + ' ' + word : word;
-      if (line && measure(font, next, size) > width) { out.push(line); line = word; } else line = next;
+      if (line && measure(next) > width) { out.push(line); line = word; } else line = next;
     }
     return [...out, line];
   });
@@ -115,7 +119,8 @@ export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts
   };
 }
 
-function toUnicode(map: Map<number, number[]>) {
+/** A ToUnicode map for a font shown by glyph id: each glyph id back to the letters it was drawn for. */
+export function toUnicode(map: Map<number, number[]>) {
   const hex = (n: number) => n.toString(16).padStart(4, '0');
   const utf16 = (cs: number[]) => String.fromCodePoint(...cs).split('').map((c) => hex(c.charCodeAt(0))).join('');
   const rows = [...map].map(([gid, uni]) => `<${hex(gid)}> <${utf16(uni)}>`), blocks: string[] = [];
