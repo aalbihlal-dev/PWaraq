@@ -81,6 +81,22 @@
     sec.file = a.fileId; if (sec.fromFile) sec.title = fileTitle(a.file.name);
   })));
   const shift = (i: number, by: number) => change((p) => { const [s] = p.sections.splice(i, 1); p.sections.splice(i + by, 0, s); });
+  // drag a whole section by its handle: the green line shows where it goes (above or below another section)
+  let dragSection = $state(-1), dropSection = $state<{ at: number; after: boolean } | null>(null);
+  function overSection(e: DragEvent, i: number) {
+    if (dragSection < 0) return;
+    e.preventDefault(); e.stopPropagation();
+    const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    dropSection = { at: i, after: e.clientY > r.top + r.height / 2 };
+  }
+  function dropOnSection(e: DragEvent) {
+    if (dragSection < 0 || !dropSection) return;
+    e.preventDefault(); e.stopPropagation();
+    const from = dragSection, to = dropSection.at + (dropSection.after ? 1 : 0);
+    dragSection = -1; dropSection = null;
+    if (to === from || to === from + 1) return;
+    change((p) => { const [s] = p.sections.splice(from, 1); p.sections.splice(to > from ? to - 1 : to, 0, s); });
+  }
   const removeSection = (i: number) => change((p) => { if (p.options.numbers === p.sections[i].id) p.options.numbers = 'all'; p.sections.splice(i, 1); });
   const gridChange = (next: Group[]) => change((p) => { for (const g of next) p.sections.find((s) => s.id === g.id)!.items = g.items; });
 
@@ -111,9 +127,15 @@
   const accepts = { 'image/*': ['.png', '.jpg', '.jpeg'] };
   let logoUrls = $state<Record<string, string>>({});
   $effect(() => {
-    for (const id of Object.values(p.options.cover.logos)) if (id && !logoUrls[id])
+    for (const id of [...Object.values(p.options.cover.logos), p.options.cover.photo]) if (id && !logoUrls[id])
       readPortfolioFile(p.id, 'files/' + id).then((b) => { if (b) logoUrls[id] = URL.createObjectURL(new Blob([b as Uint8Array<ArrayBuffer>])); });
   });
+  // the cover photo (a background): across the top, or the whole page under a see-through colour
+  async function addPhoto() {
+    const picked = await pickFiles({ accept: accepts, fallback: () => { onPicked = (f) => run(() => setPhoto(f)); picker.multiple = false; picker.click(); } });
+    if (picked.length) run(() => setPhoto(picked.map((x) => x.file)));
+  }
+  const setPhoto = (files: File[]) => load(files.slice(0, 1)).then(([a]) => change((p) => { p.options.cover.photo = a.fileId; }));
   async function addLogo(place: 'left' | 'center' | 'right') {
     const picked = await pickFiles({ accept: accepts, fallback: () => { onPicked = (f) => run(() => setLogo(place, f)); picker.multiple = false; picker.click(); } });
     if (picked.length) run(() => setLogo(place, picked.map((x) => x.file)));
@@ -189,7 +211,8 @@
           {#if gi === 0 && p.options.cover.on}
             {@const c = p.options.cover}
             <div class="covercard">
-              <div class="mini d-{p.options.design}" aria-label={t('cover')}>
+              <div class="mini d-{p.options.design}" class:photo-top={c.photo && c.photoPlace === 'top'} class:photo-full={c.photo && c.photoPlace === 'full'} aria-label={t('cover')}
+                style={c.photo && logoUrls[c.photo] ? `--photo:url(${logoUrls[c.photo]})` : ''}>
                 <span class="logos">{#each ['left', 'center', 'right'] as const as place}<i>{#if c.logos[place] && logoUrls[c.logos[place]!]}<img src={logoUrls[c.logos[place]!]} alt="" />{/if}</i>{/each}</span>
                 <strong>{c.title || p.name}</strong>
                 {#if c.subtitle}<small>{c.subtitle}</small>{/if}
@@ -214,7 +237,11 @@
               </ol>
             </section>
           {/if}
-          <div class="sec" class:closed={s.collapsed} class:locked={s.locked}>
+          <div class="sec" class:closed={s.collapsed} class:locked={s.locked} class:dropbefore={dropSection?.at === gi && !dropSection.after} class:dropafter={dropSection?.at === gi && dropSection.after}
+            role="group" aria-label="{t('section')} {gi + 1}" ondragover={(e) => overSection(e, gi)} ondrop={dropOnSection}>
+            <span class="grip" draggable="true" role="button" tabindex="-1" title={t('dragSection')} aria-label={t('dragSection')}
+              ondragstart={(e) => { dragSection = gi; e.dataTransfer!.effectAllowed = 'move'; e.dataTransfer!.setData('text/plain', 'waraq-section'); }}
+              ondragend={() => { dragSection = -1; dropSection = null; }}>{@html icon('move')}</span>
             <button class="btn icon fold" onclick={() => (s.collapsed = !s.collapsed)} aria-expanded={!s.collapsed} title={s.collapsed ? t('openSection') : t('closeSection')} aria-label={s.collapsed ? t('openSection') : t('closeSection')}>{@html icon(s.collapsed ? 'chevron-down' : 'chevron-up')}</button>
             <span class="badge num">{t('section')} {gi + 1}</span>
             <input class="title" class:auto={s.fromFile} bind:value={s.title} oninput={() => (s.fromFile = false)} readonly={s.locked} aria-label={t('sectionTitle')} />
@@ -295,6 +322,21 @@
           <label class="field"><span>{t('coverSubtitle')}</span><input bind:value={c.subtitle} /></label>
           <label class="field"><span>{t('coverNames')}</span><textarea rows="3" bind:value={c.names} placeholder={t('coverNamesHint')}></textarea></label>
           <label class="field"><span>{t('coverSupervisor')}</span><input bind:value={c.supervisor} /></label>
+          <span class="sub">{t('coverPhoto')}</span>
+          <div class="photo">
+            {#if c.photo}
+              <span class="img">{#if logoUrls[c.photo]}<img src={logoUrls[c.photo]} alt={t('coverPhoto')} />{/if}</span>
+              <button class="btn icon" onclick={() => change((p) => { delete p.options.cover.photo; })} title={t('remove')} aria-label="{t('remove')}: {t('coverPhoto')}">{@html icon('close')}</button>
+            {:else}
+              <button class="btn add" onclick={addPhoto} disabled={!!busy}>{@html icon('images')}{t('addPhoto')}</button>
+            {/if}
+          </div>
+          {#if c.photo}
+            <div class="seg two" role="radiogroup" aria-label={t('coverPhoto')}>
+              <button role="radio" aria-checked={c.photoPlace === 'top'} class:on={c.photoPlace === 'top'} onclick={() => change(() => (c.photoPlace = 'top'))}>{t('photoTop')}</button>
+              <button role="radio" aria-checked={c.photoPlace === 'full'} class:on={c.photoPlace === 'full'} onclick={() => change(() => (c.photoPlace = 'full'))}>{t('photoFull')}</button>
+            </div>
+          {/if}
           <span class="sub">{t('logos')}</span>
           <div class="logos">
             {#each [['left', 'logoLeft'], ['center', 'logoCenter'], ['right', 'logoRight']] as const as [place, label]}
@@ -479,5 +521,20 @@
   .dot.on { box-shadow: 0 0 0 2px var(--ink); }
   .dot.own { display: grid; place-items: center; background: conic-gradient(#c33, #cc3, #3c3, #3cc, #33c, #c3c, #c33); cursor: pointer; overflow: hidden; }
   .dot.own input { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; opacity: 0; cursor: pointer; }
+  /* drag a section; cover photo */
+  .grip { flex: none; display: grid; place-items: center; width: var(--control); height: var(--control); border-radius: var(--r-8); color: var(--muted); cursor: grab; }
+  .grip:hover { background: var(--green-soft); color: var(--ink); }
+  .sec { position: relative; }
+  .sec.dropbefore::before, .sec.dropafter::after { content: ''; position: absolute; left: 0; right: 0; height: 4px; border-radius: 2px; background: var(--green); }
+  .sec.dropbefore::before { top: -3px; } .sec.dropafter::after { bottom: -3px; }
+  .photo { display: flex; align-items: center; gap: var(--s-8); }
+  .photo .img { flex: 1; height: 64px; border: 1px solid var(--line); border-radius: var(--r-8); overflow: hidden; background: #fff; }
+  .photo img { width: 100%; height: 100%; object-fit: cover; }
+  .photo .add { width: 100%; }
+  .seg.two { grid-template-columns: 1fr 1fr; }
+  .mini.photo-top { background: linear-gradient(transparent 0 48%, var(--acc) 48% 49.5%, #fff 49.5%), var(--photo) top / 100% 48% no-repeat; border: 0; }
+  .mini.photo-top strong { margin-top: 150px; } .mini.photo-top::before { display: none; }
+  .mini.photo-full { background: linear-gradient(color-mix(in srgb, var(--acc) 62%, transparent), color-mix(in srgb, var(--acc) 62%, transparent)), var(--photo) center / cover; border: 0; }
+  .mini.photo-full strong, .mini.photo-full small, .mini.photo-full .names { position: relative; color: #fff; } .mini.photo-full::before { display: none; }
   @media (max-width: 900px) { .body { grid-template-columns: 1fr; grid-template-rows: 1fr auto; } .side { max-height: 45vh; border-inline-start: 0; border-top: 1px solid var(--line); } }
 </style>

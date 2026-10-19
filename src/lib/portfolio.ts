@@ -11,12 +11,13 @@ import { uid, seen, toItems, type GridItem } from './pages.ts';
 export type Section = { id: string; title: string; fromFile: boolean; file?: string; divider: boolean; note: string; items: GridItem[];
   collapsed?: boolean; locked?: boolean; turn?: number }; // collapsed: only the name shows; locked: pages cannot be changed; turn: the divider page
 /** The portfolio's own cover page; logos are file ids of the portfolio (left / centre / right). */
-export type Cover = { on: boolean; title: string; subtitle: string; names: string; supervisor: string; logos: { left?: string; center?: string; right?: string } };
+export type Cover = { on: boolean; title: string; subtitle: string; names: string; supervisor: string; logos: { left?: string; center?: string; right?: string };
+  photo?: string; photoPlace: 'top' | 'full' }; // photo: a file id; across the top, or the whole page under a see-through colour
 /** numbers: 'none', 'all' (whole portfolio, renumbered on every change) or a section id (only that section, from 1) */
 export type Options = { toc: boolean; numbers: string; bookmarks: boolean; numberPos: 'left' | 'center' | 'right'; design: Design; color: string; cover: Cover;
   logosOnDividers: boolean; header: 'none' | 'small' | 'big' }; // header: the cover's title and names on every section page
 const defaults = (): Options => ({ toc: true, numbers: 'all', bookmarks: true, numberPos: 'center', design: 'classic', color: '#3a4248', logosOnDividers: false, header: 'none',
-  cover: { on: false, title: '', subtitle: '', names: '', supervisor: '', logos: {} } });
+  cover: { on: false, title: '', subtitle: '', names: '', supervisor: '', logos: {}, photoPlace: 'top' } });
 /** Options of a portfolio saved by an older Waraq get the new settings' defaults. */
 export const withDefaults = (o: Partial<Options>): Options => ({ ...defaults(), ...o, cover: { ...defaults().cover, ...o.cover } });
 export type Portfolio = { id: string; name: string; created: number; sections: Section[]; options: Options; files: Record<string, { name: string; mime: string; doc: number }> };
@@ -52,7 +53,7 @@ export async function load(pool: EnginePool, entries: Record<string, Uint8Array>
 
 /** Files the pages still use, for the portable copy. */
 export function used(p: Portfolio) {
-  const docs = new Set(p.sections.flatMap((s) => s.items.map((it) => it.doc))), logos = new Set(Object.values(p.options.cover.logos));
+  const docs = new Set(p.sections.flatMap((s) => s.items.map((it) => it.doc))), logos = new Set([...Object.values(p.options.cover.logos), p.options.cover.photo]);
   return Object.entries(p.files).filter(([id, f]) => docs.has(f.doc) || logos.has(id)).map(([id]) => id);
 }
 
@@ -89,7 +90,7 @@ export function build(p: Portfolio, words: { contents: string; section: string; 
   let k = 0;
   const items: Item[] = slots.map((slot) => {
     if (slot.kind === 'cover') return { cover: { ...tocSize, design: o.design, color: o.color, rtl: words.rtl, title: c.title.trim() || p.name, subtitle: c.subtitle.trim(),
-      names, supervisor: c.supervisor, supervisorLabel: words.supervisor, logos } };
+      names, supervisor: c.supervisor, supervisorLabel: words.supervisor, logos, photo: doc(c.photo) != null ? { doc: doc(c.photo)!, place: c.photoPlace } : undefined } };
     if (slot.kind === 'toc') return { toc: { ...tocSize, heading: words.contents, rtl: words.rtl, entries: entries.slice(slot.part * per, (slot.part + 1) * per) } };
     if (slot.kind === 'divider') {
       const size = firstReal(slot.section.items), s = size ? seen(size) : tocSize;

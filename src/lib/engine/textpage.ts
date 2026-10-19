@@ -8,7 +8,9 @@ export type Fonts = { regular: MuPDF.Font; bold: MuPDF.Font };
 export type Line = { text: string; x: number; y: number; size: number; bold?: boolean; color?: number[]; align?: 'left' | 'right' | 'center'; max?: number };
 export type TextPage = { w: number; h: number; lines: Line[]; rules?: number[][]; links?: { rect: number[]; to: number }[];
   images?: { doc: number; x: number; y: number; w: number; h: number; align?: 'left' | 'center' | 'right' }[]; // logos: source ids, box from the top
-  polys?: { pts: number[][]; color: number[] }[] }; // filled shapes (corner triangles), points from the top
+  polys?: { pts: number[][]; color: number[] }[]; // filled shapes (corner triangles), points from the top
+  // a photo behind everything, filling its box (cropped to it), and a see-through colour over it so text stays readable
+  background?: { doc: number; x: number; y: number; w: number; h: number }; veil?: { x: number; y: number; w: number; h: number; color: number[]; alpha: number } };
 
 // letter -> [first presentation form, number of forms (1 none, 2 isolated/final, 4 also initial/medial)]
 const AR = new Map<number, [number, number]>();
@@ -97,7 +99,10 @@ export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts
   const resources = { WqT0: faces[0].ref, WqT1: faces[1].ref };
   return {
     fonts: resources,
-    add(p: TextPage): MuPDF.PDFObject { return out.addPage([0, 0, p.w, p.h], 0, { Font: resources }, this.draw(p)); },
+    /** `under`: drawing commands and their resources put below the page's own (a background photo). */
+    add(p: TextPage, under?: { ops: string; res: Record<string, Record<string, MuPDF.PDFObject>> }): MuPDF.PDFObject {
+      return out.addPage([0, 0, p.w, p.h], 0, { ...under?.res, Font: resources }, (under?.ops ?? '') + this.draw(p));
+    },
     draw(p: TextPage) {
       let ops = '';
       for (const q of p.polys ?? []) ops += `${q.color.map(n).join(' ')} rg ${q.pts.map(([x, y], i) => `${n(x)} ${n(p.h - y)} ${i ? 'l' : 'm'}`).join(' ')} h f

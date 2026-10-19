@@ -20,8 +20,31 @@ export function assemble(m: typeof MuPDF, source: (id: number) => Source, b: Bui
   const page = (it: Item): TextPage | undefined => it.cover ? coverPage(it.cover) : it.divider ? dividerPage(it.divider) : it.toc ? tocPages(it.toc, fonts!().regular)[0]
     : it.blank && it.paper && it.paper !== 'plain' ? paperPage(it.fit!.w, it.fit!.h, it.paper) : undefined;
   const made = b.items.map(page), writer = made.some(Boolean) ? pageWriter(m, out, fonts!()) : null;
+  // a background photo (cover): scaled to fill its box, cropped to it; then the see-through colour over it
+  const under = (t: TextPage) => {
+    if (!t.background && !t.veil) return undefined;
+    let ops = '';
+    const res: Record<string, Record<string, MuPDF.PDFObject>> = {}, f = (v: number) => v.toFixed(2);
+    if (t.background) {
+      const g = t.background;
+      let ref = images.get(g.doc);
+      if (!ref) images.set(g.doc, (ref = out.addImage(new m.Image(source(g.doc).bytes))));
+      const o = out.loadImage(ref), s = Math.max(g.w / o.getWidth(), g.h / o.getHeight()), w = o.getWidth() * s, h = o.getHeight() * s;
+      const y0 = t.h - g.y - g.h;
+      ops += `q ${f(g.x)} ${f(y0)} ${f(g.w)} ${f(g.h)} re W n ${f(w)} 0 0 ${f(h)} ${f(g.x + (g.w - w) / 2)} ${f(y0 + (g.h - h) / 2)} cm /WqB Do Q
+`;
+      res.XObject = { WqB: ref };
+    }
+    if (t.veil) {
+      const v = t.veil;
+      res.ExtGState = { WqV: out.addObject({ Type: 'ExtGState', ca: v.alpha }) };
+      ops += `q /WqV gs ${v.color.map(f).join(' ')} rg ${f(v.x)} ${f(t.h - v.y - v.h)} ${f(v.w)} ${f(v.h)} re f Q
+`;
+    }
+    return { ops, res };
+  };
   b.items.forEach((it, i) => {
-    if (made[i]) out.insertPage(-1, writer!.add(made[i]!));
+    if (made[i]) out.insertPage(-1, writer!.add(made[i]!, under(made[i]!)));
     else if (it.blank) out.insertPage(-1, out.addPage([0, 0, it.fit!.w, it.fit!.h], 0, {}, ''));
     else {
       const s = source(it.doc!), pdf = s.doc.asPDF();

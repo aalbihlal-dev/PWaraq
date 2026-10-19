@@ -225,6 +225,9 @@ const strings = {
   pickPage: ['Click a page to edit, turn or delete it.', 'انقر صفحة لتحريرها أو تدويرها أو حذفها.'],
   ownColour: ['Choose any colour', 'اختر أي لون'],
   design_minimal: ['Minimal', 'بسيط'], design_split: ['Split', 'مقسوم'], design_geometric: ['Geometric', 'هندسي'], design_editorial: ['Editorial', 'مجلة'],
+  coverPhoto: ['Photo on the cover', 'صورة على الغلاف'],
+  photoTop: ['Across the top', 'في الأعلى'], photoFull: ['Whole page', 'الصفحة كاملة'],
+  dragSection: ['Drag to move the section', 'اسحب لنقل القسم'],
 } satisfies Record<string, [string, string]>;
 
 export type Key = keyof typeof strings;

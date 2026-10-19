@@ -75,7 +75,8 @@ const accentRule = (L: Look, y: number, accent: number[]) =>
 
 /** The portfolio's cover: logos, title (and subtitle), names, supervisor. */
 export function coverPage(o: { w: number; h: number; design: Design; color?: string; rtl: boolean; title: string; subtitle?: string; names: string[];
-  supervisor?: string; supervisorLabel: string; logos?: Logos }): TextPage {
+  supervisor?: string; supervisorLabel: string; logos?: Logos; photo?: { doc: number; place: 'top' | 'full' } }): TextPage {
+  if (o.photo) return photoCover({ ...o, photo: o.photo });
   const accent = rgb(o.color ?? COLOURS[0]), L = look(o.design, o.w, o.h, o.rtl, accent, true), k = L.k;
   const images = logoRow(o.logos, L.logoArea ?? [0, o.w], L.logoY, 64 * k, L.logoInset), rules = [...L.rules];
   if (L.strip && images.length) rules.push([0, 0, o.w, L.strip, ...WHITE]); // logos sit on white above a band
@@ -127,4 +128,23 @@ export function paperPage(w: number, h: number, paper: Paper, rtl = false): Text
   }
   if (paper === 'dotted') for (let x = step; x < w; x += step) for (let y = step; y < h; y += step) rules.push([x - 0.6, y - 0.6, 1.2, 1.2, ...LINE.map((c) => c * 0.85)]);
   return { w, h, lines: [], rules };
+}
+
+/** A cover with a photo: across the top half (text on white below), or over the whole page under a see-through veil
+ *  of the accent colour (white text). Logos go where they stay on a calm background. */
+function photoCover(o: Parameters<typeof coverPage>[0] & { photo: { doc: number; place: 'top' | 'full' } }): TextPage {
+  const accent = rgb(o.color ?? COLOURS[0]), k = Math.min(o.w, o.h) / 595, full = o.photo.place === 'full', x = o.w / 2, max = o.w - 128 * k;
+  const top = o.h * 0.48, lines: Line[] = [], rules: number[][] = [];
+  const titleY = full ? o.h * 0.44 : top + 96 * k, text = full ? WHITE : INK, soft = full ? tint(accent, 0.85) : MUTED;
+  lines.push({ text: o.title, x, y: titleY, size: 38 * k, bold: true, color: text, align: 'center', max });
+  if (o.subtitle) lines.push({ text: o.subtitle, x, y: titleY + 34 * k, size: 16 * k, color: soft, align: 'center', max });
+  rules.push([x - 32 * k, titleY + (o.subtitle ? 50 : 22) * k, 64 * k, 3 * k, ...(full ? WHITE : accent)]);
+  if (!full) rules.push([0, top, o.w, 8 * k, ...accent]);
+  let y = titleY + (o.subtitle ? 110 : 84) * k;
+  for (const name of o.names.filter((n) => n.trim())) { lines.push({ text: name.trim(), x, y, size: 18 * k, color: text, align: 'center', max }); y += 28 * k; }
+  if (o.supervisor?.trim()) lines.push({ text: `${o.supervisorLabel} ${o.supervisor.trim()}`, x, y: o.h - 64 * k, size: 14 * k, color: soft, align: 'center', max });
+  // logos: on the white part (top cover: just above the supervisor line), or on the veil at the top (full cover)
+  const images = logoRow(o.logos, [0, o.w], full ? 44 * k : o.h - 150 * k, (full ? 64 : 52) * k, 48 * k);
+  return { w: o.w, h: o.h, lines, rules, images, background: { doc: o.photo.doc, x: 0, y: 0, w: o.w, h: full ? o.h : top },
+    veil: full ? { x: 0, y: 0, w: o.w, h: o.h, color: accent, alpha: 0.62 } : undefined };
 }

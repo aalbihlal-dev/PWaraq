@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 import * as m from '../../engine/mupdf-wasm/dist/mupdf.js';
 import { saved, choose, fixture } from './helpers';
 
+const titles = (page: import('@playwright/test').Page) => page.locator('.sec .title').evaluateAll((els) => els.map((e) => (e as HTMLInputElement).value));
+
 test('portfolio: cover with a logo, a design, a turned divider, a lined page, closed and locked sections, numbers on the right', async ({ page }, info) => {
   test.setTimeout(90_000);
   await page.goto('/');
@@ -57,4 +59,25 @@ test('portfolio: cover with a logo, a design, a turned divider, a lined page, cl
   expect(doc.loadPage(0).toStructuredText().asText()).not.toMatch(/(^|\n)1\s*$/); // the cover has no number
   const numberOnLast = JSON.parse(doc.loadPage(7).toStructuredText().asJSON()).blocks.flatMap((b: any) => b.lines ?? []).find((l: any) => l.text.trim() === '8');
   expect(numberOnLast.bbox.x).toBeGreaterThan(450); // on the right
+});
+
+test('portfolio: drag a whole section above another; a photo over the whole cover', async ({ page }, info) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'New portfolio' }).click();
+  await choose(page, () => page.getByRole('button', { name: 'Add a file as a section' }).first().click(), [fixture('three.pdf'), fixture('small.pdf')]);
+  await expect.poll(() => titles(page)).toEqual(['three', 'small']);
+  await page.locator('.sec .grip').nth(1).dragTo(page.locator('.sec').first(), { targetPosition: { x: 300, y: 4 } });
+  await expect.poll(() => titles(page)).toEqual(['small', 'three']);
+  await page.keyboard.press('Control+z');
+  await expect.poll(() => titles(page)).toEqual(['three', 'small']);
+
+  await page.locator('.side .group').nth(1).locator('input[type=checkbox]').check();
+  await choose(page, () => page.locator('.photo .add').click(), [fixture('photo.png')]);
+  await page.getByRole('radio', { name: 'Whole page' }).click();
+  await expect(page.locator('.mini.photo-full')).toBeVisible();
+  await page.screenshot({ path: info.outputPath('cover-photo.png') });
+  const pdf = await saved(page, () => page.getByRole('button', { name: 'Export PDF' }).click());
+  const doc = m.Document.openDocument(pdf.bytes, 'application/pdf');
+  expect(JSON.parse(doc.loadPage(0).toStructuredText('preserve-images').asJSON()).blocks.filter((b: any) => b.type === 'image')).toHaveLength(1);
+  expect(doc.loadPage(0).toStructuredText().asText()).toContain('My course');
 });

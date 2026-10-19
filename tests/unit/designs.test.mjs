@@ -43,3 +43,18 @@ test('paper pages: lined, grid and dotted pages have their lines; plain stays em
   for (const i of [1, 2, 3]) assert.ok(ink(i) > 500, 'paper ' + i);
   fs.writeFileSync(out('designs/paper-lined.png'), doc.loadPage(1).toPixmap(m.Matrix.scale(0.6, 0.6), m.ColorSpace.DeviceRGB, false).asPNG());
 });
+
+test('photo cover: across the top or over the whole page, text stays real and readable', () => {
+  const photo = new m.Pixmap(m.ColorSpace.DeviceRGB, [0, 0, 1200, 800], false);
+  const px = photo.getPixels(); for (let i = 0; i < px.length; i += 3) { px[i] = (i / 3) % 1200 / 5; px[i + 1] = 120; px[i + 2] = 200; }
+  const jpg = photo.asJPEG(80), pic = { doc: m.Document.openDocument(jpg, 'image/jpeg'), bytes: jpg };
+  for (const place of ['top', 'full']) {
+    const bytes = assemble(m, (id) => (id === 2 ? pic : src), { items: [{ cover: { ...A4, design: 'classic', color: '#1f3a5f', rtl: false, title: 'Design 101', names: ['Abdullah'],
+      supervisor: 'Dr Ahmed', supervisorLabel: 'Supervisor:', logos: { center: 1 }, photo: { doc: 2, place } } }] }, () => fonts);
+    const doc = m.Document.openDocument(bytes, 'application/pdf'), text = doc.loadPage(0).toStructuredText().asText();
+    for (const s of ['Design 101', 'Abdullah', 'Supervisor: Dr Ahmed']) assert.ok(text.includes(s), place + ': ' + s);
+    const imgs = JSON.parse(doc.loadPage(0).toStructuredText('preserve-images').asJSON()).blocks.filter((b) => b.type === 'image');
+    assert.equal(imgs.length, 2, place + ': photo + logo');
+    fs.writeFileSync(out(`designs/photo-${place}.png`), doc.loadPage(0).toPixmap(m.Matrix.scale(0.6, 0.6), m.ColorSpace.DeviceRGB, false).asPNG());
+  }
+});
