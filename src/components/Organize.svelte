@@ -10,6 +10,8 @@
   import { pickFiles, saveFile } from '../lib/store';
   import PageGrid from './PageGrid.svelte';
   import PageEditor, { type Saved } from './PageEditor.svelte';
+  import CropPanel from './CropPanel.svelte';
+  import { zip } from '../lib/zip';
 
   let { pool, sizes, name, changed = $bindable(false) }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; changed?: boolean } = $props();
 
@@ -68,6 +70,33 @@
     } finally { busy = false; }
   }
 
+  // side panels: Split (into several files, saved together as one ZIP) and Crop
+  let panel = $state<'split' | 'crop' | null>(null), splitBy = $state<'every' | 'selected' | 'each'>('every'), every = $state(1);
+  const parts = $derived.by(() => {
+    const list = groups[0].items;
+    if (splitBy === 'each') return list.map((x) => [x]);
+    if (splitBy === 'every') { const n = Math.max(1, Math.floor(every) || 1), out: GridItem[][] = []; for (let i = 0; i < list.length; i += n) out.push(list.slice(i, i + n)); return out; }
+    const out: GridItem[][] = [[]]; // a new file starts at each selected page
+    list.forEach((it, i) => { if (i && selected.has(it.id)) out.push([]); out.at(-1)!.push(it); });
+    return out;
+  });
+  async function split() {
+    busy = true;
+    try {
+      const base = name.replace(/\.pdf$/i, ''), files: Record<string, Uint8Array> = {};
+      let at = 1;
+      for (const [n, part] of parts.entries()) {
+        files[`${base} (${n + 1}) ${t('pages')} ${at}-${at + part.length - 1}.pdf`] = await pool.build({ items: toItems(part) });
+        at += part.length;
+      }
+      await saveFile(zip(files), `${base} (${t('split')}).zip`, 'application/zip');
+    } finally { busy = false; }
+  }
+  const cropTarget = $derived(items().find((it) => selected.has(it.id)) ?? items()[0]);
+  function cropped(crop: number[] | undefined, all: boolean) {
+    change(edit(groups, all ? new Set(items().map((x) => x.id)) : selected.size ? sel() : new Set([cropTarget.id]), (x) => ({ ...x, crop })));
+  }
+
   // the page editor on one page; its saved page takes the old one's place (one undo step)
   let editing = $state<GridItem | null>(null);
   const editBase = (it: GridItem) => toItems(items())[items().findIndex((x) => x.id === it.id)];
@@ -97,6 +126,8 @@
     <button class="btn" onclick={blank} disabled={busy}>{@html icon('blank')}{t('blankPage')}</button>
     <span class="sep"></span>
     <button class="btn" onclick={extract} disabled={busy || !selected.size}>{@html icon('extract')}{t('extract')}</button>
+    <button class="btn" class:on={panel === 'split'} aria-pressed={panel === 'split'} onclick={() => (panel = panel === 'split' ? null : 'split')} disabled={busy}>{@html icon('split')}{t('split')}</button>
+    <button class="btn" class:on={panel === 'crop'} aria-pressed={panel === 'crop'} onclick={() => (panel = panel === 'crop' ? null : 'crop')} disabled={busy || !items().length}>{@html icon('crop')}{t('crop')}</button>
     <button class="btn icon" onclick={() => turn(-90)} disabled={!selected.size} title={t('rotateLeft')} aria-label={t('rotateLeft')}><span class="flip">{@html icon('rotate')}</span></button>
     <button class="btn icon" onclick={() => turn(90)} disabled={!selected.size} title={t('rotateRight')} aria-label={t('rotateRight')}>{@html icon('rotate')}</button>
     <button class="btn icon" onclick={remove} disabled={!selected.size} title={t('delete')} aria-label={t('delete')}>{@html icon('delete')}</button>
@@ -107,13 +138,38 @@
     <span class="count num" aria-live="polite">{selected.size ? `${selected.size} ${t('selected')}` : `${items().length} ${t('pagesCount')}`}</span>
     <label class="zoom"><span class="sr">{t('thumbSize')}</span>{@html icon('zoom')}<input type="range" min="96" max="280" step="8" bind:value={size} aria-label={t('thumbSize')} /></label>
   </div>
-  <PageGrid {pool} {groups} {selected} {size} number={(_, n) => String(n + 1)} onchange={change} oninsert={(_, i) => insert(i)}
-    onfiles={(files, _, i) => insertFiles(files, i)} onopen={(it) => (editing = it)} />
+  <div class="main" class:withpanel={!!panel}>
+    <PageGrid {pool} {groups} {selected} {size} number={(_, n) => String(n + 1)} onchange={change} oninsert={(_, i) => insert(i)}
+      onfiles={(files, _, i) => insertFiles(files, i)} onopen={(it) => (editing = it)} />
+    {#if panel === 'crop' && cropTarget}
+      {#key cropTarget.id}<CropPanel {pool} item={cropTarget} count={selected.size || 1} onApply={cropped} onClose={() => (panel = null)} />{/key}
+    {:else if panel === 'split'}
+      <aside class="panel" aria-label={t('split')}>
+        <div class="head"><h2>{t('split')}</h2><button class="btn icon" onclick={() => (panel = null)} title={t('close')} aria-label={t('close')}>{@html icon('close')}</button></div>
+        <label class="choice"><input type="radio" bind:group={splitBy} value="every" />{t('splitEvery')}
+          <input class="n num" type="number" min="1" max={items().length} bind:value={every} aria-label={t('splitEvery')} onfocus={() => (splitBy = 'every')} />{t('pagesCount')}</label>
+        <label class="choice"><input type="radio" bind:group={splitBy} value="selected" />{t('splitSelected')}</label>
+        <label class="choice"><input type="radio" bind:group={splitBy} value="each" />{t('splitEach')}</label>
+        <p class="help num">{parts.length} {t('files')} · {t('splitZip')}</p>
+        <button class="btn primary" onclick={split} disabled={busy || parts.length < 2}>{@html icon('split')}{t('splitSave')}</button>
+      </aside>
+    {/if}
+  </div>
 </div>
 {/if}
 
 <style>
   .org { height: 100%; display: grid; grid-template-rows: auto 1fr; min-height: 0; }
+  .main { display: grid; grid-template-columns: 1fr; min-height: 0; }
+  .main.withpanel { grid-template-columns: 1fr auto; }
+  .btn.on { background: var(--green-soft); border-color: var(--green); }
+  .panel { width: 320px; display: flex; flex-direction: column; gap: var(--s-12); padding: var(--s-16); background: var(--surface); border-inline-start: 1px solid var(--line); overflow-y: auto; }
+  .head { display: flex; align-items: center; justify-content: space-between; }
+  .panel h2 { margin: 0; font-size: var(--fs-18); }
+  .help { margin: 0; color: var(--muted); }
+  .choice { display: flex; align-items: center; gap: var(--s-8); min-height: var(--control); }
+  .choice input[type='radio'] { flex: none; width: 20px; height: 20px; accent-color: var(--green); }
+  .choice .n { width: 64px; min-height: var(--control); padding: 0 var(--s-8); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); }
   .tools { display: flex; align-items: center; gap: var(--s-8); padding: var(--s-8) var(--s-16); background: var(--surface); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
   .sep { width: 1px; height: 24px; background: var(--line); }
   .flip { display: grid; transform: scaleX(-1); }

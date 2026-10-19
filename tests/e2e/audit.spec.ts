@@ -25,6 +25,20 @@ for (const lang of ['en', 'ar']) test(`design rules hold on every screen (${lang
   await page.locator('.cell').first().click();
   await clean(page, 'organize');
   await page.screenshot({ path: info.outputPath(`organize-${lang}.png`) });
+  await page.locator('.org .tools .btn').nth(4).click(); // Crop panel
+  await clean(page, 'crop');
+  await page.screenshot({ path: info.outputPath(`crop-${lang}.png`) });
+  await page.locator('.org .tools .btn').nth(3).click(); // Split panel
+  await clean(page, 'split');
+  for (const [i, what] of [[2, 'edit'], [3, 'convert'], [5, 'protect']] as const) {
+    await page.locator('.task').nth(i).click();
+    if (what === 'edit') await page.locator('.scope button').nth(1).click(); // whole document
+    await expect(page.locator('.side h2').first()).toBeVisible();
+    await clean(page, what);
+    await page.screenshot({ path: info.outputPath(`${what}-${lang}.png`) });
+  }
+  await page.locator('.task').nth(1).click(); // back to Organize for the page editor
+  await expect(page.locator('.cell')).toHaveCount(3);
 
   await page.locator('.cell').first().dblclick(); // the page editor
   await expect(page.locator('.editor .sheet .hit').first()).toBeAttached({ timeout: 20_000 });

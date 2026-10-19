@@ -12,7 +12,7 @@
   import Portfolio from './components/Portfolio.svelte';
 
   const pool = new EnginePool();
-  let doc = $state<{ name: string; sizes: { w: number; h: number }[]; bytes: Uint8Array; modified: boolean } | null>(null);
+  let doc = $state<{ name: string; sizes: { w: number; h: number }[]; bytes: Uint8Array; modified: boolean; password?: string } | null>(null);
   let portfolio = $state<PortfolioData | null>(null);
   let busy = $state(false), error = $state(''), over = $state(false), recent = $state<Recent[]>([]);
   let picker: HTMLInputElement;
@@ -21,11 +21,25 @@
   const refresh = async () => (recent = await recentList());
   onMount(refresh);
 
-  async function show(bytes: Uint8Array, name: string, modified = false) {
+  async function show(bytes: Uint8Array, name: string, modified = false, password?: string) {
     await setDocument(bytes);
-    const sizes = await pool.open(bytes);
+    const sizes = await pool.open(bytes, password);
     doc = null; portfolio = null; await tick(); // a new document gets a fresh workspace
-    doc = { name, sizes, bytes, modified };
+    doc = { name, sizes, bytes, modified, password };
+  }
+  // a password-protected PDF: asked for on the start screen, then opened with it
+  let locked = $state<{ bytes: Uint8Array; name: string; size: number; handle?: FileSystemFileHandle } | null>(null), typed = $state('');
+  async function unlockOpen(e: SubmitEvent) {
+    e.preventDefault();
+    if (!locked) return;
+    busy = true; error = '';
+    try {
+      const l = locked;
+      await show(l.bytes, l.name, false, typed);
+      locked = null; typed = '';
+      remember({ key: `pdf:${l.name}:${l.size}`, kind: 'pdf', name: l.name, pages: doc!.sizes.length, handle: l.handle, thumb: await cover() });
+    } catch { error = t('wrongPassword'); }
+    busy = false;
   }
 
   async function openFile(file?: File | null, handle?: FileSystemFileHandle) {
@@ -35,7 +49,8 @@
       const bytes = new Uint8Array(await file.arrayBuffer());
       if (/\.waraq$/i.test(file.name)) await openPortfolioFile(bytes);
       else {
-        await show(bytes, file.name);
+        try { await show(bytes, file.name); }
+        catch (e) { if ((e as Error)?.message === 'PASSWORD') { locked = { bytes, name: file.name, size: file.size, handle }; busy = false; return; } throw e; }
         remember({ key: `pdf:${file.name}:${file.size}`, kind: 'pdf', name: file.name, pages: doc!.sizes.length, handle, thumb: await cover() });
       }
     } catch { error = t('notPdf'); }
@@ -100,7 +115,7 @@
 <input bind:this={picker} type="file" accept="application/pdf,.pdf,.waraq" hidden onchange={(e) => { openFile(e.currentTarget.files?.[0]); e.currentTarget.value = ''; }} />
 
 {#if doc}
-  <Workspace {pool} sizes={doc.sizes} name={doc.name} bytes={doc.bytes} modified={doc.modified} onOpen={pick} onClose={close} onSave={save}
+  <Workspace {pool} sizes={doc.sizes} name={doc.name} bytes={doc.bytes} modified={doc.modified} password={doc.password} onOpen={pick} onClose={close} onSave={save}
     onReplace={(bytes) => show(bytes, doc!.name, true)} />
 {:else if portfolio}
   <Portfolio {pool} {portfolio} onClose={close} />
@@ -117,6 +132,14 @@
         <button class="btn big" onclick={startPortfolio} disabled={busy}>{@html icon('library')}{t('newPortfolio')}</button>
       </div>
       <p class="muted">{t('dropHere')} · {t('portfolioHint')}</p>
+      {#if locked}
+        <form class="lock" onsubmit={unlockOpen}>
+          <label for="pdfpw">{@html icon('protect')}{t('needsPassword')} <strong>{locked.name}</strong></label>
+          <span><input id="pdfpw" type="password" bind:value={typed} autocomplete="off" />
+          <button class="btn primary" disabled={busy || !typed}>{t('openShort')}</button>
+          <button type="button" class="btn" onclick={() => { locked = null; typed = ''; error = ''; }}>{t('cancel')}</button></span>
+        </form>
+      {/if}
       {#if error}<p class="error" role="alert">{error}</p>{/if}
     </div>
     <section class="recent" aria-labelledby="recent-h">
@@ -166,5 +189,9 @@
   .meta { display: grid; gap: var(--s-4); min-width: 0; }
   .meta strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .x { position: absolute; top: 50%; inset-inline-end: var(--s-8); transform: translateY(-50%); }
+  .lock { display: grid; gap: var(--s-8); justify-items: center; padding: var(--s-16); border: 1px solid var(--line); border-radius: var(--r-12); background: var(--surface); }
+  .lock label { display: inline-flex; align-items: center; gap: var(--s-8); }
+  .lock span { display: flex; gap: var(--s-8); }
+  .lock input { min-height: var(--control); padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); }
   .privacy { display: inline-flex; align-items: center; gap: var(--s-8); }
 </style>

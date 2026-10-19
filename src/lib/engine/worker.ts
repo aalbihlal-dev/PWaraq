@@ -2,6 +2,7 @@
 // first out), so drawing again at another zoom or drawing a zoom tile does not re-read the PDF.
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 import { assemble } from './assemble';
+import { compress, protect, unlock } from './tools';
 import { editPage, pageObjects, type Edit, type Own } from './editpage';
 import { findSpots, signPdf } from './sign';
 import type { Fonts } from './textpage';
@@ -75,6 +76,8 @@ const ops: Record<string, (r: Req) => any> = {
     const id = r.doc ?? 0, old = docs.get(id);
     if (old) { for (const [k, v] of lists) if (k.startsWith(id + ':')) { v.list.destroy(); lists.delete(k); } old.doc.destroy(); }
     const doc = mupdf.Document.openDocument(r.bytes, r.mime ?? 'application/pdf');
+    // a protected file opens only with its password (the app asks for it when this fails)
+    if (doc.needsPassword() && !(r.password && doc.authenticatePassword(r.password))) { doc.destroy(); throw new Error(r.password ? 'WRONG_PASSWORD' : 'PASSWORD'); }
     docs.set(id, { doc, bytes: r.mime?.startsWith('image/') ? r.bytes : new Uint8Array() }); // image bytes are needed to build pages
     const sizes = [];
     for (let i = 0; i < doc.countPages(); i++) {
@@ -110,9 +113,13 @@ const ops: Record<string, (r: Req) => any> = {
   },
   // a new PDF from pages of the open sources (Organize, Portfolio)
   async build(r) {
-    if (r.build.items.some((it: any) => it.divider || it.toc)) await loadFonts();
+    if (r.build.watermark || r.build.items.some((it: any) => it.divider || it.toc)) await loadFonts();
     return assemble(mupdf, source, r.build, () => fonts!);
   },
+  // whole-file tools (Convert, Protect)
+  compress(r) { return compress(mupdf, r.bytes, r.level); },
+  protect(r) { return protect(mupdf, r.bytes, r.password, r.print, r.copy); },
+  unlock(r) { return unlock(mupdf, r.bytes, r.password); },
   // page editor: the lines of text and photos on a page
   objects(r) { const p = source(r.doc).doc.loadPage(r.page); try { return pageObjects(p); } finally { p.destroy(); } },
   // page editor: which font a replaced line will be written in, and the letters its own font lacks

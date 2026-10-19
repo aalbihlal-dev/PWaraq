@@ -197,8 +197,13 @@ Original plan:
    double-click `../Waraq 1.0 preview.cmd` (builds and opens it in its own Edge window).
 2. **Organize + Portfolio & everyday tools:** Organize page grid — **done (19 Oct)**: select (click/Ctrl/Shift),
    drag several pages, turn, delete, insert file/photo/blank (toolbar, "+" between pages, drop), extract, undo/redo,
-   save; applied when going back to View. Portfolio — **first version done** (see above). Next: merge, split,
-   compress, crop, page numbers/watermark for ordinary files, sign, protect/unlock, export.
+   save; applied when going back to View. Portfolio — **first version done** (see above). Everyday tools — **done
+   (19 Oct)**: merge (Organize → Insert file), **split** into files (every N pages / at selected pages / each page; one
+   ZIP), **crop** (drag a box or margins; CropBox, undoable), Edit → **Whole document**: page numbers (6 positions,
+   start, "n / N", upright on turned pages) and a real-text **watermark** (Arabic too, see-through, angle), Convert:
+   **compress** (photos scaled to 2200/1400 px and saved as JPEG; text, vectors and CAD lines untouched) and **pages as
+   PNG**, Protect: **password** (AES-256, print/copy permissions) and **unlock**; password-protected PDFs open after
+   asking for the password. Engine: `src/lib/engine/tools.ts`. Still to do: Portfolio drag whole sections, cover page.
 3. **Editing & documents:** page editor — **first version done (19 Oct)**, see above; next: text in its own font
    (Arabic with HarfBuzz), redaction tool, forms, OCR (text layer), Office/CAD via packs.
 4. **Desktop & website:** Tauri shell, file associations and right-click menu, packs, signed updater, branded
