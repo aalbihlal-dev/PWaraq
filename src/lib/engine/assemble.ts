@@ -75,7 +75,14 @@ export function stamp(out: MuPDF.PDFDocument, p: MuPDF.PDFObject, ops: string, r
   for (const [kind, named] of Object.entries(resources)) {
     let dict = res.get(kind);
     if (!dict.isDictionary()) { dict = out.newDictionary(); res.put(kind, dict); }
-    for (const [name, ref] of Object.entries(named)) dict.put(name, ref);
+    for (const [name, ref] of Object.entries(named)) {
+      // a page Waraq wrote or edited before already has this name (WqT0, WqI0…): the new one gets a free name, else the
+      // old text would be drawn with the new font's letter map (and an old photo replaced by the new one)
+      let free = name;
+      for (let i = 1; !dict.get(free).isNull(); i++) free = `${name}_${i}`;
+      if (free !== name) ops = ops.replace(new RegExp(`/${name}(?!\\w)`, 'g'), '/' + free);
+      dict.put(free, ref);
+    }
   }
   const contents = p.get('Contents'), all = out.newArray();
   all.push(out.addStream('q\n', {}));

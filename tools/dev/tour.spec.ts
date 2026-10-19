@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+﻿import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import * as m from '../../engine/mupdf-wasm/dist/mupdf.js';
@@ -112,4 +112,35 @@ test('tour', async ({ page }) => {
   await expect(page.locator('.mod')).toBeVisible({ timeout: 20_000 });
   await page.waitForTimeout(1500);
   await shot(page, '12-view-after-edit.png');
+
+  // 8. signing mode (Arabic): a photo of a signature cleaned, two files signed with the same set and date
+  await page.locator('.end .btn').nth(2).click(); // close (the edited file is not kept)
+  await page.locator('input[type=file]').first().setInputFiles(fx('sign-ar.pdf'));
+  await page.locator('.task').nth(4).click(); // Sign
+  await expect(page.locator('.need')).toHaveCount(1, { timeout: 30_000 });
+  await page.locator('.maker [role=tab]').nth(2).click(); // photo
+  const [c5] = await Promise.all([page.waitForEvent('filechooser'), page.locator('.maker .btn').nth(3).click()]);
+  await c5.setFiles([fx('signature-photo.png')]);
+  await page.locator('.maker .swatch').nth(2).click(); // blue
+  await page.waitForTimeout(500);
+  await shot(page, '13-sign-photo-cleaned.png');
+  await page.locator('.maker .btn.primary').click(); // save signature
+  await page.locator('.side input.input').last().fill('عبدالله');
+  const [c6] = await Promise.all([page.waitForEvent('filechooser'), page.locator('.side section .btn').first().click()]);
+  await c6.setFiles([fx('sign-en.pdf')]);
+  await page.locator('.need .btn').first().click();
+  await page.waitForTimeout(800);
+  await shot(page, '14-sign-needed-highlighted.png');
+  await page.locator('.where').click();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.where')).toContainText('sign-en.pdf', { timeout: 20_000 });
+  await page.waitForTimeout(800);
+  await shot(page, '15-sign-second-file.png');
+  await page.keyboard.press('Enter'); await page.keyboard.press('Enter');
+  const got: string[] = [];
+  page.on('download', async (d) => { const f = path.join(out, d.suggestedFilename()); fs.copyFileSync((await d.path())!, f); got.push(f); });
+  await page.locator('.tools .end .btn').nth(1).click(); // save all
+  await expect.poll(() => got.length, { timeout: 30_000 }).toBe(2);
+  for (const [f, n, name] of [[got.find((g) => g.includes('sign-ar'))!, 1, '16-signed-arabic.png'], [got.find((g) => g.includes('sign-en'))!, 0, '17-signed-english.png']] as const)
+    fs.writeFileSync(path.join(out, name), m.Document.openDocument(fs.readFileSync(f), 'application/pdf').loadPage(n).toPixmap(m.Matrix.scale(1.3, 1.3), m.ColorSpace.DeviceRGB, false).asPNG());
 });

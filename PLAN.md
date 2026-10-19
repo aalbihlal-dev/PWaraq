@@ -119,7 +119,7 @@ line), turning/cropping photos, zoom inside the editor, arrow-key nudging, warni
 text on turned (vertical) lines.
 
 ## Owner's ideas (19 Oct 2026) — to build next
-### 1. Signing mode (توقيع)
+### 1. Signing mode (توقيع) — first version built 19 Oct, see below
 Owner: one click adds signature + date; in one sitting he signs many files with the same date, the same signature and
 the same spacing; sometimes he wants everything at hand; Waraq should find where a page or document needs signing,
 highlight it and tell him which page; a signature image should lose its background and change colour.
@@ -139,6 +139,34 @@ highlight it and tell him which page; a signature image should lose its backgrou
   or overwrite on request).
 - Engine: reuse `editPage` (photo with transparency + text edits) — the set is a group of edits. Later: real digital
   signatures with a certificate (MuPDF can sign PDFs; check the WASM API) and a visible "signed by" stamp.
+
+**Built — first version (19 Oct 2026):** the **Sign** task in the workspace (`src/components/Sign.svelte`).
+- Library on this device (IndexedDB store `signatures`, db version 2): draw, type (Tajawal italic), or a photo; every
+  signature is cleaned by `src/lib/signature.ts` — paper made transparent (Otsu threshold, middle of the gap between
+  ink and paper; slider "Paper removal"), cropped to the ink, recoloured (black, ink, blue, Waraq green) — kept as PNG
+  with alpha (the alpha survives into the PDF: checked).
+- Set: signature + session date (date field, Gregorian / Hijri Umm al-Qura, numbers / month name / year first,
+  Western digits) + optional name; fixed size (150 pt wide, ≤ 56 pt high) and spacing (4 pt gaps, 10 pt text);
+  name and date text in the signature's colour, real text in Tajawal.
+- Find: `src/lib/engine/sign.ts` `findSpots` — empty /Sig fields and labels (الاسم والتوقيع, التوقيع, توقيع,
+  Signature, Signed, Sign here, التاريخ, Date) that look like labels (colon / blank next to them, or little else on
+  the line); the blank = the nearest run of ____ / .... on the reading side, else the space after the label (left in
+  Arabic), else under it. Highlighted on the page (next one stronger, date places dashed); bars "Signature needed on
+  page N — Go" at the top of the options panel.
+- Place: click a highlighted place (the signature sits on the blank's line, the date goes on the nearest date blank of
+  the page, name under the signature), or click anywhere on the page. **Enter / "Sign and next"** signs the next place,
+  then the next file; a file with no places gets the last file's place (dashed "Same place as the last file").
+  Ctrl Z undoes the last one in the file.
+- Many files: "Add files" (queue in the panel with "n signed"); **Save all signed** writes `name-signed.pdf` per file
+  (system Save window, download in tests) and the open document becomes the signed one. Signing changes only the
+  page's contents and resources, so links, bookmarks and form fields stay (`signPdf`).
+- Fixed on the way: `stamp` (assemble.ts) gave a resource name already on the page (WqT0, WqI0 — a page Waraq wrote or
+  edited before) to the new font/photo, so old text lost its copy/search map; names now stay unique.
+- Checks: `tests/unit/sign.test.mjs` (6), `tests/e2e/sign.spec.ts` (two files, same set and date), signing screen in
+  `audit.spec.ts` (en + ar). Screenshots: `../Archive-2026-10-12/screenshots/waraq-1.0-preview/signing-2026-10-19/` (13–17).
+Still to do: drawn form lines/boxes as blanks (only typed ____ now), stamp in the set, moving/resizing a placed set,
+overwrite the original on request, a warning before leaving with unsaved placements, the empty /Sig field is left in
+the form (drawn over), digital signatures with a certificate.
 
 ### 2. Arabic text keeps its own font when edited — **done (19 Oct 2026)**
 Built: engine export `Font.getBuffer()` (engine/apply-waraq-changes.py) gives the embedded font file; `src/lib/engine/ownfont.ts`

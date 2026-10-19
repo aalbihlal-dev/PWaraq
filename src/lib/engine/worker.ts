@@ -134,6 +134,14 @@ const ops: Record<string, (r: Req) => any> = {
       return bitmap(pix);
     } finally { out.destroy(); }
   },
+  // signing mode: where the file in `bytes` needs signing, every page
+  spots(r) {
+    const d = mupdf.Document.openDocument(r.bytes, 'application/pdf');
+    try { return [...Array(d.countPages())].flatMap((_, i) => { const p = d.loadPage(i); try { return findSpots(p, i); } finally { p.destroy(); } }); }
+    finally { d.destroy(); }
+  },
+  // signing mode: the file in `bytes` with the signature sets drawn on its pages
+  async sign(r) { await loadFonts(); return signPdf(mupdf, r.bytes, r.pages, r.photos, () => fonts!); },
 };
 
 self.onmessage = async ({ data }: MessageEvent<Req>) => {

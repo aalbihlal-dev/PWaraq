@@ -100,7 +100,7 @@
 <input bind:this={picker} type="file" accept="application/pdf,.pdf,.waraq" hidden onchange={(e) => { openFile(e.currentTarget.files?.[0]); e.currentTarget.value = ''; }} />
 
 {#if doc}
-  <Workspace {pool} sizes={doc.sizes} name={doc.name} modified={doc.modified} onOpen={pick} onClose={close} onSave={save}
+  <Workspace {pool} sizes={doc.sizes} name={doc.name} bytes={doc.bytes} modified={doc.modified} onOpen={pick} onClose={close} onSave={save}
     onReplace={(bytes) => show(bytes, doc!.name, true)} />
 {:else if portfolio}
   <Portfolio {pool} {portfolio} onClose={close} />

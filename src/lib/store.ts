@@ -7,15 +7,15 @@ const KEEP = 12;
 
 function db(): Promise<IDBDatabase> {
   return new Promise((ok, fail) => {
-    const r = indexedDB.open('waraq', 1);
-    r.onupgradeneeded = () => r.result.createObjectStore('recent', { keyPath: 'key' });
+    const r = indexedDB.open('waraq', 2);
+    r.onupgradeneeded = () => { for (const s of ['recent', 'signatures']) if (!r.result.objectStoreNames.contains(s)) r.result.createObjectStore(s, { keyPath: 'key' }); };
     r.onsuccess = () => ok(r.result); r.onerror = () => fail(r.error);
   });
 }
-async function tx<T>(mode: IDBTransactionMode, run: (s: IDBObjectStore) => IDBRequest<T> | void): Promise<T | undefined> {
+async function tx<T>(mode: IDBTransactionMode, run: (s: IDBObjectStore) => IDBRequest<T> | void, store = 'recent'): Promise<T | undefined> {
   const d = await db();
   return new Promise((ok, fail) => {
-    const t = d.transaction('recent', mode), req = run(t.objectStore('recent'));
+    const t = d.transaction(store, mode), req = run(t.objectStore(store));
     t.oncomplete = () => { ok(req ? req.result : undefined); d.close(); }; t.onerror = () => fail(t.error);
   });
 }
@@ -37,6 +37,14 @@ export async function forget(key: string) {
   try { await tx('readwrite', (s) => { s.delete(key); }); } catch {}
   if (key.startsWith('portfolio:')) try { await (await folder()).removeEntry(key.slice(10), { recursive: true }); } catch {}
 }
+
+// Signatures kept on this device for signing mode: clean PNGs (transparent paper), newest first
+export type Signature = { key: string; png: Blob; w: number; h: number; at: number; ink?: number[] }; // ink: 0..1 RGB, for the name and date
+export async function signatureList(): Promise<Signature[]> {
+  try { return ((await tx<Signature[]>('readonly', (s) => s.getAll(), 'signatures')) ?? []).sort((a, b) => b.at - a.at); } catch { return []; }
+}
+export async function keepSignature(sig: Signature) { try { await tx('readwrite', (s) => { s.put(sig); }, 'signatures'); } catch {} }
+export async function dropSignature(key: string) { try { await tx('readwrite', (s) => { s.delete(key); }, 'signatures'); } catch {} }
 
 /** The file behind a recent entry, asking the browser for permission again if needed (a click allows that). */
 export async function reopen(r: Recent): Promise<File | null> {
