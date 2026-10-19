@@ -40,9 +40,9 @@ you explicitly connect a processing engine of your own.
   text — opened from Organize, Portfolio or the Edit task.
 - **Signing mode:** saved signatures, signature + date in one click, finds where to sign, many files in a row.
 - **Everyday tools:** split, crop, page numbers, watermark, compress, pages as images, password protect and unlock.
-- **Portfolio (حافظة):** sections made from files, titles taken from file names, divider pages, a table of contents
-  with page numbers and links, page numbers for the whole portfolio or one section, bookmarks, and a portable
-  `.waraq` file.
+- **Portfolio (حافظة):** sections made from files, titles taken from file names, a cover page (logos, title, names,
+  supervisor, optional photo), 8 designs for cover and section pages in any colour, lined/grid/dotted pages, a table
+  of contents with page numbers and links, sections you can drag, hide or lock, bookmarks, and a portable `.waraq` file.
 - **Arabic first:** right-to-left interface, Arabic written as real joined text (Tajawal), copy and search work.
 - **Tested:** engine self-checks, end-to-end journeys in Microsoft Edge, and a design-rule audit in both languages.
 
