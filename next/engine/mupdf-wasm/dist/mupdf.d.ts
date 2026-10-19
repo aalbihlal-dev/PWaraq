@@ -131,6 +131,7 @@ export declare class Font extends Userdata<"fz_font"> {
     isSerif(): boolean;
     isBold(): boolean;
     isItalic(): boolean;
+    getBuffer(): Buffer | null;
 }
 export declare class Image extends Userdata<"fz_image"> {
     static readonly _drop: (p: Pointer<"fz_image">) => void;

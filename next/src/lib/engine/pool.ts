@@ -17,7 +17,7 @@ export class EnginePool {
   private replies = new Map<number, Waiting>();
   private nextId = 1;
   private nextDoc = 1;
-  private sources = new Map<number, { bytes: Uint8Array; mime: string }>(); // to open them again in a restarted worker
+  private sources = new Map<number, { bytes: Uint8Array; mime: string; password?: string }>(); // to open them again in a restarted worker
   sizes: { w: number; h: number }[] = [];
 
   // Each worker may hold a heavy page (~800 MB for an A0 CAD sheet): fewer workers on PCs with less memory.
@@ -33,9 +33,9 @@ export class EnginePool {
   }
 
   /** Opens the document as source 0 in every worker (each keeps its own copy), forgetting all other sources. */
-  async open(bytes: Uint8Array) {
+  async open(bytes: Uint8Array, password?: string) {
     await this.reset();
-    this.sizes = await this.load(0, bytes);
+    this.sizes = await this.load(0, bytes, 'application/pdf', password);
     return this.sizes;
   }
 
@@ -54,15 +54,18 @@ export class EnginePool {
     return { id, sizes: await this.load(id, bytes, mime) };
   }
 
+  /** A whole-file tool (compress, protect, unlock) on `bytes`, in whichever worker is free. */
+  tool(op: 'compress' | 'protect' | 'unlock', args: Record<string, any>) { return this.run<Uint8Array>({ op, priority: 0, args, any: true }); }
+
   /** A new PDF from pages of the open sources. */
   build(build: Build) {
     this.drop(() => false); // jobs waiting in line are asked for again by their pages later: building comes first
     return this.run<Uint8Array>({ op: 'build', priority: 0, args: { build }, any: true });
   }
 
-  private async load(doc: number, bytes: Uint8Array, mime = 'application/pdf'): Promise<{ w: number; h: number }[]> {
-    this.sources.set(doc, { bytes, mime });
-    const all = await Promise.all(this.workers.map((_, i) => this.direct(i, 'open', { doc, mime, bytes: bytes.slice() })));
+  private async load(doc: number, bytes: Uint8Array, mime = 'application/pdf', password?: string): Promise<{ w: number; h: number }[]> {
+    const all = await Promise.all(this.workers.map((_, i) => this.direct(i, 'open', { doc, mime, password, bytes: bytes.slice() })));
+    this.sources.set(doc, { bytes, mime, password });
     return all[0].sizes;
   }
 
@@ -71,7 +74,7 @@ export class EnginePool {
     this.workers[w].terminate();
     for (const [id, j] of this.replies) if (j.w === w) { this.replies.delete(id); j.reject(new Error('cancelled')); }
     this.spawn(w);
-    await Promise.all([...this.sources].map(([doc, s]) => this.direct(w, 'open', { doc, mime: s.mime, bytes: s.bytes.slice() })));
+    await Promise.all([...this.sources].map(([doc, s]) => this.direct(w, 'open', { doc, mime: s.mime, password: s.password, bytes: s.bytes.slice() })));
   }
 
   /** Queues a job; a job with the same key replaces the waiting one (e.g. a newer zoom for the same page). */

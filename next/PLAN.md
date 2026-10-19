@@ -106,20 +106,20 @@ the **Edit** task in the workspace (current page). Acrobat/PDFCraft layout: page
   PDF too (MuPDF lists image blocks). An existing photo is taken away by emptying its own image resource when only it
   uses it (found by emptying each in turn), else by redaction of its box; moved photos keep their own image object.
 - **Existing text:** click a line → a text box in its place with its text, size, colour, weight; the old line is
-  removed by MuPDF redaction (text only), the new text written in Tajawal. The panel says so: the line's own font
-  comes with HarfBuzz (Phase 3). Only lines that read left to right on the page as seen can be replaced.
+  removed by MuPDF redaction (text only), the new text written **in the line's own font** (see "Owner's ideas" 2, done
+  19 Oct). Only lines that read left to right on the page as seen can be replaced.
 - **Undo/redo** in the editor; **Save page** builds one edited page (engine job `edit`) that becomes a new one-page
   source and replaces the page in the list (Organize: one undo step; Portfolio: kept as a file of the portfolio, so
   sections, numbers, contents and `.waraq` keep working; Edit task: the document is rebuilt and marked changed).
 - Code: `src/lib/engine/editpage.ts` (pure: `pageObjects`, `editPage`), worker jobs `objects` / `edit`,
   `src/components/PageEditor.svelte`. Checks: `tests/unit/editpage.test.mjs` (7), `tests/e2e/editor.spec.ts` (3),
   editor screen in `audit.spec.ts`. Screenshots: `../Archive-2026-10-12/screenshots/waraq-1.0-preview/page-editor-2026-10-19/`.
-Still to do: text in the line's own font and harakat (HarfBuzz), editing a whole paragraph as one block (now line by
+Still to do: editing a whole paragraph as one block (now line by
 line), turning/cropping photos, zoom inside the editor, arrow-key nudging, warning before leaving with unsaved edits,
 text on turned (vertical) lines.
 
 ## Owner's ideas (19 Oct 2026) — to build next
-### 1. Signing mode (توقيع)
+### 1. Signing mode (توقيع) — first version built 19 Oct, see below
 Owner: one click adds signature + date; in one sitting he signs many files with the same date, the same signature and
 the same spacing; sometimes he wants everything at hand; Waraq should find where a page or document needs signing,
 highlight it and tell him which page; a signature image should lose its background and change colour.
@@ -140,8 +140,47 @@ highlight it and tell him which page; a signature image should lose its backgrou
 - Engine: reuse `editPage` (photo with transparency + text edits) — the set is a group of edits. Later: real digital
   signatures with a certificate (MuPDF can sign PDFs; check the WASM API) and a visible "signed by" stamp.
 
-### 2. Arabic text keeps its own font when edited
-Owner: the Arabic font must not change when editing. Today a replaced line is written in Tajawal.
+**Built — first version (19 Oct 2026):** the **Sign** task in the workspace (`src/components/Sign.svelte`).
+- Library on this device (IndexedDB store `signatures`, db version 2): draw, type (Tajawal italic), or a photo; every
+  signature is cleaned by `src/lib/signature.ts` — paper made transparent (Otsu threshold, middle of the gap between
+  ink and paper; slider "Paper removal"), cropped to the ink, recoloured (black, ink, blue, Waraq green) — kept as PNG
+  with alpha (the alpha survives into the PDF: checked).
+- Set: signature + session date (date field, Gregorian / Hijri Umm al-Qura, numbers / month name / year first,
+  Western digits) + optional name; fixed size (150 pt wide, ≤ 56 pt high) and spacing (4 pt gaps, 10 pt text);
+  name and date text in the signature's colour, real text in Tajawal.
+- Find: `src/lib/engine/sign.ts` `findSpots` — empty /Sig fields and labels (الاسم والتوقيع, التوقيع, توقيع,
+  Signature, Signed, Sign here, التاريخ, Date) that look like labels (colon / blank next to them, or little else on
+  the line); the blank = the nearest run of ____ / .... on the reading side, else the space after the label (left in
+  Arabic), else under it. Highlighted on the page (next one stronger, date places dashed); bars "Signature needed on
+  page N — Go" at the top of the options panel.
+- Place: click a highlighted place (the signature sits on the blank's line, the date goes on the nearest date blank of
+  the page, name under the signature), or click anywhere on the page. **Enter / "Sign and next"** signs the next place,
+  then the next file; a file with no places gets the last file's place (dashed "Same place as the last file").
+  Ctrl Z undoes the last one in the file.
+- Many files: "Add files" (queue in the panel with "n signed"); **Save all signed** writes `name-signed.pdf` per file
+  (system Save window, download in tests) and the open document becomes the signed one. Signing changes only the
+  page's contents and resources, so links, bookmarks and form fields stay (`signPdf`).
+- Fixed on the way: `stamp` (assemble.ts) gave a resource name already on the page (WqT0, WqI0 — a page Waraq wrote or
+  edited before) to the new font/photo, so old text lost its copy/search map; names now stay unique.
+- Checks: `tests/unit/sign.test.mjs` (6), `tests/e2e/sign.spec.ts` (two files, same set and date), signing screen in
+  `audit.spec.ts` (en + ar). Screenshots: `../Archive-2026-10-12/screenshots/waraq-1.0-preview/signing-2026-10-19/` (13–17).
+Still to do: drawn form lines/boxes as blanks (only typed ____ now), stamp in the set, moving/resizing a placed set,
+overwrite the original on request, a warning before leaving with unsaved placements, the empty /Sig field is left in
+the form (drawn over), digital signatures with a certificate.
+
+### 2. Arabic text keeps its own font when edited — **done (19 Oct 2026)**
+Built: engine export `Font.getBuffer()` (engine/apply-waraq-changes.py) gives the embedded font file; `src/lib/engine/ownfont.ts`
+shapes the new text with **HarfBuzz** (harfbuzzjs) against it — joined letters, harakat placed by the font, mixed
+Arabic/English in direction runs — and writes it by glyph id with its own ToUnicode (letters drawn as several glyphs, e.g.
+Noto's separate dots, carry ActualText so copying gives normal Arabic). Letters the subset lacks: the full bundled font of
+the same family, else the closest (Noto Naskh Arabic for Times/Traditional/Simplified-like, Noto Sans Arabic for Arial-like,
+Tajawal last); the options panel names the font and the missing letters. Bundled OFL fonts: Noto Naskh / Noto Sans Arabic
+(regular + bold, public/fonts). Checks: tests/unit/editpage.test.mjs (3 new), tests/e2e/editor.spec.ts (1 new), tour screens
+20-22 (tools/dev/tour-ownfont.spec.ts). Left: the on-screen box while typing still shows Tajawal (the saved page is right);
+fonts without a Unicode cmap (subsets made by MuPDF, some Chrome PDFs) and bare CFF / Type 3 fonts fall back (said in the
+panel) - next: rebuild a cmap from the PDF's ToUnicode; "bold" switched off on a bold-only font stays bold; Latin lines in
+non-embedded Helvetica/Times fall back to Tajawal; Amiri not bundled; desktop: installed system fonts.
+Original plan:
 - Take the line's own font from the PDF (the font object MuPDF reports for its characters) and write the new text
   with it; shape Arabic with **HarfBuzz** (harfbuzzjs WASM) against that font so letters join correctly whatever the
   font's encoding.
@@ -158,8 +197,13 @@ Owner: the Arabic font must not change when editing. Today a replaced line is wr
    double-click `../Waraq 1.0 preview.cmd` (builds and opens it in its own Edge window).
 2. **Organize + Portfolio & everyday tools:** Organize page grid — **done (19 Oct)**: select (click/Ctrl/Shift),
    drag several pages, turn, delete, insert file/photo/blank (toolbar, "+" between pages, drop), extract, undo/redo,
-   save; applied when going back to View. Portfolio — **first version done** (see above). Next: merge, split,
-   compress, crop, page numbers/watermark for ordinary files, sign, protect/unlock, export.
+   save; applied when going back to View. Portfolio — **first version done** (see above). Everyday tools — **done
+   (19 Oct)**: merge (Organize → Insert file), **split** into files (every N pages / at selected pages / each page; one
+   ZIP), **crop** (drag a box or margins; CropBox, undoable), Edit → **Whole document**: page numbers (6 positions,
+   start, "n / N", upright on turned pages) and a real-text **watermark** (Arabic too, see-through, angle), Convert:
+   **compress** (photos scaled to 2200/1400 px and saved as JPEG; text, vectors and CAD lines untouched) and **pages as
+   PNG**, Protect: **password** (AES-256, print/copy permissions) and **unlock**; password-protected PDFs open after
+   asking for the password. Engine: `src/lib/engine/tools.ts`. Still to do: Portfolio drag whole sections, cover page.
 3. **Editing & documents:** page editor — **first version done (19 Oct)**, see above; next: text in its own font
    (Arabic with HarfBuzz), redaction tool, forms, OCR (text layer), Office/CAD via packs.
 4. **Desktop & website:** Tauri shell, file associations and right-click menu, packs, signed updater, branded

@@ -2,8 +2,20 @@
 // first out), so drawing again at another zoom or drawing a zoom tile does not re-read the PDF.
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 import { assemble } from './assemble';
-import { editPage, pageObjects, type Edit } from './editpage';
+import { compress, protect, unlock } from './tools';
+import { editPage, pageObjects, type Edit, type Own } from './editpage';
+import { findSpots, signPdf } from './sign';
 import type { Fonts } from './textpage';
+import { BUNDLED_FILES, fontAt, pick } from './ownfont';
+
+// HarfBuzz and the bundled Arabic fonts, for a replaced line written in its own font (or the closest bundled one)
+let own: Own | null = null;
+async function loadOwn() {
+  if (own) return own;
+  const [hb, ...files] = await Promise.all([import('harfbuzzjs'), ...BUNDLED_FILES.map(async (f) => new Uint8Array(await (await fetch(new URL('/fonts/' + f, location.origin))).arrayBuffer()))]);
+  const bytes = new Map<string, Uint8Array>(BUNDLED_FILES.map((f, i) => [f, files[i]]));
+  return (own = { hb, file: (f) => bytes.get(f)! });
+}
 
 // The engine (11 MB WebAssembly) loads after this worker is already listening: a message that arrives while it
 // loads (a file opened right at start-up) waits for it instead of being lost.
@@ -64,6 +76,8 @@ const ops: Record<string, (r: Req) => any> = {
     const id = r.doc ?? 0, old = docs.get(id);
     if (old) { for (const [k, v] of lists) if (k.startsWith(id + ':')) { v.list.destroy(); lists.delete(k); } old.doc.destroy(); }
     const doc = mupdf.Document.openDocument(r.bytes, r.mime ?? 'application/pdf');
+    // a protected file opens only with its password (the app asks for it when this fails)
+    if (doc.needsPassword() && !(r.password && doc.authenticatePassword(r.password))) { doc.destroy(); throw new Error(r.password ? 'WRONG_PASSWORD' : 'PASSWORD'); }
     docs.set(id, { doc, bytes: r.mime?.startsWith('image/') ? r.bytes : new Uint8Array() }); // image bytes are needed to build pages
     const sizes = [];
     for (let i = 0; i < doc.countPages(); i++) {
@@ -99,18 +113,28 @@ const ops: Record<string, (r: Req) => any> = {
   },
   // a new PDF from pages of the open sources (Organize, Portfolio)
   async build(r) {
-    if (r.build.items.some((it: any) => it.divider || it.toc)) await loadFonts();
+    if (r.build.watermark || r.build.items.some((it: any) => it.divider || it.toc)) await loadFonts();
     return assemble(mupdf, source, r.build, () => fonts!);
   },
+  // whole-file tools (Convert, Protect)
+  compress(r) { return compress(mupdf, r.bytes, r.level); },
+  protect(r) { return protect(mupdf, r.bytes, r.password, r.print, r.copy); },
+  unlock(r) { return unlock(mupdf, r.bytes, r.password); },
   // page editor: the lines of text and photos on a page
   objects(r) { const p = source(r.doc).doc.loadPage(r.page); try { return pageObjects(p); } finally { p.destroy(); } },
+  // page editor: which font a replaced line will be written in, and the letters its own font lacks
+  async fontcheck(r) {
+    const o = await loadOwn(), p = source(r.doc).doc.loadPage(r.page);
+    try { const { font, using, missing } = pick(o.hb, fontAt(p, r.from), r.text, r.bold, o.file); return { font, using, missing }; } finally { p.destroy(); }
+  },
   // page editor: the page with `edits` applied — a one-page PDF, or with `scale` the editor's background (what the edits
   // take away already gone) as a picture
   async edit(r) {
     if (r.edits.some((e: Edit) => e.kind === 'text')) await loadFonts();
+    const o = r.scale == null && r.edits.some((e: Edit) => e.kind === 'text' && e.from) ? await loadOwn() : undefined;
     const pdf = source(r.doc).doc.asPDF();
     if (!pdf) throw new Error('not a PDF: ' + r.doc);
-    const out = editPage(mupdf, pdf, r.page, r.edits, r.photos ?? [], () => fonts!, r.scale != null);
+    const out = editPage(mupdf, pdf, r.page, r.edits, r.photos ?? [], () => fonts!, r.scale != null, o);
     try {
       if (r.scale == null) return out.saveToBuffer('garbage=compact').asUint8Array().slice();
       const p = out.loadPage(0), pix = p.toPixmap(mupdf.Matrix.scale(r.scale, r.scale), mupdf.ColorSpace.DeviceRGB, false);
@@ -118,6 +142,14 @@ const ops: Record<string, (r: Req) => any> = {
       return bitmap(pix);
     } finally { out.destroy(); }
   },
+  // signing mode: where the file in `bytes` needs signing, every page
+  spots(r) {
+    const d = mupdf.Document.openDocument(r.bytes, 'application/pdf');
+    try { return [...Array(d.countPages())].flatMap((_, i) => { const p = d.loadPage(i); try { return findSpots(p, i); } finally { p.destroy(); } }); }
+    finally { d.destroy(); }
+  },
+  // signing mode: the file in `bytes` with the signature sets drawn on its pages
+  async sign(r) { await loadFonts(); return signPdf(mupdf, r.bytes, r.pages, r.photos, () => fonts!); },
 };
 
 self.onmessage = async ({ data }: MessageEvent<Req>) => {

@@ -91,7 +91,9 @@
   // each page fits a box of size x 1.3·size, turned pages included
   function box(it: GridItem) {
     const s = seen(it), k = Math.min(size / s.w, (size * 1.3) / s.h);
-    return { sheet: `width:${s.w * k}px;height:${s.h * k}px`, canvas: `width:${it.w * k}px;height:${it.h * k}px;transform:translate(-50%,-50%) rotate(${turned(it)}deg)` };
+    // a cropped page shows only what stays (the rest of its box is cut away)
+    const c = it.crop, clip = c ? `;clip-path:inset(${c[1] * 100}% ${(1 - c[2]) * 100}% ${(1 - c[3]) * 100}% ${c[0] * 100}%)` : '';
+    return { sheet: `width:${s.w * k}px;height:${s.h * k}px${clip}`, canvas: `width:${it.w * k}px;height:${it.h * k}px;transform:translate(-50%,-50%) rotate(${turned(it)}deg)` };
   }
 </script>
 

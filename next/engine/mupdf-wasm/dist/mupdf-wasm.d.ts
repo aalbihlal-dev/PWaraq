@@ -22,6 +22,7 @@ interface Libmupdf {
 	_wasm_enable_icc(): void,
 	_wasm_set_graphics_min_line_width(width: number): void,
 	_wasm_set_aa_level(bits: number): void,
+	_wasm_font_get_buffer(font: Pointer<"fz_font">): Pointer<"fz_buffer">,
 	_wasm_disable_icc(): void,
 	_wasm_set_user_css(text: Pointer<"char">): void,
 	_wasm_empty_store(): void,

@@ -4,7 +4,7 @@
 
 <script lang="ts">
   // The page editor (like Acrobat's Edit PDF / PDFCraft): the page large in the middle, tools on top, options on the
-  // right, no pop-ups. Text is added or replaced as real text (Tajawal); photos are added, moved, resized, replaced or
+  // right, no pop-ups. Text is added as real text (Tajawal), a replaced line in its own font; photos are added, moved, resized, replaced or
   // deleted. Save makes the edited page a new one-page source that takes the old page's place (View, Organize, Portfolio).
   import { onMount, tick } from 'svelte';
   import type { EnginePool } from '../lib/engine/pool';
@@ -22,6 +22,17 @@
   let doc = $state(-1), size = $state({ w: 595, h: 842 }), found = $state<{ lines: PageLine[]; images: Box[] }>({ lines: [], images: [] });
   let objs = $state<Obj[]>([]), selected = $state<string | null>(null), tool = $state<'select' | 'text'>('select'), busy = $state(t('openingPage'));
   const sel = $derived(objs.find((o) => o.id === selected));
+  // a replaced line: the font it will be written in (its own, or the closest bundled one and the letters that were missing)
+  let fontInfo = $state<{ font: string; using: string | null; missing: string[] } | null>(null);
+  $effect(() => {
+    const o = sel;
+    if (o?.kind !== 'text' || !o.from || !o.text.trim()) { fontInfo = null; return; }
+    const args = { doc, page: 0, from: $state.snapshot(o.from), text: o.text, bold: o.bold };
+    const timer = setTimeout(() => pool.run<typeof fontInfo>({ op: 'fontcheck', page: 0, priority: 0, args }).then((f) => (fontInfo = f)).catch((e) => console.warn('font check:', e)), 200);
+    return () => clearTimeout(timer);
+  });
+  const fontText = (f: NonNullable<typeof fontInfo>) => (!f.using ? t('fontOwn') : f.missing.length ? t('fontMissing') : t('fontUnusable'))
+    .replace('{font}', f.font || '?').replace('{using}', f.using ?? '').replace('{letters}', f.missing.join(' '));
   const photos: Uint8Array[] = [];
   let urls = $state<string[]>([]);
 
@@ -300,7 +311,11 @@
           </span>
         </div>
         <p class="help">{t('textHelp')}</p>
-        <p class="note">{@html icon('info')}<span>{t('fontNote')}</span></p>
+        {#if o.from && fontInfo}
+          <p class="note" class:warn={!!fontInfo.using} data-testid="font-note">{@html icon('info')}<span>{fontText(fontInfo)}</span></p>
+        {:else}
+          <p class="note">{@html icon('info')}<span>{t('fontNote')}</span></p>
+        {/if}
         <button class="btn" onclick={remove}>{@html icon('delete')}{t('delete')}</button>
       {:else if sel}
         <h2>{t('photoOptions')}</h2>
@@ -350,5 +365,6 @@
   .help { margin: 0; color: var(--muted); }
   .note { display: flex; gap: var(--s-8); margin: 0; padding: var(--s-12); border-radius: var(--r-8); background: var(--green-soft); color: var(--ink); }
   .note :global(svg) { flex: none; color: var(--green); }
+  .note.warn { background: var(--paper); border: 1px solid var(--green); }
   @media (max-width: 900px) { .body { grid-template-columns: 1fr; grid-template-rows: 1fr auto; } .side { max-height: 40vh; border-inline-start: 0; border-top: 1px solid var(--line); } }
 </style>

@@ -7,16 +7,18 @@
   import Thumbnails from './Thumbnails.svelte';
   import Organize from './Organize.svelte';
   import PageEditor, { type Saved } from './PageEditor.svelte';
+  import Sign from './Sign.svelte';
+  import DocTools from './DocTools.svelte';
 
-  let { pool, sizes, name, modified, onOpen, onClose, onSave, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; modified: boolean;
+  let { pool, sizes, name, bytes, modified, password, onOpen, onClose, onSave, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; bytes: Uint8Array; modified: boolean; password?: string;
     onOpen: () => void; onClose: () => void; onSave: () => void; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
-  let mode = $state<'view' | 'organize' | 'edit'>('view'), organize = $state<Organize>(), organized = $state(false), applying = $state(false);
+  let mode = $state<'view' | 'organize' | 'edit' | 'sign' | 'convert' | 'protect'>('view'), editScope = $state<'page' | 'document'>('page'), organize = $state<Organize>(), organized = $state(false), applying = $state(false);
   // leaving Organize applies its changes: the document is rebuilt and opened again in View
   async function task_(next: Key) {
     if (next === mode) return;
     if (next === 'organize' && mode === 'view') { mode = 'organize'; return; }
-    if (mode === 'organize' && organized && organize) { applying = true; try { await onReplace(await organize.build()); } finally { applying = false; } }
-    else mode = next === 'edit' ? 'edit' : next === 'organize' ? 'organize' : 'view';
+    if (mode === 'organize' && organized && organize) { applying = true; try { await onReplace(await organize.build()); } catch { alert(t('toolFailed')); } finally { applying = false; } }
+    else mode = (['edit', 'organize', 'sign', 'convert', 'protect'].includes(next) ? next : 'view') as typeof mode;
   }
   // Edit: the page editor on the current page; saving puts the edited page in its place and opens the document again
   let editPage = $state(1);
@@ -26,8 +28,8 @@
     finally { applying = false; }
   }
   async function save() {
-    if (mode === 'edit') return; // the editor saves its page first (Save page)
-    if (mode === 'organize' && organized && organize) { applying = true; try { await onReplace(await organize.build()); } finally { applying = false; } }
+    if ((mode === 'edit' && editScope === 'page') || mode === 'sign') return; // the editor / signing mode saves its page first (Save page)
+    if (mode === 'organize' && organized && organize) { applying = true; try { await onReplace(await organize.build()); } catch { alert(t('toolFailed')); return; } finally { applying = false; } }
     onSave();
   }
   let viewer = $state() as Viewer;
@@ -73,22 +75,36 @@
     <strong class="name" title={name}>{name}</strong>
     <nav class="tasks" aria-label="Tasks">
       {#each tasks as task}
-        {@const live = task === 'view' || task === 'organize' || task === 'edit'}
+        {@const live = task !== 'ocr'}
         <button class="task" class:on={task === mode} disabled={!live || applying} title={live ? '' : t('soon')} onclick={() => { if (task === 'edit' && mode !== 'edit') editPage = current; task_(task); }}>{t(task)}</button>
       {/each}
     </nav>
     <span class="end">
       {#if modified || organized}<span class="mod">{t('modified')}</span>{/if}
-      <button class="btn" class:primary={modified} onclick={save} disabled={applying || mode === 'edit'}>{@html icon('download')}{t('save')}</button>
+      <button class="btn" class:primary={modified} onclick={save} disabled={applying || (mode === 'edit' && editScope === 'page') || mode === 'sign'}>{@html icon('download')}{t('save')}</button>
       <button class="btn" onclick={onOpen}>{@html icon('upload')}{t('openShort')}</button>
       <button class="btn" onclick={onClose}>{@html icon('close')}{t('close')}</button>
       <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
     </span>
   </header>
-  {#if mode === 'edit'}
-  <div class="orgwrap">
+  {#if mode === 'edit' || mode === 'convert' || mode === 'protect'}
+  <div class="orgwrap" class:scoped={mode === 'edit'}>
     {#if applying}<p class="applying" role="status">{t('applying')}</p>{/if}
+    {#if mode === 'edit'}
+      <div class="scope" role="tablist" aria-label={t('edit')}>
+        <button role="tab" aria-selected={editScope === 'page'} class:on={editScope === 'page'} onclick={() => (editScope = 'page')}>{t('thisPage')}</button>
+        <button role="tab" aria-selected={editScope === 'document'} class:on={editScope === 'document'} onclick={() => (editScope = 'document')}>{t('wholeDocument')}</button>
+      </div>
+    {/if}
+    {#if mode !== 'edit' || editScope === 'document'}
+    <DocTools {pool} kind={mode === 'edit' ? 'stamp' : mode} {sizes} {name} {bytes} {password} {onReplace} />
+    {:else}
     <PageEditor {pool} base={{ doc: 0, page: editPage - 1 }} label="{t('page')} {editPage} {t('of')} {sizes.length}" onSave={edited} onCancel={() => (mode = 'view')} />
+    {/if}
+  </div>
+  {:else if mode === 'sign'}
+  <div class="orgwrap">
+    <Sign {pool} first={{ name, bytes, sizes }} onDone={async (signed) => { if (signed) await onReplace(signed); else mode = 'view'; }} />
   </div>
   {:else if mode === 'organize'}
   <div class="orgwrap">
@@ -129,6 +145,10 @@
 <style>
   .ws { height: 100%; display: grid; grid-template-rows: auto auto 1fr; }
   .orgwrap { grid-row: 2 / 4; min-height: 0; position: relative; }
+  .orgwrap.scoped { display: grid; grid-template-rows: auto 1fr; }
+  .scope { display: flex; gap: var(--s-8); padding: var(--s-8) var(--s-16); background: var(--surface); border-bottom: 1px solid var(--line); }
+  .scope button { min-height: var(--control); padding: 0 var(--s-16); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--surface); font-weight: 600; color: var(--muted); }
+  .scope button.on { background: var(--green-soft); border-color: var(--green); color: var(--ink); }
   .applying { position: absolute; inset: 0; z-index: 2; margin: 0; display: grid; place-items: center; background: var(--veil); font-size: var(--fs-16); font-weight: 600; }
   .mod { color: var(--muted); font-size: var(--fs-12); white-space: nowrap; }
   .bar { display: flex; align-items: center; gap: var(--s-12); padding: var(--s-8) var(--s-16); background: var(--surface); border-bottom: 1px solid var(--line); min-width: 0; }
