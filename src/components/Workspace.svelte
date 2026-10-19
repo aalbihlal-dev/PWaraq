@@ -10,16 +10,17 @@
   import Sign from './Sign.svelte';
   import DocTools from './DocTools.svelte';
   import Redact from './Redact.svelte';
+  import Forms from './Forms.svelte';
 
   let { pool, sizes, name, bytes, modified, password, onOpen, onClose, onSave, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; bytes: Uint8Array; modified: boolean; password?: string;
     onOpen: () => void; onClose: () => void; onSave: () => void; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
-  let mode = $state<'view' | 'organize' | 'edit' | 'sign' | 'convert' | 'protect' | 'redact'>('view'), editScope = $state<'page' | 'document'>('page'), organize = $state<Organize>(), organized = $state(false), applying = $state(false);
+  let mode = $state<'view' | 'organize' | 'edit' | 'sign' | 'convert' | 'protect' | 'redact' | 'forms'>('view'), editScope = $state<'page' | 'document'>('page'), organize = $state<Organize>(), organized = $state(false), applying = $state(false);
   // leaving Organize applies its changes: the document is rebuilt and opened again in View
   async function task_(next: Key) {
     if (next === mode) return;
     if (next === 'organize' && mode === 'view') { mode = 'organize'; return; }
     if (mode === 'organize' && organized && organize) { applying = true; try { await onReplace(await organize.build()); } catch { alert(t('toolFailed')); } finally { applying = false; } }
-    else mode = (['edit', 'organize', 'sign', 'convert', 'protect', 'redact'].includes(next) ? next : 'view') as typeof mode;
+    else mode = (['edit', 'organize', 'sign', 'convert', 'protect', 'redact', 'forms'].includes(next) ? next : 'view') as typeof mode;
   }
   // Edit: the page editor on the current page; saving puts the edited page in its place and opens the document again
   let editPage = $state(1);
@@ -38,7 +39,7 @@
   let showThumbs = $state(true);
   let pageInput = $state('1');
   $effect(() => { pageInput = String(current); });
-  const tasks: Key[] = ['view', 'organize', 'edit', 'convert', 'sign', 'protect', 'redact', 'ocr'];
+  const tasks: Key[] = ['view', 'organize', 'edit', 'convert', 'sign', 'protect', 'redact', 'forms', 'ocr'];
 
   // Find: every page is searched in the background (heavy pages take seconds); matches appear as they come in.
   let findOpen = $state(false), query = $state(''), hits = $state<{ page: number; rects: number[][] }[]>([]), active = $state(0), searching = $state(false);
@@ -107,6 +108,11 @@
   <div class="orgwrap">
     {#if applying}<p class="applying" role="status">{t('applying')}</p>{/if}
     <Redact {pool} {sizes} {bytes} {onReplace} />
+  </div>
+  {:else if mode === 'forms'}
+  <div class="orgwrap">
+    {#if applying}<p class="applying" role="status">{t('applying')}</p>{/if}
+    <Forms {pool} {sizes} {bytes} {onReplace} />
   </div>
   {:else if mode === 'sign'}
   <div class="orgwrap">

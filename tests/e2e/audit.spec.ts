@@ -30,7 +30,7 @@ for (const lang of ['en', 'ar']) test(`design rules hold on every screen (${lang
   await page.screenshot({ path: info.outputPath(`crop-${lang}.png`) });
   await page.locator('.org .tools .btn').nth(3).click(); // Split panel
   await clean(page, 'split');
-  for (const [i, what] of [[2, 'edit'], [3, 'convert'], [5, 'protect'], [6, 'redact']] as const) {
+  for (const [i, what] of [[2, 'edit'], [3, 'convert'], [5, 'protect'], [6, 'redact'], [7, 'forms']] as const) {
     await page.locator('.task').nth(i).click();
     if (what === 'edit') await page.locator('.scope button').nth(1).click(); // whole document
     await expect(page.locator('.side h2').first()).toBeVisible();
@@ -68,4 +68,14 @@ for (const lang of ['en', 'ar']) test(`design rules hold on every screen (${lang
   await page.locator('.sec').first().locator('.btn').nth(1).click(); // divider (after the close button)
   await clean(page, 'portfolio');
   await page.screenshot({ path: info.outputPath(`portfolio-${lang}.png`) });
+});
+
+// the screens that need a file of their own: a form with fields
+for (const lang of ['en', 'ar']) test(`design rules hold on the form screen with fields (${lang})`, async ({ page }, info) => {
+  await page.addInitScript((l) => localStorage.setItem('waraq-lang', l), lang);
+  await open(page, fixture('form.pdf'));
+  await page.locator('.task').nth(7).click(); // Forms
+  await expect(page.locator('.forms .box')).toHaveCount(6);
+  await clean(page, 'forms');
+  await page.screenshot({ path: info.outputPath(`forms-${lang}.png`) });
 });

@@ -245,7 +245,6 @@ const strings = {
   noFields: ['This PDF has no form fields.', 'لا يحتوي هذا الملف على حقول نموذج.'],
   flatten: ['Make the answers fixed (no longer fillable)', 'ثبّت الإجابات (لا تبقى قابلة للتعبئة)'],
   formsApply: ['Apply the answers', 'طبّق الإجابات'],
-  formsDone: ['Applied. Save the file to keep it.', 'طُبّق. احفظ الملف للاحتفاظ به.'],
   fieldReadOnly: ['read only', 'للقراءة فقط'],
   // OCR
   ocrHelp: ['Adds invisible, searchable text to scanned pages. The pictures stay as they are. Everything runs on this device.', 'يضيف نصًا غير مرئي قابلًا للبحث إلى الصفحات الممسوحة. تبقى الصور كما هي. كل شيء يعمل على جهازك.'],

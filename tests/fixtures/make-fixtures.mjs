@@ -76,3 +76,26 @@ fs.writeFileSync(here('photo.png'), pix.asPNG());
   out.setMetaData('info:Title', 'Private title'); out.setMetaData('info:Author', 'Abdullah');
   fs.writeFileSync(here('private.pdf'), out.saveToBuffer('compress').asUint8Array());
 }
+
+// form.pdf: a fillable form — text "name" and "city" (city read only), checkbox "agree", radio group "size" (small / large),
+// combo box "country" (Egypt / Saudi Arabia / Oman)
+{
+  const doc = new m.PDFDocument(), helv = doc.addSimpleFont(new m.Font('Helvetica'));
+  const page = doc.addPage([0, 0, 595, 842], 0, { Font: { F1: helv } }, 'BT /F1 18 Tf 72 780 Td (Registration form) Tj ET');
+  doc.insertPage(-1, page);
+  const stream = (w, h) => doc.addStream('', { Type: 'XObject', Subtype: 'Form', BBox: [0, 0, w, h] });
+  const str = (s) => doc.newString(s);
+  const p = doc.findPage(0), widgets = [];
+  const widget = (extra, rect) => { const o = doc.addObject({ Type: 'Annot', Subtype: 'Widget', F: 4, Rect: rect, P: p, ...extra }); widgets.push(o); return o; };
+  const fields = [];
+  fields.push(widget({ FT: 'Tx', T: str('name'), DA: str('/Helv 12 Tf 0 g') }, [72, 700, 300, 722]));
+  fields.push(widget({ FT: 'Tx', T: str('city'), Ff: 1, V: str('Cairo'), DA: str('/Helv 12 Tf 0 g') }, [72, 660, 300, 682]));
+  fields.push(widget({ FT: 'Btn', T: str('agree'), V: 'Off', AS: 'Off', AP: { N: { Yes: stream(16, 16), Off: stream(16, 16) } } }, [72, 620, 88, 636]));
+  const kids = [widget({ AS: 'Off', AP: { N: { small: stream(16, 16), Off: stream(16, 16) } } }, [72, 580, 88, 596]), widget({ AS: 'Off', AP: { N: { large: stream(16, 16), Off: stream(16, 16) } } }, [120, 580, 136, 596])];
+  const group = doc.addObject({ FT: 'Btn', Ff: 32768, T: str('size'), V: 'Off', Kids: kids });
+  kids.forEach((k) => k.put('Parent', group)); fields.push(group);
+  fields.push(widget({ FT: 'Ch', Ff: 131072, T: str('country'), Opt: [str('Egypt'), str('Saudi Arabia'), str('Oman')], DA: str('/Helv 12 Tf 0 g') }, [72, 540, 300, 562]));
+  p.put('Annots', widgets);
+  doc.getTrailer().get('Root').put('AcroForm', doc.addObject({ Fields: fields, DA: str('/Helv 12 Tf 0 g'), DR: { Font: { Helv: helv } } }));
+  fs.writeFileSync(here('form.pdf'), doc.saveToBuffer('compress').asUint8Array());
+}
