@@ -5,6 +5,7 @@ import { assemble } from './assemble';
 import { compress, protect, unlock } from './tools';
 import { editPage, pageObjects, type Edit, type Own } from './editpage';
 import { findSpots, signPdf } from './sign';
+import { findMatches, redact } from './redact';
 import type { Fonts } from './textpage';
 import { BUNDLED_FILES, fontAt, pick } from './ownfont';
 
@@ -120,6 +121,9 @@ const ops: Record<string, (r: Req) => any> = {
   compress(r) { return compress(mupdf, r.bytes, r.level); },
   protect(r) { return protect(mupdf, r.bytes, r.password, r.print, r.copy); },
   unlock(r) { return unlock(mupdf, r.bytes, r.password); },
+  // redaction: boxes of phone numbers / e-mails / a word on a page, and the file with the marked areas removed
+  redactfind(r) { const p = source(r.doc).doc.loadPage(r.page); try { return findMatches(p, r.kind, r.query); } finally { p.destroy(); } },
+  redact(r) { return redact(mupdf, r.bytes, r.marks, { metadata: r.metadata }); },
   // page editor: the lines of text and photos on a page
   objects(r) { const p = source(r.doc).doc.loadPage(r.page); try { return pageObjects(p); } finally { p.destroy(); } },
   // page editor: which font a replaced line will be written in, and the letters its own font lacks

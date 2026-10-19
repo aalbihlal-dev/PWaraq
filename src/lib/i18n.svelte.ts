@@ -228,6 +228,35 @@ const strings = {
   coverPhoto: ['Photo on the cover', 'صورة على الغلاف'],
   photoTop: ['Across the top', 'في الأعلى'], photoFull: ['Whole page', 'الصفحة كاملة'],
   dragSection: ['Drag to move the section', 'اسحب لنقل القسم'],
+  // phase 3: redact, forms, OCR
+  redact: ['Redact', 'تعتيم'], forms: ['Forms', 'نماذج'],
+  redactHelp: ['Drag on a page to mark an area, or find text below. Applying removes what is under the marks from the file for good — it is not just covered.', 'اسحب على الصفحة لتحديد منطقة، أو ابحث عن نص أدناه. التطبيق يزيل ما تحت العلامات من الملف نهائيًا — لا يكتفي بتغطيته.'],
+  findToMark: ['Find and mark', 'ابحث وعلّم'],
+  findPhone: ['Phone numbers', 'أرقام الهاتف'], findEmail: ['Email addresses', 'عناوين البريد'], findWord: ['A word or phrase', 'كلمة أو عبارة'],
+  findAll: ['Mark all', 'علّم الكل'],
+  noMatches: ['Nothing found', 'لم يُعثر على شيء'],
+  marksCount: ['areas marked', 'منطقة معلّمة'],
+  clearMarks: ['Clear marks', 'مسح العلامات'],
+  removeMark: ['Remove this mark', 'إزالة هذه العلامة'],
+  removeMetadata: ['Also remove title, author and dates', 'أزل أيضًا العنوان والمؤلف والتواريخ'],
+  redactApply: ['Remove marked content', 'أزل المحتوى المعلّم'],
+  // forms
+  formsHelp: ['Fill in the fields of this form. The saved file stays fillable.', 'املأ حقول هذا النموذج. يبقى الملف المحفوظ قابلًا للتعبئة.'],
+  noFields: ['This PDF has no form fields.', 'لا يحتوي هذا الملف على حقول نموذج.'],
+  flatten: ['Make the answers fixed (no longer fillable)', 'ثبّت الإجابات (لا تبقى قابلة للتعبئة)'],
+  formsApply: ['Apply the answers', 'طبّق الإجابات'],
+  formsDone: ['Applied. Save the file to keep it.', 'طُبّق. احفظ الملف للاحتفاظ به.'],
+  fieldReadOnly: ['read only', 'للقراءة فقط'],
+  // OCR
+  ocrHelp: ['Adds invisible, searchable text to scanned pages. The pictures stay as they are. Everything runs on this device.', 'يضيف نصًا غير مرئي قابلًا للبحث إلى الصفحات الممسوحة. تبقى الصور كما هي. كل شيء يعمل على جهازك.'],
+  ocrLanguages: ['Languages', 'اللغات'],
+  ocrArabic: ['Arabic', 'العربية'], ocrEnglish: ['English', 'الإنجليزية'],
+  ocrPages: ['Pages to read', 'الصفحات المطلوب قراءتها'],
+  ocrScanned: ['Only pages without text', 'الصفحات التي بلا نص فقط'], ocrAll: ['All pages', 'كل الصفحات'],
+  ocrStart: ['Add searchable text', 'أضف نصًا قابلًا للبحث'],
+  ocrProgress: ['Reading page', 'جارٍ قراءة الصفحة'],
+  ocrDone: ['Done. Save the file to keep it.', 'تم. احفظ الملف للاحتفاظ به.'],
+  ocrNothing: ['Every page already has text.', 'كل الصفحات تحتوي على نص.'],
 } satisfies Record<string, [string, string]>;
 
 export type Key = keyof typeof strings;

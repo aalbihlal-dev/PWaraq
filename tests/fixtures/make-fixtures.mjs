@@ -62,3 +62,17 @@ fs.writeFileSync(here('photo.png'), pix.asPNG());
   for (let x = 100; x <= 260; x++) ink(x, 120);
   fs.writeFileSync(here('signature-photo.png'), p.asPNG());
 }
+
+// private.pdf: a page with a phone number (Latin and Arabic digits), an e-mail and a secret word; title and author set
+{
+  const out = new m.PDFDocument(), w = pageWriter(m, out, fonts);
+  out.insertPage(-1, w.add({ w: 595, h: 842, lines: [
+    { text: 'Call Sami on +966 50 123 4567 today', x: 72, y: 100, size: 16 },
+    { text: 'Mail sami@example.com for details', x: 72, y: 140, size: 16 },
+    { text: 'اتصل على ٠٥٠١٢٣٤٥٦٧ الآن', x: 523, y: 180, size: 16, align: 'right' },
+    { text: 'The secret plan stays here', x: 72, y: 220, size: 16 },
+  ] }));
+  w.finish();
+  out.setMetaData('info:Title', 'Private title'); out.setMetaData('info:Author', 'Abdullah');
+  fs.writeFileSync(here('private.pdf'), out.saveToBuffer('compress').asUint8Array());
+}
