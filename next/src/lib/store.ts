@@ -66,6 +66,15 @@ export async function writePortfolio(id: string, name: string, bytes: Uint8Array
   const w = await (await d.getFileHandle(parts.at(-1)!, { create: true })).createWritable();
   await w.write(bytes as Uint8Array<ArrayBuffer> | string); await w.close();
 }
+/** One stored file of a portfolio (e.g. a logo for its preview). */
+export async function readPortfolioFile(id: string, name: string): Promise<Uint8Array | null> {
+  try {
+    let d = await dir(id);
+    const parts = name.split('/');
+    for (const p of parts.slice(0, -1)) d = await d.getDirectoryHandle(p);
+    return new Uint8Array(await (await (await d.getFileHandle(parts.at(-1)!)).getFile()).arrayBuffer());
+  } catch { return null; }
+}
 export async function readPortfolio(id: string): Promise<Record<string, Uint8Array> | null> {
   try {
     const d = await dir(id), out: Record<string, Uint8Array> = {};

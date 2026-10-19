@@ -16,7 +16,7 @@ test('organize: drag, turn, delete with undo, insert a photo, save, back to View
 
   // turn the first page right, delete the second; undo brings it back
   await page.locator('.cell').nth(0).click();
-  await page.getByRole('toolbar').getByRole('button', { name: 'Turn right' }).click();
+  await page.getByRole('toolbar', { name: 'Organize' }).getByRole('button', { name: 'Turn right' }).click();
   await expect(page.locator('.cell canvas').first()).toHaveAttribute('style', /rotate\(90deg\)/);
   await page.locator('.cell').nth(1).click();
   await page.keyboard.press('Delete');

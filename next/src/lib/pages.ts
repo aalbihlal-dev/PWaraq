@@ -1,8 +1,8 @@
 // Pages as Organize and Portfolio arrange them: a page of an open source (engine doc id + page index), turned by
 // `rotate` on top of its own rotation; `w`/`h` are its size as the engine reports it (points, own rotation applied).
 export type GridItem = { id: string; doc: number; page: number; rotate: number; w: number; h: number; blank?: boolean; image?: boolean;
-  crop?: number[] }; // crop: [left, top, right, bottom] fractions of the page as seen
-export type Group = { id: string; items: GridItem[] };
+  crop?: number[]; paper?: import('./engine/designs').Paper }; // paper: a blank page's writing paper; crop: [left, top, right, bottom] fractions of the page as seen
+export type Group = { id: string; items: GridItem[]; hidden?: boolean; locked?: boolean }; // hidden: pages not shown; locked: not changeable
 import type { Item } from './engine/assemble';
 
 export const uid = () => Math.random().toString(36).slice(2, 10);
@@ -28,7 +28,7 @@ export const edit = (groups: Group[], ids: Set<string>, f: (it: GridItem) => Gri
 export function toItems(items: GridItem[]): Item[] {
   const real = (x: GridItem) => !x.image && !x.blank;
   return items.map((it, i) => {
-    if (it.blank) return { blank: true, fit: { w: it.w, h: it.h }, rotate: it.rotate, crop: it.crop && [...it.crop] };
+    if (it.blank) return { blank: true, paper: it.paper, fit: { w: it.w, h: it.h }, rotate: it.rotate, crop: it.crop && [...it.crop] };
     const near = it.image ? items.slice(0, i).reverse().find(real) ?? items.slice(i).find(real) : undefined;
     return { doc: it.doc, page: it.page, rotate: it.rotate, fit: near ? seen(near) : undefined, crop: it.crop && [...it.crop] }; // plain copies: the engine cannot take live interface objects
   });

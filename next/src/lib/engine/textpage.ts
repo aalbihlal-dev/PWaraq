@@ -6,7 +6,11 @@ import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 
 export type Fonts = { regular: MuPDF.Font; bold: MuPDF.Font };
 export type Line = { text: string; x: number; y: number; size: number; bold?: boolean; color?: number[]; align?: 'left' | 'right' | 'center'; max?: number };
-export type TextPage = { w: number; h: number; lines: Line[]; rules?: number[][]; links?: { rect: number[]; to: number }[] };
+export type TextPage = { w: number; h: number; lines: Line[]; rules?: number[][]; links?: { rect: number[]; to: number }[];
+  images?: { doc: number; x: number; y: number; w: number; h: number; align?: 'left' | 'center' | 'right' }[]; // logos: source ids, box from the top
+  polys?: { pts: number[][]; color: number[] }[]; // filled shapes (corner triangles), points from the top
+  // a photo behind everything, filling its box (cropped to it), and a see-through colour over it so text stays readable
+  background?: { doc: number; x: number; y: number; w: number; h: number }; veil?: { x: number; y: number; w: number; h: number; color: number[]; alpha: number } };
 
 // letter -> [first presentation form, number of forms (1 none, 2 isolated/final, 4 also initial/medial)]
 const AR = new Map<number, [number, number]>();
@@ -95,9 +99,14 @@ export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts
   const resources = { WqT0: faces[0].ref, WqT1: faces[1].ref };
   return {
     fonts: resources,
-    add(p: TextPage): MuPDF.PDFObject { return out.addPage([0, 0, p.w, p.h], 0, { Font: resources }, this.draw(p)); },
+    /** `under`: drawing commands and their resources put below the page's own (a background photo). */
+    add(p: TextPage, under?: { ops: string; res: Record<string, Record<string, MuPDF.PDFObject>> }): MuPDF.PDFObject {
+      return out.addPage([0, 0, p.w, p.h], 0, { ...under?.res, Font: resources }, (under?.ops ?? '') + this.draw(p));
+    },
     draw(p: TextPage) {
       let ops = '';
+      for (const q of p.polys ?? []) ops += `${q.color.map(n).join(' ')} rg ${q.pts.map(([x, y], i) => `${n(x)} ${n(p.h - y)} ${i ? 'l' : 'm'}`).join(' ')} h f
+`;
       for (const r of p.rules ?? []) ops += `${r.slice(4, 7).map(n).join(' ')} rg ${n(r[0])} ${n(p.h - r[1] - r[3])} ${n(r[2])} ${n(r[3])} re f
 `;
       for (const l of p.lines) {
@@ -135,16 +144,7 @@ endcmap CMapName currentdict /CMap defineresource pop end end`;
 // Waraq colours (as 0..1 RGB)
 const INK = [0.137, 0.235, 0.212], GREEN = [0.082, 0.467, 0.365], MUTED = [0.373, 0.451, 0.412], LINE = [0.878, 0.906, 0.871];
 
-/** A section divider: label ("Section 3"), the section title large, a short green rule, an optional note. */
-export function dividerPage(o: { w: number; h: number; label: string; title: string; note?: string }): TextPage {
-  const k = Math.min(o.w, o.h) / 595, cx = o.w / 2, y = o.h * 0.42, max = o.w - 2 * 64 * k;
-  const lines: Line[] = [
-    { text: o.label, x: cx, y: y - 48 * k, size: 14 * k, color: MUTED, align: 'center', max },
-    { text: o.title, x: cx, y, size: 34 * k, bold: true, color: INK, align: 'center', max },
-  ];
-  if (o.note) lines.push({ text: o.note, x: cx, y: y + 64 * k, size: 14 * k, color: MUTED, align: 'center', max });
-  return { w: o.w, h: o.h, lines, rules: [[cx - 32 * k, y + 22 * k, 64 * k, 3 * k, ...GREEN]] };
-}
+export { dividerPage } from './designs.ts';
 
 /** How many contents lines fit on one page of this size (the portfolio needs this before it numbers pages). */
 export function tocPerPage(w: number, h: number) { const k = Math.min(w, h) / 595; return Math.max(1, Math.floor((h - 150 * k - 64 * k) / (30 * k))); }

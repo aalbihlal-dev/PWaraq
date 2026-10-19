@@ -33,9 +33,12 @@
     else { selected.clear(); selected.add(it.id); }
     anchor = it.id;
   }
-  const only = (it: GridItem) => (selected.has(it.id) ? new Set(selected) : new Set([it.id]));
-  const turn = (ids: Set<string>, by: number) => onchange(edit(groups, ids, (x) => ({ ...x, rotate: turned({ rotate: x.rotate + by }) })));
-  function remove(ids: Set<string>) { onchange(edit(groups, ids, () => null)); ids.forEach((id) => selected.delete(id)); }
+  // pages of a locked section cannot be turned, deleted, moved, or have pages dropped among them
+  const locked = $derived(new Set(groups.filter((g) => g.locked).flatMap((g) => g.items.map((x) => x.id))));
+  const free = (ids: Iterable<string>) => new Set([...ids].filter((id) => !locked.has(id)));
+  const only = (it: GridItem) => free(selected.has(it.id) ? selected : [it.id]);
+  const turn = (ids: Set<string>, by: number) => ids.size && onchange(edit(groups, ids, (x) => ({ ...x, rotate: turned({ rotate: x.rotate + by }) })));
+  function remove(ids: Set<string>) { if (!ids.size) return; onchange(edit(groups, ids, () => null)); ids.forEach((id) => selected.delete(id)); }
 
   // drag to move: the green bar shows where the pages will go
   let dragging = false, drop = $state<{ group: string; index: number } | null>(null);
@@ -49,15 +52,15 @@
   function dropped(e: DragEvent) {
     e.preventDefault();
     const at = drop; drop = null;
-    if (!at) return;
-    if (dragging) onchange(move(groups, new Set(selected), at.group, at.index));
+    if (!at || groups.find((g) => g.id === at.group)?.locked) { dragging = false; return; }
+    if (dragging) { const ids = free(selected); if (ids.size) onchange(move(groups, ids, at.group, at.index)); }
     else if (e.dataTransfer?.files.length) onfiles?.([...e.dataTransfer.files], at.group, at.index);
     dragging = false;
   }
 
   function keys(e: KeyboardEvent) {
     if ((e.target as HTMLElement).closest('input,textarea,[contenteditable]')) return;
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selected.size) { e.preventDefault(); remove(new Set(selected)); }
+    if ((e.key === 'Delete' || e.key === 'Backspace') && selected.size) { e.preventDefault(); remove(free(selected)); }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') { e.preventDefault(); flat.forEach((x) => selected.add(x.id)); }
     if (e.key === 'Escape') selected.clear();
   }
@@ -102,28 +105,33 @@
   ondragover={(e) => e.preventDefault()} ondrop={dropped} ondragleave={(e) => { if (!el.contains(e.relatedTarget as Node)) drop = null; }}>
   {#each groups as g, gi (g.id)}
     {#if header}{@render header(g, gi)}{/if}
-    <div class="cells" role="group" ondragover={(e) => overGroup(e, g)}>
+    {#if !g.hidden}
+    <div class="cells" class:locked={g.locked} role="group" ondragover={(e) => overGroup(e, g)}>
       {#if lead}{@render lead(g, gi)}{/if}
       {#each g.items as it, i (it.id)}
         {@const b = box(it)}
         <div class="cell" class:sel={selected.has(it.id)} class:before={drop?.group === g.id && drop.index === i} class:after={drop?.group === g.id && drop.index === i + 1 && i === g.items.length - 1}
-          role="option" aria-selected={selected.has(it.id)} tabindex="-1" draggable="true" data-src="{it.doc}:{it.page}"
+          role="option" aria-selected={selected.has(it.id)} tabindex="-1" draggable={!g.locked} data-src="{it.doc}:{it.page}"
           onclick={(e) => pick(e, it)} ondblclick={() => onopen?.(it)} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e as unknown as MouseEvent, it); } }}
           ondragstart={(e) => { if (!selected.has(it.id)) { selected.clear(); selected.add(it.id); } dragging = true; e.dataTransfer!.effectAllowed = 'move'; e.dataTransfer!.setData('text/plain', 'waraq-pages'); }}
           ondragover={(e) => overCell(e, g.id, i)} ondragend={() => { dragging = false; drop = null; }}>
-          <div class="sheet" style={b.sheet}><canvas use:thumb={it} style={b.canvas}></canvas></div>
+          <div class="sheet {it.blank && it.paper ? 'paper-' + it.paper : ''}" style={b.sheet}><canvas use:thumb={it} style={b.canvas}></canvas></div>
           <span class="num">{number(it, indexOf.get(it.id)!)}</span>
-          <span class="acts">
-            {#if onopen}<button class="act" title={t('editPage')} aria-label={t('editPage')} onclick={(e) => { e.stopPropagation(); onopen(it); }}>{@html icon('edit')}</button>{/if}
-            <button class="act" title={t('rotateLeft')} aria-label={t('rotateLeft')} onclick={(e) => { e.stopPropagation(); turn(only(it), -90); }}><span class="flip">{@html icon('rotate')}</span></button>
-            <button class="act" title={t('rotateRight')} aria-label={t('rotateRight')} onclick={(e) => { e.stopPropagation(); turn(only(it), 90); }}>{@html icon('rotate')}</button>
-            <button class="act" title={t('delete')} aria-label={t('delete')} onclick={(e) => { e.stopPropagation(); remove(only(it)); }}>{@html icon('delete')}</button>
+          {#if !g.locked}
+          <!-- one small bar on the page: turn left, turn right | delete (the page editor: double-click, or Edit page in the panel) -->
+          <span class="acts" role="toolbar" aria-label={t('page')}>
+            <button class="act" title={t('rotateLeft')} aria-label={t('rotateLeft')} onclick={(e) => { e.stopPropagation(); turn(only(it), -90); }}>{@html icon('turn-left')}</button>
+            <button class="act" title={t('rotateRight')} aria-label={t('rotateRight')} onclick={(e) => { e.stopPropagation(); turn(only(it), 90); }}>{@html icon('turn-right')}</button>
+            <i class="bar"></i>
+            <button class="act danger" title={t('delete')} aria-label={t('delete')} onclick={(e) => { e.stopPropagation(); remove(only(it)); }}>{@html icon('delete')}</button>
           </span>
-          <button class="ins" title={t('insertHere')} aria-label={t('insertHere')} onclick={(e) => { e.stopPropagation(); oninsert(g.id, i + 1); }}>{@html icon('plus')}</button>
+          {/if}
+          {#if !g.locked}<button class="ins" title={t('insertHere')} aria-label={t('insertHere')} onclick={(e) => { e.stopPropagation(); oninsert(g.id, i + 1); }}>{@html icon('plus')}</button>{/if}
         </div>
       {/each}
       {#if !g.items.length}<div class="empty" class:before={drop?.group === g.id}>{t('dropPagesHere')}</div>{/if}
     </div>
+    {/if}
   {/each}
 </div>
 
@@ -137,11 +145,19 @@
   .sheet canvas { position: absolute; left: 50%; top: 50%; background: #fff; }
   .num { font-size: var(--fs-14); color: var(--muted); font-variant-numeric: tabular-nums; }
   .cell.sel .num { color: var(--ink); font-weight: 600; }
-  .acts { position: absolute; top: var(--s-12); inset-inline: 0; display: none; justify-content: center; gap: var(--s-8); }
+  /* the page's own bar: a dark pill on the card's bottom edge (below the page, so a click on the page selects it) */
+  .acts { position: absolute; z-index: 2; bottom: -18px; left: 50%; transform: translateX(-50%); display: none; align-items: center; gap: var(--s-8); padding: var(--s-8); border-radius: 22px; background: var(--ink); box-shadow: 0 6px 18px #233c3640; }
   .cell:hover .acts, .cell:focus-within .acts { display: flex; }
-  .act { flex: none; width: var(--control); height: var(--control); display: grid; place-items: center; border: 1px solid var(--line); border-radius: var(--r-8); background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
-  .act:hover { border-color: var(--green); color: var(--green); }
-  .flip { display: grid; transform: scaleX(-1); }
+  .act { flex: none; width: var(--control); height: var(--control); display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: #fff; }
+  .act:hover { background: #ffffff26; }
+  .act.danger:hover { background: var(--danger); }
+  .acts .bar { width: 1px; height: 20px; background: #ffffff40; }
+  .cells.locked .cell { cursor: default; }
+  /* writing paper on blank pages, as in the built page */
+  .sheet.paper-lined { background: repeating-linear-gradient(#fff 0 calc(100% / 34 - 1px), #e0e7de calc(100% / 34 - 1px) calc(100% / 34)); }
+  .sheet.paper-grid { background: linear-gradient(90deg, #e0e7de 1px, transparent 1px) 0 0 / calc(100% / 42) calc(100% / 59.4), linear-gradient(#e0e7de 1px, #fff 1px) 0 0 / calc(100% / 42) calc(100% / 59.4); }
+  .sheet.paper-dotted { background: radial-gradient(circle, #c9d2c7 1px, #fff 1.2px) 0 0 / calc(100% / 42) calc(100% / 59.4); }
+  .sheet[class*='paper-'] canvas { display: none; }
   .ins { position: absolute; top: 40%; inset-inline-end: calc(-1 * var(--s-24) / 2 - 18px); z-index: 1; width: var(--control); height: var(--control); display: none; place-items: center; border: 0; border-radius: 50%; background: var(--green); color: #fff; box-shadow: var(--shadow); }
   .cell:hover .ins { display: grid; }
   .cell.before::before, .cell.after::after, .empty.before::before { content: ''; position: absolute; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: var(--green); }
