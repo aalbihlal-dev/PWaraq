@@ -4,3 +4,4 @@ public/_test/
 dist/
 test-results/
 playwright-report/
+public/ocr/

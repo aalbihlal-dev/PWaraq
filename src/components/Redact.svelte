@@ -5,23 +5,14 @@
   import type { Mark } from '../lib/engine/redact';
   import { t } from '../lib/i18n.svelte';
   import { icon } from '../lib/icons.js';
+  import { lazyPage } from '../lib/lazy';
 
   let { pool, sizes, bytes, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; bytes: Uint8Array; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
   const W = 560, k = (i: number) => W / sizes[i].w;
   let marks = $state<Mark[]>([]), kind = $state<'phone' | 'email' | 'word'>('phone'), word = $state(''), metadata = $state(false);
   let busy = $state(false), note = $state(''), error = $state(''), drag = $state<{ page: number; x: number; y: number; w: number; h: number } | null>(null);
 
-  // a page's picture is drawn when it scrolls into view
-  function lazy(node: HTMLCanvasElement, i: number) {
-    const io = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) return;
-      io.disconnect();
-      pool.run<ImageBitmap>({ op: 'render', page: i, priority: 1, key: 'redact' + i, args: { scale: k(i) * Math.min(devicePixelRatio || 1, 2) } })
-        .then((bmp) => { node.width = bmp.width; node.height = bmp.height; node.getContext('2d')!.drawImage(bmp, 0, 0); bmp.close(); }).catch(() => {});
-    }, { rootMargin: '400px' });
-    io.observe(node);
-    return { destroy: () => io.disconnect() };
-  }
+  const lazy = lazyPage(() => pool, 'redact', k);
 
   const at = (e: PointerEvent, i: number) => { const r = (e.currentTarget as HTMLElement).getBoundingClientRect(); return [(e.clientX - r.left) / k(i), (e.clientY - r.top) / k(i)]; };
   function down(e: PointerEvent, page: number) {

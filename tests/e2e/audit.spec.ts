@@ -30,7 +30,7 @@ for (const lang of ['en', 'ar']) test(`design rules hold on every screen (${lang
   await page.screenshot({ path: info.outputPath(`crop-${lang}.png`) });
   await page.locator('.org .tools .btn').nth(3).click(); // Split panel
   await clean(page, 'split');
-  for (const [i, what] of [[2, 'edit'], [3, 'convert'], [5, 'protect'], [6, 'redact'], [7, 'forms']] as const) {
+  for (const [i, what] of [[2, 'edit'], [3, 'convert'], [5, 'protect'], [6, 'redact'], [7, 'forms'], [8, 'ocr']] as const) {
     await page.locator('.task').nth(i).click();
     if (what === 'edit') await page.locator('.scope button').nth(1).click(); // whole document
     await expect(page.locator('.side h2').first()).toBeVisible();

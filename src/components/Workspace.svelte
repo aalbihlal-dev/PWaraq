@@ -11,16 +11,17 @@
   import DocTools from './DocTools.svelte';
   import Redact from './Redact.svelte';
   import Forms from './Forms.svelte';
+  import Ocr from './Ocr.svelte';
 
   let { pool, sizes, name, bytes, modified, password, onOpen, onClose, onSave, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; bytes: Uint8Array; modified: boolean; password?: string;
     onOpen: () => void; onClose: () => void; onSave: () => void; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
-  let mode = $state<'view' | 'organize' | 'edit' | 'sign' | 'convert' | 'protect' | 'redact' | 'forms'>('view'), editScope = $state<'page' | 'document'>('page'), organize = $state<Organize>(), organized = $state(false), applying = $state(false);
+  let mode = $state<'view' | 'organize' | 'edit' | 'sign' | 'convert' | 'protect' | 'redact' | 'forms' | 'ocr'>('view'), editScope = $state<'page' | 'document'>('page'), organize = $state<Organize>(), organized = $state(false), applying = $state(false);
   // leaving Organize applies its changes: the document is rebuilt and opened again in View
   async function task_(next: Key) {
     if (next === mode) return;
     if (next === 'organize' && mode === 'view') { mode = 'organize'; return; }
     if (mode === 'organize' && organized && organize) { applying = true; try { await onReplace(await organize.build()); } catch { alert(t('toolFailed')); } finally { applying = false; } }
-    else mode = (['edit', 'organize', 'sign', 'convert', 'protect', 'redact', 'forms'].includes(next) ? next : 'view') as typeof mode;
+    else mode = (['edit', 'organize', 'sign', 'convert', 'protect', 'redact', 'forms', 'ocr'].includes(next) ? next : 'view') as typeof mode;
   }
   // Edit: the page editor on the current page; saving puts the edited page in its place and opens the document again
   let editPage = $state(1);
@@ -77,8 +78,7 @@
     <strong class="name" title={name}>{name}</strong>
     <nav class="tasks" aria-label="Tasks">
       {#each tasks as task}
-        {@const live = task !== 'ocr'}
-        <button class="task" class:on={task === mode} disabled={!live || applying} title={live ? '' : t('soon')} onclick={() => { if (task === 'edit' && mode !== 'edit') editPage = current; task_(task); }}>{t(task)}</button>
+        <button class="task" class:on={task === mode} disabled={applying} onclick={() => { if (task === 'edit' && mode !== 'edit') editPage = current; task_(task); }}>{t(task)}</button>
       {/each}
     </nav>
     <span class="end">
@@ -113,6 +113,11 @@
   <div class="orgwrap">
     {#if applying}<p class="applying" role="status">{t('applying')}</p>{/if}
     <Forms {pool} {sizes} {bytes} {onReplace} />
+  </div>
+  {:else if mode === 'ocr'}
+  <div class="orgwrap">
+    {#if applying}<p class="applying" role="status">{t('applying')}</p>{/if}
+    <Ocr {pool} {sizes} {bytes} {onReplace} />
   </div>
   {:else if mode === 'sign'}
   <div class="orgwrap">

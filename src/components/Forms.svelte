@@ -5,6 +5,7 @@
   import type { Field } from '../lib/engine/forms';
   import { t } from '../lib/i18n.svelte';
   import { icon } from '../lib/icons.js';
+  import { lazyPage } from '../lib/lazy';
 
   let { pool, sizes, bytes, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; bytes: Uint8Array; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
   const W = 560, k = (i: number) => W / sizes[i].w;
@@ -30,16 +31,7 @@
   const chosen = (r: { fields: Field[] }) => r.fields.find((f) => values[f.id])?.id ?? '';
   const pick = (r: { fields: Field[] }, id: string) => { for (const f of r.fields) values[f.id] = f.id === id; };
 
-  function lazy(node: HTMLCanvasElement, i: number) {
-    const io = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) return;
-      io.disconnect();
-      pool.run<ImageBitmap>({ op: 'render', page: i, priority: 1, key: 'forms' + i, args: { scale: k(i) * Math.min(devicePixelRatio || 1, 2) } })
-        .then((bmp) => { node.width = bmp.width; node.height = bmp.height; node.getContext('2d')!.drawImage(bmp, 0, 0); bmp.close(); }).catch(() => {});
-    }, { rootMargin: '400px' });
-    io.observe(node);
-    return { destroy: () => io.disconnect() };
-  }
+  const lazy = lazyPage(() => pool, 'forms', k);
 
   async function apply() {
     busy = true; error = '';

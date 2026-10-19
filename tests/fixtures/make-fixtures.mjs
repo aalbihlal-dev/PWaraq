@@ -99,3 +99,13 @@ fs.writeFileSync(here('photo.png'), pix.asPNG());
   doc.getTrailer().get('Root').put('AcroForm', doc.addObject({ Fields: fields, DA: str('/Helv 12 Tf 0 g'), DR: { Font: { Helv: helv } } }));
   fs.writeFileSync(here('form.pdf'), doc.saveToBuffer('compress').asUint8Array());
 }
+
+// scan.pdf: one page that is only a picture (no text): "Invoice number 4821" and an Arabic line, drawn large and rasterised
+{
+  const text = new m.PDFDocument(), w = pageWriter(m, text, fonts);
+  text.insertPage(-1, w.add({ w: 595, h: 400, lines: [{ text: 'Invoice number 4821', x: 60, y: 110, size: 34 }, { text: 'مرحبا بكم في هذا الكتاب', x: 535, y: 260, size: 44, align: 'right' }] }));
+  w.finish();
+  const png = text.loadPage(0).toPixmap(m.Matrix.scale(3, 3), m.ColorSpace.DeviceGray, false).asPNG();
+  const photo = { doc: m.Document.openDocument(png, 'image/png'), bytes: png };
+  fs.writeFileSync(here('scan.pdf'), assemble(m, () => photo, { items: [{ doc: 1, page: 0, fit: { w: 595, h: 400 } }] }));
+}
