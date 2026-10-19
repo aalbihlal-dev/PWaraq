@@ -7,7 +7,8 @@ import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 export type Fonts = { regular: MuPDF.Font; bold: MuPDF.Font };
 export type Line = { text: string; x: number; y: number; size: number; bold?: boolean; color?: number[]; align?: 'left' | 'right' | 'center'; max?: number };
 export type TextPage = { w: number; h: number; lines: Line[]; rules?: number[][]; links?: { rect: number[]; to: number }[];
-  images?: { doc: number; x: number; y: number; w: number; h: number; align?: 'left' | 'center' | 'right' }[] }; // logos: source ids, box from the top
+  images?: { doc: number; x: number; y: number; w: number; h: number; align?: 'left' | 'center' | 'right' }[]; // logos: source ids, box from the top
+  polys?: { pts: number[][]; color: number[] }[] }; // filled shapes (corner triangles), points from the top
 
 // letter -> [first presentation form, number of forms (1 none, 2 isolated/final, 4 also initial/medial)]
 const AR = new Map<number, [number, number]>();
@@ -99,6 +100,8 @@ export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts
     add(p: TextPage): MuPDF.PDFObject { return out.addPage([0, 0, p.w, p.h], 0, { Font: resources }, this.draw(p)); },
     draw(p: TextPage) {
       let ops = '';
+      for (const q of p.polys ?? []) ops += `${q.color.map(n).join(' ')} rg ${q.pts.map(([x, y], i) => `${n(x)} ${n(p.h - y)} ${i ? 'l' : 'm'}`).join(' ')} h f
+`;
       for (const r of p.rules ?? []) ops += `${r.slice(4, 7).map(n).join(' ')} rg ${n(r[0])} ${n(p.h - r[1] - r[3])} ${n(r[2])} ${n(r[3])} re f
 `;
       for (const l of p.lines) {

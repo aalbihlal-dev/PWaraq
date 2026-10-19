@@ -38,8 +38,12 @@ test('portfolio: cover with a logo, a design, a turned divider, a lined page, cl
   await expect(page.locator('.cell')).toHaveCount(5); // nothing deleted in a locked section
 
   await page.locator('.seg button', { hasText: 'Right' }).click();
+  await page.locator('.colours .dot').nth(1).click(); // navy
   await page.locator('.cell').nth(1).hover();
   await page.screenshot({ path: info.outputPath('portfolio-cover.png') });
+  await page.locator('.side .group').nth(2).scrollIntoViewIfNeeded();
+  await page.locator('.grid').evaluate((g) => g.scrollTo(0, 0));
+  await page.screenshot({ path: info.outputPath('portfolio-designs.png') });
   const pdf = await saved(page, () => page.getByRole('button', { name: 'Export PDF' }).click());
   const doc = m.Document.openDocument(pdf.bytes, 'application/pdf');
   // cover, contents, divider, 3 pages + lined page, small = 8

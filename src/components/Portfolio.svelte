@@ -10,7 +10,7 @@
   import { addFiles, uid, seen, toItems, type Group, type GridItem } from '../lib/pages';
   import { build, plan, manifest, used, fileTitle, type Portfolio, type Section } from '../lib/portfolio';
   import { pickFiles, saveFile, writePortfolio, readPortfolio, readPortfolioFile, remember } from '../lib/store';
-  import { DESIGNS, PAPERS, type Paper } from '../lib/engine/designs';
+  import { DESIGNS, PAPERS, COLOURS, type Paper } from '../lib/engine/designs';
   import { turned } from '../lib/pages';
   import { zip } from '../lib/zip';
   import PageGrid from './PageGrid.svelte';
@@ -180,7 +180,7 @@
   {#if editing}
     <PageEditor {pool} base={editBase(editing)} label="{t('page')} {(layout.at.get(editing.id) ?? 0) + 1}" onSave={edited} onCancel={() => (editing = null)} />
   {:else}
-  <div class="body">
+  <div class="body" style="--acc:{p.options.color}">
     {#if p.sections.length}
       <PageGrid {pool} {groups} {selected} {size} number={label} onchange={gridChange} oninsert={addPages}
         onfiles={(files, section, index) => run(() => insertPages(files, section, index))} onopen={(it) => (editing = it)}>
@@ -320,6 +320,13 @@
             </button>
           {/each}
         </div>
+        <span class="sub">{t('colour')}</span>
+        <div class="colours" role="radiogroup" aria-label={t('colour')}>
+          {#each COLOURS as c}
+            <button class="dot" role="radio" aria-checked={p.options.color === c} class:on={p.options.color === c} style="--c:{c}" onclick={() => change((p) => (p.options.color = c))} aria-label="{t('colour')} {c}" title={c}></button>
+          {/each}
+          <label class="dot own" title={t('ownColour')}><span class="sr">{t('ownColour')}</span><input type="color" value={p.options.color} onchange={(e) => { const c = e.currentTarget.value; change((p) => (p.options.color = c)); }} /></label>
+        </div>
         <button class="btn" onclick={() => change((p) => p.sections.forEach((s) => (s.divider = true)))} disabled={!p.sections.length}>{@html icon('bookmarks')}{t('allDividers')}</button>
         <label class="switch"><input type="checkbox" bind:checked={p.options.logosOnDividers} />{t('logosOnDividers')}</label>
         <label class="field"><span>{t('headerOnDividers')}</span>
@@ -396,10 +403,10 @@
   /* divider page card: what the divider will show, written on directly */
   .dcell { display: grid; justify-items: center; gap: var(--s-8); padding: var(--s-8); }
   .paperbox { position: relative; }
-  .paper { position: absolute; left: 50%; top: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-4); padding: var(--s-8); background: #fff; box-shadow: var(--shadow); border-top: 4px solid var(--green); }
-  .paper.d-band { border-top: 0; background: linear-gradient(var(--green) 0 42%, #fff 42%); } .paper.d-band .lbl, .paper.d-band textarea { color: #fff; }
-  .paper.d-frame { border-top: 0; box-shadow: var(--shadow), inset 0 0 0 6px #fff, inset 0 0 0 7px var(--green); }
-  .paper.d-side { border-top: 0; border-inline-end: 8px solid var(--green); }
+  .paper { position: absolute; left: 50%; top: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-4); padding: var(--s-8); background: #fff; box-shadow: var(--shadow); border-top: 4px solid var(--acc); }
+  .paper.d-band { border-top: 0; background: linear-gradient(var(--acc) 0 42%, #fff 42%); } .paper.d-band .lbl, .paper.d-band textarea { color: #fff; }
+  .paper.d-frame { border-top: 0; box-shadow: var(--shadow), inset 0 0 0 6px #fff, inset 0 0 0 7px var(--acc); }
+  .paper.d-side { border-top: 0; border-inline-end: 8px solid var(--acc); }
   .dnum { display: flex; align-items: center; gap: var(--s-8); font-size: var(--fs-14); color: var(--muted); }
   .paper .lbl { font-size: var(--fs-12); color: var(--muted); }
   .paper textarea { width: 100%; resize: none; border: 1px dashed var(--line); border-radius: var(--r-8); text-align: center; font: 700 var(--fs-14)/1.3 var(--font); color: var(--ink); background: transparent; }
@@ -423,9 +430,9 @@
   .sw.paper-grid { background: linear-gradient(90deg, #d5ddd3 1px, transparent 1px) 0 0 / 5px 5px, linear-gradient(#d5ddd3 1px, #fff 1px) 0 0 / 5px 5px; }
   .sw.paper-dotted { background: radial-gradient(circle, #b8c3b6 0.8px, #fff 1px) 0 0 / 5px 5px; }
   .sw b { position: absolute; left: 25%; right: 25%; top: 45%; height: 3px; background: var(--ink); }
-  .sw.d-band { background: linear-gradient(var(--green) 0 42%, #fff 42%); } .sw.d-band b { background: #fff; top: 28%; }
-  .sw.d-frame { box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 4px var(--green); }
-  .sw.d-side { border-inline-end: 6px solid var(--green); } .sw.d-side b { left: 12%; right: 38%; }
+  .sw.d-band { background: linear-gradient(var(--acc) 0 42%, #fff 42%); } .sw.d-band b { background: #fff; top: 28%; }
+  .sw.d-frame { box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 4px var(--acc); }
+  .sw.d-side { border-inline-end: 6px solid var(--acc); } .sw.d-side b { left: 12%; right: 38%; }
   .logos { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-8); }
   .slot { display: flex; align-items: center; gap: var(--s-4); min-height: 44px; }
   .slot .img { flex: 1; height: 40px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: var(--r-8); background: #fff; overflow: hidden; }
@@ -448,10 +455,29 @@
   .mini small { font-size: var(--fs-12); color: var(--muted); }
   .mini .names { display: grid; margin-top: var(--s-12); font-size: var(--fs-12); }
   .mini .sup { position: absolute; bottom: var(--s-16); left: 0; right: 0; }
-  .mini.d-band::before { content: ''; position: absolute; left: 0; right: 0; top: 52px; height: 110px; background: var(--green); }
+  .mini.d-band::before { content: ''; position: absolute; left: 0; right: 0; top: 52px; height: 110px; background: var(--acc); }
   .mini.d-band strong, .mini.d-band small:not(.sup) { position: relative; color: #fff; }
-  .mini.d-frame { box-shadow: var(--shadow), inset 0 0 0 10px #fff, inset 0 0 0 12px var(--green); }
-  .mini.d-side { border-inline-end: 10px solid var(--green); align-items: flex-start; text-align: start; }
+  .mini.d-band .names { position: relative; margin-top: 44px; }
+  .mini.d-frame { box-shadow: var(--shadow), inset 0 0 0 10px #fff, inset 0 0 0 12px var(--acc); }
+  .mini.d-side { border-inline-end: 10px solid var(--acc); align-items: flex-start; text-align: start; }
   .covercard .num { font-size: var(--fs-14); color: var(--muted); }
+  /* the newer designs and the colour choice */
+  .sw.d-minimal b { left: 14%; right: 14%; height: 1px; background: var(--acc); top: 40%; }
+  .sw.d-split { background: linear-gradient(90deg, #fff 0 58%, var(--acc) 58%); } .sw.d-split b { left: 64%; right: 8%; background: #fff; }
+  .sw.d-geometric { background: linear-gradient(225deg, transparent 72%, var(--acc) 72%) no-repeat; } .sw.d-geometric b { background: var(--ink); }
+  .sw.d-editorial b { left: 14%; right: 30%; top: 58%; height: 4px; } .sw.d-editorial::before { content: ''; position: absolute; left: 14%; top: 46%; width: 30%; height: 3px; background: var(--acc); }
+  .paper.d-minimal { border-top: 0; } .paper.d-minimal .rule { width: 80%; height: 1px; }
+  .paper.d-split { border-top: 0; background: linear-gradient(90deg, #fff 0 58%, var(--acc) 58%); }
+  .paper.d-geometric { border-top: 0; background: linear-gradient(225deg, #fff 80%, var(--acc) 80%); }
+  .paper.d-editorial { border-top: 0; justify-content: flex-end; }
+  .mini.d-minimal { align-items: flex-end; text-align: end; } .mini.d-minimal strong { border-bottom: 1px solid var(--acc); padding-bottom: 8px; }
+  .mini.d-split { background: linear-gradient(90deg, #fff 0 58%, var(--acc) 58%); align-items: flex-end; text-align: end; } .mini.d-split strong, .mini.d-split small, .mini.d-split .names { position: relative; color: #fff; }
+  .mini.d-geometric { background: linear-gradient(225deg, #fff 82%, var(--acc) 82%); }
+  .mini.d-editorial { align-items: flex-end; text-align: end; } .mini.d-editorial strong { margin-top: 110px; font-size: var(--fs-20); border-top: 4px solid var(--acc); padding-top: 8px; }
+  .colours { display: flex; flex-wrap: wrap; gap: var(--s-8); }
+  .dot { position: relative; width: var(--touch); height: var(--touch); border-radius: 50%; border: 2px solid #fff; background: var(--c); box-shadow: 0 0 0 1px var(--line); }
+  .dot.on { box-shadow: 0 0 0 2px var(--ink); }
+  .dot.own { display: grid; place-items: center; background: conic-gradient(#c33, #cc3, #3c3, #3cc, #33c, #c3c, #c33); cursor: pointer; overflow: hidden; }
+  .dot.own input { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; opacity: 0; cursor: pointer; }
   @media (max-width: 900px) { .body { grid-template-columns: 1fr; grid-template-rows: 1fr auto; } .side { max-height: 45vh; border-inline-start: 0; border-top: 1px solid var(--line); } }
 </style>

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import * as m from '../../engine/mupdf-wasm/dist/mupdf.js';
 import { assemble } from '../../src/lib/engine/assemble.ts';
-import { DESIGNS } from '../../src/lib/engine/designs.ts';
+import { DESIGNS, COLOURS } from '../../src/lib/engine/designs.ts';
 
 const font = (f) => new m.Font(f, fs.readFileSync(new URL('../../public/fonts/' + f + '.ttf', import.meta.url)));
 const fonts = { regular: font('Tajawal-Regular'), bold: font('Tajawal-Bold') };
@@ -15,11 +15,12 @@ const out = (dir) => new URL(`../../test-results/${dir}`, import.meta.url);
 
 test('every design: cover with three logos, names and supervisor; section page with logos, header and note', () => {
   fs.mkdirSync(out('designs'), { recursive: true });
-  for (const design of DESIGNS) {
+  for (const [i, design] of DESIGNS.entries()) {
+    const color = COLOURS[i % COLOURS.length];
     const bytes = assemble(m, () => src, { items: [
-      { cover: { ...A4, design, rtl: true, title: 'مقرر التصميم ١٠١', subtitle: 'الفصل الأول 2026', names: ['عبدالله', 'Sara Ali'], supervisor: 'د. أحمد', supervisorLabel: 'إشراف:', logos: { left: 1, center: 1, right: 1 } } },
-      { divider: { ...A4, design, rtl: true, label: 'القسم 1', title: 'الأسبوع الأول', note: 'ملاحظة', logos: { left: 1, right: 1 }, header: { title: 'مقرر التصميم', name: 'عبدالله', size: 'small' } } },
-      { divider: { ...A4, design, rtl: false, label: 'Section 2', title: 'Week 2', header: { title: 'Design 101', name: 'Abdullah', size: 'big' } }, rotate: 90 },
+      { cover: { ...A4, design, color, rtl: true, title: 'مقرر التصميم ١٠١', subtitle: 'الفصل الأول 2026', names: ['عبدالله', 'Sara Ali'], supervisor: 'د. أحمد', supervisorLabel: 'إشراف:', logos: { left: 1, center: 1, right: 1 } } },
+      { divider: { ...A4, design, color, rtl: true, label: 'القسم 1', title: 'الأسبوع الأول', note: 'ملاحظة', logos: { left: 1, right: 1 }, header: { title: 'مقرر التصميم', name: 'عبدالله', size: 'small' } } },
+      { divider: { ...A4, design, color, rtl: false, label: 'Section 2', title: 'Week 2', header: { title: 'Design 101', name: 'Abdullah', size: 'big' } }, rotate: 90 },
     ] }, () => fonts);
     const doc = m.Document.openDocument(bytes, 'application/pdf');
     assert.equal(doc.countPages(), 3);

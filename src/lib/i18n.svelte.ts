@@ -223,6 +223,8 @@ const strings = {
   unlockSection: ['Unlock the section', 'فتح قفل القسم'],
   sectionLocked: ['This section is locked.', 'هذا القسم مقفل.'],
   pickPage: ['Click a page to edit, turn or delete it.', 'انقر صفحة لتحريرها أو تدويرها أو حذفها.'],
+  ownColour: ['Choose any colour', 'اختر أي لون'],
+  design_minimal: ['Minimal', 'بسيط'], design_split: ['Split', 'مقسوم'], design_geometric: ['Geometric', 'هندسي'], design_editorial: ['Editorial', 'مجلة'],
 } satisfies Record<string, [string, string]>;
 
 export type Key = keyof typeof strings;

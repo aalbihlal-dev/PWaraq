@@ -13,9 +13,9 @@ export type Section = { id: string; title: string; fromFile: boolean; file?: str
 /** The portfolio's own cover page; logos are file ids of the portfolio (left / centre / right). */
 export type Cover = { on: boolean; title: string; subtitle: string; names: string; supervisor: string; logos: { left?: string; center?: string; right?: string } };
 /** numbers: 'none', 'all' (whole portfolio, renumbered on every change) or a section id (only that section, from 1) */
-export type Options = { toc: boolean; numbers: string; bookmarks: boolean; numberPos: 'left' | 'center' | 'right'; design: Design; cover: Cover;
+export type Options = { toc: boolean; numbers: string; bookmarks: boolean; numberPos: 'left' | 'center' | 'right'; design: Design; color: string; cover: Cover;
   logosOnDividers: boolean; header: 'none' | 'small' | 'big' }; // header: the cover's title and names on every section page
-const defaults = (): Options => ({ toc: true, numbers: 'all', bookmarks: true, numberPos: 'center', design: 'classic', logosOnDividers: false, header: 'none',
+const defaults = (): Options => ({ toc: true, numbers: 'all', bookmarks: true, numberPos: 'center', design: 'classic', color: '#3a4248', logosOnDividers: false, header: 'none',
   cover: { on: false, title: '', subtitle: '', names: '', supervisor: '', logos: {} } });
 /** Options of a portfolio saved by an older Waraq get the new settings' defaults. */
 export const withDefaults = (o: Partial<Options>): Options => ({ ...defaults(), ...o, cover: { ...defaults().cover, ...o.cover } });
@@ -88,12 +88,12 @@ export function build(p: Portfolio, words: { contents: string; section: string; 
   const header = o.header === 'none' ? undefined : { title: c.title.trim() || p.name, name: names.join('  ·  '), size: o.header };
   let k = 0;
   const items: Item[] = slots.map((slot) => {
-    if (slot.kind === 'cover') return { cover: { ...tocSize, design: o.design, rtl: words.rtl, title: c.title.trim() || p.name, subtitle: c.subtitle.trim(),
+    if (slot.kind === 'cover') return { cover: { ...tocSize, design: o.design, color: o.color, rtl: words.rtl, title: c.title.trim() || p.name, subtitle: c.subtitle.trim(),
       names, supervisor: c.supervisor, supervisorLabel: words.supervisor, logos } };
     if (slot.kind === 'toc') return { toc: { ...tocSize, heading: words.contents, rtl: words.rtl, entries: entries.slice(slot.part * per, (slot.part + 1) * per) } };
     if (slot.kind === 'divider') {
       const size = firstReal(slot.section.items), s = size ? seen(size) : tocSize;
-      return { divider: { ...s, label: `${words.section} ${shown.indexOf(slot.section) + 1}`, title: slot.section.title, note: slot.section.note, design: o.design,
+      return { divider: { ...s, label: `${words.section} ${shown.indexOf(slot.section) + 1}`, title: slot.section.title, note: slot.section.note, design: o.design, color: o.color,
         rtl: words.rtl, logos: o.logosOnDividers ? logos : undefined, header }, rotate: slot.section.turn ?? 0 };
     }
     return built[k++];
