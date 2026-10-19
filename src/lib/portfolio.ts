@@ -5,15 +5,24 @@
 import type { EnginePool } from './engine/pool';
 import type { Build, Item } from './engine/assemble';
 import { tocPerPage } from './engine/textpage.ts';
+import type { Design } from './engine/designs.ts';
 import { uid, seen, toItems, type GridItem } from './pages.ts';
 
-export type Section = { id: string; title: string; fromFile: boolean; file?: string; divider: boolean; note: string; items: GridItem[] };
+export type Section = { id: string; title: string; fromFile: boolean; file?: string; divider: boolean; note: string; items: GridItem[];
+  collapsed?: boolean; locked?: boolean; turn?: number }; // collapsed: only the name shows; locked: pages cannot be changed; turn: the divider page
+/** The portfolio's own cover page; logos are file ids of the portfolio (left / centre / right). */
+export type Cover = { on: boolean; title: string; subtitle: string; names: string; supervisor: string; logos: { left?: string; center?: string; right?: string } };
 /** numbers: 'none', 'all' (whole portfolio, renumbered on every change) or a section id (only that section, from 1) */
-export type Options = { toc: boolean; numbers: string; bookmarks: boolean };
+export type Options = { toc: boolean; numbers: string; bookmarks: boolean; numberPos: 'left' | 'center' | 'right'; design: Design; cover: Cover;
+  logosOnDividers: boolean; header: 'none' | 'small' | 'big' }; // header: the cover's title and names on every section page
+const defaults = (): Options => ({ toc: true, numbers: 'all', bookmarks: true, numberPos: 'center', design: 'classic', logosOnDividers: false, header: 'none',
+  cover: { on: false, title: '', subtitle: '', names: '', supervisor: '', logos: {} } });
+/** Options of a portfolio saved by an older Waraq get the new settings' defaults. */
+export const withDefaults = (o: Partial<Options>): Options => ({ ...defaults(), ...o, cover: { ...defaults().cover, ...o.cover } });
 export type Portfolio = { id: string; name: string; created: number; sections: Section[]; options: Options; files: Record<string, { name: string; mime: string; doc: number }> };
 
 export const newPortfolio = (name: string): Portfolio =>
-  ({ id: uid() + uid(), name, created: Date.now(), sections: [], options: { toc: true, numbers: 'all', bookmarks: true }, files: {} });
+  ({ id: uid() + uid(), name, created: Date.now(), sections: [], options: defaults(), files: {} });
 export const fileTitle = (name: string) => name.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').trim() || name;
 
 export function manifest(p: Portfolio): string {
@@ -38,16 +47,16 @@ export async function load(pool: EnginePool, entries: Record<string, Uint8Array>
   const sections = m.sections.map(({ pages, ...s }: any) => ({ ...s, items: pages
     .filter((pg: any) => pg.blank || files[pg.file])
     .map(({ file, ...pg }: any) => ({ ...pg, id: uid(), doc: pg.blank ? -1 : files[file].doc })) }));
-  return { id: m.id, name: m.name, created: m.created, options: m.options, sections, files };
+  return { id: m.id, name: m.name, created: m.created, options: withDefaults(m.options), sections, files };
 }
 
 /** Files the pages still use, for the portable copy. */
 export function used(p: Portfolio) {
-  const docs = new Set(p.sections.flatMap((s) => s.items.map((it) => it.doc)));
-  return Object.entries(p.files).filter(([, f]) => docs.has(f.doc)).map(([id]) => id);
+  const docs = new Set(p.sections.flatMap((s) => s.items.map((it) => it.doc))), logos = new Set(Object.values(p.options.cover.logos));
+  return Object.entries(p.files).filter(([id, f]) => docs.has(f.doc) || logos.has(id)).map(([id]) => id);
 }
 
-export type Slot = { index: number } & ({ kind: 'toc'; part: number } | { kind: 'divider'; section: Section } | { kind: 'page'; section: Section; item: GridItem });
+export type Slot = { index: number } & ({ kind: 'cover' } | { kind: 'toc'; part: number } | { kind: 'divider'; section: Section } | { kind: 'page'; section: Section; item: GridItem });
 const A4 = { w: 595, h: 842 };
 const firstReal = (items: GridItem[]) => items.find((it) => !it.image && !it.blank);
 
@@ -57,6 +66,7 @@ export function plan(p: Portfolio) {
   const first = p.sections.map((s) => firstReal(s.items)).find(Boolean), tocSize = first ? seen(first) : A4;
   const tocParts = p.options.toc && shown.length ? Math.ceil(shown.length / tocPerPage(tocSize.w, tocSize.h)) : 0;
   const slots: Slot[] = [], target = new Map<string, number>(), at = new Map<string, number>();
+  if (p.options.cover.on) slots.push({ kind: 'cover', index: 0 });
   for (let part = 0; part < tocParts; part++) slots.push({ kind: 'toc', part, index: slots.length });
   for (const s of shown) {
     target.set(s.id, slots.length); // contents and bookmarks open the divider, or the section's first page
@@ -67,22 +77,29 @@ export function plan(p: Portfolio) {
 }
 
 /** The engine build for the combined PDF. `words` are the interface language's "Contents" and "Section". */
-export function build(p: Portfolio, words: { contents: string; section: string; rtl: boolean }): Build {
+export function build(p: Portfolio, words: { contents: string; section: string; supervisor: string; rtl: boolean }): Build {
   const { slots, target, tocSize, shown } = plan(p);
   const pageSlots = slots.filter((s) => s.kind === 'page');
   const built = toItems(pageSlots.map((s) => s.item)), per = tocPerPage(tocSize.w, tocSize.h);
   const entries = shown.map((s) => ({ title: s.title, number: target.get(s.id)! + 1, to: target.get(s.id)! }));
+  const o = p.options, c = o.cover, doc = (f?: string) => (f && p.files[f] ? p.files[f].doc : undefined);
+  const logos = { left: doc(c.logos.left), center: doc(c.logos.center), right: doc(c.logos.right) };
+  const names = c.names.split(/\r?\n/).map((n) => n.trim()).filter(Boolean);
+  const header = o.header === 'none' ? undefined : { title: c.title.trim() || p.name, name: names.join('  ·  '), size: o.header };
   let k = 0;
   const items: Item[] = slots.map((slot) => {
+    if (slot.kind === 'cover') return { cover: { ...tocSize, design: o.design, rtl: words.rtl, title: c.title.trim() || p.name, subtitle: c.subtitle.trim(),
+      names, supervisor: c.supervisor, supervisorLabel: words.supervisor, logos } };
     if (slot.kind === 'toc') return { toc: { ...tocSize, heading: words.contents, rtl: words.rtl, entries: entries.slice(slot.part * per, (slot.part + 1) * per) } };
     if (slot.kind === 'divider') {
       const size = firstReal(slot.section.items), s = size ? seen(size) : tocSize;
-      return { divider: { ...s, label: `${words.section} ${shown.indexOf(slot.section) + 1}`, title: slot.section.title, note: slot.section.note } };
+      return { divider: { ...s, label: `${words.section} ${shown.indexOf(slot.section) + 1}`, title: slot.section.title, note: slot.section.note, design: o.design,
+        rtl: words.rtl, logos: o.logosOnDividers ? logos : undefined, header }, rotate: slot.section.turn ?? 0 };
     }
     return built[k++];
   });
-  const o = p.options;
-  const numbers = o.numbers === 'all' ? true : o.numbers === 'none' ? undefined : pageSlots.filter((s) => s.section.id === o.numbers).map((s) => s.index);
-  const bookmarks = o.bookmarks ? [...(slots[0]?.kind === 'toc' ? [{ title: words.contents, at: 0 }] : []), ...shown.map((s) => ({ title: s.title, at: target.get(s.id)! }))] : undefined;
-  return { items, numbers, bookmarks };
+  // numbers: every page but the cover (it still counts), or one section's pages
+  const numbers = o.numbers === 'all' ? slots.filter((s) => s.kind !== 'cover').map((s) => s.index) : o.numbers === 'none' ? undefined : pageSlots.filter((s) => s.section.id === o.numbers).map((s) => s.index);
+  const bookmarks = o.bookmarks ? [...(slots.find((x) => x.kind === 'toc') ? [{ title: words.contents, at: slots.find((x) => x.kind === 'toc')!.index }] : []), ...shown.map((s) => ({ title: s.title, at: target.get(s.id)! }))] : undefined;
+  return { items, numbers, numberStyle: { position: o.numberPos === 'left' ? 'bl' : o.numberPos === 'right' ? 'br' : 'bc', start: o.numbers === 'all' && c.on ? 2 : 1 }, bookmarks };
 }

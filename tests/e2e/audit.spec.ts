@@ -65,7 +65,7 @@ for (const lang of ['en', 'ar']) test(`design rules hold on every screen (${lang
   await clean(page, 'empty portfolio');
   await choose(page, () => page.locator('.empty').click(), [fixture('three.pdf'), fixture('small.pdf')]);
   await expect(page.locator('.sec')).toHaveCount(2);
-  await page.locator('.sec').first().locator('.btn').first().click(); // divider
+  await page.locator('.sec').first().locator('.btn').nth(1).click(); // divider (after the close button)
   await clean(page, 'portfolio');
   await page.screenshot({ path: info.outputPath(`portfolio-${lang}.png`) });
 });

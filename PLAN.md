@@ -203,7 +203,14 @@ Original plan:
    start, "n / N", upright on turned pages) and a real-text **watermark** (Arabic too, see-through, angle), Convert:
    **compress** (photos scaled to 2200/1400 px and saved as JPEG; text, vectors and CAD lines untouched) and **pages as
    PNG**, Protect: **password** (AES-256, print/copy permissions) and **unlock**; password-protected PDFs open after
-   asking for the password. Engine: `src/lib/engine/tools.ts`. Still to do: Portfolio drag whole sections, cover page.
+   asking for the password. Engine: `src/lib/engine/tools.ts`.
+   Portfolio round 2 — **done (19 Oct, owner's wishes)**: a **cover page** (up to 3 logos left/centre/right, title,
+   subtitle, names, supervisor), **4 designs** for cover and section pages (Classic, Band, Frame, Side), section pages
+   **turnable**, **logos on all section pages**, the cover's **title and name on section pages** (small / big),
+   **writing-paper pages** (blank, lined, grid, dotted), sections can be **hidden** (name only) or **locked**, page
+   numbers **left / centre / right** (the cover is counted, not numbered), a new **page bar** (turn left / right,
+   delete) on each page and **Edit page** as the main button of the side panel. Engine: `src/lib/engine/designs.ts`.
+   Still to do: drag whole sections, more designs, a photo/background on the cover.
 3. **Editing & documents:** page editor — **first version done (19 Oct)**, see above; next: text in its own font
    (Arabic with HarfBuzz), redaction tool, forms, OCR (text layer), Office/CAD via packs.
 4. **Desktop & website:** Tauri shell, file associations and right-click menu, packs, signed updater, branded

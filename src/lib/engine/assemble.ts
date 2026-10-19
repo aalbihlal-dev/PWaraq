@@ -2,12 +2,14 @@
 // re-arranged) and Portfolio (many files in sections). Pure: the MuPDF module and the sources are passed in, so the
 // same code runs in the engine worker and in the Node self-check (tests/unit/assemble.test.mjs).
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
-import { pageWriter, dividerPage, tocPages, type Fonts, type TextPage } from './textpage.ts';
+import { pageWriter, tocPages, type Fonts, type TextPage } from './textpage.ts';
+import { dividerPage, coverPage, paperPage, type Paper } from './designs.ts';
 import { crop, pageNumbers, watermark, type NumberStyle, type Watermark } from './tools.ts';
 
 /** One output page: page `page` of source `doc`, turned by `rotate` degrees more (an image source fills `fit`, in
  *  points); or a blank page of size `fit`; or a page Waraq writes: a section divider or one page of contents. */
 export type Item = { doc?: number; page?: number; rotate?: number; fit?: { w: number; h: number }; blank?: boolean; crop?: number[];
+  paper?: Paper; cover?: Parameters<typeof coverPage>[0];
   divider?: Parameters<typeof dividerPage>[0]; toc?: Parameters<typeof tocPages>[0] };
 export type Build = { items: Item[]; bookmarks?: { title: string; at: number }[]; numbers?: boolean | number[]; numberStyle?: NumberStyle;
   watermark?: Watermark & { pages?: number[] } };
@@ -15,7 +17,8 @@ export type Source = { doc: MuPDF.Document; bytes: Uint8Array };
 
 export function assemble(m: typeof MuPDF, source: (id: number) => Source, b: Build, fonts?: () => Fonts): Uint8Array {
   const out = new m.PDFDocument(), images = new Map<number, MuPDF.PDFObject>();
-  const page = (it: Item): TextPage | undefined => it.divider ? dividerPage(it.divider) : it.toc ? tocPages(it.toc, fonts!().regular)[0] : undefined;
+  const page = (it: Item): TextPage | undefined => it.cover ? coverPage(it.cover) : it.divider ? dividerPage(it.divider) : it.toc ? tocPages(it.toc, fonts!().regular)[0]
+    : it.blank && it.paper && it.paper !== 'plain' ? paperPage(it.fit!.w, it.fit!.h, it.paper) : undefined;
   const made = b.items.map(page), writer = made.some(Boolean) ? pageWriter(m, out, fonts!()) : null;
   b.items.forEach((it, i) => {
     if (made[i]) out.insertPage(-1, writer!.add(made[i]!));
@@ -30,6 +33,20 @@ export function assemble(m: typeof MuPDF, source: (id: number) => Source, b: Bui
     if (it.crop) crop(p, it.crop);
   });
   writer?.finish();
+  // logos on written pages: each image keeps its shape inside its box (left / centre / right aligned)
+  made.forEach((t, i) => {
+    if (!t?.images?.length) return;
+    let ops = ''; const xo: Record<string, MuPDF.PDFObject> = {};
+    t.images.forEach((im, n) => {
+      let ref = images.get(im.doc);
+      if (!ref) images.set(im.doc, (ref = out.addImage(new m.Image(source(im.doc).bytes))));
+      const o = out.loadImage(ref), iw = o.getWidth(), ih = o.getHeight(), s = Math.min(im.w / iw, im.h / ih), w = iw * s, h = ih * s;
+      const x = im.align === 'left' ? im.x : im.align === 'right' ? im.x + im.w - w : im.x + (im.w - w) / 2, y = t.h - im.y - (im.h + h) / 2;
+      ops += `q ${w.toFixed(2)} 0 0 ${h.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm /WqL${n} Do Q `;
+      xo['WqL' + n] = ref;
+    });
+    stamp(out, out.findPage(i), ops, { XObject: xo });
+  });
   // contents rows open their page (written pages are not turned, so their link boxes are page coordinates)
   made.forEach((t, i) => {
     if (!t?.links?.length) return;

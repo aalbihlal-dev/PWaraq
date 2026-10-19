@@ -9,7 +9,9 @@
   import { icon } from '../lib/icons.js';
   import { addFiles, uid, seen, toItems, type Group, type GridItem } from '../lib/pages';
   import { build, plan, manifest, used, fileTitle, type Portfolio, type Section } from '../lib/portfolio';
-  import { pickFiles, saveFile, writePortfolio, readPortfolio, remember } from '../lib/store';
+  import { pickFiles, saveFile, writePortfolio, readPortfolio, readPortfolioFile, remember } from '../lib/store';
+  import { DESIGNS, PAPERS, type Paper } from '../lib/engine/designs';
+  import { turned } from '../lib/pages';
   import { zip } from '../lib/zip';
   import PageGrid from './PageGrid.svelte';
   import PageEditor, { type Saved } from './PageEditor.svelte';
@@ -20,7 +22,7 @@
   const selected = new SvelteSet<string>();
   let size = $state(140), busy = $state(''), savedAt = $state(0);
   const layout = $derived(plan(p));
-  const groups = $derived<Group[]>(p.sections.map((s) => ({ id: s.id, items: s.items })));
+  const groups = $derived<Group[]>(p.sections.map((s) => ({ id: s.id, items: s.items, hidden: s.collapsed, locked: s.locked })));
 
   // undo / redo: whole-portfolio snapshots (titles typed in place are not undo steps)
   let past: Portfolio[] = [], future: Portfolio[] = [], canUndo = $state(false), canRedo = $state(false);
@@ -84,7 +86,7 @@
 
   async function exportPdf() {
     busy = t('applying');
-    try { await saveFile(await pool.build(build(p, { contents: t('contents'), section: t('section'), rtl: i18n.lang === 'ar' })), p.name + '.pdf'); }
+    try { await saveFile(await pool.build(build(p, { contents: t('contents'), section: t('section'), supervisor: t('supervisorLabel'), rtl: i18n.lang === 'ar' })), p.name + '.pdf'); }
     finally { busy = ''; }
   }
   async function saveCopy() {
@@ -97,16 +99,47 @@
     } finally { busy = ''; }
   }
 
-  // the divider card has the shape of the section's first page
+  // the divider card has the shape of the section's first page, turned like the divider will be
   function paper(s: Section) {
-    const first = s.items.find((it) => !it.image && !it.blank), d = first ? seen(first) : { w: 595, h: 842 }, k = Math.min(size / d.w, (size * 1.3) / d.h);
-    return `width:${d.w * k}px;height:${d.h * k}px`;
+    const first = s.items.find((it) => !it.image && !it.blank), d0 = first ? seen(first) : { w: 595, h: 842 };
+    const d = turned({ rotate: s.turn ?? 0 }) % 180 ? { w: d0.h, h: d0.w } : d0, k = Math.min(size / d.w, (size * 1.3) / d.h);
+    return { box: `width:${d.w * k}px;height:${d.h * k}px`, inner: `width:${d0.w * k}px;height:${d0.h * k}px;transform:translate(-50%,-50%) rotate(${turned({ rotate: s.turn ?? 0 })}deg)` };
+  }
+  const turnDivider = (s: Section, by: number) => change(() => (s.turn = turned({ rotate: (s.turn ?? 0) + by })));
+
+  // cover logos: image files of the portfolio, shown in the cover card and the panel
+  const accepts = { 'image/*': ['.png', '.jpg', '.jpeg'] };
+  let logoUrls = $state<Record<string, string>>({});
+  $effect(() => {
+    for (const id of Object.values(p.options.cover.logos)) if (id && !logoUrls[id])
+      readPortfolioFile(p.id, 'files/' + id).then((b) => { if (b) logoUrls[id] = URL.createObjectURL(new Blob([b as Uint8Array<ArrayBuffer>])); });
+  });
+  async function addLogo(place: 'left' | 'center' | 'right') {
+    const picked = await pickFiles({ accept: accepts, fallback: () => { onPicked = (f) => run(() => setLogo(place, f)); picker.multiple = false; picker.click(); } });
+    if (picked.length) run(() => setLogo(place, picked.map((x) => x.file)));
+  }
+  const setLogo = (place: 'left' | 'center' | 'right', files: File[]) => load(files.slice(0, 1)).then(([a]) => change((p) => { p.options.cover.logos[place] = a.fileId; }));
+
+  const allItems = () => p.sections.flatMap((s) => s.items);
+  // the page panel: the selected page (Edit page is the main action there), and adding a writing-paper page
+  const sectionOf = (id: string) => p.sections.find((s) => s.items.some((it) => it.id === id));
+  const one = $derived(selected.size === 1 ? allItems().find((it) => selected.has(it.id)) ?? null : null);
+  const oneLocked = $derived(!!(one && sectionOf(one.id)?.locked));
+  const turnOne = (by: number) => one && change(() => { const it = sectionOf(one.id)!.items.find((x) => x.id === one.id)!; it.rotate = turned({ rotate: it.rotate + by }); });
+  const deleteOne = () => one && change(() => { const s = sectionOf(one.id)!; s.items = s.items.filter((x) => x.id !== one.id); selected.clear(); });
+  function addPaper(paper: Paper) {
+    const last = [...selected].at(-1), s = (last && sectionOf(last)) || p.sections.filter((x) => !x.locked).at(-1);
+    if (!s || s.locked) return;
+    const at = last ? s.items.findIndex((x) => x.id === last) + 1 : s.items.length, near = s.items[at - 1] ?? s.items[at];
+    const d = near && !near.blank ? seen(near) : near ? { w: near.w, h: near.h } : { w: 595, h: 842 };
+    const page: GridItem = { id: uid(), doc: -1, page: 0, rotate: 0, w: d.w, h: d.h, blank: true, paper };
+    change((p) => { p.sections.find((x) => x.id === s.id)!.items.splice(at, 0, page); });
+    selected.clear(); selected.add(page.id);
   }
   const label = (it: GridItem) => String((layout.at.get(it.id) ?? 0) + 1);
   // the page editor on one page: the edited page is kept as a file of the portfolio and takes the old page's place, so
   // sections, contents and numbers carry on as before
   let editing = $state<GridItem | null>(null);
-  const allItems = () => p.sections.flatMap((s) => s.items);
   const editBase = (it: GridItem) => toItems(allItems())[allItems().findIndex((x) => x.id === it.id)];
   async function edited(r: Saved) {
     const id = editing!.id, file = uid();
@@ -153,6 +186,19 @@
         onfiles={(files, section, index) => run(() => insertPages(files, section, index))} onopen={(it) => (editing = it)}>
         {#snippet header(g, gi)}
           {@const s = p.sections[gi]}
+          {#if gi === 0 && p.options.cover.on}
+            {@const c = p.options.cover}
+            <div class="covercard">
+              <div class="mini d-{p.options.design}" aria-label={t('cover')}>
+                <span class="logos">{#each ['left', 'center', 'right'] as const as place}<i>{#if c.logos[place] && logoUrls[c.logos[place]!]}<img src={logoUrls[c.logos[place]!]} alt="" />{/if}</i>{/each}</span>
+                <strong>{c.title || p.name}</strong>
+                {#if c.subtitle}<small>{c.subtitle}</small>{/if}
+                <span class="names">{#each c.names.split(/\r?\n/).filter((n) => n.trim()) as n}<span>{n}</span>{/each}</span>
+                {#if c.supervisor}<small class="sup">{t('supervisorLabel')} {c.supervisor}</small>{/if}
+              </div>
+              <span class="num">1 · {t('cover')}</span>
+            </div>
+          {/if}
           {#if gi === 0 && p.options.toc && layout.shown.length}
             <section class="toc" aria-label={t('contents')}>
               <h2>{t('contents')}</h2>
@@ -168,31 +214,44 @@
               </ol>
             </section>
           {/if}
-          <div class="sec">
+          <div class="sec" class:closed={s.collapsed} class:locked={s.locked}>
+            <button class="btn icon fold" onclick={() => (s.collapsed = !s.collapsed)} aria-expanded={!s.collapsed} title={s.collapsed ? t('openSection') : t('closeSection')} aria-label={s.collapsed ? t('openSection') : t('closeSection')}>{@html icon(s.collapsed ? 'chevron-down' : 'chevron-up')}</button>
             <span class="badge num">{t('section')} {gi + 1}</span>
-            <input class="title" class:auto={s.fromFile} bind:value={s.title} oninput={() => (s.fromFile = false)} aria-label={t('sectionTitle')} />
+            <input class="title" class:auto={s.fromFile} bind:value={s.title} oninput={() => (s.fromFile = false)} readonly={s.locked} aria-label={t('sectionTitle')} />
             {#if s.fromFile}<span class="from" title={t('fromFileName')}>{@html icon('info')}</span>{/if}
+            {#if s.collapsed}<span class="hiddenpages num">{s.items.length} {t('pagesCount')} · {t('hiddenPages')}</span>{/if}
             <span class="end">
+              {#if !s.locked}
               <button class="btn" class:on={s.divider} aria-pressed={s.divider} onclick={() => change(() => (s.divider = !s.divider))}>{@html icon('bookmarks')}{t('divider')}</button>
               <button class="btn" onclick={() => addPages(s.id, s.items.length)} disabled={!!busy}>{@html icon('images')}{t('addPages')}</button>
               {#if s.file}<button class="btn" onclick={() => replace(s)} disabled={!!busy}>{@html icon('reverse')}{t('replace')}</button>{/if}
+              {/if}
+              <button class="btn icon" class:on={s.locked} aria-pressed={!!s.locked} onclick={() => (s.locked = !s.locked)} title={s.locked ? t('unlockSection') : t('lockSection')} aria-label={s.locked ? t('unlockSection') : t('lockSection')}>{@html icon(s.locked ? 'lock' : 'unlock')}</button>
               <button class="btn icon" onclick={() => shift(gi, -1)} disabled={gi === 0} title={t('moveUp')} aria-label={t('moveUp')}>{@html icon('chevron-up')}</button>
               <button class="btn icon" onclick={() => shift(gi, 1)} disabled={gi === p.sections.length - 1} title={t('moveDown')} aria-label={t('moveDown')}>{@html icon('chevron-down')}</button>
-              <button class="btn icon" onclick={() => removeSection(gi)} title={t('deleteSection')} aria-label={t('deleteSection')}>{@html icon('delete')}</button>
+              {#if !s.locked}<button class="btn icon" onclick={() => removeSection(gi)} title={t('deleteSection')} aria-label={t('deleteSection')}>{@html icon('delete')}</button>{/if}
             </span>
           </div>
         {/snippet}
         {#snippet lead(g, gi)}
           {@const s = p.sections[gi]}
           {#if s.divider}
+            {@const pp = paper(s)}
             <div class="dcell">
-              <div class="paper" style={paper(s)}>
-                <span class="lbl">{t('section')} {gi + 1}</span>
-                <textarea rows="3" bind:value={s.title} oninput={() => (s.fromFile = false)} aria-label={t('sectionTitle')}></textarea>
-                <i class="rule"></i>
-                <input bind:value={s.note} placeholder={t('dividerNote')} aria-label={t('dividerNote')} />
+              <div class="paperbox" style={pp.box}>
+                <div class="paper d-{p.options.design}" style={pp.inner}>
+                  <span class="lbl">{t('section')} {gi + 1}</span>
+                  <textarea rows="3" bind:value={s.title} oninput={() => (s.fromFile = false)} readonly={s.locked} aria-label={t('sectionTitle')}></textarea>
+                  <i class="rule"></i>
+                  <input bind:value={s.note} placeholder={t('dividerNote')} readonly={s.locked} aria-label={t('dividerNote')} />
+                </div>
               </div>
-              <span class="num">{(layout.target.get(s.id) ?? 0) + 1}</span>
+              <span class="dnum num">{(layout.target.get(s.id) ?? 0) + 1}
+                {#if !s.locked}
+                <button class="btn icon" onclick={() => turnDivider(s, -90)} title={t('rotateLeft')} aria-label="{t('rotateLeft')}: {t('divider')}">{@html icon('turn-left')}</button>
+                <button class="btn icon" onclick={() => turnDivider(s, 90)} title={t('rotateRight')} aria-label="{t('rotateRight')}: {t('divider')}">{@html icon('turn-right')}</button>
+                {/if}
+              </span>
             </div>
           {/if}
         {/snippet}
@@ -206,18 +265,89 @@
 
     <aside class="side" aria-label={t('options')}>
       <label class="field"><span>{t('portfolioName')}</span><input bind:value={p.name} /></label>
-      <label class="switch"><input type="checkbox" bind:checked={p.options.toc} />{t('tocSwitch')}</label>
-      <button class="btn" onclick={() => change((p) => p.sections.forEach((s) => (s.divider = true)))} disabled={!p.sections.length}>{@html icon('bookmarks')}{t('allDividers')}</button>
-      <label class="field"><span>{t('numbers')}</span>
-        <select bind:value={p.options.numbers}>
-          <option value="none">{t('numbersNone')}</option>
-          <option value="all">{t('numbersAll')}</option>
-          {#each p.sections as s (s.id)}<option value={s.id}>{t('numbersOnly')}: {s.title}</option>{/each}
-        </select>
-      </label>
-      <label class="switch"><input type="checkbox" bind:checked={p.options.bookmarks} />{t('bookmarks')}</label>
+
+      <section class="group" aria-label={t('page')}>
+        <h3>{t('page')}</h3>
+        {#if one}
+          <button class="btn primary big" onclick={() => (editing = one)} disabled={oneLocked || !!busy}>{@html icon('edit')}{t('editPage')}</button>
+          <div class="trio">
+            <button class="btn" onclick={() => turnOne(-90)} disabled={oneLocked}>{@html icon('turn-left')}{t('rotateLeft')}</button>
+            <button class="btn" onclick={() => turnOne(90)} disabled={oneLocked}>{@html icon('turn-right')}{t('rotateRight')}</button>
+            <button class="btn danger" onclick={deleteOne} disabled={oneLocked} title={t('delete')} aria-label={t('delete')}>{@html icon('delete')}</button>
+          </div>
+          {#if oneLocked}<p class="help">{@html icon('lock')} {t('sectionLocked')}</p>{/if}
+        {:else}<p class="help">{t('pickPage')}</p>{/if}
+        <span class="sub">{t('addPaper')}</span>
+        <div class="papers">
+          {#each PAPERS as paper}
+            <button class="tile" onclick={() => addPaper(paper)} disabled={!p.sections.some((s) => !s.locked)} title={t(('paper_' + paper) as any)}>
+              <i class="sw paper-{paper}"></i><span>{t(('paper_' + paper) as any)}</span>
+            </button>
+          {/each}
+        </div>
+      </section>
+
+      <section class="group" aria-label={t('cover')}>
+        <label class="switch"><input type="checkbox" checked={p.options.cover.on} onchange={(e) => change((p) => (p.options.cover.on = e.currentTarget.checked))} /><h3>{t('cover')}</h3></label>
+        {#if p.options.cover.on}
+          {@const c = p.options.cover}
+          <label class="field"><span>{t('coverTitle')}</span><input bind:value={c.title} placeholder={p.name} /></label>
+          <label class="field"><span>{t('coverSubtitle')}</span><input bind:value={c.subtitle} /></label>
+          <label class="field"><span>{t('coverNames')}</span><textarea rows="3" bind:value={c.names} placeholder={t('coverNamesHint')}></textarea></label>
+          <label class="field"><span>{t('coverSupervisor')}</span><input bind:value={c.supervisor} /></label>
+          <span class="sub">{t('logos')}</span>
+          <div class="logos">
+            {#each [['left', 'logoLeft'], ['center', 'logoCenter'], ['right', 'logoRight']] as const as [place, label]}
+              <div class="slot">
+                {#if c.logos[place]}
+                  <span class="img">{#if logoUrls[c.logos[place]!]}<img src={logoUrls[c.logos[place]!]} alt={t(label)} />{/if}</span>
+                  <button class="btn icon" onclick={() => change((p) => { delete p.options.cover.logos[place]; })} title={t('remove')} aria-label="{t('remove')}: {t(label)}">{@html icon('close')}</button>
+                {:else}
+                  <button class="btn add" onclick={() => addLogo(place)} disabled={!!busy}>{@html icon('plus')}{t(label)}</button>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </section>
+
+      <section class="group" aria-label={t('design')}>
+        <h3>{t('design')}</h3>
+        <div class="designs" role="radiogroup" aria-label={t('design')}>
+          {#each DESIGNS as d}
+            <button class="tile" role="radio" aria-checked={p.options.design === d} class:on={p.options.design === d} onclick={() => change((p) => (p.options.design = d))}>
+              <i class="sw d-{d}"><b></b></i><span>{t(('design_' + d) as any)}</span>
+            </button>
+          {/each}
+        </div>
+        <button class="btn" onclick={() => change((p) => p.sections.forEach((s) => (s.divider = true)))} disabled={!p.sections.length}>{@html icon('bookmarks')}{t('allDividers')}</button>
+        <label class="switch"><input type="checkbox" bind:checked={p.options.logosOnDividers} />{t('logosOnDividers')}</label>
+        <label class="field"><span>{t('headerOnDividers')}</span>
+          <select bind:value={p.options.header}>
+            <option value="none">{t('numbersNone')}</option><option value="small">{t('small')}</option><option value="big">{t('big')}</option>
+          </select></label>
+      </section>
+
+      <section class="group" aria-label={t('numbers')}>
+        <label class="switch"><input type="checkbox" bind:checked={p.options.toc} />{t('tocSwitch')}</label>
+        <label class="field"><span>{t('numbers')}</span>
+          <select bind:value={p.options.numbers}>
+            <option value="none">{t('numbersNone')}</option>
+            <option value="all">{t('numbersAll')}</option>
+            {#each p.sections as s (s.id)}<option value={s.id}>{t('numbersOnly')}: {s.title}</option>{/each}
+          </select>
+        </label>
+        {#if p.options.numbers !== 'none'}
+          <div class="seg" role="radiogroup" aria-label={t('numberPosition')}>
+            {#each [['left', 'posLeft'], ['center', 'posCentre'], ['right', 'posRight']] as const as [pos, label]}
+              <button role="radio" aria-checked={p.options.numberPos === pos} class:on={p.options.numberPos === pos} onclick={() => (p.options.numberPos = pos)}>{t(label)}</button>
+            {/each}
+          </div>
+        {/if}
+        <label class="switch"><input type="checkbox" bind:checked={p.options.bookmarks} />{t('bookmarks')}</label>
+      </section>
+
       <label class="field"><span>{t('thumbSize')}</span><input type="range" min="96" max="240" step="8" bind:value={size} /></label>
-      <span class="grow"></span>
       <p class="state num" aria-live="polite">{busy || (savedAt ? `${t('saved')} · ${layout.slots.length} ${t('pagesCount')}` : '')}</p>
       <button class="btn primary" onclick={exportPdf} disabled={!!busy || !layout.slots.length}>{@html icon('download')}{t('exportPdf')}</button>
       <button class="btn" onclick={saveCopy} disabled={!!busy}>{@html icon('library')}{t('saveWaraq')}</button>
@@ -247,7 +377,7 @@
   .empty strong { color: var(--ink); font-size: var(--fs-20); }
   .empty:hover { border-color: var(--green); }
   /* section header row in the grid */
-  .sec { display: flex; align-items: center; gap: var(--s-8); flex-wrap: wrap; padding: var(--s-12) 0 var(--s-8); border-top: 1px solid var(--line); margin-top: var(--s-8); }
+  .sec { display: flex; align-items: center; gap: var(--s-8); flex-wrap: wrap; padding: var(--s-12) var(--s-8) var(--s-8); border-top: 1px solid var(--line); margin-top: var(--s-8); }
   .badge { padding: 0 var(--s-8); min-height: 28px; display: inline-flex; align-items: center; border-radius: var(--r-8); background: var(--green); color: #fff; font-weight: 600; font-size: var(--fs-12); }
   .title { min-height: var(--control); min-width: 240px; padding: 0 var(--s-12); border: 1px solid transparent; border-radius: var(--r-8); background: transparent; font-size: var(--fs-18); font-weight: 600; }
   .title:hover, .title:focus { border-color: var(--line); background: var(--surface); }
@@ -265,11 +395,63 @@
   .pg { min-width: 32px; text-align: end; font-weight: 600; color: var(--green); }
   /* divider page card: what the divider will show, written on directly */
   .dcell { display: grid; justify-items: center; gap: var(--s-8); padding: var(--s-8); }
-  .paper { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-4); padding: var(--s-8); background: #fff; box-shadow: var(--shadow); border-top: 4px solid var(--green); }
+  .paperbox { position: relative; }
+  .paper { position: absolute; left: 50%; top: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-4); padding: var(--s-8); background: #fff; box-shadow: var(--shadow); border-top: 4px solid var(--green); }
+  .paper.d-band { border-top: 0; background: linear-gradient(var(--green) 0 42%, #fff 42%); } .paper.d-band .lbl, .paper.d-band textarea { color: #fff; }
+  .paper.d-frame { border-top: 0; box-shadow: var(--shadow), inset 0 0 0 6px #fff, inset 0 0 0 7px var(--green); }
+  .paper.d-side { border-top: 0; border-inline-end: 8px solid var(--green); }
+  .dnum { display: flex; align-items: center; gap: var(--s-8); font-size: var(--fs-14); color: var(--muted); }
   .paper .lbl { font-size: var(--fs-12); color: var(--muted); }
   .paper textarea { width: 100%; resize: none; border: 1px dashed var(--line); border-radius: var(--r-8); text-align: center; font: 700 var(--fs-14)/1.3 var(--font); color: var(--ink); background: transparent; }
   .paper input { width: 100%; min-height: var(--control); border: 1px dashed var(--line); border-radius: var(--r-8); text-align: center; font-size: var(--fs-12); color: var(--muted); background: transparent; }
   .paper .rule { width: 32px; height: 3px; background: var(--green); }
-  .dcell .num { font-size: var(--fs-14); color: var(--muted); }
+  /* side panel groups */
+  .group { display: flex; flex-direction: column; gap: var(--s-12); padding-top: var(--s-16); border-top: 1px solid var(--line); }
+  .group h3 { margin: 0; font-size: var(--fs-16); }
+  .sub { font-weight: 600; color: var(--muted); font-size: var(--fs-14); }
+  .side .help { margin: 0; display: flex; align-items: center; gap: var(--s-8); }
+  .btn.big { min-height: 44px; font-size: var(--fs-16); }
+  .btn.danger:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .trio { display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--s-8); }
+  .trio .btn { padding: 0 var(--s-8); }
+  .field textarea { padding: var(--s-8) var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); font: inherit; font-weight: 400; resize: vertical; }
+  .papers, .designs { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-8); }
+  .tile { display: grid; justify-items: center; gap: var(--s-4); padding: var(--s-8) var(--s-4); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--surface); font-size: var(--fs-12); font-weight: 600; color: var(--ink); }
+  .tile:hover, .tile.on { border-color: var(--green); background: var(--green-soft); }
+  .sw { position: relative; width: 34px; height: 46px; background: #fff; border: 1px solid var(--line); overflow: hidden; }
+  .sw.paper-lined { background: repeating-linear-gradient(#fff 0 5px, #c9d2c7 5px 6px); }
+  .sw.paper-grid { background: linear-gradient(90deg, #d5ddd3 1px, transparent 1px) 0 0 / 5px 5px, linear-gradient(#d5ddd3 1px, #fff 1px) 0 0 / 5px 5px; }
+  .sw.paper-dotted { background: radial-gradient(circle, #b8c3b6 0.8px, #fff 1px) 0 0 / 5px 5px; }
+  .sw b { position: absolute; left: 25%; right: 25%; top: 45%; height: 3px; background: var(--ink); }
+  .sw.d-band { background: linear-gradient(var(--green) 0 42%, #fff 42%); } .sw.d-band b { background: #fff; top: 28%; }
+  .sw.d-frame { box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 4px var(--green); }
+  .sw.d-side { border-inline-end: 6px solid var(--green); } .sw.d-side b { left: 12%; right: 38%; }
+  .logos { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-8); }
+  .slot { display: flex; align-items: center; gap: var(--s-4); min-height: 44px; }
+  .slot .img { flex: 1; height: 40px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: var(--r-8); background: #fff; overflow: hidden; }
+  .slot img { max-width: 100%; max-height: 100%; }
+  .slot .add { width: 100%; padding: 0 var(--s-4); font-size: var(--fs-12); }
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-8); }
+  .seg button { min-height: var(--control); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--surface); font-weight: 600; color: var(--muted); }
+  .seg button.on { background: var(--green-soft); border-color: var(--green); color: var(--ink); }
+  /* section header: closed / locked */
+  .fold { flex: none; }
+  .sec.closed .title { color: var(--muted); }
+  .sec.locked .title { background: transparent; }
+  .hiddenpages { color: var(--muted); font-size: var(--fs-14); }
+  /* cover card */
+  .covercard { display: inline-grid; justify-items: center; gap: var(--s-8); margin: 0 0 var(--s-16); }
+  .mini { position: relative; width: 210px; height: 297px; display: flex; flex-direction: column; align-items: center; gap: var(--s-4); padding: var(--s-12); background: #fff; box-shadow: var(--shadow); text-align: center; overflow: hidden; }
+  .mini .logos { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-8); width: 100%; height: 28px; }
+  .mini .logos i { display: grid; place-items: center; } .mini .logos img { max-width: 100%; max-height: 28px; }
+  .mini strong { margin-top: 64px; font-size: var(--fs-16); line-height: 1.3; }
+  .mini small { font-size: var(--fs-12); color: var(--muted); }
+  .mini .names { display: grid; margin-top: var(--s-12); font-size: var(--fs-12); }
+  .mini .sup { position: absolute; bottom: var(--s-16); left: 0; right: 0; }
+  .mini.d-band::before { content: ''; position: absolute; left: 0; right: 0; top: 52px; height: 110px; background: var(--green); }
+  .mini.d-band strong, .mini.d-band small:not(.sup) { position: relative; color: #fff; }
+  .mini.d-frame { box-shadow: var(--shadow), inset 0 0 0 10px #fff, inset 0 0 0 12px var(--green); }
+  .mini.d-side { border-inline-end: 10px solid var(--green); align-items: flex-start; text-align: start; }
+  .covercard .num { font-size: var(--fs-14); color: var(--muted); }
   @media (max-width: 900px) { .body { grid-template-columns: 1fr; grid-template-rows: 1fr auto; } .side { max-height: 45vh; border-inline-start: 0; border-top: 1px solid var(--line); } }
 </style>

@@ -40,9 +40,9 @@ test('tour', async ({ page }) => {
   const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.locator('.empty').click()]);
   await chooser.setFiles([week1, week2]);
   await expect(page.locator('.sec')).toHaveCount(2);
-  await page.locator('.sec').first().locator('.btn').first().click();
+  await page.locator('.sec').first().locator('.btn').nth(1).click();
   await page.locator('.paper input').fill('مقرر التصميم — الفصل الأول');
-  const [c2] = await Promise.all([page.waitForEvent('filechooser'), page.locator('.sec').nth(1).locator('.btn').nth(1).click()]);
+  const [c2] = await Promise.all([page.waitForEvent('filechooser'), page.locator('.sec').nth(1).locator('.btn').nth(2).click()]);
   await c2.setFiles([photo]);
   await expect(page.locator('.cell')).toHaveCount(5);
   await page.locator('.side input').first().fill('مقرر التصميم ١٠١');
