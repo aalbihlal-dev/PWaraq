@@ -118,6 +118,40 @@ Still to do: text in the line's own font and harakat (HarfBuzz), editing a whole
 line), turning/cropping photos, zoom inside the editor, arrow-key nudging, warning before leaving with unsaved edits,
 text on turned (vertical) lines.
 
+## Owner's ideas (19 Oct 2026) — to build next
+### 1. Signing mode (توقيع)
+Owner: one click adds signature + date; in one sitting he signs many files with the same date, the same signature and
+the same spacing; sometimes he wants everything at hand; Waraq should find where a page or document needs signing,
+highlight it and tell him which page; a signature image should lose its background and change colour.
+- **Signature set** ("my signature"): signature + date (+ optional name/title, stamp), laid out once with fixed
+  spacing; placed with **one click** as a group. The date is fixed for the session ("today", Gregorian or Hijri,
+  chosen format), so every file signed in that sitting carries the same date.
+- **Signature library** on this device (IndexedDB): draw, type (Tajawal / handwriting-style font) or import a photo
+  of a signature. Imported photos: **background removed** (light pixels → transparent, threshold set automatically,
+  slider to adjust), cropped to the ink, **recoloured** (black, ink, blue, Waraq green). Saved as PNG with alpha.
+- **Find where to sign:** on opening a file in signing mode, search every page for empty signature form fields
+  (/FT /Sig) and for words like "التوقيع", "توقيع", "الاسم والتوقيع", "Signature", "Signed", "Sign here", "التاريخ",
+  "Date", plus an underline/blank after them. Each spot is **highlighted** on the page; a bar in the options panel says
+  "Signature needed on page 3 — Go" (a bar, not a pop-up: owner rule); clicking a highlighted spot drops the set
+  aligned to it (signature over the line, date over the date field).
+- **Many files:** a signing queue — open several PDFs, Waraq goes file by file to each found spot (or the same
+  position as the last file), one click / Enter to sign and go to the next, then save all (same names with a suffix,
+  or overwrite on request).
+- Engine: reuse `editPage` (photo with transparency + text edits) — the set is a group of edits. Later: real digital
+  signatures with a certificate (MuPDF can sign PDFs; check the WASM API) and a visible "signed by" stamp.
+
+### 2. Arabic text keeps its own font when edited
+Owner: the Arabic font must not change when editing. Today a replaced line is written in Tajawal.
+- Take the line's own font from the PDF (the font object MuPDF reports for its characters) and write the new text
+  with it; shape Arabic with **HarfBuzz** (harfbuzzjs WASM) against that font so letters join correctly whatever the
+  font's encoding.
+- Embedded fonts are usually **subsets**: a letter the subset lacks cannot be drawn in that font. Then: use the full
+  font if it is installed on the PC (desktop) or bundled (Arial / Times / Traditional Arabic / Simplified Arabic
+  equivalents: Noto Naskh, Noto Sans Arabic, Amiri); otherwise tell the user which letters are missing and offer the
+  closest bundled font — never a silent switch to Tajawal.
+- Size, colour, weight and position as the original line (already done); keep harakat.
+- To check first: whether our MuPDF WASM build exposes the embedded font's bytes (else add it in the engine build).
+
 ## Phases (each ships)
 1. **Foundation — done (19 Oct):** project, custom MuPDF WASM build, worker pool, viewer (large drawings, zoom/pan,
    thumbnails, search), workspace shell, Open/Close/Recent, end-to-end tests + design-rule test. "Waraq 1.0 preview":
