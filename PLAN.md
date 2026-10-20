@@ -266,8 +266,7 @@ Original plan:
 - Checks: `tests/unit/{redact,forms,ocr}.test.mjs`, `tests/e2e/{redact,forms,ocr}.spec.ts`, audit extended (EN + AR).
 - Leftovers done 20 Oct: long Arabic answers wrap in multiline fields; **Redact** tool in the page editor (drag a box,
   removed on Save page); build checked (`PREVIEW=1`: 33/33).
-- Still to do: OCR on photos added as pages in Organize (works after Replace); selection boxes are per printed line
-  (the text is fitted to the line's width, so a word sits about, not exactly, where the picture shows it).
+- Still to do: OCR on photos added as pages in Organize (works after Replace).
 
 ### OCR v2 — Arabic that can be measured (20 Oct 2026, done; Plan v2 row A steps 1–3)
 - **Test set** `tests/fixtures/ocr/` (8 pages, 870 words, 0.9 MB): NN-name.pdf is a picture-only page like a scan,
@@ -312,8 +311,10 @@ Original plan:
      model shipped since 0.3.3 is tessdata's standard LSTM one (the integer form of best), not the small "fast" one
      Plan v2 assumed.
   4. **300 dpi instead of 250**: better on the faded page (+4), worse on clean pages (−1 to −3), equal overall. **Not adopted.**
-  5. **Copy order**: the text layer now writes each printed line as one piece of text (words joined in reading order,
-     fitted to the line's width) — copy and search give joined Arabic lines; before, every word was its own line.
+  5. **Copy order and hit boxes**: every word is written stretched over its own box (`Tz`), the words of a printed line
+     in the order they stand on the page; MuPDF joins them into one line and puts a right-to-left line back into reading
+     order — copy gives joined Arabic lines (before, every word was its own line) and a search hit sits on the printed
+     word (e2e checks the box of "المكتبة" on page 07).
 - **Checks**: `tests/unit/ocr-clean.test.mjs` (straight page untouched, tilt found within 0.3° and undone, faded copy
   stretched, pass merge), `tests/unit/ocr.test.mjs` (lines), `tests/e2e/ocr.spec.ts` on the real set (bilingual page;
   the photocopy, unreadable without clean-up). tesseract.js 6.0.1 is a devDependency now (the Node measurement; the app

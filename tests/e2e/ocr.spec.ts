@@ -15,7 +15,13 @@ test('ocr: a scanned page (English and Arabic) becomes searchable; the picture s
   expect(text).toMatch(/forty thousand visitors/);
   expect(text).toMatch(/ملخص التقرير السنوي/); // a printed line copies as one line, words joined in reading order
   expect(text).toMatch(/أولويات العام القادم هي تمديد ساعات العمل/);
-  expect(p.search('المكتبة').length).toBeGreaterThan(0);
+  // the hit sits on the printed word: "المكتبة" is the second word of the first Arabic paragraph line, x 453..488 pt
+  // on the page it was drawn from (right margin 535 minus the Tajawal widths of "استقبلت " and "المكتبة" at 12 pt)
+  const hits = p.search('المكتبة');
+  expect(hits.length).toBe(1);
+  const xs = hits[0][0].filter((_, i) => i % 2 === 0); // quad: x y x y x y x y
+  expect(Math.min(...xs)).toBeGreaterThan(445);
+  expect(Math.max(...xs)).toBeLessThan(496);
   // the picture is still the page's content
   const images: unknown[] = []; p.toStructuredText('preserve-images').walk({ onImageBlock: () => images.push(1) });
   expect(images).toHaveLength(1);

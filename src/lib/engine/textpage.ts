@@ -5,7 +5,7 @@
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 
 export type Fonts = { regular: MuPDF.Font; bold: MuPDF.Font };
-export type Line = { text: string; x: number; y: number; size: number; bold?: boolean; color?: number[]; align?: 'left' | 'right' | 'center'; max?: number };
+export type Line = { text: string; x: number; y: number; size: number; bold?: boolean; color?: number[]; align?: 'left' | 'right' | 'center'; max?: number; fill?: boolean }; // fill: stretched or squeezed to exactly `max` wide
 export type TextPage = { w: number; h: number; lines: Line[]; rules?: number[][]; links?: { rect: number[]; to: number }[];
   images?: { doc: number; x: number; y: number; w: number; h: number; align?: 'left' | 'center' | 'right' }[]; // logos: source ids, box from the top
   polys?: { pts: number[][]; color: number[] }[]; // filled shapes (corner triangles), points from the top
@@ -111,15 +111,16 @@ export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts
 `;
       for (const l of p.lines) {
         const face = faces[l.bold ? 1 : 0], font = face.font;
-        let size = l.size, width = measure(font, l.text, size);
-        if (l.max && width > l.max) { size *= l.max / width; width = l.max; } // a long title shrinks to fit
+        let size = l.size, width = measure(font, l.text, size), tz = 1;
+        if (l.fill && l.max && width) { tz = l.max / width; width = l.max; } // an OCR word fills its box
+        else if (l.max && width > l.max) { size *= l.max / width; width = l.max; } // a long title shrinks to fit
         const x = l.align === 'right' ? l.x - width : l.align === 'center' ? l.x - width / 2 : l.x;
         const gids = visual(l.text).map((g) => {
           const gid = font.encodeCharacter(g.code);
           face.used.set(gid, g.uni.length > 1 ? [...g.uni].reverse() : g.uni); // a joined pair is read back right to left
           return gid.toString(16).padStart(4, '0');
         });
-        ops += `BT /WqT${l.bold ? 1 : 0} ${n(size)} Tf ${(l.color ?? INK).map(n).join(' ')} rg 1 0 0 1 ${n(x)} ${n(p.h - l.y)} Tm <${gids.join('')}> Tj ET
+        ops += `BT /WqT${l.bold ? 1 : 0} ${n(size)} Tf ${tz === 1 ? '' : `${n(tz * 100)} Tz `}${(l.color ?? INK).map(n).join(' ')} rg 1 0 0 1 ${n(x)} ${n(p.h - l.y)} Tm <${gids.join('')}> Tj ET
 `;
       }
       return ops;

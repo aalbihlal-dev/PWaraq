@@ -25,5 +25,7 @@ test('text layer: search and copy find English and Arabic words, nothing changes
   const hit = page.search('Invoice')[0][0]; // a quad: x of its left edge and y of its top, in points
   assert.ok(Math.abs(hit[0] - 60) < 6 && hit[1] > 80 && hit[1] < 120, 'found at ' + hit);
   assert.equal(page.search('بكم').length, 1);
+  const ar = page.search('بكم')[0][0]; // the hit sits on that word's own box (390..440), not elsewhere on the line
+  assert.ok(ar[0] > 385 && ar[2] < 445, 'found at ' + ar);
   assert.deepEqual(Buffer.from(pixels(out)), Buffer.from(pixels(scan))); // invisible: every pixel is as before
 });
