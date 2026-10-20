@@ -236,3 +236,16 @@ Original plan:
   removed on Save page); build checked (`PREVIEW=1`: 33/33).
 - Still to do: OCR on photos added as pages in Organize (works after Replace), text placement is
   per word (selection boxes approximate); Arabic OCR accuracy depends on the scan (small/blurred print reads worse).
+
+## Report a problem / support (owner, 20 Oct 2026) — planned, build in Phase 4 with the website split
+Quiet, not on the main screens: app Help/⋯ menu item "Report a problem" (Arabic too) and a small website footer link.
+One panel, three ways (owner chose all):
+1. **Private form** (default): message + optional email + "attach details" tick (Waraq version, Windows/browser,
+   language, last error lines — shown in full before sending; never the user's files). Sent to a Cloudflare Pages
+   Function `/api/report` → Cloudflare Email Routing `send_email` to support@pwaraq.com. Spam: Cloudflare Turnstile
+   (free) + size limit + per-IP rate limit. No database.
+2. **Email**: `mailto:support@pwaraq.com` pre-filled with the same details.
+3. **GitHub issue** (public): pre-filled link to github.com/tshi-dev/PWaraq/issues/new with an issue template.
+Needs from the owner first: support@pwaraq.com via Cloudflare Email Routing → his Gmail (publishing agent, with his yes).
+Desktop app: same panel; works offline by falling back to email/GitHub. Tests: form validation, details preview,
+EN+AR, design audit.
