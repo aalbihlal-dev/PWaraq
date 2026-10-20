@@ -1,7 +1,7 @@
 // PDF form fields on top of MuPDF: list them (text, checkbox, radio, choice) and fill them in. Pure (MuPDF passed in) so the
 // Node self-check (tests/unit/forms.test.mjs) runs the same code as the engine worker.
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
-import { pageWriter, type Fonts } from './textpage.ts';
+import { measure, pageWriter, wrap, type Fonts } from './textpage.ts';
 
 export type Field = {
   id: string; page: number; name: string; label: string; readOnly: boolean;
@@ -52,9 +52,13 @@ export function fillForm(m: typeof MuPDF, bytes: Uint8Array, answers: Answers, f
       w.setChoiceValue(answer);
     } else {
       w.setTextValue(answer);
-      if (answer && !LATIN_ONLY.test(answer) && writer) { // shortcut: one line; a long Arabic answer is cut at the field's edge, not wrapped
-        const [x0, y0, x1, y1] = w.getRect(), width = x1 - x0, height = y1 - y0, size = Math.min(14, height * 0.62);
-        const ops = writer.draw({ w: width, h: height, lines: [RTL.test(answer) ? { text: answer, x: width - 3, y: height / 2 + size * 0.33, size, align: 'right', max: width - 6 } : { text: answer, x: 3, y: height / 2 + size * 0.33, size, max: width - 6 }] });
+      if (answer && !LATIN_ONLY.test(answer) && writer && fonts) {
+        const [x0, y0, x1, y1] = w.getRect(), width = x1 - x0, height = y1 - y0, rtl = RTL.test(answer);
+        // a multiline field wraps at its width (12 pt lines from the top); a one-line field shrinks the text to fit
+        const size = w.isMultiline() ? Math.min(12, height * 0.62) : Math.min(14, height * 0.62);
+        const rows = w.isMultiline() ? answer.split('\n').flatMap((p) => wrap((t) => measure(fonts.regular, t, size), p, width - 6)) : [answer];
+        const ops = writer.draw({ w: width, h: height, lines: rows.map((text, i) => ({ text, size, max: width - 6, x: rtl ? width - 3 : 3, align: rtl ? 'right' as const : 'left' as const,
+          y: w.isMultiline() ? 3 + size * (0.9 + i * 1.25) : height / 2 + size * 0.33 })) });
         const ap = doc.addStream(ops, { Type: 'XObject', Subtype: 'Form', BBox: [0, 0, width, height], Resources: { Font: writer.fonts } });
         w.getObject().put('AP', { N: ap });
       }
