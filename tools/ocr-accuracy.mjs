@@ -17,7 +17,11 @@ const flag = (k) => process.argv.includes('--' + k);
 const opt = { ara: arg('ara', 'ara'), dpi: +arg('dpi', 250), clean: !flag('no-clean'), passes: arg('passes', flag('split') ? 'ara,eng' : '').split(',').filter(Boolean), only: arg('only', ''), out: arg('out', ''), engine: arg('engine', 'tesseract'), tiltMin: +arg('tilt-min', 0.1) };
 
 // --- text comparison: tashkeel, tatweel and punctuation ignored (Tesseract drops or moves them), spaces collapsed ---
-const norm = (s) => s.normalize('NFC').replace(/[ً-ْٰـ]/g, '').replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
+// Also: lam + alef in either order count the same (the text layers of many Arabic PDFs, the real set's truth, store the
+// ligature reversed); Arabic-Indic digits count as Western ones; a number and the letter stuck to it ("2024م") are two words.
+const digit = (d) => String('٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹'.indexOf(d) % 10);
+const norm = (s) => s.normalize('NFC').replace(/[ً-ْٰـ]/g, '').replace(/([اأإآ])ل/g, 'ل$1').replace(/[٠-٩۰-۹]/g, digit)
+  .replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/(\p{N})(?=\p{L})|(\p{L})(?=\p{N})/gu, '$1$2 ').replace(/\s+/g, ' ').trim();
 const wordsRight = (truth, read) => {
   const have = new Map();
   for (const w of norm(read).split(' ')) have.set(w, (have.get(w) ?? 0) + 1);
@@ -76,21 +80,29 @@ function surya(pages) { // tools/ocr-surya.py (Python venv .venv-surya) reads ev
   return { seconds: 0, async read() { const r = done[i++]; this.seconds = r.seconds; return r.lines; }, stop: async () => {} };
 }
 
-const pages = fs.readdirSync(set).filter((f) => f.endsWith('.pdf') && f.startsWith(opt.only)).sort();
+// the committed synthetic pages, then real/ (tools/get-ocr-set.mjs: r-* rendered from public PDFs, s-* real scans)
+const real = fs.existsSync(path.join(set, 'real')) ? fs.readdirSync(path.join(set, 'real')).filter((f) => f.endsWith('.pdf')).sort().map((f) => 'real/' + f) : [];
+const pages = [...fs.readdirSync(set).filter((f) => f.endsWith('.pdf')).sort(), ...real].filter((f) => path.basename(f).startsWith(opt.only));
+const group = (f) => (f.startsWith('real/s') ? 'real, scanned' : f.startsWith('real/') ? 'real, rendered' : 'synthetic');
 const engine = await (opt.engine === 'surya' ? surya(pages) : tesseract());
-const rows = [];
+const rows = [], groups = new Map();
 console.log(`engine ${opt.engine}${opt.engine === 'tesseract' ? ` (${opt.ara}; passes ${(opt.passes.length ? opt.passes : ['ara+eng']).join(', ')})` : ''}, ${opt.dpi} dpi, clean-up ${opt.clean ? 'on' : 'off'}`);
 console.log('page                        words  words right  chars right  grain  tilt    s');
 for (const f of pages) {
   const name = f.slice(0, -4), truth = fs.readFileSync(path.join(set, name + '.txt'), 'utf8');
+  if (!groups.has(group(f))) { groups.set(group(f), []); if (real.length) console.log('-- ' + group(f)); }
   const { png, angle, grain } = picture(path.join(set, f)), t0 = Date.now();
   const lines = await engine.read(png, path.join(opt.out || set, name)), s = engine.seconds || (Date.now() - t0) / 1000;
   const read = lines.map((l) => l.words.map((w) => w.text).join(' ')).join('\n');
-  if (opt.out) { fs.mkdirSync(opt.out, { recursive: true }); fs.writeFileSync(path.join(opt.out, name + '.txt'), read + '\n'); fs.writeFileSync(path.join(opt.out, name + '.png'), png); }
+  if (opt.out) { fs.mkdirSync(path.join(opt.out, path.dirname(name)), { recursive: true }); fs.writeFileSync(path.join(opt.out, name + '.txt'), read + '\n'); fs.writeFileSync(path.join(opt.out, name + '.png'), png); }
   const w = wordsRight(truth, read), c = charsRight(truth, read);
-  rows.push({ words: w.of, ok: w.ok, chars: c, s });
-  console.log(`${name.padEnd(28)}${String(w.of).padStart(5)}  ${(100 * w.ok / w.of).toFixed(1).padStart(10)} %  ${(100 * c).toFixed(1).padStart(10)} %  ${(grain ? grain.toFixed(0) : '').padStart(5)}  ${(angle ? angle.toFixed(2) + '°' : '').padStart(6)}  ${s.toFixed(1).padStart(4)}`);
+  rows.push({ words: w.of, ok: w.ok, chars: c, s }); groups.get(group(f)).push(rows.at(-1));
+  console.log(`${path.basename(name).padEnd(28)}${String(w.of).padStart(5)}  ${(100 * w.ok / w.of).toFixed(1).padStart(10)} %  ${(100 * c).toFixed(1).padStart(10)} %  ${(grain ? grain.toFixed(0) : '').padStart(5)}  ${(angle ? angle.toFixed(2) + '°' : '').padStart(6)}  ${s.toFixed(1).padStart(4)}`);
 }
 await engine.stop();
-const sum = (k) => rows.reduce((a, r) => a + r[k], 0);
-console.log(`${'all pages'.padEnd(28)}${String(sum('words')).padStart(5)}  ${(100 * sum('ok') / sum('words')).toFixed(1).padStart(10)} %  ${(100 * rows.reduce((a, r) => a + r.chars, 0) / rows.length).toFixed(1).padStart(10)} %                 ${(sum('s') / rows.length).toFixed(1).padStart(4)}`);
+const total = (label, rows) => {
+  const sum = (k) => rows.reduce((a, r) => a + r[k], 0);
+  console.log(`${label.padEnd(28)}${String(sum('words')).padStart(5)}  ${(100 * sum('ok') / sum('words')).toFixed(1).padStart(10)} %  ${(100 * rows.reduce((a, r) => a + r.chars, 0) / rows.length).toFixed(1).padStart(10)} %                 ${(sum('s') / rows.length).toFixed(1).padStart(4)}`);
+};
+if (groups.size > 1) for (const [g, r] of groups) total(`${g} (${r.length})`, r);
+total('all pages', rows);

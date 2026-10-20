@@ -320,6 +320,39 @@ Original plan:
   stretched, pass merge), `tests/unit/ocr.test.mjs` (lines), `tests/e2e/ocr.spec.ts` on the real set (bilingual page;
   the photocopy, unreadable without clean-up). tesseract.js 6.0.1 is a devDependency now (the Node measurement; the app
   still loads `public/ocr`).
+- **Real documents (20 Oct 2026, owner's ask):** `node tools/get-ocr-set.mjs` builds `tests/fixtures/ocr/real/`
+  (git-ignored; sources, licences and sizes in `tests/fixtures/ocr/README.md`): 7 pages of public Saudi PDFs with a text
+  layer (CMA circular, MoJ monthly regulations report, GASTAT annual report 2024) turned into scans with the same scanner
+  effects, truth = the page's own text layer; and 7 genuinely scanned pages with hand-checked text (Misraj-DocOCR,
+  Apache-2.0; KITAB-Bench historical books). The comparison now also treats lam + alef in either order, Arabic-Indic and
+  Western digits, and "2024م" vs "2024 م" as the same (PDF text layers differ from OCR in exactly these). The Al Rajhi
+  fund terms (cma.org.sa) were dropped: their text layer swaps letter pairs ("في" is stored as "يف"), no truth there.
+
+  | page | words | words right | chars right |
+  |---|---|---|---|
+  | r-01 CMA circular, letter, 300 dpi | 242 | 90.5 % | 73.6 % |
+  | r-02 MoJ regulations list (table of names, dates, numbers), 200 dpi grainy | 177 | 62.7 % | 27.5 % |
+  | r-03 GASTAT tracks, dense two-page spread, 200 dpi | 744 | 87.0 % | 28.1 % |
+  | r-04 MoJ report intro, tilted 1° | 110 | 88.2 % | 75.6 % |
+  | r-05 MoJ gazette list, 150 dpi faded | 187 | 65.2 % | 29.5 % |
+  | r-06 GASTAT definitions spread, two columns, 200 dpi | 424 | 85.8 % | 31.0 % |
+  | r-07 GASTAT price-index table + info cards, photocopy-style | 254 | 21.7 % | 22.3 % |
+  | s-01…s-05 Misraj-DocOCR scanned book pages (footnotes, a table, heavy tashkeel) | 276 / 243 / 262 / 244 / 246 | 67.8 / 66.3 / 71.8 / 63.5 / 90.2 % | 67.6 / 76.9 / 78.2 / 68.1 / 95.4 % |
+  | s-06, s-07 KITAB historical prints | 68 / 73 | 0 % / 0 % | 11 % / 0 % |
+  | **synthetic (8)** | 871 | **96.2 %** | 94.7 % |
+  | **real, rendered (7)** | 2138 | **75.5 %** | 41.1 % |
+  | **real, scanned (7)** | 1412 | **64.7 %** | 56.7 % |
+  | **all (22)** | 4421 | **76.1 %** | 65.6 % |
+
+  Reading: plain printed text on real pages reads at 86–91 % words (r-01, r-03, r-04, r-06), not the 98 % of the synthetic
+  set — real fonts, footnote marks, logos and page furniture cost 7–10 points. Chars-right on spreads, lists and tables
+  is mostly reading order (the text layer's order differs from Tesseract's), not misread letters. Weak spots, each with a
+  one-line proposal: (1) tables of dates and numbers in small print (r-02, r-05: 63–65 %) — read number columns at
+  300 dpi or with a digits-only pass; (2) info cards with white text on a dark background and charts (r-07: 22 %;
+  r-03/r-06 lose their card text) — find dark boxes and invert them before reading; (3) scanned book pages with heavy
+  tashkeel and footnotes (Misraj: 64–72 %) — Tesseract's ceiling, the Surya route; (4) historical prints (0 %) — Surya
+  only. Tried on the real pages and not adopted: dropping words Tesseract is unsure of (confidence < 30): 75.5 → 74.6 %
+  words; 300 dpi: 73.9 % (the photocopy table falls to 12 %).
 - **Surya OCR 2 measured** (step 3; `tools/ocr-surya.py`, venv `.venv-surya`, surya-ocr 0.22 on llama.cpp, CPU, same set,
   same pictures): **99.8 % words right, 96.3 % chars right** (every page 98.8–100 % words; the chars gap is again line order
   on the invoice and the bilingual page), against Tesseract v2's 96.3 / 94.8. The faded page 85 → 100 %, small print
