@@ -13,7 +13,7 @@ Not pushed: everything after the Portfolio/404 commit. Public repo history rewri
 | A | **OCR v2 (Arabic that can be trusted)** — v1 is Tesseract with the small "fast" Arabic model, no image clean-up, tested on one clean synthetic scan only; **it is not 100 %**. v2: (1) a real test set of 5–10 scanned Arabic pages with the correct text, word accuracy measured and written down; (2) quick wins: bigger "best" Arabic model, clean-up before reading (grey, contrast, straighten, upscale small print to 300 dpi), Arabic and English passes merged; (3) **benchmark seen 20 Oct (deep.sa/models/alocr, 19 engines on Arabic pages, 100 − CER):** alOCR 2.0 96.1 %, GPT Sol 95.9 %, Surya OCR 2 93.4 %, dots.mocr 92.3 %, Qari-OCR 80.3 %, **Tesseract 5 77.5 %**, **PaddleOCR PP-OCRv5 45.4 %** (so PaddleOCR is out). Local best = Surya OCR 2 (open source, PyTorch, heavy → desktop add-on pack only, measured first). (4) **alOCR is NOT open source** (checked 20 Oct: no weights on GitHub/Hugging Face; "محلي" means Saudi-hosted; $6.67 per 1 000 pages, on-premise only for Enterprise). Open-source engines from the same table: Surya OCR 2 93.4 % (GPL-3, AGPL-compatible), dots.mocr 92.3 % (MIT, 1.7 B VLM, heavy), Qari-OCR 80 %. Optional **cloud OCR: alOCR 2.0** (alapi.deep.sa, OpenAI-style API, paid in SAR) — opt-in only, a clear "this page is sent to deep.sa" consent each time, never the default; owner decides who pays (own key vs Waraq key behind a Cloudflare function). | Accuracy table in PLAN.md; ≥ 95 % words right on clean printed Arabic, searchable + copy gives correct joined text; tests use the real set. | Send 5–10 real scanned Arabic pages (any typical files) for the test set. |
 | B | **Office & CAD** (Word/Excel/PowerPoint, DWG/DXF → PDF) via the 0.3.3 packs (LibreOffice, LibreDWG) + font subsetting in exports. | Convert task works in the desktop app; web shows a clear "desktop only" note; EN+AR; tests green. | — (card already proposed) |
 | B2 | **Comment task** (owner yes, 20 Oct): highlight, underline, strike, pen, shapes, arrow, text box, sticky note as standard PDF annotations (MuPDF), move/resize/recolour/delete, one undo step each, EN+AR; plus the translation test (missing/unused keys, placeholder mismatch). | Acrobat shows and edits the comments; tests green; audit green. | **Done 20 Oct** — Comment task (`Comment.svelte`, `engine/annots.ts`): 10 comment kinds as PDF annotations, move/resize/recolour/note/delete, undo per action, written on leaving/saving; `tests/unit/i18n.test.mjs` added. Not yet opened in Acrobat itself; Arabic in a text box is not drawn (Helvetica) — sticky notes carry Arabic. |
-| C | **Report a problem / support** — quiet item in Help/⋯ + website footer; private form → support@pwaraq.com (Cloudflare Function + Turnstile), email, GitHub issue; details shown before sending, never the user's files. | Three ways work EN+AR, audit green. | Yes for support@pwaraq.com (publishing agent step 7). |
+| C | **Support (owner, 20 Oct): one page on the website, `pwaraq.com/support` (EN+AR), holds everything; for now it links to GitHub issues only (the owner gives the rest — email, form — later). The app's quiet Help/⋯ item "Report a problem" just opens that page (with version, Windows/browser and language as URL hash so the page can prefill the issue link; nothing sent automatically). Website footer links to it too.** | Page live-ready in the website ZIP; app item opens it EN+AR; audit green. | GitHub issue template OK? Later: email/form. |
 | D | **Quality pass** — publishing agent's preview test (steps 3–5), fix every finding; full EN+AR click-through at 1366×768; `pnpm check`, unit, e2e, audit all green on a fresh checkout. | Zero open findings; screenshots in Archive. | Look at the screenshots. |
 | E | **Push to GitHub** — subtree pull into PWaraq, scan for private data, `git push --force-with-lease` once (history rewrite), README updated. | Repo shows tshi-dev as author on every commit, licence AGPL-3.0, security policy present. | Say "push". |
 | F | **Phase 4a — desktop (Tauri)** — **seamless top edge (owner, 20 Oct): no Windows title bar; the window top is the same paper colour as the app background, one smooth surface with the task bar, our own minimise/maximise/close buttons in Waraq colours, draggable, no border line or colour step, rounded corners and shadow as Windows 11 draws them**, installer, updater, file associations, right-click "Open in Waraq", packs download on first use, offline. | Installed on this PC, every task works from a double-clicked PDF; installer ≤ 0.3.3's size. | Test the installer. |
@@ -329,18 +329,14 @@ Original plan:
   faded scans, only if the owner wants a 1.5 GB download and a minute a page — most of its gain is on degraded pages.
   Not integrated into the app; `tools/ocr-surya.py` + `node tools/ocr-accuracy.mjs --engine surya` reproduce the numbers.
 
-## Report a problem / support (owner, 20 Oct 2026) — planned, build in Phase 4 with the website split
-Quiet, not on the main screens: app Help/⋯ menu item "Report a problem" (Arabic too) and a small website footer link.
-One panel, three ways (owner chose all):
-1. **Private form** (default): message + optional email + "attach details" tick (Waraq version, Windows/browser,
-   language, last error lines — shown in full before sending; never the user's files). Sent to a Cloudflare Pages
-   Function `/api/report` → Cloudflare Email Routing `send_email` to support@pwaraq.com. Spam: Cloudflare Turnstile
-   (free) + size limit + per-IP rate limit. No database.
-2. **Email**: `mailto:support@pwaraq.com` pre-filled with the same details.
-3. **GitHub issue** (public): pre-filled link to github.com/tshi-dev/PWaraq/issues/new with an issue template.
-Needs from the owner first: support@pwaraq.com via Cloudflare Email Routing → his Gmail (publishing agent, with his yes).
-Desktop app: same panel; works offline by falling back to email/GitHub. Tests: form validation, details preview,
-EN+AR, design audit.
+## Support page (owner, 20 Oct 2026) — replaces the earlier three-way panel
+Owner: "for now link to GitHub; I give you the rest later. In the app it opens a support page on the website, and in
+this page all will be there." So: one website page `/support` (EN+AR, Waraq colours, quiet footer link) with sections
+that grow over time — now: "Report a problem" → GitHub issues (new-issue link prefilled with version/OS/language
+from the URL hash) + the public repo; later (owner decides): email, private form. The app (web and desktop) has a
+quiet Help/⋯ item "Report a problem" that opens `/support#v=<version>&os=<…>&lang=<…>`; never the user's files,
+nothing sent without a click. Build with Phase 4b (website) — or earlier as a small page in `waraq/dist` if the owner
+wants it on 0.3.3 too.
 
 ## Office & CAD to PDF + font subsetting (step B, 20 Oct 2026, done)
 Decision: **conversion is desktop-only.** LibreOffice and LibreDWG are native programs (the 0.3.3 "office" pack), so
