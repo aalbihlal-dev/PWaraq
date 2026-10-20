@@ -1,5 +1,28 @@
 # Waraq 1.0 — plan (15 October 2026)
 
+## Plan v2 — the whole road to 1.0 (owner asked to re-plan, 20 Oct 2026)
+Rules first: the owner (tshi-dev) is the author of every commit, Claude a contributor; nothing is pushed until it is
+tested and ready AND the owner says yes; never publish/buy without asking; Waraq colours, lintapple rules, 100 % crisp
+drawings; one fresh session per step, short answers with screenshots.
+
+Done (local, tested): viewer, Organize, everyday tools, Portfolio, page editor, signing, redaction, forms, OCR v1.
+Not pushed: everything after the Portfolio/404 commit. Public repo history rewritten to the owner locally (force push once).
+
+| # | Step | Done means | Owner's part |
+|---|------|-----------|--------------|
+| A | **OCR v2 (Arabic that can be trusted)** — v1 is Tesseract with the small "fast" Arabic model, no image clean-up, tested on one clean synthetic scan only; **it is not 100 %**. v2: (1) a real test set of 5–10 scanned Arabic pages with the correct text, word accuracy measured and written down; (2) quick wins: bigger "best" Arabic model, clean-up before reading (grey, contrast, straighten, upscale small print to 300 dpi), Arabic and English passes merged; (3) if accuracy is still under ~95 % on clean print: a modern neural OCR (PaddleOCR Arabic models via onnxruntime-web, add-on pack ~15 MB; native in the desktop app). Never a cloud OCR (files stay on the PC). | Accuracy table in PLAN.md; ≥ 95 % words right on clean printed Arabic, searchable + copy gives correct joined text; tests use the real set. | Send 5–10 real scanned Arabic pages (any typical files) for the test set. |
+| B | **Office & CAD** (Word/Excel/PowerPoint, DWG/DXF → PDF) via the 0.3.3 packs (LibreOffice, LibreDWG) + font subsetting in exports. | Convert task works in the desktop app; web shows a clear "desktop only" note; EN+AR; tests green. | — (card already proposed) |
+| C | **Report a problem / support** — quiet item in Help/⋯ + website footer; private form → support@pwaraq.com (Cloudflare Function + Turnstile), email, GitHub issue; details shown before sending, never the user's files. | Three ways work EN+AR, audit green. | Yes for support@pwaraq.com (publishing agent step 7). |
+| D | **Quality pass** — publishing agent's preview test (steps 3–5), fix every finding; full EN+AR click-through at 1366×768; `pnpm check`, unit, e2e, audit all green on a fresh checkout. | Zero open findings; screenshots in Archive. | Look at the screenshots. |
+| E | **Push to GitHub** — subtree pull into PWaraq, scan for private data, `git push --force-with-lease` once (history rewrite), README updated. | Repo shows tshi-dev as author on every commit, licence AGPL-3.0, security policy present. | Say "push". |
+| F | **Phase 4a — desktop (Tauri)** — branded title bar in Waraq colours, installer, updater, file associations, right-click "Open in Waraq", packs download on first use, offline. | Installed on this PC, every task works from a double-clicked PDF; installer ≤ 0.3.3's size. | Test the installer. |
+| G | **Phase 4b — website** — product page + `/app` (Waraq 1.0 web), Report a problem in the footer, download card for the 1.0 desktop app; 0.3.3 stays live until G is approved. | Website ZIP ready for the publishing agent; beta online only when A–F are done. | Yes to go live. |
+| H | **Switch 0.3.3 users** — 0.3.3 updater points at 1.0; 0.3.x folder kept for fixes only. | Update tested from an installed 0.3.3. | Yes to publish. |
+
+Order: A and B can run side by side (different files); then C, D, E, F, G, H. Each step = its own session, starts
+from CLAUDE.md, ends with screenshots and a plain summary.
+
+---
 Owner's rating of 0.3.x: 6/10. Waraq 1.0 is a rebuild next to the live 0.3.x (in `../waraq`), switched over only
 when 1.0 is better at every everyday task.
 
