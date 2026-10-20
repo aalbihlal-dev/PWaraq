@@ -8,7 +8,7 @@ the parts you need.
 - Never publish/upload/push/buy without the owner's yes. Public repo `../PWaraq` (github.com/tshi-dev/PWaraq): update
   only when asked — `git -C ../PWaraq subtree pull --prefix=next ../waraq-next master`, scan, `git push`.
 - Commit inside THIS repo only: `git -C "<waraq-next path>" commit` — the repo-local author is the owner (tshi-dev);
-  never pass `-c user.name="Claude"`, no session links. Message ends `Co-Authored-By: Claude Opus 5.5
+  never pass `-c user.name="Claude"`, no session links. Message ends `Co-Authored-By: Claude Fable 5.1
   <noreply@anthropic.com>` (Claude = contributor). Push only when tested and ready, after the owner's yes. The parent
   folder is an EMPTY git repo — never run git add/commit there (use `git -C`).
 - Design: tokens only in `src/styles/tokens.css`; type 12/14/16/18/20/24/32/40, contrast ≥ 4.5, controls ≥ 36 px,
