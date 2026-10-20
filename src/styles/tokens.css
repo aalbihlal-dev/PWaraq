@@ -21,17 +21,18 @@
 :root[dir='rtl'] { --font: Tajawal, 'Segoe UI', system-ui, sans-serif; }
 /* Light is the default. Dim and Dark are chosen by hand (never from Windows) and set data-theme on <html>.
    --page stays white in every theme: PDF pages are shown as printed. */
+/* Dim and Dark: calm forest-sage greens, low saturation, no pure black. */
 :root[data-theme='dim'] {
-  --green: #3fb48f; --green-deep: #5cc7a4; --green-soft: #243a32; --ink: #e4ebe6; --muted: #a9b8af;
-  --paper: #1f2a27; --surface: #28362f; --canvas: #19221f; --line: #3a4a43; --focus: #3fb48f; --danger: #e8806f;
-  --on-green: #0f1513; --veil: #1f2a27cc; --select-tint: #3fb48f26;
-  --shadow: 0 5px 20px #00000059, 0 1px 2px #00000040; color-scheme: dark;
+  --green: #5fa98d; --green-deep: #7dbda4; --green-soft: #2c423a; --ink: #e3eae5; --muted: #a8b9b0;
+  --paper: #22302b; --surface: #2b3b35; --canvas: #1c2823; --line: #3c4d46; --focus: #7dbda4; --danger: #e8806f;
+  --on-green: #12201b; --veil: #22302bcc; --select-tint: #5fa98d26;
+  --shadow: 0 5px 20px #0c14115c, 0 1px 2px #0c141140; color-scheme: dark;
 }
 :root[data-theme='dark'] {
-  --green: #3fb48f; --green-deep: #5cc7a4; --green-soft: #243a32; --ink: #edf2ee; --muted: #9db0a5;
-  --paper: #0f1513; --surface: #182019; --canvas: #0b100e; --line: #26332c; --focus: #3fb48f; --danger: #e8806f;
-  --on-green: #0b100e; --veil: #0f1513cc; --select-tint: #3fb48f26;
-  --shadow: 0 5px 20px #00000080, 0 1px 2px #00000059; color-scheme: dark;
+  --green: #5fa98d; --green-deep: #7dbda4; --green-soft: #22342d; --ink: #e8eee9; --muted: #9fb2a8;
+  --paper: #17211d; --surface: #1e2b26; --canvas: #121a17; --line: #2b3a34; --focus: #7dbda4; --danger: #e8806f;
+  --on-green: #101a16; --veil: #17211dcc; --select-tint: #5fa98d26;
+  --shadow: 0 5px 20px #0a100d80, 0 1px 2px #0a100d59; color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
