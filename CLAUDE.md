@@ -34,3 +34,4 @@ the parts you need.
 - Svelte `$state` objects can't be posted to the worker: pass plain copies (`[...arr]`, `$state.snapshot`).
 - `.cell` page bar and section buttons share names with other buttons: use exact names / scoped locators in tests.
 - Keep the design audit (`tests/e2e/audit.spec.ts`) green for every new screen, English and Arabic.
+- Other sessions may be editing this same folder: commit named files (`git commit -- <paths>`), never `-a`.
