@@ -79,3 +79,18 @@ for (const lang of ['en', 'ar']) test(`design rules hold on the form screen with
   await clean(page, 'forms');
   await page.screenshot({ path: info.outputPath(`forms-${lang}.png`) });
 });
+
+// Comment: the tool panel, with a sticky note selected (its text field and delete button showing)
+for (const lang of ['en', 'ar']) test(`design rules hold on the Comment screen (${lang})`, async ({ page }, info) => {
+  await page.addInitScript((l) => localStorage.setItem('waraq-lang', l), lang);
+  await open(page, fixture('small.pdf'));
+  await page.locator('.task').nth(9).click(); // Comment
+  await expect(page.locator('.comment .layer').first()).toBeVisible();
+  await clean(page, 'comment');
+  await page.locator('.comment .tool').nth(10).click(); // sticky note
+  const box = (await page.locator('.layer').first().boundingBox())!;
+  await page.mouse.click(box.x + 200, box.y + 200);
+  await expect(page.locator('.comment textarea')).toBeVisible();
+  await clean(page, 'comment with a note selected');
+  await page.screenshot({ path: info.outputPath(`comment-${lang}.png`) });
+});

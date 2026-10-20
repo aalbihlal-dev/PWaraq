@@ -8,6 +8,7 @@ import { findSpots, signPdf } from './sign';
 import { findMatches, redact } from './redact';
 import { fillForm, listFields } from './forms';
 import { addTextLayer } from './ocr';
+import { applyAnnots, listAnnots } from './annots';
 import type { Fonts } from './textpage';
 import { BUNDLED_FILES, fontAt, pick } from './ownfont';
 
@@ -129,6 +130,13 @@ const ops: Record<string, (r: Req) => any> = {
   // forms: the fields of the file in `bytes`, and the file with the answers written into them
   formfields(r) { return listFields(mupdf, r.bytes); },
   async fillform(r) { await loadFonts(); return fillForm(mupdf, r.bytes, r.answers, r.flatten, fonts!); },
+  // comments: the comments of the file in `bytes`, the file with changes written, and the text between two points (snaps to real text)
+  annotlist(r) { return listAnnots(mupdf, r.bytes); },
+  annotapply(r) { return applyAnnots(mupdf, r.bytes, r.remove, r.add); },
+  hilite(r) {
+    const p = source(r.doc).doc.loadPage(r.page), st = p.toStructuredText('preserve-whitespace');
+    try { return st.highlight(r.a, r.b).map((q) => [...q]); } finally { st.destroy(); p.destroy(); }
+  },
   // OCR: the file in `bytes` with the words Tesseract read written, invisible, over their pages
   async ocrlayer(r) { await loadFonts(); return addTextLayer(mupdf, r.bytes, r.layers, fonts!); },
   // page editor: the lines of text and photos on a page
