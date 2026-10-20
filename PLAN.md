@@ -22,6 +22,13 @@ Not pushed: everything after the Portfolio/404 commit. Public repo history rewri
 Order: A and B can run side by side (different files); then C, D, E, F, G, H. Each step = its own session, starts
 from CLAUDE.md, ends with screenshots and a plain summary.
 
+**Token plan (owner, 20 Oct 2026; Pro plan = a 5-hour cap shared by every session, then a weekly cap):**
+Fable 5.1 only where judgement matters: A (OCR measuring + choice), F (Tauri architecture), and the supervising
+session (short turns, no building). Sonnet 5.5 at medium effort for porting/integration/polish: B, C, D, G, H.
+Haiku/Sonnet for mechanical steps (E push, screenshot runs, README). Never more than two building sessions at once;
+when the 5-hour window passes ~80 %, finish the current step and wait for the reset rather than starting a new one.
+Sessions must not re-read the whole hand-over: CLAUDE.md + the one PLAN.md row they work on.
+
 ---
 Owner's rating of 0.3.x: 6/10. Waraq 1.0 is a rebuild next to the live 0.3.x (in `../waraq`), switched over only
 when 1.0 is better at every everyday task.
