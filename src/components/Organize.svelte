@@ -175,5 +175,5 @@
   .flip { display: grid; transform: scaleX(-1); }
   .count { margin-inline-start: auto; color: var(--muted); }
   .zoom { display: flex; align-items: center; gap: var(--s-8); color: var(--muted); }
-  .zoom input { width: 120px; accent-color: var(--green); }
+  .zoom input { width: 120px; min-height: var(--control); accent-color: var(--green); }
 </style>

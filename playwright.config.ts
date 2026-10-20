@@ -5,7 +5,7 @@ import { defineConfig } from '@playwright/test';
 const preview = !!process.env.PREVIEW;
 export default defineConfig({
   testDir: 'tests/e2e',
-  timeout: 60_000,
+  timeout: preview ? 60_000 : 120_000, // the dev server compiles the 11 MB engine on a worker's first page (~55 s); the built app opens in < 1 s
   use: { channel: 'msedge', baseURL: preview ? 'http://localhost:4188' : 'http://localhost:5188', viewport: { width: 1366, height: 768 }, locale: 'en-US' },
   webServer: preview
     ? { command: 'node node_modules/vite/bin/vite.js preview --port 4188 --strictPort', url: 'http://localhost:4188', reuseExistingServer: true }

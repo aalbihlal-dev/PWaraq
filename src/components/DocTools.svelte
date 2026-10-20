@@ -165,7 +165,7 @@
   .help { margin: 0; color: var(--muted); }
   .field { display: grid; gap: var(--s-8); font-weight: 600; }
   .field input:not([type='range']), .field select { min-height: var(--control); padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); font-weight: 400; }
-  .field input[type='range'] { accent-color: var(--green); }
+  .field input[type='range'] { accent-color: var(--green); min-height: var(--control); }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-12); align-items: end; }
   .switch, .choice { display: flex; align-items: center; gap: var(--s-8); min-height: var(--control); font-weight: 600; }
   .switch input, .choice input { flex: none; width: 20px; height: 20px; accent-color: var(--green); }
