@@ -5,7 +5,7 @@ import { open, choose, fixture } from './helpers';
 
 // lintapple rules (tools/ui-audit.js): type scale, contrast, 36 px controls, 8 px gaps, sentence case, no sideways scroll
 const audit = fs.readFileSync(path.join(import.meta.dirname, '..', '..', 'tools', 'ui-audit.js'), 'utf8');
-const COMBOS = ['light', 'dim', 'dark'].flatMap((th) => ['en', 'ar'].map((l) => [l, th] as const)); // every theme, English and Arabic
+const COMBOS = ['light', 'dim', 'dark', 'graphite'].flatMap((th) => ['en', 'ar'].map((l) => [l, th] as const)); // every theme, English and Arabic
 async function clean(page: Page, where: string) {
   const r = await page.evaluate(audit) as { total: number; sample: unknown[] };
   expect(r.sample, where).toEqual([]);

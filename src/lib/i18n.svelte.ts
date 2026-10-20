@@ -12,6 +12,7 @@ const strings = {
   themeLight: ['Light', 'فاتح'],
   themeDim: ['Dim', 'خافت'],
   themeDark: ['Dark', 'داكن'],
+  themeGraphite: ['Graphite', 'فحمي'],
   view: ['View', 'عرض'], edit: ['Edit', 'تحرير'], organize: ['Organize', 'تنظيم'], convert: ['Convert', 'تحويل'],
   sign: ['Sign', 'توقيع'], protect: ['Protect', 'حماية'], ocr: ['OCR', 'التعرف على النص'],
   pages: ['Pages', 'الصفحات'],

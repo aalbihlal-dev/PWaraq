@@ -1,5 +1,5 @@
 // Light / Dim / Dark: chosen by hand, remembered, never taken from Windows.
-export const THEMES = ['light', 'dim', 'dark'] as const;
+export const THEMES = ['light', 'dim', 'dark', 'graphite'] as const;
 export type Theme = (typeof THEMES)[number];
 const saved = (() => { try { return localStorage.getItem('waraq-theme'); } catch { return null; } })();
 export const theme = $state({ name: (THEMES as readonly string[]).includes(saved ?? '') ? (saved as Theme) : 'light' });
