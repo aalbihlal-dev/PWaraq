@@ -84,6 +84,7 @@ export function assemble(m: typeof MuPDF, source: (id: number) => Source, b: Bui
     const outline = out.outlineIterator();
     for (const bm of b.bookmarks) outline.insert({ title: bm.title, uri: out.formatLinkURI(new m.LinkDestination(0, bm.at, 'Fit')), open: false });
   }
+  if (writer || b.watermark?.text.trim()) out.subsetFonts(); // the bundled Tajawal weights are embedded whole (~120 KB each): keep only the letters used
   return out.saveToBuffer('garbage=compact').asUint8Array().slice();
 }
 

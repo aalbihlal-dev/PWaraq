@@ -279,3 +279,20 @@ One panel, three ways (owner chose all):
 Needs from the owner first: support@pwaraq.com via Cloudflare Email Routing → his Gmail (publishing agent, with his yes).
 Desktop app: same panel; works offline by falling back to email/GitHub. Tests: form validation, details preview,
 EN+AR, design audit.
+
+## Office & CAD to PDF + font subsetting (step B, 20 Oct 2026, done)
+Decision: **conversion is desktop-only.** LibreOffice and LibreDWG are native programs (the 0.3.3 "office" pack), so
+the browser build cannot run them and says so ("This works in the Waraq desktop app").
+- `src/lib/convert.ts`: file types (doc/docx/odt, xls/xlsx/ods, ppt/pptx/odp, dwg, dxf), the bridge, and `commands()`,
+  the exact program lines (DWG → LibreDWG `dwg2dxf` → LibreOffice Draw `draw_pdf_Export`; DXF the same without the first
+  step; Office → `pdf`; macros off via the profile, as in 0.3.3 `backend/engines.cjs`).
+- **Bridge:** the Tauri shell (Phase 4a) sets `window.waraqDesktop = { convertToPdf(name, bytes) → Promise<bytes> }`
+  (Rust runs `commands()` from the pack folder, pack download/SHA-256 as in 0.3.3 `desktop/packs.cjs`, 250 MB DXF cap,
+  "plot to PDF" message for huge DWG). Nothing else in the UI changes when it appears.
+- UI: Convert → "Word, Excel, PowerPoint, CAD" (choose a file, saves a PDF); opening such a file from the start screen
+  converts it and opens the PDF. Web: note + disabled button; start screen shows the same message.
+- Tests: unit runs the real LibreOffice pack on a DXF (skipped where `../waraq/engines/win-x64` is missing); e2e uses a
+  stand-in bridge. Not tested here: DWG (needs the LibreDWG pack on a real DWG) and the real Tauri bridge (Phase 4a).
+- **Font subsetting:** `assemble` calls MuPDF `subsetFonts()` when Waraq embedded its own Tajawal (cover, divider,
+  contents, watermark): ~470 KB → ~90 KB on a three-page test, text unchanged. Other exports are not subsetted, so
+  fonts of the user's own PDFs stay whole and editable.

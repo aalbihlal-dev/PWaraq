@@ -257,6 +257,12 @@ const strings = {
   ocrProgress: ['Reading page', 'جارٍ قراءة الصفحة'],
   ocrDone: ['Done. Save the file to keep it.', 'تم. احفظ الملف للاحتفاظ به.'],
   ocrNothing: ['Every page already has text.', 'كل الصفحات تحتوي على نص.'],
+  officeTitle: ['Word, Excel, PowerPoint, CAD', 'وورد وإكسل وباوربوينت وCAD'],
+  officeHelp: ['Turns a Word, Excel, PowerPoint, DWG or DXF file into a PDF and saves it.', 'يحوّل ملف وورد أو إكسل أو باوربوينت أو DWG أو DXF إلى PDF ويحفظه.'],
+  officeChoose: ['Choose a file and save as PDF', 'اختر ملفًا واحفظه كـ PDF'],
+  officeDesktopOnly: ['This works in the Waraq desktop app. The web version cannot run these converters.', 'يعمل هذا في تطبيق ورق لسطح المكتب. نسخة الويب لا تستطيع تشغيل هذه المحوّلات.'],
+  officeFailed: ['This file could not be converted.', 'تعذّر تحويل هذا الملف.'],
+  officeConverting: ['Converting…', 'جارٍ التحويل…'],
 } satisfies Record<string, [string, string]>;
 
 export type Key = keyof typeof strings;
