@@ -296,3 +296,22 @@ the browser build cannot run them and says so ("This works in the Waraq desktop 
 - **Font subsetting:** `assemble` calls MuPDF `subsetFonts()` when Waraq embedded its own Tajawal (cover, divider,
   contents, watermark): ~470 KB → ~90 KB on a three-page test, text unchanged. Other exports are not subsetted, so
   fonts of the user's own PDFs stay whole and editable.
+
+## Ideas from AuroraPDF (github.com/KoMAr38/aurora-pdf, looked at 20 Oct 2026)
+One-person Windows PDF reader (Python + PyMuPDF + WebView2, AGPL-3.0, 465 tests, also sold in the Microsoft Store).
+No Arabic, no Portfolio, no CAD, no browser version — but it has things Waraq 1.0 lacks. Worth taking (AGPL = we may
+read and adapt its code with credit in THIRD-PARTY):
+1. **Comments** as standard PDF annotations (highlight, underline, strike, pen, shapes, arrow, text box, note; move/resize/
+   recolour/delete) so other readers show and edit them — missing in 1.0; add as a task "Comment" (Phase 3.5, before desktop).
+2. **Translation test**: one test reads the code, fails on a missing/unused key or placeholder mismatch between EN and AR.
+3. **Redaction reach**: also remove comments, form fields, links and tagged-structure text under the box — check ours.
+4. **Protection follows copies**: split/extract/compress keep the password and permissions; without the owner password only
+   "save as copy" with the same limits.
+5. **Certificate signatures** (digital ID, verify signatures in the file, append-only save so earlier signatures stay valid,
+   sign into an existing empty signature field) — add to the Sign task later (pyHanko equivalent in JS: pdf-lib + WebCrypto).
+6. **Undo = snapshot per change, roll back on failure**; big snapshots to an encrypted temp file (desktop).
+7. **Export**: Word (.docx), plain text, pages as PNG/JPG, embedded images; header/footer with page number, date, file name.
+8. **Microsoft Store (MSIX)** as a second distribution channel in Phase 4 — the Store signs the package, so no SmartScreen
+   warnings and automatic updates without our own code-signing certificate (which the owner declined).
+9. **Never overwrite**: exports get "(2)"; removed signatures/IDs go to a folder, not deleted.
+10. **CSP** on the app page so text from a PDF can never run as HTML; the Windows title bar painted in the theme colours.
