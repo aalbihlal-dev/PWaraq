@@ -2,7 +2,7 @@
 // many of the page's words come out exactly, in any order) and chars right (100 − character error rate, so the numbers
 // compare with published benchmarks), placement (share of words whose text-layer box sits on the recognised box), seconds per page. Same code path as the app (tesseract.js, src/lib/ocr.ts,
 // src/lib/ocr-clean.ts), run in Node:  node tools/ocr-accuracy.mjs [--ara ara|ara_best] [--dpi 250] [--no-clean]
-// [--passes ara+eng,ara] [--tilt-min 0.1] [--only 03] [--out folder] [--engine tesseract|surya]   (--out writes what was read + the picture)
+// [--passes ara+eng,ara] [--tilt-min 0.1] [--psm 3] [--only 03] [--out folder] [--engine tesseract|surya]   (--out writes what was read + the picture)
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -15,7 +15,7 @@ import { addTextLayer, layerWords } from '../src/lib/engine/ocr.ts';
 const root = path.join(import.meta.dirname, '..'), set = path.join(root, 'tests', 'fixtures', 'ocr');
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i < 0 ? d : process.argv[i + 1]; };
 const flag = (k) => process.argv.includes('--' + k);
-const opt = { ara: arg('ara', 'ara'), dpi: +arg('dpi', 250), clean: !flag('no-clean'), passes: arg('passes', flag('split') ? 'ara,eng' : '').split(',').filter(Boolean), only: arg('only', ''), out: arg('out', ''), engine: arg('engine', 'tesseract'), tiltMin: +arg('tilt-min', 0.1) };
+const opt = { ara: arg('ara', 'ara'), dpi: +arg('dpi', 250), clean: !flag('no-clean'), passes: arg('passes', flag('split') ? 'ara,eng' : '').split(',').filter(Boolean), only: arg('only', ''), out: arg('out', ''), engine: arg('engine', 'tesseract'), tiltMin: +arg('tilt-min', 0.1), psm: arg('psm', '3') };
 
 // --- text comparison: tashkeel, tatweel and punctuation ignored (Tesseract drops or moves them), spaces collapsed ---
 // Also: lam + alef in either order count the same (the text layers of many Arabic PDFs, the real set's truth, store the
@@ -79,7 +79,7 @@ async function tesseract() {
   const workers = [];
   for (const lang of langs) {
     const w = await T.createWorker(lang, 1, { langPath: path.join(root, 'public', 'ocr'), gzip: true, cacheMethod: 'none' });
-    await w.setParameters({ tessedit_pageseg_mode: '3', preserve_interword_spaces: '1', user_defined_dpi: String(opt.dpi) });
+    await w.setParameters({ tessedit_pageseg_mode: opt.psm, preserve_interword_spaces: '1', user_defined_dpi: String(opt.dpi) });
     workers.push(w);
   }
   return {

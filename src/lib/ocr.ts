@@ -23,11 +23,12 @@ export function linesOf(data: any): Line[] {
 }
 
 /** Two passes merged by position: where both read the same printed line, the surer one wins; lines only one pass found
- *  are kept. When the second pass (the one with English) finds two or more Latin words on a tenth of the lines, the page
+ *  are kept. When the second pass (the one with English) finds two or more Latin words on 30 % of the lines, the page
  *  is bilingual and that pass is kept whole: the first (Arabic-only) pass cannot read its mixed lines. (A lone Latin
- *  "word" on an Arabic line is usually the English model misreading Arabic, so one does not count.) */
+ *  "word" on an Arabic line is usually the English model misreading Arabic, so one does not count; the English model
+ *  also reads scanned Arabic books as Latin junk, hence 30 %, not 10 %: measured 21 Oct on the real scanned set.) */
 export function mergePasses(ara: Line[], eng: Line[]): Line[] {
-  if (eng.filter((l) => l.words.filter((w) => /[A-Za-z]{2}/.test(w.text)).length >= 2).length >= eng.length / 10) return eng;
+  if (eng.filter((l) => l.words.filter((w) => /[A-Za-z]{2}/.test(w.text)).length >= 2).length >= eng.length * 0.3) return eng;
   const box = (l: Line) => ({ x0: Math.min(...l.words.map((w) => w.x0)), y0: Math.min(...l.words.map((w) => w.y0)), x1: Math.max(...l.words.map((w) => w.x1)), y1: Math.max(...l.words.map((w) => w.y1)) });
   const overlap = (a: Line, b: Line) => { // of the smaller line's area
     const p = box(a), q = box(b), w = Math.min(p.x1, q.x1) - Math.max(p.x0, q.x0), h = Math.min(p.y1, q.y1) - Math.max(p.y0, q.y0);

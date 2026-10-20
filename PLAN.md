@@ -363,6 +363,9 @@ Original plan:
   | **real, scanned (27)** | 6779 | **62.2 %** | 62.8 % | **96.5 %** |
   | **all (42)** | 9788 | **68.2 %** | 65.3 % | **97.2 %** |
 
+  (Per-page numbers from the 20 Oct run; the 30 % bilingual rule of 21 Oct moved single pages up by up to 9 points —
+  s-10 72.5 → 80.1, 06 85.3 → 90.8, r-05 65.2 → 70.1 — and none down. Totals after it: the before/after table below.)
+
   Reading: plain printed text on real pages reads at 86–98 % words (CMA circular, MoJ intro, GASTAT spreads, clean
   Misraj scans s-11, s-12, s-18) — real fonts, footnote marks, logos and page furniture cost a few points against the
   synthetic set. Chars-right on spreads, lists and tables is mostly reading order (the truth's order differs from
@@ -373,6 +376,60 @@ Original plan:
   with white text on a dark background and charts (r-07: 22 %) — find dark boxes and invert them before reading;
   (4) historical prints (0–3 %) — Surya only. Tried on the real pages and not adopted: dropping words Tesseract is unsure
   of (confidence < 30): 75.5 → 74.6 % words; 300 dpi: 73.9 % (the photocopy table falls to 12 %).
+- **Why the scanned pages lose words (diagnosis, 20 Oct late):** 6779 truth words on the 27 scanned pages, 2561 lost
+  (37.8 %). Words right is order-free, so reading order (spreads, columns, tables) costs nothing there — it only
+  lowers chars right. The lost words by cause (a truth word Tesseract did not produce; a near miss is a read word one or
+  two letters away from it):
+
+  | cause | share of lost words | share of all words |
+  |---|---|---|
+  | word garbled or not read at all | 40.6 % | 15.3 % |
+  | a number (Arabic-Indic or Western digits) | 21.7 % | 8.2 % |
+  | two letters wrong | 11.9 % | 4.5 % |
+  | a one- or two-letter word (particles, footnote marks) | 8.7 % | 3.3 % |
+  | a Latin word in an Arabic page | 8.2 % | 3.1 % |
+  | one letter wrong | 7.9 % | 3.0 % |
+  | spelling variant only (alef/hamza, yaa/alef maqsura, taa marbuta/haa) | 1.0 % | 0.4 % |
+
+  The garbled share follows the tashkeel density of the page: freococo pages with 0.26–0.43 marks per letter lose
+  50–65 % of their words, Misraj pages with few marks lose 10–35 %, the one clean Misraj page (s-11) 2 %. Numbers come
+  mostly from one index page (s-16: 244 of its 271 words are numbers, nearly all lost) and footnote references. The
+  comparison is fair: harakat, tatweel, punctuation, digit systems and lam-alef order are already ignored, and loosening
+  spelling further would recover only 1 % of the lost words. Page-level causes seen by eye: full vocalisation (freococo),
+  old prints (historical books), small footnote type and Latin terms (Misraj). Skew is under 2.3° on every page.
+- **Cheap wins tried on the 27 scanned pages (21 Oct; words / chars right, placed):** shipped two-pass pipeline 62.2 /
+  62.8 %, 96.5 %. tessdata_best Arabic: 62.2 / 62.8 (no change). Sauvola page binarisation instead of Tesseract's own:
+  60.8 / 62.1, placed 94.8 (worse). Straightening up to ±10°: no change (every page is under 2.3°). Dark borders cropped:
+  no change (the scans have none). 300 dpi: 61.8 / 61.9 (worse). Page segmentation psm 6 (one block): 63.2 / 63.6 but
+  placed 94.8 (lines merge across columns) — not adopted; psm 1 needs the OSD model, which the pack does not ship.
+  **Arabic only (English unticked): 67.7 / 72.4 %, 1.5 s a page** — the English model reads scanned Arabic books as
+  Latin junk and the line merge then keeps those lines; on bilingual pages Arabic-only cannot read the Latin. A
+  confidence margin in the merge changed nothing; letting only lines with real Latin words win was worse (62.8).
+  **Adopted:** the "bilingual page" rule now needs Latin words on 30 % of the lines instead of 10 % (the English model's
+  junk on book scans tripped it): scanned 62.2 → 63.1 %, synthetic 96.2 → 96.9 %, rendered 75.5 → 76.4 %, placement
+  unchanged. Advice for the owner's help text: untick English for Arabic-only books and photocopies (+5 points, 3× faster).
+- **Surya OCR 2 on the real set** (`--engine surya`, llama.cpp on this CPU, one page at a time, same cleaned pictures):
+  rendered 7 pages **90.5 % words** (chars 50.3 % — reading order of spreads and lists), 82 s a page (the two-page spreads
+  take 100–160 s); scanned 27 pages **91.9 % words, 92.5 % chars** (Misraj 76–98 %, the vocalised freococo books 94–100 %, historical prints 39–63 %), 59 s a page. Placement is not measurable for Surya here: Surya 2 returns layout
+  blocks, not word boxes, so its text would be written one block at a time (0–29 % "placed" by the word rule); an
+  integration would need its line boxes from the block HTML before the text layer can be per word.
+- **Before / after (words right / chars right / placed; 21 Oct):**
+
+  | group | Tesseract v2 (20 Oct) | Tesseract v2 + 30 % rule (shipped) | Surya OCR 2 (measured, not shipped) |
+  |---|---|---|---|
+  | synthetic (8 pages, 871 words) | 96.2 / 94.7 / 99.5 % | **96.9 / 95.3 / 99.5 %** | 99.8 / 96.3 / n/a (20 Oct) |
+  | real, rendered from public PDFs (7, 2138) | 75.5 / 41.1 / 96.9 % | **76.4 / 41.4 / 96.5 %** | 90.5 / 50.3 / n/a |
+  | real, genuinely scanned (27, 6779) | 62.2 / 62.8 / 96.5 % | **63.1 / 64.1 / 96.5 %** | **91.9 / 92.5 / n/a** |
+  | all (42, 9788) | 68.2 / 65.3 / 97.2 % | **69.0 / 66.2 / 97.1 %** | — |
+  | seconds a page (this CPU, Node) | 4.7 | 4.6 (Arabic only: 1.5) | 59 scanned, 82 rendered |
+
+- **Recommendation (21 Oct):** ship Tesseract v2 as the default OCR in both the web and the desktop version (19 MB pack,
+  fast, words placed ≥ 95 %), with an honest line in the OCR help text: clean office prints read at 90–99 %, scanned
+  books, photocopies and vocalised text read less well, and English can be unticked for Arabic-only pages. Offer Surya
+  OCR 2 later as an optional desktop add-on pack ("best quality, slow": ~1.5 GB models + llama.cpp, about a minute a page
+  on a CPU, GPL-3.0 beside AGPL) for scanned books and photocopies, after its line boxes are wired to the per-word text
+  layer so placement stays ≥ 95 %. The web version stays Tesseract; a cloud option (alOCR) is a separate decision the
+  owner has not taken.
 - **Surya OCR 2 measured** (step 3; `tools/ocr-surya.py`, venv `.venv-surya`, surya-ocr 0.22 on llama.cpp, CPU, same set,
   same pictures): **99.8 % words right, 96.3 % chars right** (every page 98.8–100 % words; the chars gap is again line order
   on the invoice and the bilingual page), against Tesseract v2's 96.3 / 94.8. The faded page 85 → 100 %, small print
