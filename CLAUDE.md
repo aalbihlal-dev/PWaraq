@@ -7,9 +7,10 @@ the parts you need.
 ## Rules
 - Never publish/upload/push/buy without the owner's yes. Public repo `../PWaraq` (github.com/tshi-dev/PWaraq): update
   only when asked — `git -C ../PWaraq subtree pull --prefix=next ../waraq-next master`, scan, `git push`.
-- Commit inside THIS repo only: `git -C "<waraq-next path>" -c user.name="Claude" -c user.email="noreply@anthropic.com"
-  commit`, message ends `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. The parent folder is an EMPTY
-  git repo — never run git add/commit there (use `git -C`).
+- Commit inside THIS repo only: `git -C "<waraq-next path>" commit` — the repo-local author is the owner (tshi-dev);
+  never pass `-c user.name="Claude"`, no session links. Message ends `Co-Authored-By: Claude Opus 5.5
+  <noreply@anthropic.com>` (Claude = contributor). Push only when tested and ready, after the owner's yes. The parent
+  folder is an EMPTY git repo — never run git add/commit there (use `git -C`).
 - Design: tokens only in `src/styles/tokens.css`; type 12/14/16/18/20/24/32/40, contrast ≥ 4.5, controls ≥ 36 px,
   8 px gaps, sentence case; app UI in Waraq colours (paper #fafbf8, green #15775d, mint #eaf3eb, ink #233c36);
   user documents (covers etc.) may use any colour. Strings EN+AR in `src/lib/i18n.svelte.ts` (check for duplicate keys).
