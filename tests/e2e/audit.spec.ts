@@ -47,7 +47,7 @@ for (const lang of ['en', 'ar']) test(`design rules hold on every screen (${lang
   await expect(page.locator('.editor .swatch').first()).toBeVisible();
   await clean(page, 'editor text options');
   await page.screenshot({ path: info.outputPath(`editor-${lang}.png`) });
-  await page.locator('.editor .tools .btn').nth(6).click(); // Cancel
+  await page.locator('.editor .tools .btn').nth(7).click(); // Cancel
   await expect(page.locator('.cell')).toHaveCount(3);
 
   await page.locator('.task').nth(4).click(); // Sign: a form with places to sign, the signature maker open

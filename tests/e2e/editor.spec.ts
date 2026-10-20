@@ -126,3 +126,21 @@ test('edit: a replaced Arabic line keeps the PDF’s own font; missing letters a
   p.toStructuredText().walk({ onChar(c, _o, f) { if (c === 'س') size = f.getBuffer()!.asUint8Array().length; } });
   expect(size).toBe(SUB.length); // the PDF's own subset font
 });
+
+test('edit: redact an area in the page editor — the heading under it is gone from the saved file, the rest stays', async ({ page }) => {
+  await open(page, fixture('edit.pdf'));
+  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  await ready(page);
+  const s = await scale(page), b = (await page.locator('.editor .sheet').boundingBox())!;
+  await page.getByRole('button', { name: 'Redact', exact: true }).last().click();
+  // "Old heading" (24 pt) sits at about x 72..220, y 64..90 on the page from the top
+  await page.mouse.move(b.x + 66 * s, b.y + 60 * s); await page.mouse.down();
+  await page.mouse.move(b.x + 240 * s, b.y + 95 * s, { steps: 5 }); await page.mouse.up();
+  await expect(page.locator('.obj.redact')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Save page' }).click();
+  await expect(page.getByText('Changed — not saved yet')).toBeVisible();
+  const file = await saved(page, () => page.getByRole('button', { name: 'Save' }).first().click());
+  const text = m.Document.openDocument(file.bytes, 'application/pdf').loadPage(0).toStructuredText().asText();
+  expect(text).not.toContain('Old heading');
+  expect(text).toContain('Keep this line');
+});
