@@ -281,17 +281,19 @@ Original plan:
   `--engine surya`.
 - **Baseline → now** (words right / chars right a page; v1 = one ara+eng pass, no clean-up):
 
-  | page | v1 words | v1 chars | v2 words | v2 chars |
-  |---|---|---|---|---|
-  | 01 letter, Naskh 12 pt, 300 dpi clean | 96.8 % | 98.6 % | 98.9 % | 99.8 % |
-  | 02 article, Tajawal 11 pt, 200 dpi, soft | 97.8 % | 99.5 % | 98.5 % | 99.7 % |
-  | 03 invoice, mixed EN/AR, 200 dpi, grainy | 91.7 % | 69.5 % | 97.6 % | 75.3 % |
-  | 04 notice, Naskh 13 pt, 200 dpi, tilted 1.5° | 100 % | 100 % | 98.7 % | 99.8 % |
-  | 05 contract, Naskh 9 pt small print, 200 dpi | 96.3 % | 98.7 % | 97.8 % | 99.6 % |
-  | 06 weather, Sans 12 pt, 150 dpi, faded + grainy | 0 % | 0.5 % | 85.3 % | 90.5 % |
-  | 07 report, bilingual, Tajawal 12 pt, 300 dpi, soft | 98.7 % | 94.2 % | 98.7 % | 94.2 % |
-  | 08 minutes, photocopy: blur, grain, tilt −1°, faded | 0 % | 0 % | 94.2 % | 99.1 % |
-  | **all pages** | **75.3 %** | **70.1 %** | **96.3 %** | **94.8 %** |
+  | page | v1 words | v1 chars | v2 words | v2 chars | placed |
+  |---|---|---|---|---|---|
+  | 01 letter, Naskh 12 pt, 300 dpi clean | 96.8 % | 98.6 % | 98.9 % | 99.8 % | 100 % |
+  | 02 article, Tajawal 11 pt, 200 dpi, soft | 97.8 % | 99.5 % | 98.5 % | 99.7 % | 100 % |
+  | 03 invoice, mixed EN/AR, 200 dpi, grainy | 91.7 % | 69.5 % | 96.5 % | 75.2 % | 96.3 % |
+  | 04 notice, Naskh 13 pt, 200 dpi, tilted 1.5° | 100 % | 100 % | 98.7 % | 99.8 % | 100 % |
+  | 05 contract, Naskh 9 pt small print, 200 dpi | 96.3 % | 98.7 % | 97.8 % | 99.6 % | 100 % |
+  | 06 weather, Sans 12 pt, 150 dpi, faded + grainy | 0 % | 0.5 % | 85.3 % | 90.5 % | 100 % |
+  | 07 report, bilingual, Tajawal 12 pt, 300 dpi, soft | 98.7 % | 94.2 % | 98.7 % | 94.2 % | 99.3 % |
+  | 08 minutes, photocopy: blur, grain, tilt −1°, faded | 0 % | 0 % | 94.2 % | 99.1 % | 100 % |
+  | **all pages** | **75.3 %** | **70.1 %** | **96.2 %** | **94.7 %** | **99.5 %** |
+
+  (v2 words/chars re-measured with the comparison rules of the real set, 20 Oct evening; "placed": see Placement below.)
 
   Clean printed Arabic (01, 02, 04, 05) is at 97.8–98.9 % words, 99.6–99.8 % chars: the ≥ 95 % goal is met. The invoice's
   low chars-right is line order in the measurement (mixed-direction table rows), not misread words. Seconds a page in Node:
@@ -320,39 +322,57 @@ Original plan:
   stretched, pass merge), `tests/unit/ocr.test.mjs` (lines), `tests/e2e/ocr.spec.ts` on the real set (bilingual page;
   the photocopy, unreadable without clean-up). tesseract.js 6.0.1 is a devDependency now (the Node measurement; the app
   still loads `public/ocr`).
-- **Real documents (20 Oct 2026, owner's ask):** `node tools/get-ocr-set.mjs` builds `tests/fixtures/ocr/real/`
-  (git-ignored; sources, licences and sizes in `tests/fixtures/ocr/README.md`): 7 pages of public Saudi PDFs with a text
-  layer (CMA circular, MoJ monthly regulations report, GASTAT annual report 2024) turned into scans with the same scanner
-  effects, truth = the page's own text layer; and 7 genuinely scanned pages with hand-checked text (Misraj-DocOCR,
-  Apache-2.0; KITAB-Bench historical books). The comparison now also treats lam + alef in either order, Arabic-Indic and
-  Western digits, and "2024م" vs "2024 م" as the same (PDF text layers differ from OCR in exactly these). The Al Rajhi
-  fund terms (cma.org.sa) were dropped: their text layer swaps letter pairs ("في" is stored as "يف"), no truth there.
+- **Real documents (20 Oct 2026, owner's ask: "use more scanned docs"):** `node tools/get-ocr-set.mjs` builds
+  `tests/fixtures/ocr/real/` (git-ignored; sources, licences and sizes in `tests/fixtures/ocr/README.md`): 27 genuinely
+  scanned pages with hand-checked text (Misraj-DocOCR, Apache-2.0: book and document scans, accounts, a table, an index;
+  freococo/ocr_arabic_books, CC BY-NC-ND: religious books with footnotes and full tashkeel; KITAB-Bench historical
+  prints) and 7 pages of public Saudi PDFs with a text layer (CMA circular, MoJ monthly regulations report, GASTAT annual
+  report 2024) turned into scans with the same scanner effects, truth = the page's own text layer. The comparison treats
+  lam + alef in either order, Arabic-Indic and Western digits, and "2024م" vs "2024 م" as the same (PDF text layers differ
+  from OCR in exactly these). No public set had office forms or phone photos of Arabic pages with checked text.
+- **Placement** (owner's rule: the text goes onto the same page, each word where it is printed). `tools/ocr-accuracy.mjs`
+  writes the layer as the app does and reports **placed** = share of recognised words whose text-layer box (MuPDF's
+  structured text, what search and selection use) covers at least 60 % of the recognised word's box turned back to the
+  page (box overlap = intersection area / recognised box area). To get there the layer changed again: MuPDF reorders
+  right-to-left text per text object, so one object per word scrambled lines with punctuation; now a printed line is
+  one `TJ` with each word anchored at its own x (one text object: copy gives the line in reading order, punctuation
+  included), a line-level `Tz` makes Tajawal as wide as the printed font, the size and baseline make the box exactly
+  the recognised box (MuPDF's glyph box is one em, 0.643 em above the baseline), and a tilted page's whole layer is
+  turned back with a `cm` about the picture's centre, so words lie along the printed tilted line. Checks: unit test
+  (every word's box covers at least 60 % of its box, a 10°-tilted layer lands within 4 pt, the page count and every
+  pixel unchanged), e2e on the tilted page 04 and the photocopy 08 (at least 95 % of layer words have ink under them,
+  one page, the picture still there), the bilingual page's hit box. **Known MuPDF limit:** a Latin word inside an
+  Arabic line is glued to its neighbour in the copied text and such a line's runs come out in visual order; positions
+  and search still work.
 
-  | page | words | words right | chars right |
-  |---|---|---|---|
-  | r-01 CMA circular, letter, 300 dpi | 242 | 90.5 % | 73.6 % |
-  | r-02 MoJ regulations list (table of names, dates, numbers), 200 dpi grainy | 177 | 62.7 % | 27.5 % |
-  | r-03 GASTAT tracks, dense two-page spread, 200 dpi | 744 | 87.0 % | 28.1 % |
-  | r-04 MoJ report intro, tilted 1° | 110 | 88.2 % | 75.6 % |
-  | r-05 MoJ gazette list, 150 dpi faded | 187 | 65.2 % | 29.5 % |
-  | r-06 GASTAT definitions spread, two columns, 200 dpi | 424 | 85.8 % | 31.0 % |
-  | r-07 GASTAT price-index table + info cards, photocopy-style | 254 | 21.7 % | 22.3 % |
-  | s-01…s-05 Misraj-DocOCR scanned book pages (footnotes, a table, heavy tashkeel) | 276 / 243 / 262 / 244 / 246 | 67.8 / 66.3 / 71.8 / 63.5 / 90.2 % | 67.6 / 76.9 / 78.2 / 68.1 / 95.4 % |
-  | s-06, s-07 KITAB historical prints | 68 / 73 | 0 % / 0 % | 11 % / 0 % |
-  | **synthetic (8)** | 871 | **96.2 %** | 94.7 % |
-  | **real, rendered (7)** | 2138 | **75.5 %** | 41.1 % |
-  | **real, scanned (7)** | 1412 | **64.7 %** | 56.7 % |
-  | **all (22)** | 4421 | **76.1 %** | 65.6 % |
+  | page | words | words right | chars right | placed |
+  |---|---|---|---|---|
+  | r-01 CMA circular, letter, 300 dpi | 242 | 90.5 % | 73.6 % | 97.1 % |
+  | r-02 MoJ regulations list (names, dates, numbers), 200 dpi grainy | 177 | 62.7 % | 27.5 % | 94.8 % |
+  | r-03 GASTAT tracks, dense two-page spread, 200 dpi | 744 | 87.0 % | 28.1 % | 98.6 % |
+  | r-04 MoJ report intro, tilted 1° | 110 | 88.2 % | 75.6 % | 100 % |
+  | r-05 MoJ gazette list, 150 dpi faded | 187 | 65.2 % | 29.5 % | 96.0 % |
+  | r-06 GASTAT definitions spread, two columns, 200 dpi | 424 | 85.8 % | 31.0 % | 100 % |
+  | r-07 GASTAT price-index table + info cards, photocopy-style | 254 | 21.7 % | 22.3 % | 92.2 % |
+  | s-01…s-05 Misraj-DocOCR (rows 0, 1, 2, 3, 5): book pages, footnotes, a table, tashkeel | 276 / 243 / 262 / 244 / 246 | 67.8 / 66.3 / 71.8 / 63.5 / 90.2 % | 67.6 / 76.9 / 78.2 / 68.1 / 95.4 % | 95–100 % |
+  | s-08…s-17 Misraj-DocOCR (rows 19, 24, 27, 28, 33, 35, 37, 39, 43, 44): dense text, accounts, hadith, a table, bilingual title, index of numbers | 283 / 519 / 342 / 516 / 240 / 306 / 178 / 312 / 271 / 306 | 64.0 / 62.6 / 72.5 / 97.9 / 88.3 / 85.9 / 67.4 / 76.6 / 4.4 / 79.7 % | 80.0 / 74.8 / 73.6 / 98.2 / 79.4 / 91.5 / 72.0 / 82.3 / 22.9 / 88.0 % | 95–100 % |
+  | s-18…s-25 freococo books (rows 0, 450, 900, 1350, 1800, 2250, 2700, 3500): fully vocalised text, footnotes | 163 / 245 / 245 / 294 / 208 / 251 / 243 / 303 | 93.3 / 46.5 / 36.7 / 36.1 / 54.3 / 34.3 / 51.9 / 54.8 % | 95.5 / 60.7 / 54.8 / 39.0 / 64.3 / 50.8 / 62.9 / 60.1 % | 93–99 % |
+  | s-06, s-07, s-26, s-27 KITAB historical prints | 68 / 73 / 72 / 70 | 0 / 0 / 1.4 / 2.9 % | 11 / 0 / 24 / 24 % | 85–100 % |
+  | **synthetic (8)** | 871 | **96.2 %** | 94.7 % | **99.5 %** |
+  | **real, rendered (7)** | 2138 | **75.5 %** | 41.1 % | **96.9 %** |
+  | **real, scanned (27)** | 6779 | **62.2 %** | 62.8 % | **96.5 %** |
+  | **all (42)** | 9788 | **68.2 %** | 65.3 % | **97.2 %** |
 
-  Reading: plain printed text on real pages reads at 86–91 % words (r-01, r-03, r-04, r-06), not the 98 % of the synthetic
-  set — real fonts, footnote marks, logos and page furniture cost 7–10 points. Chars-right on spreads, lists and tables
-  is mostly reading order (the text layer's order differs from Tesseract's), not misread letters. Weak spots, each with a
-  one-line proposal: (1) tables of dates and numbers in small print (r-02, r-05: 63–65 %) — read number columns at
-  300 dpi or with a digits-only pass; (2) info cards with white text on a dark background and charts (r-07: 22 %;
-  r-03/r-06 lose their card text) — find dark boxes and invert them before reading; (3) scanned book pages with heavy
-  tashkeel and footnotes (Misraj: 64–72 %) — Tesseract's ceiling, the Surya route; (4) historical prints (0 %) — Surya
-  only. Tried on the real pages and not adopted: dropping words Tesseract is unsure of (confidence < 30): 75.5 → 74.6 %
-  words; 300 dpi: 73.9 % (the photocopy table falls to 12 %).
+  Reading: plain printed text on real pages reads at 86–98 % words (CMA circular, MoJ intro, GASTAT spreads, clean
+  Misraj scans s-11, s-12, s-18) — real fonts, footnote marks, logos and page furniture cost a few points against the
+  synthetic set. Chars-right on spreads, lists and tables is mostly reading order (the truth's order differs from
+  Tesseract's), not misread letters. Weak spots, each with a one-line proposal: (1) fully vocalised text (freococo:
+  34–55 %) and heavy tashkeel (Misraj: 63–72 %) — the comparison already ignores harakat, so this is Tesseract's Arabic
+  model stumbling on them: the Surya route; (2) tables of dates and numbers in small print (r-02, r-05: 63–65 %) and an
+  index of Arabic-Indic numbers (s-16: 4 %) — read number columns at 300 dpi or with a digits-only pass; (3) info cards
+  with white text on a dark background and charts (r-07: 22 %) — find dark boxes and invert them before reading;
+  (4) historical prints (0–3 %) — Surya only. Tried on the real pages and not adopted: dropping words Tesseract is unsure
+  of (confidence < 30): 75.5 → 74.6 % words; 300 dpi: 73.9 % (the photocopy table falls to 12 %).
 - **Surya OCR 2 measured** (step 3; `tools/ocr-surya.py`, venv `.venv-surya`, surya-ocr 0.22 on llama.cpp, CPU, same set,
   same pictures): **99.8 % words right, 96.3 % chars right** (every page 98.8–100 % words; the chars gap is again line order
   on the invoice and the bilingual page), against Tesseract v2's 96.3 / 94.8. The faded page 85 → 100 %, small print

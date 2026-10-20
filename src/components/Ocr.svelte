@@ -4,7 +4,7 @@
   import type { EnginePool } from '../lib/engine/pool';
   import type { Layer } from '../lib/engine/ocr';
   import { startOcr, mergePasses } from '../lib/ocr';
-  import { toGray, clean, unturn } from '../lib/ocr-clean';
+  import { toGray, clean } from '../lib/ocr-clean';
   import { lazyPage } from '../lib/lazy';
   import { t } from '../lib/i18n.svelte';
   import { icon } from '../lib/icons.js';
@@ -43,7 +43,7 @@
         ctx.putImageData(img, 0, 0);
         let lines = await engines[0].read(canvas, s * 72);
         for (const e of engines.slice(1)) lines = mergePasses(lines, await e.read(canvas, s * 72));
-        layers.push({ page, scale: s, lines: lines.map((l) => ({ words: l.words.map((w) => unturn(w, angle, canvas.width, canvas.height)) })) });
+        layers.push({ page, scale: s, lines, tilt: { angle, w: canvas.width, h: canvas.height } });
         canvas.width = canvas.height = 0;
       }
       await onReplace(await pool.tool('ocrlayer', { bytes: bytes.slice(), layers }));

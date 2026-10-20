@@ -33,10 +33,13 @@ const rendered = [
   { name: 'r-07-gastat-price-index-photocopy-200', file: 'gastat-annual-2024.pdf', page: 38, dpi: 200, fx: [['tilt', -1], ['blur', 2], ['noise', 20], ['fade', 40, 230]] },
 ];
 // genuinely scanned pages with reference text (Hugging Face datasets-server rows API; the row's image and text field)
-const scanned = [
-  ...[0, 1, 2, 3, 5].map((row, i) => ({ name: `s-0${i + 1}-misraj-dococr-${row}`, dataset: 'Misraj/Misraj-DocOCR', row, text: 'markdown', dpi: 150 })),
-  ...[0, 1].map((row, i) => ({ name: `s-0${i + 6}-kitab-historicalbooks-${row}`, dataset: 'ahmedheakl/arocrbench_historicalbooks', row, text: 'answer', dpi: 100 })),
-];
+const scanned = [];
+const scans = (dataset, short, rows, text, dpi) => rows.forEach((row) => scanned.push({ name: `s-${String(scanned.length + 1).padStart(2, '0')}-${short}-${row}`, dataset, row, text, dpi }));
+scans('Misraj/Misraj-DocOCR', 'misraj-dococr', [0, 1, 2, 3, 5], 'markdown', 150); // book and document scans, Markdown truth
+scans('ahmedheakl/arocrbench_historicalbooks', 'kitab-historicalbooks', [0, 1], 'answer', 100); // old prints
+scans('Misraj/Misraj-DocOCR', 'misraj-dococr', [19, 24, 27, 28, 33, 35, 37, 39, 43, 44], 'markdown', 150); // dense text, accounts, hadith with tashkeel, a table, a bilingual title, an index of numbers
+scans('freococo/ocr_arabic_books', 'freococo-books', [0, 450, 900, 1350, 1800, 2250, 2700, 3500], ['page_header', 'body', 'footnotes'], 150); // scanned religious books, footnotes
+scans('ahmedheakl/arocrbench_historicalbooks', 'kitab-historicalbooks', [2, 3], 'answer', 100);
 
 for (const p of pdfs) await get(p.file, p.url);
 for (const r of rendered) {
@@ -53,6 +56,7 @@ for (const s of scanned) {
   if (!fs.existsSync(row)) fs.writeFileSync(row, JSON.stringify((await (await fetch(`https://datasets-server.huggingface.co/rows?dataset=${encodeURIComponent(s.dataset)}&config=default&split=train&offset=${s.row}&length=1`)).json()).rows[0].row));
   const r = JSON.parse(fs.readFileSync(row, 'utf8')), img = await get(s.name + '.jpg', r.image.src);
   fs.writeFileSync(path.join(out, s.name + '.pdf'), pictureAsPdf(m, img, s.dpi));
-  fs.writeFileSync(path.join(out, s.name + '.txt'), r[s.text].trim() + '\n');
-  console.log(s.name, r.image.width + 'x' + r.image.height, r[s.text].split(/\s+/).filter(Boolean).length, 'words');
+  const text = [s.text].flat().map((k) => r[k] ?? '').join('\n').trim();
+  fs.writeFileSync(path.join(out, s.name + '.txt'), text + '\n');
+  console.log(s.name, r.image.width + 'x' + r.image.height, text.split(/\s+/).filter(Boolean).length, 'words');
 }

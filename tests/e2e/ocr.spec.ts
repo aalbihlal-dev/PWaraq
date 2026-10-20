@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import * as m from '../../engine/mupdf-wasm/dist/mupdf.js';
 import { open, saved, fixture } from './helpers';
+import { inkPlacement } from '../ocr-check.mjs';
 
 test('ocr: a scanned page (English and Arabic) becomes searchable; the picture stays', async ({ page }) => {
   test.setTimeout(180_000);
@@ -34,9 +35,30 @@ test('ocr: a tilted, grainy photocopy is straightened and cleaned before reading
   await page.getByRole('button', { name: 'Add searchable text' }).click();
   await expect(page.getByText('Changed — not saved yet')).toBeVisible({ timeout: 150_000 });
   const file = await saved(page, () => page.getByRole('button', { name: 'Save' }).first().click());
-  const text = m.Document.openDocument(file.bytes, 'application/pdf').loadPage(0).toStructuredText().asText();
+  const doc = m.Document.openDocument(file.bytes, 'application/pdf'), text = doc.loadPage(0).toStructuredText().asText();
   expect(text).toMatch(/محضر اجتماع لجنة المكتبة/);
   expect(text).toMatch(/الاجتماع القادم/);
+  expect(doc.countPages()).toBe(1);
+  const p = inkPlacement(m, file.bytes); // the words sit on the print, after the tilt was undone
+  expect(p.words).toBeGreaterThan(60);
+  expect(p.placed).toBeGreaterThanOrEqual(0.95);
+});
+
+test('ocr: a tilted page: every invisible word sits on its printed word, the page is the same page', async ({ page }) => {
+  test.setTimeout(180_000);
+  await open(page, fixture('ocr/04-notice-tilted-200.pdf'));
+  await page.getByRole('button', { name: 'OCR', exact: true }).click();
+  await page.getByRole('button', { name: 'Add searchable text' }).click();
+  await expect(page.getByText('Changed — not saved yet')).toBeVisible({ timeout: 150_000 });
+  const file = await saved(page, () => page.getByRole('button', { name: 'Save' }).first().click());
+  const doc = m.Document.openDocument(file.bytes, 'application/pdf');
+  expect(doc.countPages()).toBe(1);
+  const images: unknown[] = []; doc.loadPage(0).toStructuredText('preserve-images').walk({ onImageBlock: () => images.push(1) });
+  expect(images).toHaveLength(1);
+  expect(doc.loadPage(0).toStructuredText().asText()).toMatch(/إعلان لسكان المجمع/);
+  const p = inkPlacement(m, file.bytes);
+  expect(p.words).toBeGreaterThan(60);
+  expect(p.placed).toBeGreaterThanOrEqual(0.95);
 });
 
 test('ocr: a page that already has text is left alone ("only pages without text")', async ({ page }) => {
