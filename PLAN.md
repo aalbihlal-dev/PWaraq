@@ -12,7 +12,7 @@ Not pushed: everything after the Portfolio/404 commit. Public repo history rewri
 |---|------|-----------|--------------|
 | A | **OCR v2 (Arabic that can be trusted)** — v1 is Tesseract with the small "fast" Arabic model, no image clean-up, tested on one clean synthetic scan only; **it is not 100 %**. v2: (1) a real test set of 5–10 scanned Arabic pages with the correct text, word accuracy measured and written down; (2) quick wins: bigger "best" Arabic model, clean-up before reading (grey, contrast, straighten, upscale small print to 300 dpi), Arabic and English passes merged; (3) **benchmark seen 20 Oct (deep.sa/models/alocr, 19 engines on Arabic pages, 100 − CER):** alOCR 2.0 96.1 %, GPT Sol 95.9 %, Surya OCR 2 93.4 %, dots.mocr 92.3 %, Qari-OCR 80.3 %, **Tesseract 5 77.5 %**, **PaddleOCR PP-OCRv5 45.4 %** (so PaddleOCR is out). Local best = Surya OCR 2 (open source, PyTorch, heavy → desktop add-on pack only, measured first). (4) **alOCR is NOT open source** (checked 20 Oct: no weights on GitHub/Hugging Face; "محلي" means Saudi-hosted; $6.67 per 1 000 pages, on-premise only for Enterprise). Open-source engines from the same table: Surya OCR 2 93.4 % (GPL-3, AGPL-compatible), dots.mocr 92.3 % (MIT, 1.7 B VLM, heavy), Qari-OCR 80 %. Optional **cloud OCR: alOCR 2.0** (alapi.deep.sa, OpenAI-style API, paid in SAR) — opt-in only, a clear "this page is sent to deep.sa" consent each time, never the default; owner decides who pays (own key vs Waraq key behind a Cloudflare function). | Accuracy table in PLAN.md; ≥ 95 % words right on clean printed Arabic, searchable + copy gives correct joined text; tests use the real set. | Send 5–10 real scanned Arabic pages (any typical files) for the test set. |
 | B | **Office & CAD** (Word/Excel/PowerPoint, DWG/DXF → PDF) via the 0.3.3 packs (LibreOffice, LibreDWG) + font subsetting in exports. | Convert task works in the desktop app; web shows a clear "desktop only" note; EN+AR; tests green. | — (card already proposed) |
-| B2 | **Comment task** (owner yes, 20 Oct): highlight, underline, strike, pen, shapes, arrow, text box, sticky note as standard PDF annotations (MuPDF), move/resize/recolour/delete, one undo step each, EN+AR; plus the translation test (missing/unused keys, placeholder mismatch). | Acrobat shows and edits the comments; tests green; audit green. | — |
+| B2 | **Comment task** (owner yes, 20 Oct): highlight, underline, strike, pen, shapes, arrow, text box, sticky note as standard PDF annotations (MuPDF), move/resize/recolour/delete, one undo step each, EN+AR; plus the translation test (missing/unused keys, placeholder mismatch). | Acrobat shows and edits the comments; tests green; audit green. | **Done 20 Oct** — Comment task (`Comment.svelte`, `engine/annots.ts`): 10 comment kinds as PDF annotations, move/resize/recolour/note/delete, undo per action, written on leaving/saving; `tests/unit/i18n.test.mjs` added. Not yet opened in Acrobat itself; Arabic in a text box is not drawn (Helvetica) — sticky notes carry Arabic. |
 | C | **Report a problem / support** — quiet item in Help/⋯ + website footer; private form → support@pwaraq.com (Cloudflare Function + Turnstile), email, GitHub issue; details shown before sending, never the user's files. | Three ways work EN+AR, audit green. | Yes for support@pwaraq.com (publishing agent step 7). |
 | D | **Quality pass** — publishing agent's preview test (steps 3–5), fix every finding; full EN+AR click-through at 1366×768; `pnpm check`, unit, e2e, audit all green on a fresh checkout. | Zero open findings; screenshots in Archive. | Look at the screenshots. |
 | E | **Push to GitHub** — subtree pull into PWaraq, scan for private data, `git push --force-with-lease` once (history rewrite), README updated. | Repo shows tshi-dev as author on every commit, licence AGPL-3.0, security policy present. | Say "push". |
@@ -258,15 +258,75 @@ Original plan:
 - **Forms** (`engine/forms.ts`, `Forms.svelte`): fields in a right-hand panel (text, checkbox, radio group, choice; read-only
   ones locked), field boxes shown on the pages. Arabic answers keep the real value and get a Tajawal appearance (Helvetica
   cannot draw them). Saved file stays fillable, or "flatten" (`bake`). One line per answer (long Arabic is cut, not wrapped).
-- **OCR** (`engine/ocr.ts`, `lib/ocr.ts`, `Ocr.svelte`): pages without text (or all) are drawn at ~250 dpi, read by
-  Tesseract (tesseract.js 6, own web worker, Arabic + English), and the words are written as invisible real text (render mode 3)
+- **OCR** (`engine/ocr.ts`, `lib/ocr.ts`, `lib/ocr-clean.ts`, `Ocr.svelte`): pages without text (or all) are drawn at ~250 dpi,
+  cleaned (grey, smoothed, stretched, straightened — see OCR v2 below), read by Tesseract (tesseract.js 6, own web worker;
+  Arabic-only then Arabic + English, merged line by line), and the lines are written as invisible real text (render mode 3)
   over the page; the picture is untouched. Engine files are **not in git**: `node tools/get-ocr.mjs` copies them from
   `../waraq/dist/vendor/ocr` into `public/ocr/` (19 MB; needed for dev, build and the OCR tests).
 - Checks: `tests/unit/{redact,forms,ocr}.test.mjs`, `tests/e2e/{redact,forms,ocr}.spec.ts`, audit extended (EN + AR).
 - Leftovers done 20 Oct: long Arabic answers wrap in multiline fields; **Redact** tool in the page editor (drag a box,
   removed on Save page); build checked (`PREVIEW=1`: 33/33).
-- Still to do: OCR on photos added as pages in Organize (works after Replace), text placement is
-  per word (selection boxes approximate); Arabic OCR accuracy depends on the scan (small/blurred print reads worse).
+- Still to do: OCR on photos added as pages in Organize (works after Replace); selection boxes are per printed line
+  (the text is fitted to the line's width, so a word sits about, not exactly, where the picture shows it).
+
+### OCR v2 — Arabic that can be measured (20 Oct 2026, done; Plan v2 row A steps 1–3)
+- **Test set** `tests/fixtures/ocr/` (8 pages, 870 words, 0.9 MB): NN-name.pdf is a picture-only page like a scan,
+  NN-name.txt the correct text. Synthetic until real scans arrive (owner asked): Noto Naskh / Noto Sans Arabic / Tajawal,
+  9–13 pt, 150–300 dpi, blurred, grainy, tilted ±1.5°, faded, one invoice and one bilingual page (`make-ocr-set.mjs`).
+  Real scans (no personal data) go in beside them as NN-name.pdf + NN-name.txt, typed by hand.
+- **Measure** `node tools/ocr-accuracy.mjs` — the app's own code path (tesseract.js in Node, `lib/ocr.ts`, `lib/ocr-clean.ts`):
+  words right (how many of the page's words come out exactly, any order) and chars right (100 − character error rate, so
+  the numbers compare with the deep.sa benchmark), seconds a page in Node. Tashkeel and punctuation are ignored.
+  Options: `--no-clean`, `--passes ara,ara+eng`, `--ara ara_best`, `--dpi`, `--only 03`, `--out folder` (what was read),
+  `--engine surya`.
+- **Baseline → now** (words right / chars right a page; v1 = one ara+eng pass, no clean-up):
+
+  | page | v1 words | v1 chars | v2 words | v2 chars |
+  |---|---|---|---|---|
+  | 01 letter, Naskh 12 pt, 300 dpi clean | 96.8 % | 98.6 % | 98.9 % | 99.8 % |
+  | 02 article, Tajawal 11 pt, 200 dpi, soft | 97.8 % | 99.5 % | 98.5 % | 99.7 % |
+  | 03 invoice, mixed EN/AR, 200 dpi, grainy | 91.7 % | 69.5 % | 97.6 % | 75.3 % |
+  | 04 notice, Naskh 13 pt, 200 dpi, tilted 1.5° | 100 % | 100 % | 98.7 % | 99.8 % |
+  | 05 contract, Naskh 9 pt small print, 200 dpi | 96.3 % | 98.7 % | 97.8 % | 99.6 % |
+  | 06 weather, Sans 12 pt, 150 dpi, faded + grainy | 0 % | 0.5 % | 85.3 % | 90.5 % |
+  | 07 report, bilingual, Tajawal 12 pt, 300 dpi, soft | 98.7 % | 94.2 % | 98.7 % | 94.2 % |
+  | 08 minutes, photocopy: blur, grain, tilt −1°, faded | 0 % | 0 % | 94.2 % | 99.1 % |
+  | **all pages** | **75.3 %** | **70.1 %** | **96.3 %** | **94.8 %** |
+
+  Clean printed Arabic (01, 02, 04, 05) is at 97.8–98.9 % words, 99.6–99.8 % chars: the ≥ 95 % goal is met. The invoice's
+  low chars-right is line order in the measurement (mixed-direction table rows), not misread words. Seconds a page in Node:
+  4.1 (v1; the unreadable pages took 10–24 s) → 2.1 (v2).
+- **What was tried, each measured** (all pages, words / chars):
+  1. **Clean-up before reading** (`lib/ocr-clean.ts`, pure, shared by app and tool): grey; a 3×3 smoothing when the paper's
+     grain is above 3; contrast stretch only when the paper is not white (mode < 240; stretching white-paper pages made
+     Tajawal worse); straightening (tilt from the row profile of a small copy, ±3°, bilinear turn; word boxes turned back).
+     75.3 / 70.1 → 95.6 / 94.3. The two unreadable pages became readable (0 → 85 and 94 %). **Adopted.**
+  2. **Two passes merged by position**: Arabic-only first, then Arabic + English; where both read the same printed line
+     the surer line (Tesseract's confidence) wins, lines only one pass found are kept. A page where the second pass finds
+     two or more Latin words on a tenth of the lines is bilingual and keeps that pass whole (the English model misreads
+     Arabic as lone Latin "words", so one does not count). 95.6 / 94.3 → 96.3 / 94.8, +50 % time. **Adopted** when both
+     languages are ticked. Arabic and English as fully separate passes (ara, eng) was worse: 94.8 / 94.5 with the invoice
+     at 83 % — the Arabic-only pass cannot read mixed lines.
+  3. **tessdata_best Arabic model** (`node tools/get-ocr.mjs --best`, 12.6 MB float model, Apache-2.0): +0.5 % words
+     (94.3 → 94.8 at the clean-up stage then current), 20 % slower, 11 MB more to download. **Not adopted.** Finding: the
+     model shipped since 0.3.3 is tessdata's standard LSTM one (the integer form of best), not the small "fast" one
+     Plan v2 assumed.
+  4. **300 dpi instead of 250**: better on the faded page (+4), worse on clean pages (−1 to −3), equal overall. **Not adopted.**
+  5. **Copy order**: the text layer now writes each printed line as one piece of text (words joined in reading order,
+     fitted to the line's width) — copy and search give joined Arabic lines; before, every word was its own line.
+- **Checks**: `tests/unit/ocr-clean.test.mjs` (straight page untouched, tilt found within 0.3° and undone, faded copy
+  stretched, pass merge), `tests/unit/ocr.test.mjs` (lines), `tests/e2e/ocr.spec.ts` on the real set (bilingual page;
+  the photocopy, unreadable without clean-up). tesseract.js 6.0.1 is a devDependency now (the Node measurement; the app
+  still loads `public/ocr`).
+- **Surya OCR 2 measured** (step 3; `tools/ocr-surya.py`, venv `.venv-surya`, surya-ocr 0.22 on llama.cpp, CPU, same set,
+  same pictures): **99.8 % words right, 96.3 % chars right** (every page 98.8–100 % words; the chars gap is again line order
+  on the invoice and the bilingual page), against Tesseract v2's 96.3 / 94.8. The faded page 85 → 100 %, small print
+  98 → 100 %. Cost: **45 s a page on this PC's CPU** (llama.cpp, 3.8 GB RAM while running) against 2 s; the add-on it
+  would need is llama.cpp's server (24 MB) plus the surya-2 GGUF models (1.27 GB + 0.2 GB) — desktop only, never the web
+  app; GPL-3.0 (fine beside AGPL). **Recommendation:** ship Tesseract v2 as the OCR for 1.0 (web and desktop, 19 MB pack,
+  ≥ 95 % on clean print); offer Surya OCR 2 later as an optional desktop pack "best quality, slow" for photocopies and
+  faded scans, only if the owner wants a 1.5 GB download and a minute a page — most of its gain is on degraded pages.
+  Not integrated into the app; `tools/ocr-surya.py` + `node tools/ocr-accuracy.mjs --engine surya` reproduce the numbers.
 
 ## Report a problem / support (owner, 20 Oct 2026) — planned, build in Phase 4 with the website split
 Quiet, not on the main screens: app Help/⋯ menu item "Report a problem" (Arabic too) and a small website footer link.

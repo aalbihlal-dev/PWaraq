@@ -3,7 +3,8 @@
   // search and copy work. The pictures stay as they are. The result replaces the document (then Save as usual).
   import type { EnginePool } from '../lib/engine/pool';
   import type { Layer } from '../lib/engine/ocr';
-  import { startOcr } from '../lib/ocr';
+  import { startOcr, mergePasses } from '../lib/ocr';
+  import { toGray, clean, unturn } from '../lib/ocr-clean';
   import { lazyPage } from '../lib/lazy';
   import { t } from '../lib/i18n.svelte';
   import { icon } from '../lib/icons.js';
@@ -12,11 +13,13 @@
   const W = 560, k = (i: number) => W / sizes[i].w, lazy = lazyPage(() => pool, 'ocr', k);
   let ara = $state(true), eng = $state(true), scope = $state<'scanned' | 'all'>('scanned');
   let busy = $state(false), stopped = false, note = $state(''), error = $state(''), at = $state({ n: 0, of: 0, ratio: 0 });
-  const languages = $derived([ara && 'ara', eng && 'eng'].filter(Boolean).join('+'));
+  // both languages: an Arabic-only pass first, then Arabic + English, merged line by line (the surer reading wins) —
+  // measured on tests/fixtures/ocr: 95 % of words right against 94 % for one ara+eng pass (tools/ocr-accuracy.mjs)
+  const passes = $derived(ara && eng ? ['ara', 'ara+eng'] : [ara ? 'ara' : eng ? 'eng' : ''].filter(Boolean));
 
   async function start() {
     busy = true; stopped = false; error = note = ''; at = { n: 0, of: 0, ratio: 0 };
-    let engine: Awaited<ReturnType<typeof startOcr>> | undefined;
+    let engines: Awaited<ReturnType<typeof startOcr>>[] = [];
     try {
       // a page without any text is a scan (its words are read from its picture)
       const todo: number[] = [];
@@ -25,7 +28,7 @@
       }
       if (!todo.length) { note = t('ocrNothing'); return; }
       at.of = todo.length;
-      engine = await startOcr(languages, (ratio) => (at.ratio = ratio));
+      engines = await Promise.all(passes.map((l, k) => startOcr(l, (ratio) => (at.ratio = (k + ratio) / passes.length))));
       const layers: Layer[] = [];
       for (const [n, page] of todo.entries()) {
         if (stopped) return;
@@ -33,13 +36,19 @@
         const s = Math.min(250 / 72, 3600 / Math.max(sizes[page].w, sizes[page].h)); // about 250 dpi, never beyond 3600 pixels
         const bmp = await pool.run<ImageBitmap>({ op: 'render', page, priority: 1, args: { scale: s } });
         const canvas = document.createElement('canvas'); canvas.width = bmp.width; canvas.height = bmp.height;
-        canvas.getContext('2d')!.drawImage(bmp, 0, 0); bmp.close();
-        layers.push({ page, scale: s, words: await engine.read(canvas, s * 72) });
+        const ctx = canvas.getContext('2d')!; ctx.drawImage(bmp, 0, 0); bmp.close();
+        // the picture Tesseract sees is grey, cleaned and straightened (the page itself stays as it is)
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height), { gray, angle } = clean(toGray(img.data, canvas.width, canvas.height));
+        for (let i = 0; i < gray.px.length; i++) img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = gray.px[i];
+        ctx.putImageData(img, 0, 0);
+        let lines = await engines[0].read(canvas, s * 72);
+        for (const e of engines.slice(1)) lines = mergePasses(lines, await e.read(canvas, s * 72));
+        layers.push({ page, scale: s, lines: lines.map((l) => ({ words: l.words.map((w) => unturn(w, angle, canvas.width, canvas.height)) })) });
         canvas.width = canvas.height = 0;
       }
       await onReplace(await pool.tool('ocrlayer', { bytes: bytes.slice(), layers }));
     } catch { error = t('toolFailed'); }
-    finally { await engine?.stop(); busy = false; }
+    finally { await Promise.all(engines.map((e) => e.stop())); busy = false; }
   }
 </script>
 
@@ -69,7 +78,7 @@
     {#if busy}
       <button class="btn" onclick={() => (stopped = true)}>{@html icon('close')}{t('cancel')}</button>
     {:else}
-      <button class="btn primary" onclick={start} disabled={!languages}>{@html icon('ocr')}{t('ocrStart')}</button>
+      <button class="btn primary" onclick={start} disabled={!passes.length}>{@html icon('ocr')}{t('ocrStart')}</button>
     {/if}
     {#if error}<p class="error" role="alert">{error}</p>{/if}
   </aside>
