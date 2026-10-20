@@ -7,6 +7,7 @@ const small = fixture('small.pdf');
 const annots = (bytes: Uint8Array) => m.Document.openDocument(bytes, 'application/pdf').loadPage(0).getAnnotations();
 
 test('comment: a highlight on real text, a sticky note and a pen stroke are saved as standard annotations and show again after reopening', async ({ page }, info) => {
+  test.setTimeout(120_000); // measured: the whole journey takes ~1 s; the first open in a fresh browser (~55 s here) compiles the 11 MB engine
   await open(page, small);
   // where "Quarterly Report" is on the page (points)
   const q = [...m.Document.openDocument(fs.readFileSync(small), 'application/pdf').loadPage(0).search('Quarterly Report')[0][0]];
