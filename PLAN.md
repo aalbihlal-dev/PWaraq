@@ -232,5 +232,7 @@ Original plan:
   over the page; the picture is untouched. Engine files are **not in git**: `node tools/get-ocr.mjs` copies them from
   `../waraq/dist/vendor/ocr` into `public/ocr/` (19 MB; needed for dev, build and the OCR tests).
 - Checks: `tests/unit/{redact,forms,ocr}.test.mjs`, `tests/e2e/{redact,forms,ocr}.spec.ts`, audit extended (EN + AR).
-- Still to do: redact inside the page editor; OCR on photos added as pages in Organize (works after Replace), text placement is
+- Leftovers done 20 Oct: long Arabic answers wrap in multiline fields; **Redact** tool in the page editor (drag a box,
+  removed on Save page); build checked (`PREVIEW=1`: 33/33).
+- Still to do: OCR on photos added as pages in Organize (works after Replace), text placement is
   per word (selection boxes approximate); Arabic OCR accuracy depends on the scan (small/blurred print reads worse).
