@@ -4,6 +4,7 @@
   import { EnginePool } from './lib/engine/pool';
   import { setDocument } from './lib/engine/page-cache';
   import { i18n, t, toggleLanguage } from './lib/i18n.svelte';
+  import ThemeButton from './components/ThemeButton.svelte';
   import { icon } from './lib/icons.js';
   import { recentList, remember, forget, reopen, pickFiles, saveFile, readPortfolio, writePortfolio, type Recent } from './lib/store';
   import { newPortfolio, load, type Portfolio as PortfolioData } from './lib/portfolio';
@@ -128,7 +129,7 @@
 {:else}
   <div class="start" class:over role="region" aria-label={t('appName')}
     ondragover={(e) => { e.preventDefault(); over = true; }} ondragleave={() => (over = false)} ondrop={drop}>
-    <button class="btn icon lang" onclick={toggleLanguage} aria-label={t('language')} title={t('language')}>{@html icon('language')}</button>
+    <span class="lang"><ThemeButton /><button class="btn icon" onclick={toggleLanguage} aria-label={t('language')} title={t('language')}>{@html icon('language')}</button></span>
     <div class="hero">
       <img src="/brand-mark.svg" alt="" width="72" height="72" />
       <h1>{t('appName')}</h1>
@@ -174,7 +175,7 @@
 <style>
   .start { position: relative; height: 100%; overflow-y: auto; display: grid; align-content: start; justify-items: center; gap: var(--s-32); padding: var(--s-48) var(--s-24) var(--s-24); }
   .start.over { background: var(--green-soft); outline: 2px dashed var(--green); outline-offset: -16px; }
-  .lang { position: absolute; top: var(--s-16); inset-inline-end: var(--s-16); }
+  .lang { display: flex; gap: var(--s-8); position: absolute; top: var(--s-16); inset-inline-end: var(--s-16); }
   .hero { display: grid; justify-items: center; gap: var(--s-12); text-align: center; }
   h1 { margin: 0; font-size: var(--fs-40); line-height: 1.2; }
   .tag { margin: 0 0 var(--s-8); color: var(--muted); font-size: var(--fs-18); max-width: 36ch; }

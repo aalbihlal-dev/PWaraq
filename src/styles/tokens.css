@@ -9,7 +9,7 @@
   /* Waraq colours (same palette as 0.3.x): paper, Waraq green, soft mint */
   --green: #15775d; --green-deep: #0f5a46; --green-soft: #eaf3eb; --ink: #233c36; --muted: #56695f;
   --paper: #fafbf8; --surface: #ffffff; --canvas: #eef1eb; --line: #e0e7de; --focus: #15775d; --danger: #a34438;
-  --veil: #fafbf8cc; --select-tint: #15775d14; /* "working…" cover over a screen; hover on something on a page */
+  --on-green: #ffffff; --page: #ffffff; --veil: #fafbf8cc; --select-tint: #15775d14; /* "working…" cover over a screen; hover on something on a page */
   --fs-12: 12px; --fs-14: 14px; --fs-16: 16px; --fs-18: 18px; --fs-20: 20px; --fs-24: 24px; --fs-32: 32px; --fs-40: 40px;
   --s-4: 4px; --s-8: 8px; --s-12: 12px; --s-16: 16px; --s-24: 24px; --s-32: 32px; --s-48: 48px;
   --r-8: 8px; --r-12: 12px; --r-16: 16px;
@@ -19,7 +19,20 @@
   color-scheme: light;
 }
 :root[dir='rtl'] { --font: Tajawal, 'Segoe UI', system-ui, sans-serif; }
-/* The Waraq look is the default everywhere; a dark theme can come later as an explicit choice, not from Windows. */
+/* Light is the default. Dim and Dark are chosen by hand (never from Windows) and set data-theme on <html>.
+   --page stays white in every theme: PDF pages are shown as printed. */
+:root[data-theme='dim'] {
+  --green: #3fb48f; --green-deep: #5cc7a4; --green-soft: #243a32; --ink: #e4ebe6; --muted: #a9b8af;
+  --paper: #1f2a27; --surface: #28362f; --canvas: #19221f; --line: #3a4a43; --focus: #3fb48f; --danger: #e8806f;
+  --on-green: #0f1513; --veil: #1f2a27cc; --select-tint: #3fb48f26;
+  --shadow: 0 5px 20px #00000059, 0 1px 2px #00000040; color-scheme: dark;
+}
+:root[data-theme='dark'] {
+  --green: #3fb48f; --green-deep: #5cc7a4; --green-soft: #243a32; --ink: #edf2ee; --muted: #9db0a5;
+  --paper: #0f1513; --surface: #182019; --canvas: #0b100e; --line: #26332c; --focus: #3fb48f; --danger: #e8806f;
+  --on-green: #0b100e; --veil: #0f1513cc; --select-tint: #3fb48f26;
+  --shadow: 0 5px 20px #00000080, 0 1px 2px #00000059; color-scheme: dark;
+}
 
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--paper); color: var(--ink); font: 400 var(--fs-14)/1.5 var(--font); }
@@ -33,7 +46,7 @@ button { cursor: pointer; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-8); min-height: var(--control);
   padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--surface); font-weight: 600; }
 .btn:hover { background: var(--green-soft); border-color: var(--green); }
-.btn.primary { background: var(--green); border-color: var(--green); color: #fff; }
+.btn.primary { background: var(--green); border-color: var(--green); color: var(--on-green); }
 .btn.primary:hover { background: var(--green-deep); }
 .btn.icon { width: var(--control); padding: 0; border-color: transparent; background: transparent; color: var(--muted); }
 .btn.icon:hover { background: var(--green-soft); color: var(--ink); }

@@ -2,6 +2,7 @@
   // The document workspace: one task bar on top, thumbnails on the left, the page in the middle.
   import type { EnginePool } from '../lib/engine/pool';
   import { t, toggleLanguage, type Key } from '../lib/i18n.svelte';
+  import ThemeButton from './ThemeButton.svelte';
   import { icon } from '../lib/icons.js';
   import Viewer from './Viewer.svelte';
   import Thumbnails from './Thumbnails.svelte';
@@ -89,6 +90,7 @@
       <button class="btn" class:primary={modified} onclick={save} disabled={applying || (mode === 'edit' && editScope === 'page') || mode === 'sign'}>{@html icon('download')}{t('save')}</button>
       <button class="btn" onclick={onOpen}>{@html icon('upload')}{t('openShort')}</button>
       <button class="btn" onclick={onClose}>{@html icon('close')}{t('close')}</button>
+      <ThemeButton />
       <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
     </span>
   </header>

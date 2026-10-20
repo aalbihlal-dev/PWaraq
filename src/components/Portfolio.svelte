@@ -6,6 +6,7 @@
   import { SvelteSet } from 'svelte/reactivity';
   import type { EnginePool } from '../lib/engine/pool';
   import { i18n, t, toggleLanguage } from '../lib/i18n.svelte';
+  import ThemeButton from './ThemeButton.svelte';
   import { icon } from '../lib/icons.js';
   import { addFiles, uid, seen, toItems, type Group, type GridItem } from '../lib/pages';
   import { build, plan, manifest, used, fileTitle, type Portfolio, type Section } from '../lib/portfolio';
@@ -195,6 +196,7 @@
       <button class="btn icon" onclick={undo} disabled={!canUndo} title={t('undo')} aria-label={t('undo')}>{@html icon('undo')}</button>
       <button class="btn icon" onclick={redo} disabled={!canRedo} title={t('redo')} aria-label={t('redo')}><span class="flip">{@html icon('undo')}</span></button>
       <button class="btn" onclick={async () => { await flush(); onClose(); }}>{@html icon('close')}{t('close')}</button>
+      <ThemeButton />
       <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
     </span>
   </header>
@@ -427,13 +429,15 @@
   .empty:hover { border-color: var(--green); }
   /* section header row in the grid */
   .sec { display: flex; align-items: center; gap: var(--s-8); flex-wrap: wrap; padding: var(--s-12) var(--s-8) var(--s-8); border-top: 1px solid var(--line); margin-top: var(--s-8); }
-  .badge { padding: 0 var(--s-8); min-height: 28px; display: inline-flex; align-items: center; border-radius: var(--r-8); background: var(--green); color: #fff; font-weight: 600; font-size: var(--fs-12); }
+  .badge { padding: 0 var(--s-8); min-height: 28px; display: inline-flex; align-items: center; border-radius: var(--r-8); background: var(--green); color: var(--on-green); font-weight: 600; font-size: var(--fs-12); }
   .title { min-height: var(--control); min-width: 240px; padding: 0 var(--s-12); border: 1px solid transparent; border-radius: var(--r-8); background: transparent; font-size: var(--fs-18); font-weight: 600; }
   .title:hover, .title:focus { border-color: var(--line); background: var(--surface); }
   .title.auto, li.auto input { background: var(--green-soft); border-color: var(--green); }
   .from { display: inline-flex; align-items: center; gap: var(--s-4); color: var(--green-deep); font-size: var(--fs-12); }
   .btn.on { background: var(--green-soft); border-color: var(--green); color: var(--green-deep); }
   /* contents block: the table of contents as it will read, titles editable */
+  /* these are drawings of printed pages: they keep the light Waraq colours in every theme */
+  .toc, .paper, .mini, .sw { --ink: #233c36; --muted: #56695f; --line: #e0e7de; --paper: #fafbf8; --green: #15775d; --green-deep: #0f5a46; --green-soft: #eaf3eb; --focus: #15775d; color: var(--ink); }
   .toc { max-width: 640px; margin: 0 0 var(--s-16); padding: var(--s-24); background: #fff; box-shadow: var(--shadow); border-radius: var(--r-8); }
   .toc h2 { margin: 0; font-size: var(--fs-24); }
   .help { margin: var(--s-4) 0 var(--s-16); color: var(--muted); }
@@ -460,7 +464,7 @@
   .sub { font-weight: 600; color: var(--muted); font-size: var(--fs-14); }
   .side .help { margin: 0; display: flex; align-items: center; gap: var(--s-8); }
   .btn.big { min-height: 44px; font-size: var(--fs-16); }
-  .btn.danger:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .btn.danger:hover { background: var(--danger); border-color: var(--danger); color: var(--on-green); }
   .trio { display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--s-8); }
   .trio .btn { padding: 0 var(--s-8); }
   .field textarea { padding: var(--s-8) var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); font: inherit; font-weight: 400; resize: vertical; }

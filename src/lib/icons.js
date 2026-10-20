@@ -12,6 +12,7 @@ const paths = {
   online:'<path d="M3 8a16 16 0 0 1 18 0M6 12a10 10 0 0 1 12 0M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="20" r=".7"/>',
   install:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 6v9M8 11l4 4 4-4M8 18h8"/>',
   language:'<path d="M3 5h12M9 3v2M5 5c1 5 4 8 9 10M13 5c-1 5-4 8-9 10M14 21l4-10 4 10M15.5 17h5"/>',
+  theme:'<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',
   upload:'<path d="M7 3h7l4 4v6M7 3a2 2 0 0 0-2 2v8M14 3v5h4M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4M12 17V9M9 12l3-3 3 3"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
   undo:'<path d="M9 5L4 10l5 5M4 10h10a6 6 0 0 1 0 12"/>',
