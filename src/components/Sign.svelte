@@ -35,11 +35,11 @@
   const prefs = (() => { try { return JSON.parse(localStorage.getItem('waraq-sign') ?? '{}'); } catch { return {}; } })();
   let library = $state<(Signature & { url: string })[]>([]), chosen = $state<string | null>(prefs.sig ?? null);
   let day = $state(new Date().toISOString().slice(0, 10)); // the session's date: today unless changed
-  let calendar = $state<'gregory' | 'islamic-umalqura'>(prefs.calendar ?? 'gregory'), style = $state<'numeric' | 'long' | 'iso'>(prefs.style ?? 'numeric');
+  let calendar = $state<'gregory' | 'islamic-umalqura'>(prefs.calendar ?? 'gregory'), style = $state<'numeric' | 'long' | 'iso'>(prefs.style ?? 'numeric'), digits = $state<'latn' | 'arab'>(prefs.digits ?? 'latn');
   let name = $state<string>(prefs.name ?? '');
-  $effect(() => { try { localStorage.setItem('waraq-sign', JSON.stringify({ sig: chosen, calendar, style, name, id: idKey, useCert, tsa })); } catch {} });
+  $effect(() => { try { localStorage.setItem('waraq-sign', JSON.stringify({ sig: chosen, calendar, style, digits, name, id: idKey, useCert, tsa })); } catch {} });
   const sig = $derived(library.find((s) => s.key === chosen) ?? library[0]);
-  const dateText = $derived(formatDate(new Date(day + 'T12:00'), calendar, style, i18n.lang));
+  const dateText = $derived(formatDate(new Date(day + 'T12:00'), calendar, style, i18n.lang, digits));
   const set = $derived({ ratio: sig ? sig.w / sig.h : 3, name, date: dateText });
   const textColour = $derived(sig?.ink ?? [0, 0, 0]);
 
@@ -60,8 +60,13 @@
     if (how === 'type') {
       raw = null;
       if (typed.trim()) {
-        const c = new OffscreenCanvas(1400, 320), x = c.getContext('2d')!;
-        x.font = `italic 700 160px Tajawal`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(typed.trim(), 700, 160, 1360);
+        // the text's own direction (a name that starts with Arabic reads right to left, even with Latin words or digits in it); a long
+        // name gets a smaller type, never a squeezed one; Arabic is upright (a slanted Arabic is not a style of the script)
+        const c = new OffscreenCanvas(1400, 320), x = c.getContext('2d')!, text = typed.trim(), arabic = /[؀-ۿ]/.test(text), first = text.match(/[\p{L}]/u)?.[0] ?? '';
+        const face = (px: number) => `${arabic ? '' : 'italic '}700 ${px}px Tajawal`;
+        x.direction = /[֐-ࣿ]/.test(first) ? 'rtl' : 'ltr'; x.textAlign = 'center'; x.textBaseline = 'middle';
+        x.font = face(160); const room = 1360, wide = x.measureText(text).width, px = wide > room ? Math.max(40, Math.floor((160 * room) / wide)) : 160;
+        x.font = face(px); x.fillText(text, 700, 160);
         raw = pixelsOf(c);
       }
     }
@@ -508,6 +513,10 @@
         <div class="row" role="radiogroup" aria-label={t('calendar')}>
           <button class="btn" role="radio" class:on={calendar === 'gregory'} aria-checked={calendar === 'gregory'} onclick={() => (calendar = 'gregory')}>{t('gregorian')}</button>
           <button class="btn" role="radio" class:on={calendar !== 'gregory'} aria-checked={calendar !== 'gregory'} onclick={() => (calendar = 'islamic-umalqura')}>{t('hijri')}</button>
+        </div>
+        <div class="row" role="radiogroup" aria-label={t('digitsLabel')}>
+          <button class="btn" role="radio" class:on={digits === 'latn'} aria-checked={digits === 'latn'} onclick={() => (digits = 'latn')}>{t('digitsWestern')}</button>
+          <button class="btn" role="radio" class:on={digits === 'arab'} aria-checked={digits === 'arab'} onclick={() => (digits = 'arab')}>{t('digitsArabic')}</button>
         </div>
         <label class="field"><span>{t('dateFormat')}</span>
           <select bind:value={style}>

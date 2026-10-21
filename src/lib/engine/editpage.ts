@@ -11,8 +11,8 @@ import { stamp } from './assemble.ts';
 export type Box = { x: number; y: number; w: number; h: number };
 export type Align = 'left' | 'center' | 'right';
 export type Edit =
-  // a text box (`from`: the existing line it replaces, which is removed first); lines wrap at the box width
-  | ({ kind: 'text'; text: string; size: number; color: number[]; bold: boolean; align: Align; from?: Box } & Box)
+  // a text box (`from`: the existing line it replaces, which is removed first); lines wrap at the box width, or with `fit` stay one line shrunk to the width
+  | ({ kind: 'text'; text: string; size: number; color: number[]; bold: boolean; align: Align; from?: Box; fit?: boolean } & Box)
   // a new photo (photos[photo]) filling the box
   | ({ kind: 'photo'; photo: number } & Box)
   // existing photo number `index` (pageObjects order): moved / resized to the box, replaced by photos[photo], or removed
@@ -108,10 +108,10 @@ export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number,
       for (const e of texts) {
         const p = picks.get(e), f = p ? null : fonts!();
         const width = p ? (t: string) => shape(own!.hb, p.shaper, t, e.size).width : (t: string) => measure(e.bold ? f!.bold : f!.regular, t, e.size);
-        wrap(width, e.text, e.w).forEach((text, i) => {
+        (e.fit && !p ? [e.text.replace(/\s*\n\s*/g, ' ')] : wrap(width, e.text, e.w)).forEach((text, i) => {
           const l = { text, size: e.size, color: e.color, align: e.align, y: e.y + (BASELINE + i * LEADING) * e.size, x: e.align === 'right' ? e.x + e.w : e.align === 'center' ? e.x + e.w / 2 : e.x };
           // shortcut: a line whose own font is bold stays bold when "bold" is switched off; a regular one is thickened
-          if (p) ops += shaped!.draw(p.shaper, { ...l, fake: e.bold && !p.shaper.bold }, H); else lines.push({ ...l, bold: e.bold });
+          if (p) ops += shaped!.draw(p.shaper, { ...l, fake: e.bold && !p.shaper.bold }, H); else lines.push({ ...l, bold: e.bold, ...(e.fit ? { max: e.w } : {}) });
         });
       }
       const writer = lines.length ? pageWriter(m, out, fonts!()) : null;

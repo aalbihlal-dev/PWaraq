@@ -115,3 +115,42 @@ test('session date: Gregorian and Hijri, numeric / long / ISO', () => {
   assert.match(formatDate(d, 'islamic-umalqura', 'numeric', 'ar'), /^\d\d\/\d\d\/14\d\d هـ$/);
   assert.match(formatDate(d, 'islamic-umalqura', 'long', 'en'), /^\d+ .+ 14\d\d AH$/);
 });
+
+// ---- labels as other producers print them (MuPDF reads a right-to-left line in visual order: the colon can come first), bilingual labels, filled dates
+const corpus = (f) => new Uint8Array(fs.readFileSync(new URL('../fixtures/arabic-create/base/' + f + '.pdf', import.meta.url)));
+const spotsOf = (bytes) => { const d = m.Document.openDocument(bytes, 'application/pdf'), pg = d.loadPage(0); try { return findSpots(pg, 0); } finally { pg.destroy(); } };
+
+test('a label with more words («ختم وتوقيع:») is found as a signature spot', () => {
+  const s = spotsOf(corpus('invoice-a4')).filter((x) => x.kind === 'sign');
+  assert.equal(s.length, 1); assert.ok(s[0].rtl && s[0].x > 250 && s[0].x < 360 && s[0].y > 495 && s[0].y < 530, JSON.stringify(s[0]));
+});
+
+test('«Signature / التوقيع:» and «Date / التاريخ:» are one spot each, not two', () => {
+  const s = spotsOf(corpus('letter-letter')); assert.deepEqual(s.map((x) => x.kind).sort(), ['date', 'sign']);
+});
+
+test('a date label that already has its date gets no date spot; its signature line still gets a sign spot', () => {
+  const s = spotsOf(corpus('letter-a4')); assert.deepEqual(s.map((x) => x.kind), ['sign']);
+});
+
+test('the date can be written with Arabic-Indic digits (Gregorian and Hijri, numeric, long, year first); the default stays 0-9', () => {
+  const d = new Date(2026, 9, 21);
+  assert.equal(formatDate(d, 'gregory', 'numeric', 'ar', 'arab'), '٢١/١٠/٢٠٢٦');
+  assert.equal(formatDate(d, 'gregory', 'iso', 'ar', 'arab'), '٢٠٢٦-١٠-٢١');
+  assert.equal(formatDate(d, 'gregory', 'long', 'ar', 'arab'), '٢١ أكتوبر ٢٠٢٦');
+  assert.match(formatDate(d, 'islamic-umalqura', 'numeric', 'ar', 'arab'), /^[٠-٩]{2}\/[٠-٩]{2}\/[٠-٩]{4} هـ$/);
+  assert.equal(formatDate(d, 'gregory', 'numeric', 'ar'), '21/10/2026');
+  assert.equal(formatDate(d, 'gregory', 'numeric', 'en', 'arab'), '٢١/١٠/٢٠٢٦');
+});
+
+test('a long name is shrunk to its line and never runs over the date', () => {
+  const ink = (bytes, b) => { const pix = m.Document.openDocument(bytes, 'application/pdf').loadPage(0).toPixmap(m.Matrix.scale(2, 2), m.ColorSpace.DeviceGray, false), px = pix.getPixels(), W = pix.getWidth(); let n = 0, x0 = 1e9, x1 = -1;
+    for (let y = Math.floor(b.y * 2); y < Math.ceil((b.y + b.h) * 2); y++) for (let x = Math.floor(b.x * 2); x < Math.ceil((b.x + b.w) * 2); x++) if (px[y * W + x] < 140) { n++; x0 = Math.min(x0, x); x1 = Math.max(x1, x); } return { n, w: (x1 - x0 + 1) / 2 }; };
+  const blank = (() => { const d = new m.PDFDocument(); d.insertPage(-1, d.addPage([0, 0, 595, 842], 0, {}, '')); return d.saveToBuffer('').asUint8Array().slice(); })();
+  const set = { ratio: 3, name: 'عبدالله محمد الأحمد الحربي الشمري الدوسري القحطاني الغامدي', date: '21/10/2026' }, p = placeSet(set, { x: 200, y: 300, w: 200, h: 16, rtl: true });
+  const edits = setEdits(set, p), onlyDate = edits.filter((e) => e.kind === 'text' && e.text === set.date);
+  const a = signPdf(m, blank, [{ page: 0, edits: edits.filter((e) => e.kind === 'text') }], [], () => fonts), b = signPdf(m, blank, [{ page: 0, edits: onlyDate }], [], () => fonts);
+  assert.equal(ink(a, p.date).n, ink(b, p.date).n, 'the date box holds only the date');
+  const nm = ink(a, { x: p.name.x - 20, y: p.name.y, w: p.name.w + 40, h: p.name.h + 1 });
+  assert.ok(nm.n > 100 && nm.w <= p.name.w + 1, `name drawn on one line inside its box: ${nm.w} vs ${p.name.w}`);
+});

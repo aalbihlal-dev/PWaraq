@@ -21,7 +21,7 @@ for (const s of subjects((s) => s.id.includes(only))) {
     if (s.source === 'scan') rows.add('sign', 'find spots', s, 'warn', `${spots.length} spots`, 'picture only: no text, so no automatic spot (the person places the set by hand)');
     else if (blanks) {
       const near = (sp, b) => Math.abs(sp.x + sp.w / 2 - (b.x + b.w / 2)) < Math.max(40, b.w) && Math.abs(sp.y + sp.h / 2 - (b.y + b.h / 2)) < 30;
-      const hit = blanks.filter((b) => sign.some((sp) => near(sp, b))).length, extra = sign.filter((sp) => !blanks.some((b) => near(sp, b))).length;
+      const hit = blanks.filter((b) => spots.some((sp) => near(sp, b))).length, extra = sign.filter((sp) => !blanks.some((b) => near(sp, b))).length;
       rows.add('sign', 'find spots (blanks found / extra spots)', s, hit === blanks.length && !extra ? true : hit === blanks.length ? 'warn' : false, `found ${hit}/${blanks.length} blanks, ${extra} extra, ${dates.length} date spots`, extra ? 'extra spot(s) not on a blank' : hit < blanks.length ? 'blank missed' : '');
     } else rows.add('sign', 'find spots', s, 'warn', `${spots.length} spots`, 'geometry changed by the scan: count only');
     let placedAll = 0, onText = 0, offBlank = 0;
