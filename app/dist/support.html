@@ -19,6 +19,8 @@ section{background:#fff;border:1px solid #e0e7de;border-radius:12px;padding:24px
 ul{margin:0;padding-inline-start:20px;color:#56695f}
 .btn{display:inline-flex;align-items:center;min-height:40px;padding:0 24px;margin-top:8px;border-radius:8px;background:#15775d;color:#fff;font-weight:600;text-decoration:none}
 .btn:hover{background:#0f5a46}
+.btn.alt{background:#fff;color:#15775d;border:1px solid #15775d}.btn.alt:hover{background:#eaf3eb}
+.row{display:flex;flex-wrap:wrap;gap:8px}
 .ar{direction:rtl;font-family:Tajawal,'Segoe UI',system-ui,sans-serif;margin-top:16px;padding-top:16px;border-top:1px solid #e0e7de}
 .ar ul{padding-inline-start:20px}
 footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;padding:22px 0;color:#7d8e80;font-size:12px;line-height:1.7}
@@ -34,12 +36,12 @@ footer a{color:#56695f}
 
 <section id="report">
 <h2>Report a problem</h2>
-<p>Problems are tracked openly on GitHub. The button opens a new report with the version and system already filled in; nothing is sent until you submit it there, and your files never leave your device.</p>
-<a class="btn" id="issue" href="https://github.com/tshi-dev/PWaraq/issues/new" rel="noopener">Report on GitHub</a>
+<p>Report on GitHub (public, needs a free GitHub account) or write to us by email (private). Both open with the version and system already filled in; nothing is sent until you press send, and your files never leave your device.</p>
+<div class="row"><a class="btn" id="issue" href="https://github.com/tshi-dev/PWaraq/issues/new" rel="noopener">Report on GitHub</a><a class="btn alt" id="mail" href="mailto:support@pwaraq.com">Email support@pwaraq.com</a></div>
 <div class="ar">
 <h2>الإبلاغ عن مشكلة</h2>
-<p>تُتابع المشاكل علنًا على GitHub. يفتح الزر بلاغًا جديدًا مع الإصدار والنظام مكتوبَين مسبقًا؛ لا يُرسل شيء حتى تضغط إرسال هناك، وملفاتك لا تغادر جهازك أبدًا.</p>
-<a class="btn" id="issue-ar" href="https://github.com/tshi-dev/PWaraq/issues/new" rel="noopener">الإبلاغ على GitHub</a>
+<p>أبلغ على GitHub (علني ويحتاج حسابًا مجانيًا) أو راسلنا بالبريد (خاص). يفتح كلاهما مع الإصدار والنظام مكتوبَين مسبقًا؛ لا يُرسل شيء حتى تضغط إرسال، وملفاتك لا تغادر جهازك أبدًا.</p>
+<div class="row"><a class="btn" id="issue-ar" href="https://github.com/tshi-dev/PWaraq/issues/new" rel="noopener">الإبلاغ على GitHub</a><a class="btn alt" id="mail-ar" href="mailto:support@pwaraq.com">راسلنا: support@pwaraq.com</a></div>
 </div>
 </section>
 
@@ -78,6 +80,8 @@ footer a{color:#56695f}
   var body = ['**Waraq version:** ' + v, '**System:** ' + os, '**Language:** ' + lang, '', '**What I did / ما فعلته:**', '', '**What I expected / ما توقعته:**', '', '**What happened / ما حدث:**', ''].join('\n');
   var url = 'https://github.com/tshi-dev/PWaraq/issues/new?template=problem.md&title=' + encodeURIComponent('Problem: ') + '&body=' + encodeURIComponent(body);
   document.getElementById('issue').href = url; document.getElementById('issue-ar').href = url;
+  var mail = 'mailto:support@pwaraq.com?subject=' + encodeURIComponent('Waraq problem') + '&body=' + encodeURIComponent(body.replace(/\*\*/g, ''));
+  document.getElementById('mail').href = mail; document.getElementById('mail-ar').href = mail;
 })();
 </script>
 </body>
