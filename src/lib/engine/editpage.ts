@@ -111,14 +111,32 @@ export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[
     });
     let cs: number[];
     if (zero.length > full.length * 0.4) {
-      // boxes MuPDF could not place (harakat lines in some fonts: the letters' advances went to invented spaces): its
-      // own reading order as it is — shortcut: spaces inside marked words stay, fix when MuPDF gives mark boxes
-      cs = r.chars.map((ch) => ch.c);
+      // boxes MuPDF could not place (harakat lines in some fonts): the letters' advances went to invented spaces, the
+      // marks are listed before their letter. MuPDF's order is kept, but: a space whose box ends exactly where the
+      // character before it stands is that character's advance, not a word break; a mark goes after the letter that
+      // stands at its x (else the nearest letter)
+      const near = (a: number, b: number) => Math.abs(a - b) < 0.03;
+      const lettersAt = r.chars.filter((ch) => ch.c > 0x20 && !isMark(ch.c));
+      const marksOf = new Map<Ch, Ch[]>();
+      for (const mk of r.chars.filter((ch) => isMark(ch.c))) {
+        const host = lettersAt.find((l) => near(l.x0, mk.x0)) ?? lettersAt.reduce((best, l) => (!best || Math.abs(l.x0 - mk.x0) < Math.abs(best.x0 - mk.x0) ? l : best), null as Ch | null);
+        if (host) marksOf.set(host, [...(marksOf.get(host) ?? []), mk]);
+      }
+      cs = [];
+      let prev: Ch | null = null;
+      for (const ch of r.chars) {
+        if (isMark(ch.c)) continue;
+        if (ch.c <= 0x20) { if (!prev || near(ch.x1, prev.x0) || near(ch.x0, prev.x0)) continue; cs.push(ch.c); continue; }
+        cs.push(ch.c, ...(marksOf.get(ch) ?? []).map((mk) => mk.c));
+        prev = ch;
+      }
     } else {
       const atoms = kept.map((cl) => cl[0].c), { order } = logicalOrder(atoms, guessDirection(atoms, pageDir));
       cs = order.flatMap((k) => kept[k].map((ch) => ch.c));
     }
-    const text = cs.map((c) => String.fromCodePoint(c)).join('').normalize('NFKC').replace(/[​‌‍﻿]/g, '').replace(/\s+/g, ' ').trim(); // invisible joiners: pieces of letters
+    // invisible joiners (pieces of letters) go; kashida (tatweel) is justification, not text — except the Hijri year's هـ
+    const text = cs.map((c) => String.fromCodePoint(c)).join('').normalize('NFKC').replace(/[​‌‍﻿]/g, '')
+      .replace(/ـ+/g, (run, at, s) => (s[at - 1] === 'ه' && (at + run.length >= s.length || /[\s\p{P}]/u.test(s[at + run.length])) ? 'ـ' : '')).replace(/\s+/g, ' ').trim();
     if (!text) continue;
     const letters = r.chars.filter((ch) => ch.c > 0x20), lead = letters.find((ch) => isRtl(ch.c)) ?? letters[0];
     lines.push({ ...r.box, text, size: lead.size, base: lead.y, bold: lead.font.isBold() || /bold|black|heavy/i.test(lead.font.getName()), color: rgb(lead.color), font: fontName(lead.font), rtl: /[\u0590-\u08ff]/.test(text) });
