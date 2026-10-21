@@ -51,7 +51,7 @@ def libreoffice():
         else: print('LibreOffice failed for', font)
 
 # ---- Microsoft Word: .docx (python-docx) -> Word COM "Save as PDF" ----
-WORD_FONTS = ['Traditional Arabic', 'Arial', 'Times New Roman', 'Sakkal Majalla', 'Calibri', 'Simplified Arabic', 'Dubai']
+WORD_FONTS = (os.environ.get('WORD_FONTS') or 'Traditional Arabic,Arial,Times New Roman,Sakkal Majalla,Calibri,Simplified Arabic,Dubai').split(',')
 def docx_file(font, path):
     import docx
     from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -66,6 +66,8 @@ def docx_file(font, path):
         r = p.add_run(t['text']); r.font.size = Pt(t.get('size', 13)); r.font.name = font
         rpr = r._r.get_or_add_rPr()
         fonts = rpr.find(qn('w:rFonts')); fonts = OxmlElement('w:rFonts') if fonts is None else fonts; fonts.set(qn('w:cs'), font); fonts.set(qn('w:ascii'), font); fonts.set(qn('w:hAnsi'), font); rpr.append(fonts)
+        for a in ('w:asciiTheme', 'w:hAnsiTheme', 'w:cstheme', 'w:eastAsiaTheme'): fonts.attrib.pop(qn(a), None)  # theme fonts override named ones in Word
+        fonts.set(qn('w:hint'), 'cs')
         rtl = OxmlElement('w:rtl'); rpr.append(rtl)
         szcs = OxmlElement('w:szCs'); szcs.set(qn('w:val'), str(t.get('size', 13) * 2)); rpr.append(szcs)
         if t.get('bold'): r.bold = True; bcs = OxmlElement('w:bCs'); rpr.append(bcs)

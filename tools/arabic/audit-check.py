@@ -11,9 +11,9 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUT = ROOT / (sys.argv[sys.argv.index('--out') + 1] if '--out' in sys.argv else 'tests/audit-arabic/out')
 data = json.loads((OUT / 'results.json').read_text(encoding='utf-8'))
 norm = lambda s: re.sub(r'\s+', ' ', unicodedata.normalize('NFKC', s)).strip()
-out = {}
+out = json.loads((OUT / 'checks.json').read_text(encoding='utf-8')) if (OUT / 'checks.json').exists() else {}  # incremental: edits already checked are kept
 for r in data['results']:
-    if r.get('error'):
+    if r.get('error') or r['id'] in out:
         continue
     f = OUT / (r['id'] + '.pdf'); rec = {}
     # PDFium: open, render the new line box at 4x, read the text

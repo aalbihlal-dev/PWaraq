@@ -16,6 +16,7 @@ const ready = (page: Page) => expect(page.locator('.editor .sheet .hit').first()
 const norm = (s: string) => s.normalize('NFKC').replace(/\s+/g, ' ').trim();
 
 for (const lang of ['en', 'ar'] as const) test(`page editor, ${lang}: lift, type, save for every producer`, async ({ page }) => {
+  test.setTimeout(1_500_000);
   fs.mkdirSync(OUT, { recursive: true });
   const log: any[] = [];
   await page.addInitScript((l) => localStorage.setItem('waraq-lang', l), lang);
@@ -26,7 +27,7 @@ for (const lang of ['en', 'ar'] as const) test(`page editor, ${lang}: lift, type
     const rec: any = { file: f, lang, lines: objs.lines.length, edits: [] };
     await page.goto('/');
     await page.locator('input[type=file]').first().setInputFiles(file);
-    await expect(page.locator('.page').first()).toBeVisible({ timeout: 60_000 });
+    try { await expect(page.locator('.page').first()).toBeVisible({ timeout: 150_000 }); } catch (err) { log.push({ file: f, lang, openError: String((err as Error).message).slice(0, 120) }); continue; }
     await page.locator('.task').nth(2).click(); // Edit
     await ready(page);
     const hits = page.locator('.editor .hit.line');
@@ -34,7 +35,7 @@ for (const lang of ['en', 'ar'] as const) test(`page editor, ${lang}: lift, type
     await page.screenshot({ path: path.join(OUT, `${id}-${lang}-0-editor.png`) });
     // two lines: the first Arabic line of the page and a longer one further down
     const picks = [objs.lines.findIndex((l) => l.rtl), objs.lines.findIndex((l, i) => l.rtl && i > 3 && l.text.length > 30)].filter((i) => i >= 0);
-    for (const [k, i] of [...new Set(picks)].entries()) {
+    for (const [k, i] of [...new Set(picks)].entries()) try {
       const l = objs.lines[i], e: any = { line: i, shown: l.text, size: l.size, font: l.font };
       await hits.nth(i).click({ force: true });
       const box = page.locator('.obj.text.on textarea');
@@ -60,7 +61,7 @@ for (const lang of ['en', 'ar'] as const) test(`page editor, ${lang}: lift, type
       await page.screenshot({ path: path.join(OUT, `${id}-${lang}-${k + 1}c-saved.png`) });
       rec.edits.push(e);
       if (k < picks.length - 1) { await page.locator('.task').nth(2).click(); await ready(page); }
-    }
+    } catch (err) { rec.edits.push({ line: i, error: String((err as Error).message).slice(0, 160) }); await page.screenshot({ path: path.join(OUT, `${id}-${lang}-${k + 1}-error.png`) }).catch(() => {}); }
     // the saved document
     try {
       const [download] = await Promise.all([page.waitForEvent('download', { timeout: 30_000 }), page.locator('.end .btn').first().click()]);

@@ -107,10 +107,10 @@ const browser = await chromium.launch({ channel: 'msedge' }), page = await brows
 page.on('console', (msg) => { if (msg.type() === 'warning' || msg.type() === 'error') (page._warnings ??= []).push(msg.text().slice(0, 160)); });
 await page.goto(`http://localhost:${port}/`);
 await page.waitForFunction(() => window.ready);
-const out = {};
+const out = fs.existsSync(path.join(OUT, 'browser.json')) ? JSON.parse(fs.readFileSync(path.join(OUT, 'browser.json'), 'utf8')) : {}; // incremental
 let n = 0;
 for (const r of data.results) {
-  if (r.error || !r.font) continue;
+  if (r.error || !r.font || out[r.id]) continue;
   page._warnings = [];
   const res = await page.evaluate((r) => window.audit(r), r);
   res.pdfjs.warnings = [...new Set(page._warnings)].slice(0, 3);
