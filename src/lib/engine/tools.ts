@@ -31,32 +31,48 @@ export function crop(p: MuPDF.PDFObject, f: number[]) {
   p.put('CropBox', [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[0], b[0]), Math.max(a[1], b[1])].map(num));
 }
 
-export type NumberStyle = { position?: 'bl' | 'bc' | 'br' | 'tl' | 'tc' | 'tr'; start?: number; total?: boolean; size?: number };
-/** Page numbers on `pages` (indices), counting from `start`; "n / N" when `total`. Upright on turned pages. */
-export function pageNumbers(m: typeof MuPDF, out: MuPDF.PDFDocument, pages: number[], style: NumberStyle = {}) {
-  const font = out.addSimpleFont(new m.Font('Helvetica')), size = style.size ?? 10, pos = style.position ?? 'bc', start = style.start ?? 1;
+export type NumberStyle = { position?: 'bl' | 'bc' | 'br' | 'tl' | 'tc' | 'tr'; start?: number; total?: boolean; size?: number; digits?: 'latn' | 'arab' };
+const indic = (s: string) => s.replace(/[0-9]/g, (d) => String.fromCharCode(0x660 + +d));
+/** Page numbers on `pages` (indices), counting from `start`; "n / N" when `total` ("٣ من ١٠" in Arabic-Indic digits, which are drawn with the
+ *  Arabic font, so `fonts` is needed for them). Upright on turned pages. The size grows with the page (10 pt on A4, 14 pt on A3) and each
+ *  number has a thin white halo, so it stays readable on a dark slide, a photo or a drawing's frame. */
+export function pageNumbers(m: typeof MuPDF, out: MuPDF.PDFDocument, pages: number[], style: NumberStyle = {}, fonts?: Fonts) {
+  const arab = style.digits === 'arab' && !!fonts, writer = arab ? pageWriter(m, out, fonts!) : null, font = arab ? null : out.addSimpleFont(new m.Font('Helvetica'));
+  const pos = style.position ?? 'bc', start = style.start ?? 1, last = start + pages.length - 1;
   pages.forEach((i, n) => {
-    const p = out.findPage(i), { box, rot, seenW, seenH } = pageBox(p);
-    const label = style.total ? `${start + n} / ${start + pages.length - 1}` : String(start + n);
-    const width = [...label].reduce((w, c) => w + (c === ' ' || c === '/' ? 0.278 : 0.556), 0) * size, gap = 20;
+    const p = out.findPage(i), { box, rot, seenW, seenH } = pageBox(p), k = Math.min(2.4, Math.max(1, Math.min(seenW, seenH) / 595)), size = style.size ?? 10 * k, gap = 20 * k;
+    const plain = style.total ? (arab ? `${start + n} من ${last}` : `${start + n} / ${last}`) : String(start + n), label = arab ? indic(plain) : plain;
+    const width = arab ? measure(fonts!.regular, label, size) : [...label].reduce((w, c) => w + (c === ' ' || c === '/' ? 0.278 : 0.556), 0) * size;
     const x = pos[1] === 'l' ? gap : pos[1] === 'r' ? seenW - gap - width : (seenW - width) / 2;
     const y = pos[0] === 'b' ? gap : seenH - gap - size;
-    stamp(out, p, `q ${seenMatrix(box, rot).map(num).join(' ')} cm BT /WqN ${size} Tf 0.33 0.41 0.37 rg 1 0 0 1 ${num(x)} ${num(y)} Tm (${label}) Tj ET Q`, { Font: { WqN: font } });
+    const halo = size * 0.2;
+    // a white outline first, then the number over it
+    const ops = writer
+      ? ((o) => `q ${o.replace(/BT /g, `BT 1 Tr ${num(halo)} w 1 1 1 RG `)} Q ${o}`)(writer.draw({ w: 0, h: seenH, lines: [{ text: label, x, y: seenH - y, size, color: [0.33, 0.41, 0.37] }] }))
+      : `BT /WqN ${num(size)} Tf 1 Tr ${num(halo)} w 1 1 1 RG 1 0 0 1 ${num(x)} ${num(y)} Tm (${label}) Tj ET BT /WqN ${num(size)} Tf 0 Tr 0.33 0.41 0.37 rg 1 0 0 1 ${num(x)} ${num(y)} Tm (${label}) Tj ET`;
+    stamp(out, p, `q ${seenMatrix(box, rot).map(num).join(' ')} cm ${ops} Q`, { Font: writer ? writer.fonts : { WqN: font! } });
   });
+  writer?.finish();
 }
 
-export type Watermark = { text: string; size?: number; opacity?: number; angle?: number; color?: number[] };
-/** A text watermark (real text, Arabic too) across the middle of each page in `pages`, see-through. */
+export type Watermark = { text: string; size?: number; opacity?: number; angle?: number; color?: number[]; tile?: boolean };
+/** A text watermark (real text, Arabic too) across the middle of each page in `pages`, see-through; with `tile` repeated over the whole page
+ *  (rows offset by half a step) in a smaller size, so a whole-page mark cannot be cropped away. */
 export function watermark(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts, pages: number[], w: Watermark) {
   const writer = pageWriter(m, out, fonts), gs = out.addObject({ Type: 'ExtGState', ca: w.opacity ?? 0.2, CA: w.opacity ?? 0.2 });
   const a = ((w.angle ?? 45) * Math.PI) / 180, c = num(Math.cos(a)), s = num(Math.sin(a));
   for (const i of pages) {
     const p = out.findPage(i), { box, rot, seenW, seenH } = pageBox(p);
     // size: as asked, but never wider than the page's diagonal allows
-    let size = w.size ?? 72;
-    const wide = measure(fonts.bold, w.text, size), room = Math.hypot(seenW, seenH) * 0.8;
+    let size = w.size ?? (w.tile ? 36 : 72);
+    const wide = measure(fonts.bold, w.text, size), room = Math.hypot(seenW, seenH) * (w.tile ? 0.5 : 0.8);
     if (wide > room) size *= room / wide;
-    const ops = writer.draw({ w: 0, h: 0, lines: [{ text: w.text, x: 0, y: size * 0.35, size, bold: true, align: 'center', color: w.color ?? [0.082, 0.467, 0.365] }] });
+    const color = w.color ?? [0.082, 0.467, 0.365], lines = [];
+    if (w.tile) { // a grid in the turned frame, centred on the page, reaching past its corners
+      const width = measure(fonts.bold, w.text, size), sx = width + size * 2.5, sy = size * 3.6, half = Math.hypot(seenW, seenH) / 2;
+      for (let r = -Math.ceil(half / sy); r <= Math.ceil(half / sy); r++) for (let q = -Math.ceil(half / sx) - 1; q <= Math.ceil(half / sx) + 1; q++) lines.push({ text: w.text, x: q * sx + (r % 2 ? sx / 2 : 0), y: r * sy + size * 0.35, size, bold: true, align: 'center' as const, color });
+    } else lines.push({ text: w.text, x: 0, y: size * 0.35, size, bold: true, align: 'center' as const, color });
+    const ops = writer.draw({ w: 0, h: 0, lines });
     stamp(out, p, `q ${seenMatrix(box, rot).map(num).join(' ')} cm 1 0 0 1 ${num(seenW / 2)} ${num(seenH / 2)} cm ${c} ${s} ${-s} ${c} 0 0 cm /WqG gs ${ops} Q`, { Font: writer.fonts, ExtGState: { WqG: gs } });
   }
   writer.finish();

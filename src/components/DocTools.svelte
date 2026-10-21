@@ -33,12 +33,13 @@
   });
 
   // Edit → Whole document
-  let numbersOn = $state(true), position = $state<'bl' | 'bc' | 'br' | 'tl' | 'tc' | 'tr'>('bc'), start = $state(1), total = $state(false);
-  let markOn = $state(false), markText = $state(''), opacity = $state(20), angle = $state(45);
-  const label = $derived(total ? `${start} / ${start + sizes.length - 1}` : String(start));
+  let numbersOn = $state(true), position = $state<'bl' | 'bc' | 'br' | 'tl' | 'tc' | 'tr'>('bc'), start = $state(1), total = $state(false), digits = $state<'latn' | 'arab'>('latn');
+  let markOn = $state(false), markText = $state(''), opacity = $state(20), angle = $state(45), tile = $state(false);
+  const indic = (v: string) => v.replace(/[0-9]/g, (d) => String.fromCharCode(0x660 + +d));
+  const label = $derived(digits === 'arab' ? indic(total ? `${start} من ${start + sizes.length - 1}` : String(start)) : total ? `${start} / ${start + sizes.length - 1}` : String(start));
   const stamp = () => run(t('applying'), async () => {
-    const out = await pool.build({ items: all(), numbers: numbersOn, numberStyle: { position, start, total },
-      watermark: markOn && markText.trim() ? { text: markText.trim(), opacity: opacity / 100, angle } : undefined });
+    const out = await pool.build({ items: all(), numbers: numbersOn, numberStyle: { position, start, total, digits },
+      watermark: markOn && markText.trim() ? { text: markText.trim(), opacity: opacity / 100, angle, tile } : undefined });
     await onReplace(out);
   });
 
@@ -90,7 +91,8 @@
     <div class="sheet" style="width:{s0.w * k}px;height:{s0.h * k}px">
       <canvas bind:this={canvas}></canvas>
       {#if kind === 'stamp'}
-        {#if markOn && markText.trim()}<span class="mark" style="opacity:{opacity / 100 + 0.1};transform:translate(-50%,-50%) rotate({-angle}deg)">{markText}</span>{/if}
+        {#if markOn && markText.trim() && tile}<div class="tiles" style="opacity:{opacity / 100 + 0.1};transform:translate(-50%,-50%) rotate({-angle}deg)" aria-hidden="true">{#each Array(48) as _, n}<span class="mark" class:half={Math.floor(n / 6) % 2}>{markText}</span>{/each}</div>
+        {:else if markOn && markText.trim()}<span class="mark" style="opacity:{opacity / 100 + 0.1};transform:translate(-50%,-50%) rotate({-angle}deg)">{markText}</span>{/if}
         {#if numbersOn}<span class="pno num {position}">{label}</span>{/if}
       {/if}
     </div>
@@ -111,10 +113,15 @@
           <label class="field"><span>{t('startAt')}</span><input type="number" min="0" bind:value={start} /></label>
           <label class="switch"><input type="checkbox" bind:checked={total} />{t('withTotal')}</label>
         </div>
+        <div class="row" role="radiogroup" aria-label={t('digitsLabel')}>
+          <button class="btn" role="radio" class:on={digits === 'latn'} aria-checked={digits === 'latn'} onclick={() => (digits = 'latn')}>{t('digitsWestern')}</button>
+          <button class="btn" role="radio" class:on={digits === 'arab'} aria-checked={digits === 'arab'} onclick={() => (digits = 'arab')}>{t('digitsArabic')}</button>
+        </div>
       {/if}
       <label class="switch"><input type="checkbox" bind:checked={markOn} />{t('watermark')}</label>
       {#if markOn}
         <label class="field"><span>{t('watermarkText')}</span><input bind:value={markText} placeholder={t('watermarkExample')} /></label>
+        <label class="switch"><input type="checkbox" bind:checked={tile} />{t('tileMark')}</label>
         <div class="row">
           <label class="field"><span>{t('opacity')} {opacity}%</span><input type="range" min="5" max="60" bind:value={opacity} /></label>
           <label class="field"><span>{t('angle')} {angle}°</span><input type="range" min="0" max="90" step="15" bind:value={angle} /></label>
@@ -167,6 +174,9 @@
   .preview { display: grid; place-content: center; justify-items: center; gap: var(--s-12); background: var(--canvas); padding: var(--s-24); overflow: auto; }
   .sheet { position: relative; background: #fff; box-shadow: var(--shadow); overflow: hidden; }
   .sheet canvas { width: 100%; height: 100%; display: block; }
+  .tiles { position: absolute; left: 50%; top: 50%; width: 220%; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-24) var(--s-32); pointer-events: none; }
+  .tiles .mark { position: static; font-size: var(--fs-16); }
+  .tiles .mark.half { margin-inline-start: var(--s-32); }
   .mark { position: absolute; left: 50%; top: 50%; white-space: nowrap; font: 700 var(--fs-32)/1 var(--font); color: var(--green); pointer-events: none; }
   .pno { position: absolute; font-size: var(--fs-12); color: var(--muted); }
   .pno.bc, .pno.tc { left: 50%; transform: translateX(-50%); } .pno.bl, .pno.tl { left: 8px; } .pno.br, .pno.tr { right: 8px; }

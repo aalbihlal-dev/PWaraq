@@ -136,7 +136,7 @@ const ops: Record<string, (r: Req) => any> = {
   },
   // a new PDF from pages of the open sources (Organize, Portfolio)
   async build(r) {
-    if (r.build.watermark || r.build.items.some((it: any) => it.divider || it.toc || it.cover || (it.blank && it.paper))) await loadFonts();
+    if (r.build.watermark || r.build.numberStyle?.digits === 'arab' || r.build.items.some((it: any) => it.divider || it.toc || it.cover || (it.blank && it.paper))) await loadFonts();
     return assemble(mupdf, source, r.build, () => fonts!);
   },
   // whole-file tools (Convert, Protect)

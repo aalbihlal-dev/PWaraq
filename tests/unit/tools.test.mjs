@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import * as m from '../../engine/mupdf-wasm/dist/mupdf.js';
 import { assemble } from '../../src/lib/engine/assemble.ts';
-import { compress, protect, unlock, guardOf, sealLikeSource } from '../../src/lib/engine/tools.ts';
+import { compress, protect, unlock, guardOf, sealLikeSource, pageNumbers, watermark } from '../../src/lib/engine/tools.ts';
 
 const three = fs.readFileSync(new URL('../fixtures/three.pdf', import.meta.url));
 const font = (f) => new m.Font(f, fs.readFileSync(new URL('../../public/fonts/' + f + '.ttf', import.meta.url)));
@@ -105,4 +105,36 @@ test('protection follows copies: compress keeps it; stripping it needs the owner
   const copy = sealLikeSource(m, assemble(m, () => ({ doc: open(three), bytes: three }), { items: [{ doc: 1, page: 0 }] }), locked, 'own');
   assert.equal(open(copy).hasPermission('copy'), false);
   assert.ok(open(copy).authenticatePassword('own') & 4);
+});
+
+// ---- page numbers in Arabic-Indic digits, sized by the page, readable on a dark page; a tiled watermark
+const blankDoc = (w, h, content = '') => { const d = new m.PDFDocument(); d.insertPage(-1, d.addPage([0, 0, w, h], 0, {}, content)); return d; };
+const png = (d) => m.Document.openDocument(d.saveToBuffer('').asUint8Array().slice(), 'application/pdf');
+const pixels = (doc, scale = 2) => { const x = doc.loadPage(0).toPixmap(m.Matrix.scale(scale, scale), m.ColorSpace.DeviceGray, false); return { W: x.getWidth(), H: x.getHeight(), px: x.getPixels().slice() }; };
+const bboxOf = (r, test) => { let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1, n = 0; for (let y = 0; y < r.H; y++) for (let x = 0; x < r.W; x++) if (test(r.px[y * r.W + x])) { n++; x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); } return { n, w: x1 - x0 + 1, h: y1 - y0 + 1 }; };
+
+test('page numbers: Arabic-Indic digits are real text ("٣ من ١٠"), Western digits stay the default', () => {
+  const d = blankDoc(595, 842); pageNumbers(m, d, [0], { total: true, start: 3, digits: 'arab' }, fonts);
+  const text = png(d).loadPage(0).toStructuredText().asText();
+  assert.ok(/[٠-٩]/.test(text) && !/[0-9]/.test(text), JSON.stringify(text));
+  const e = blankDoc(595, 842); pageNumbers(m, e, [0], { total: true, start: 3 }); // no fonts needed for 0-9
+  assert.match(png(e).loadPage(0).toStructuredText().asText(), /3 \/ 3/);
+});
+
+test('page numbers: the size follows the page (10 pt on A4, bigger on A3), and an explicit size is kept', () => {
+  const h = (w, ht, style) => { const d = blankDoc(w, ht); pageNumbers(m, d, [0], style); return bboxOf(pixels(png(d)), (v) => v < 200).h; };
+  const a4 = h(595, 842, { total: true }), a3 = h(842, 1191, { total: true }), fixed = h(842, 1191, { total: true, size: 10 });
+  assert.ok(a3 > a4 * 1.3, `${a3} vs ${a4}`); assert.equal(fixed, a4);
+});
+
+test('page numbers stay readable on a dark page (a white outline round the number)', () => {
+  const d = blankDoc(595, 842, '0.08 0.33 0.18 rg 0 0 595 842 re f'); pageNumbers(m, d, [0], { total: true });
+  const r = pixels(png(d)), before = pixels(png(blankDoc(595, 842, '0.08 0.33 0.18 rg 0 0 595 842 re f')));
+  const lighter = bboxOf({ ...r, px: r.px.map((v, i) => (v > before.px[i] + 90 ? 0 : 255)) }, (v) => v === 0);
+  assert.ok(lighter.n > 40, `${lighter.n} light pixels`);
+});
+
+test('watermark: one mark in the middle, or the same mark repeated all over the page with tile', () => {
+  const count = (tile) => { const d = blankDoc(595, 842); watermark(m, d, fonts, [0], { text: 'سري للغاية', tile }); return (png(d).loadPage(0).toStructuredText().asText().match(/للغاية|ةيالغلل|ﺔﻳﺎﻐﻠﻟ/g) ?? []).length; };
+  assert.equal(count(false), 1); assert.ok(count(true) >= 8, `${count(true)}`);
 });

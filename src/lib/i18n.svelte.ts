@@ -146,6 +146,7 @@ const strings = {
   dateLabel: ['Date', 'التاريخ'],
   sameDate: ['The same date goes on every file you sign now.', 'التاريخ نفسه يوضع على كل ملف توقّعه الآن.'],
   calendar: ['Calendar', 'التقويم'], gregorian: ['Gregorian', 'ميلادي'], hijri: ['Hijri', 'هجري'],
+  tileMark: ['Repeat across the page', 'كرّر على الصفحة'],
   digitsLabel: ['Digits', 'الأرقام'], digitsWestern: ['0 1 2 3', '0 1 2 3'], digitsArabic: ['٠ ١ ٢ ٣', '٠ ١ ٢ ٣'],
   dateFormat: ['Format', 'الصيغة'], fmtNumeric: ['Numbers', 'أرقام'], fmtLong: ['Month name', 'اسم الشهر'], fmtIso: ['Year first', 'السنة أولًا'],
   nameUnder: ['Name under the signature (optional)', 'الاسم تحت التوقيع (اختياري)'],

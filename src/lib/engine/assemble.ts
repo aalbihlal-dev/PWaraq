@@ -82,7 +82,7 @@ export function assemble(m: typeof MuPDF, source: (id: number) => Source, b: Bui
   });
   // numbers: on every page (`true`) or on some pages only, counting from 1 within them (one section)
   const numbered = b.numbers === true ? b.items.map((_, i) => i) : Array.isArray(b.numbers) ? b.numbers : [];
-  if (numbered.length) pageNumbers(m, out, numbered, b.numberStyle);
+  if (numbered.length) pageNumbers(m, out, numbered, b.numberStyle, fonts?.());
   if (b.watermark?.text.trim()) watermark(m, out, fonts!(), b.watermark.pages ?? b.items.map((_, i) => i), b.watermark);
   if (b.bookmarks?.length) {
     const outline = out.outlineIterator();

@@ -13,9 +13,9 @@ for (const s of subjects((s) => s.id.includes(only))) {
   // --- page numbers, bottom centre and top right
   for (const pos of ['bc', 'tr']) {
     try {
-      const d = new m.PDFDocument(bytes); pageNumbers(m, d, [0], { position: pos, total: true, start: 1, size: 10 });
+      const d = new m.PDFDocument(bytes); pageNumbers(m, d, [0], { position: pos, total: true, start: 1 }); // default size: grows with the page
       const out = render(d.saveToBuffer('').asUint8Array().slice(), 1.5), df = diff(base, out, 20);
-      const width = 19.5, ex = pos === 'bc' ? [W / 2, H - 23.6] : [W - 20 - width / 2, 26.4];
+      const k = Math.min(2.4, Math.max(1, Math.min(W, H) / 595)), size = 10 * k, gap = 20 * k, width = 1.946 * size, ex = pos === 'bc' ? [W / 2, H - gap - size * 0.36] : [W - gap - width / 2, gap + size * 0.64];
       if (!df.n) { rows.add('page numbers', pos, s, false, 'nothing visible', 'no pixel changed'); continue; }
       const [cx, cy] = [df.box.x + df.box.w / 2, df.box.y + df.box.h / 2], off = Math.hypot(cx - ex[0], cy - ex[1]);
       const over = dark(base, expand(df.box, 1)), upright = df.box.w > df.box.h * 1.4;
