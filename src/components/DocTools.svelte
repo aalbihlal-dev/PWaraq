@@ -66,7 +66,7 @@
     const file = e.currentTarget.files?.[0]; e.currentTarget.value = '';
     if (file) run(t('officeConverting'), async () => {
       try { await saveFile(await toPdf(file), file.name.replace(/\.[^.]+$/, '') + '.pdf'); }
-      catch { error = t('officeFailed'); }
+      catch (e) { if ((e as Error)?.message !== 'NO_PACKS') error = t('officeFailed'); } // declined download: no message
     });
   };
 

@@ -466,6 +466,49 @@ the browser build cannot run them and says so ("This works in the Waraq desktop 
   contents, watermark): ~470 KB → ~90 KB on a three-page test, text unchanged. Other exports are not subsetted, so
   fonts of the user's own PDFs stay whole and editable.
 
+## Phase 4a, second slice — installer, updater, add-on packs, Store package (step F, 21 Oct 2026; NOT released)
+Release gate stands: everything below is built and tested locally only; `release/` holds the installer, `.sig` and MSIX
+(git-ignored), `release/README.txt` the size + SHA-256, `release/TEST-REPORT.md` the test tables.
+- **Installer** (`pnpm desktop:build` → `release/Waraq_<v>_x64-setup.exe`, 27.8 MB vs 147 MB for 0.3.3): NSIS, per-user,
+  no admin, English/Arabic by the Windows language (the language dialog had to go: it blocks the passive update
+  install), Waraq header/sidebar art from 0.3.3, Start-menu shortcut, desktop shortcut optional (tick on the finish
+  page; silent installs make it), uninstall entry, WebView2 bootstrapper when missing, `/S` (+ `/D=dir`) silent.
+  `src-tauri/installer/hooks.nsh`: `.pdf` is *offered* (`OpenWithProgids` + ProgId `Waraq.PDF`, default handler
+  untouched), `.waraq` owned (Tauri file association, ProgId `Waraq.Portfolio`), right-click "Open in Waraq" on both
+  (`SystemFileAssociations\.<ext>\shell\OpenInWaraq`), all HKCU, removed on uninstall. The version comes from
+  `package.json` (`tauri.conf.json` → `"version": "../package.json"`). Test: `tools/dev/installer-test.ps1` (29 checks:
+  silent install into `%LOCALAPPDATA%\WaraqInstallTest`, keys, ShellExecute of a PDF with the verb → window, second
+  file → same window, silent uninstall leaves nothing). No 0.3.3 is installed on this PC, so the full test ran.
+- **Updater** (`src-tauri/src/update.rs`, `src/lib/update.svelte.ts`): `tauri-plugin-updater` against
+  `https://www.pwaraq.com/downloads-1.0/manifest.json` (URL only — nothing uploaded; `tools/dev/update-manifest.mjs`
+  prints the manifest with the `.sig` and the installer's SHA-256). Minisign key pair in `../Backups/keys-private/`
+  (private key + password file + README: keep offline, back up; public key in `tauri.conf.json`). Check once a day at
+  start and on "Check for updates" (start screen row with the version); a found update downloads in the background
+  (signature by the plugin, SHA-256 against the manifest by us) and waits for the click "Restart to update" — never
+  silent. Rollback: the installer hook keeps every installed version's setup in `%APPDATA%\com.waraq.app\updates\`;
+  a start writes `boot`, the page's `app_started` clears it and writes `last-good`; if `boot` is still there at the next
+  start and this version never became `last-good`, the last good version's installer runs silently (`/S /R`), the
+  failed version is `skip`ped and the start screen says "Version X did not start, so Waraq went back to Y". The
+  previous installer stays until the new version has started once (then one older copy is kept). Test:
+  `tools/dev/updater-test.mjs` (two signed builds 0.0.1 → 0.0.2 under identity `com.waraq.test`, local manifest server,
+  CDP-driven click, relaunch, simulated failed start → rollback, skip). Store builds (marker file `store-build`) never check.
+- **Add-on packs** (`src-tauri/src/packs.rs`, `convert.rs`, `src/lib/packs.svelte.ts`, `PackPrompt.svelte`): the first
+  Office/CAD conversion asks "Download the Office & CAD add-on (137 MB)?" (EN/AR, Download / Not now); after the click
+  the shell fetches `https://www.pwaraq.com/packs/manifest.json`, accepts only the pack whose SHA-256 is pinned in
+  `src-tauri/packs.json` (the 0.3.3 office pack), downloads the 16 MB pieces 4 at a time (each piece checked, the whole
+  checked), unpacks zstd+tar into `%APPDATA%\com.waraq.app\engines\office\` (progress events, Cancel), then
+  `convert_to_pdf` runs LibreOffice / LibreDWG headless on a temp copy (macros off, no window, 3 min per program,
+  cancel, temp folder removed) and returns the PDF. The OCR pack is not needed (web OCR files are bundled). Fixtures:
+  `tests/fixtures/office/` (made by `make-office.mjs`: Word with real Arabic, Excel, PowerPoint, DXF via ezdxf, DWG via
+  LibreDWG). Tests: `tests/unit/convert.test.mjs` (all five through the pack, Arabic stays text, ~13 s each),
+  `cargo test` (Rust converter on the DXF), `tests/e2e/packs.spec.ts` (prompt, progress, Not now), `tools/dev/packs-test.mjs`
+  (the real download + conversions in the built app).
+- **Microsoft Store:** `packaging/msix/` (manifest with PLACEHOLDER identity, assets, `build.ps1` → `release/Waraq_<v>.msix`
+  with MakeAppx from the Windows SDK 10.0.26100.0 found on this PC, README with what the Store needs). Prepared only.
+- **Remains:** owner decisions (Store account, privacy page, code signing stays declined → SmartScreen note), the
+  real manifest + installer on pwaraq.com after the release gate, a hand test of the add-on download on a slow line,
+  the items of the first-slice list below that are still open (drag-over highlight, CSP, overlay scrollbars…).
+
 ## Phase 4a — desktop shell with Tauri 2 (step F, 21 Oct 2026, first slice)
 Built in `src-tauri/` (Rust, ~110 lines) + `src/lib/desktop.ts` + `TitleBar.svelte`; the web build is untouched
 (`desktop.ts` does nothing when `window.__TAURI__` is missing; `tests/e2e/desktop.spec.ts` checks both). **Compiled and

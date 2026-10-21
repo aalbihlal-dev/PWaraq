@@ -164,6 +164,7 @@ pub fn run() {
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
+            convert::sweep();
             if let Ok(d) = app.path().app_data_dir() {
                 let _ = CRASH_HOME.set(d.join("vault"));
             }

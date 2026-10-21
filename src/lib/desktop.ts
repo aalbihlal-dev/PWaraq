@@ -1,6 +1,7 @@
 // The Tauri desktop shell (src-tauri). In the browser `tauri` is undefined, `isDesktop` is false and the callers keep
 // their browser behaviour (file pickers, downloads). Uses Tauri's global API (withGlobalTauri) so no npm package.
 import { CAD, OFFICE, type Desktop } from './convert';
+import { ensure as ensurePack } from './packs.svelte';
 
 type Tauri = {
   core: { invoke(cmd: string, args?: unknown, opts?: { headers: Record<string, string> }): Promise<any> };
@@ -62,7 +63,15 @@ export function onOpenPaths(cb: (paths: string[]) => void) {
 
 if (tauri) {
   document.documentElement.dataset.desktop = ''; // makes room for the title bar (tokens.css)
+  // Office/CAD → PDF through the add-on pack; the first use asks to download it (packs.svelte.ts), then converts
+  const convert = async (name: string, bytes: Uint8Array) => new Uint8Array(await tauri.core.invoke('convert_to_pdf', bytes, { headers: { name: ascii(name) } }));
   (globalThis as { waraqDesktop?: Desktop }).waraqDesktop = {
-    convertToPdf: async (name, bytes) => new Uint8Array(await tauri.core.invoke('convert_to_pdf', bytes, { headers: { name: ascii(name) } })),
+    convertToPdf: async (name, bytes) => {
+      try { return await convert(name, bytes); } catch (e) {
+        if (String(e) !== 'NO_PACKS') throw e;
+        if (!(await ensurePack())) throw new Error('NO_PACKS');
+        return convert(name, bytes);
+      }
+    },
   };
 }
