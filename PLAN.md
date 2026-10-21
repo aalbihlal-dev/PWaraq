@@ -528,3 +528,20 @@ Round trip is tested (portfolio.spec). Gaps found by reading `openPortfolioFile`
 2. no `app === 'waraq-portfolio'` / `version` check → "made with a newer Waraq" instead of opening blindly;
 3. entry names and `manifest.id` unvalidated → reject names with `..`, `/`, `\`, drive letters, absolute paths, and ids that are not `[a-z0-9-]`; cap entry count and total unzipped size (zip-bomb); needed BEFORE the desktop app writes them to disk;
 4. tests: corrupt zip, wrong manifest, newer version, path-traversal entry, 200 MB portfolio, Arabic names; desktop: double-click a `.waraq` (file association is in tauri.conf.json, never run yet).
+
+## Recovery plan (owner, 21 Oct 2026: "we also need a recovery plan")
+**A. Never lose a person's work (build with Phase 4a/b; one Sonnet session after the desktop slice)**
+1. **Safe save:** write to a temp file next to the target, verify it opens with MuPDF (page count, text spot-check), then replace; keep the previous version as `name.bak.pdf` (one generation) until the next successful save; never overwrite in place (desktop: write-then-rename; web: download only).
+2. **Autosave drafts:** every edit session keeps a draft of the changed document (pages, annotations, portfolio state) in the app's local storage (OPFS / app data folder) every 30 s and on each undo step; on the next start, if the last session did not close cleanly, the start screen offers "Restore your unsaved work from <time>" (EN+AR) — keep 5 drafts, delete after 30 days or when saved.
+3. **Crash and freeze guard:** a worker/engine crash restarts the pool and keeps the document bytes and undo stack (today `pool.reset()` loses nothing on disk but not the in-memory edits); show "Waraq recovered — nothing was lost" instead of a blank page; a hung job gets a Cancel button.
+4. **Undo everywhere:** Undo after Close (0.3.x had it), after Save, and after "Discard changes" for 10 minutes (draft kept).
+5. **Portfolio:** autosaved to its folder in app storage on every change (today on demand); `.waraq` export is the portable backup; "Restore previous version" lists the last 5 saved states.
+6. **Damaged files:** opening a broken PDF tries MuPDF repair, then offers "Open what could be read" with the page count; wrong password and truncated files get plain messages (EN+AR).
+7. **Tests:** kill the engine mid-edit, kill the app mid-save (the target is either the old file or the new, never half), restore a draft, a broken PDF, 5-draft rotation.
+
+**B. Never lose the project (owner decisions needed at 3 and 4)**
+1. **Source:** GitHub (tshi-dev/PWaraq) is the main copy; also keep a monthly `git bundle` of `waraq-next` and `PWaraq` on a second drive (a scheduled task — owner picks the folder).
+2. **Website:** every Cloudflare Pages deployment is kept; rollback = "Rollback to this deployment" in the dashboard; before each upload the publishing agent notes the current deployment id in OTHER-AGENT-TO-DO Results. Keep the last 3 website ZIPs in `waraq/publish`.
+3. **Releases:** keep every installer + SHA-256 + manifest per version (`release-full/`, later GitHub Releases) so a bad update can be pulled and the old version pinned; the updater never removes the previous version until the new one starts.
+4. **Secrets and accounts:** the owner keeps recovery codes for Cloudflare, GitHub (2FA) and the domain registrar in a password manager; write a one-page "if I lose access" list (account, recovery method, where the code is — no secrets in the repo).
+5. **Update safety:** the updater downloads, verifies SHA-256, installs beside the old version and rolls back on a failed start.
