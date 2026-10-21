@@ -3,6 +3,7 @@
 // The desktop app (Tauri) keeps plain paths and reads/writes them through src/lib/desktop.ts.
 
 import { isDesktop, pickPaths, readPath, saveAs } from './desktop';
+import * as vault from './vault';
 
 export type Recent = { key: string; kind: 'pdf' | 'portfolio'; name: string; at: number; pages?: number; thumb?: Blob; handle?: FileSystemFileHandle; path?: string };
 const KEEP = 12;
@@ -38,6 +39,7 @@ export async function remember(entry: Partial<Recent> & Pick<Recent, 'key' | 'ki
 export async function forget(key: string) {
   try { await tx('readwrite', (s) => { s.delete(key); }); } catch {}
   if (key.startsWith('portfolio:')) try { await (await folder()).removeEntry(key.slice(10), { recursive: true }); } catch {}
+  if (key.startsWith('portfolio:')) await vault.remove('portfolio-versions/' + key.slice(10));
 }
 
 // Signatures kept on this device for signing mode: clean PNGs (transparent paper), newest first

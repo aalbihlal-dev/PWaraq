@@ -9,6 +9,11 @@
   import { recentList, remember, forget, reopen, pickFiles, saveFile, readPortfolio, writePortfolio, type Recent } from './lib/store';
   import { newPortfolio, load, parse, PortfolioError, type Portfolio as PortfolioData } from './lib/portfolio';
   import { unzip } from './lib/zip';
+  import { saveDraft, listDrafts, readDraft, dropDraft, EVERY, type Draft } from './lib/drafts';
+  import { startSession } from './lib/session';
+  import { uid } from './lib/pages';
+  import Notice from './components/Notice.svelte';
+  import type { Health } from './lib/engine/pool';
   import { CONVERTIBLE_ACCEPT, isConvertible, toPdf } from './lib/convert';
   import { isDesktop, onOpenPaths, readPath, writePath, saveAs, baseName } from './lib/desktop';
   import TitleBar from './components/TitleBar.svelte';
@@ -24,13 +29,56 @@
 
   $effect(() => { document.documentElement.lang = i18n.lang; document.documentElement.dir = i18n.lang === 'ar' ? 'rtl' : 'ltr'; });
   const refresh = async () => (recent = await recentList());
-  onMount(() => { refresh(); if (isDesktop) onOpenPaths(async ([p]) => openFile(await readPath(p), undefined, p)); });
+  // recovery: engine health, drafts of unsaved work, the last closed document
+  let health = $state<Health | null>(null), notice = $state(''), drafts = $state<Draft[]>([]), closed = $state<{ name: string; bytes: Uint8Array; modified: boolean; path?: string } | null>(null);
+  let draftId = uid(), kept: Uint8Array | null = null, closeTimer: ReturnType<typeof setTimeout>;
+  pool.onHealth = (h) => {
+    if (h.kind === 'recovered') { notice = t('recovered'); setTimeout(() => (notice = ''), 8000); health = null; } else health = h.kind === 'slow' ? h : null;
+  };
+  if (navigator.webdriver) (globalThis as { waraqPool?: EnginePool }).waraqPool = pool; // lets the tests crash the engine on purpose
+  async function keepDraft() {
+    const d = doc;
+    if (!d?.modified || d.bytes === kept) return;
+    kept = d.bytes;
+    try { await saveDraft(draftId, d.name, d.bytes, d.sizes.length); } catch { kept = null; } // storage full or private mode: the next change tries again
+  }
+  async function restoreDraft(d: Draft) {
+    const bytes = await readDraft(d.id);
+    drafts = [];
+    if (!bytes) return;
+    openedPath = undefined;
+    await openFile(new File([bytes as Uint8Array<ArrayBuffer>], d.name));
+    if (doc) { doc.modified = true; draftId = d.id; kept = doc.bytes; } // it carries on as the same draft; Save removes it
+  }
+  onMount(() => {
+    refresh();
+    startSession().then(async (unclean) => { if (unclean) drafts = (await listDrafts()).slice(0, 1); });
+    const every = setInterval(keepDraft, EVERY);
+    if (isDesktop) onOpenPaths(async ([p]) => openFile(await readPath(p), undefined, p));
+    return () => clearInterval(every);
+  });
 
-  async function show(bytes: Uint8Array, name: string, modified = false, password?: string) {
+  class Damaged { pages: number; constructor(pages: number) { this.pages = pages; } }
+  async function show(bytes: Uint8Array, name: string, modified = false, password?: string, repairedOk = false) {
     await setDocument(bytes);
     const sizes = await pool.open(bytes, password);
+    if (pool.repaired && !repairedOk) throw new Damaged(sizes.length); // asked first: "Open what could be read"
+    if (!(doc?.name === name && modified)) { draftId = uid(); kept = null; } // a change to the open document keeps its draft; anything else starts a new one
     doc = null; portfolio = null; await tick(); // a new document gets a fresh workspace
     doc = { name, sizes, bytes, modified, password, path: openedPath };
+    keepDraft();
+  }
+  // a damaged PDF MuPDF could still read: shown on the start screen until the person chooses
+  let damaged = $state<{ bytes: Uint8Array; name: string; pages: number } | null>(null);
+  async function openReadable() {
+    const d = damaged;
+    if (!d) return;
+    busy = true; error = ''; damaged = null;
+    try {
+      openedPath = undefined; // the repaired copy is a new file: "Save" asks where
+      await show(await pool.tool<Uint8Array>('repair', { bytes: d.bytes }), d.name.replace(/(\.pdf)?$/i, '') + ' (repaired).pdf', true, undefined, true);
+    } catch { error = t('notReadable'); }
+    busy = false;
   }
   // a password-protected PDF: asked for on the start screen, then opened with it
   let locked = $state<{ bytes: Uint8Array; name: string; size: number; handle?: FileSystemFileHandle; path?: string } | null>(null), typed = $state('');
@@ -50,22 +98,27 @@
   async function openFile(file?: File | null, handle?: FileSystemFileHandle, path?: string) {
     if (!file) return;
     busy = true; error = ''; openedPath = path;
+    let bytes0 = new Uint8Array(0);
     try {
       if (isConvertible(file.name)) { // Word, Excel, PowerPoint, DWG, DXF: converted first (desktop app only)
         try { await show(await toPdf(file), file.name.replace(/\.[^.]+$/, '') + '.pdf', true); }
         catch (e) { error = (e as Error)?.message === 'DESKTOP_ONLY' ? t('officeDesktopOnly') : t('officeFailed'); }
         busy = false; return;
       }
-      const bytes = new Uint8Array(await file.arrayBuffer());
+      const bytes = bytes0 = new Uint8Array(await file.arrayBuffer());
       if (/\.waraq$/i.test(file.name)) {
         try { await openPortfolioFile(bytes); }
         catch (e) { error = t((e as PortfolioError).kind === 'newer' ? 'portfolioNewer' : 'portfolioInvalid'); } // damaged, foreign or unsafe: never "not a PDF"
       } else {
         try { await show(bytes, file.name); }
-        catch (e) { if ((e as Error)?.message === 'PASSWORD') { locked = { bytes, name: file.name, size: file.size, handle, path }; busy = false; return; } throw e; }
+        catch (e) {
+          if ((e as Error)?.message === 'PASSWORD') { locked = { bytes, name: file.name, size: file.size, handle, path }; busy = false; return; }
+          if (e instanceof Damaged) { damaged = { bytes, name: file.name, pages: e.pages }; busy = false; return; }
+          throw e;
+        }
         remember({ key: `pdf:${file.name}:${file.size}`, kind: 'pdf', name: file.name, pages: doc!.sizes.length, handle, path, thumb: await cover() });
       }
-    } catch { error = t('notPdf'); }
+    } catch (e) { error = t(!/%PDF-/.test(new TextDecoder('latin1').decode(bytes0.subarray(0, 1024))) ? 'notPdf' : 'notReadable'); }
     busy = false;
   }
   // first page, small, for the recent list
@@ -115,19 +168,41 @@
     const handle = await (item as any)?.getAsFileSystemHandle?.().catch(() => null);
     openFile(file, handle?.kind === 'file' ? handle : undefined);
   }
-  async function close() { doc = null; portfolio = null; refresh(); }
+  async function close() {
+    if (doc) { // kept for 10 minutes: "Undo close" on the start screen
+      closed = { name: doc.name, bytes: doc.bytes, modified: doc.modified, path: doc.path };
+      clearTimeout(closeTimer); closeTimer = setTimeout(() => (closed = null), 10 * 60_000);
+      await keepDraft();
+    }
+    doc = null; portfolio = null; refresh();
+  }
+  async function undoClose() {
+    const c = closed;
+    if (!c) return;
+    closed = null; openedPath = c.path;
+    await show(c.bytes, c.name, c.modified);
+  }
+  // the file about to be saved must open again, with as many pages as the document has
   async function save() {
     if (!doc) return;
-    if (isDesktop) { // straight to the file; "Save as" when there is none or it cannot be written
-      const path = (doc.path && await writePath(doc.path, doc.bytes).then(() => doc!.path, () => null)) || await saveAs(doc.name, doc.bytes);
-      if (path) { openedPath = doc.path = path; doc.name = baseName(path); doc.modified = false; }
-    } else if (await saveFile(doc.bytes, doc.name)) doc.modified = false;
+    const d = doc, check = async (back: Uint8Array) => { if (await pool.tool<number>('verify', { bytes: back, password: d.password }) !== d.sizes.length) throw new Error('VERIFY'); };
+    try {
+      if (isDesktop) { // straight to the file; "Save as" when there is none or it cannot be written
+        let path: string | null = null;
+        if (d.path) path = await writePath(d.path, d.bytes, check).then(() => d.path!, (e) => { if ((e as Error)?.message === 'VERIFY') throw e; return null; });
+        path ??= await saveAs(d.name, d.bytes, check);
+        if (path) { openedPath = d.path = path; d.name = baseName(path); d.modified = false; }
+      } else { await check(d.bytes); if (await saveFile(d.bytes, d.name)) d.modified = false; }
+      if (!d.modified) { await dropDraft(draftId); draftId = uid(); kept = null; }
+    } catch { alert(t('saveStopped')); }
   }
   const thumbs = new Map<Blob, string>();
   const thumbUrl = (b: Blob) => thumbs.get(b) ?? (thumbs.set(b, URL.createObjectURL(b)), thumbs.get(b)!);
+  const ago = (at: number) => new Date(at).toLocaleString(i18n.lang === 'ar' ? 'ar' : 'en-GB', { hour: '2-digit', minute: '2-digit', ...(Date.now() - at > 43_200_000 ? { day: 'numeric', month: 'short' } : {}) });
   const when = (at: number) => new Intl.RelativeTimeFormat(i18n.lang, { numeric: 'auto' }).format(Math.round((at - Date.now()) / 86_400_000), 'day');
 </script>
 
+<Notice message={notice} slow={health?.kind === 'slow'} oncancel={() => pool.cancelAll()} />
 {#if isDesktop}<TitleBar flush={!!(doc || portfolio)} />{/if}
 <input bind:this={picker} type="file" accept="application/pdf,.pdf,.waraq,{CONVERTIBLE_ACCEPT}" hidden onchange={(e) => { openFile(e.currentTarget.files?.[0]); e.currentTarget.value = ''; }} />
 
@@ -156,6 +231,21 @@
           <button class="btn primary" disabled={busy || !typed}>{t('openShort')}</button>
           <button type="button" class="btn" onclick={() => { locked = null; typed = ''; error = ''; }}>{t('cancel')}</button></span>
         </form>
+      {/if}
+      {#if damaged}
+        <div class="banner" role="alert">
+          <p>{t('damagedPdf').replace('{name}', damaged.name).replace('{n}', String(damaged.pages))}</p>
+          <span><button class="btn primary" onclick={openReadable}>{t('openReadable')}</button> <button class="btn" onclick={() => (damaged = null)}>{t('cancel')}</button></span>
+        </div>
+      {/if}
+      {#if drafts.length}
+        <div class="banner" role="status">
+          <p><strong>{t('restoreFrom').replace('{time}', ago(drafts[0].at))}</strong><br />{t('restoreHelp').replace('{name}', drafts[0].name)}</p>
+          <span><button class="btn primary" onclick={() => restoreDraft(drafts[0])}>{t('restore')}</button> <button class="btn" onclick={async () => { await dropDraft(drafts[0].id); drafts = []; }}>{t('discardDraft')}</button></span>
+        </div>
+      {/if}
+      {#if closed}
+        <button class="btn" onclick={undoClose}>{@html icon('undo')}{t('undoClose').replace('{name}', closed.name)}</button>
       {/if}
       {#if error}<p class="error" role="alert">{error}</p>{/if}
     </div>
@@ -210,5 +300,8 @@
   .lock label { display: inline-flex; align-items: center; gap: var(--s-8); }
   .lock span { display: flex; gap: var(--s-8); }
   .lock input { min-height: var(--control); padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); }
+  .banner { display: grid; gap: var(--s-8); justify-items: center; padding: var(--s-16); border: 1px solid var(--green); border-radius: var(--r-12); background: var(--green-soft); text-align: center; max-width: 520px; }
+  .banner p { margin: 0; }
+  .banner span { display: flex; gap: var(--s-8); }
   .privacy { display: inline-flex; align-items: center; gap: var(--s-8); }
 </style>

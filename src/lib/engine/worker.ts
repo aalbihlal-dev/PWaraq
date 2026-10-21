@@ -88,8 +88,26 @@ const ops: Record<string, (r: Req) => any> = {
       const p = doc.loadPage(i), [x0, y0, x1, y1] = p.getBounds();
       sizes.push({ w: x1 - x0, h: y1 - y0 }); p.destroy();
     }
-    return { sizes };
+    return { sizes, repaired: !!doc.asPDF()?.wasRepaired() };
   },
+  // does the file in `bytes` open, with its first and last page readable? (Save checks what it is about to write) The page count, or an error.
+  verify(r) {
+    const d = mupdf.Document.openDocument(r.bytes, 'application/pdf');
+    try {
+      if (d.needsPassword() && !(r.password && d.authenticatePassword(r.password))) throw new Error('PASSWORD');
+      const n = d.countPages();
+      for (const i of n > 1 ? [0, n - 1] : [0]) { const p = d.loadPage(i); try { p.toDisplayList().destroy(); } finally { p.destroy(); } }
+      return n;
+    } finally { d.destroy(); }
+  },
+  // a damaged PDF: what MuPDF could read, written out as a clean file
+  repair(r) {
+    const d = mupdf.Document.openDocument(r.bytes, 'application/pdf'), pdf = d.asPDF();
+    try { if (!pdf || !d.countPages()) throw new Error('nothing readable'); return pdf.saveToBuffer('garbage=compact').asUint8Array().slice(); } finally { d.destroy(); }
+  },
+  // for the recovery tests: this worker dies with an error nobody catches / is stuck for `ms`
+  crash() { setTimeout(() => { throw new Error('test crash'); }); return new Promise(() => {}); }, // never answers: the job is in the engine when it dies
+  wait(r) { for (const end = Date.now() + r.ms; Date.now() < end;); return true; },
   // whole page at `scale` device pixels per point, or one region of it (x, y, w, h in those pixels)
   async render(r) {
     const l = list(r.page, r.doc), m = mupdf.Matrix.scale(r.scale, r.scale);

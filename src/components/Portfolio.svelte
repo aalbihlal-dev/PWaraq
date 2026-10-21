@@ -9,7 +9,8 @@
   import ThemeButton from './ThemeButton.svelte';
   import { icon } from '../lib/icons.js';
   import { addFiles, uid, seen, toItems, type Group, type GridItem } from '../lib/pages';
-  import { build, plan, manifest, used, fileTitle, type Portfolio, type Section } from '../lib/portfolio';
+  import { build, plan, manifest, used, fileTitle, sectionsOf, withDefaults, type Portfolio, type Section } from '../lib/portfolio';
+  import * as vault from '../lib/vault';
   import { pickFiles, saveFile, writePortfolio, readPortfolio, readPortfolioFile, remember } from '../lib/store';
   import { DESIGNS, PAPERS, COLOURS, type Paper } from '../lib/engine/designs';
   import { turned } from '../lib/pages';
@@ -38,10 +39,35 @@
     const json = manifest(p), name = p.name, pages = layout.slots.length, id = p.id;
     waiting = async () => {
       try { await writePortfolio(id, 'manifest.json', json); savedAt = Date.now(); } catch {}
+      await keepVersion(id, json);
       await remember({ key: 'portfolio:' + id, kind: 'portfolio', name, pages });
     };
     clearTimeout(timer); timer = setTimeout(flush, 500);
   });
+  // the last 5 saved states (at most one every 30 s, and the state the portfolio was opened in): "Restore previous version"
+  const VERSIONS = 5, EVERY = 30_000;
+  let lastVersion = 0, versions = $state<{ name: string; at: number }[]>([]), showVersions = $state(false);
+  async function keepVersion(id: string, json: string) {
+    if (Date.now() - lastVersion < EVERY) return;
+    lastVersion = Date.now();
+    try {
+      await vault.put(`portfolio-versions/${id}/${lastVersion}.json`, json);
+      for (const old of (await vault.list(`portfolio-versions/${id}`)).slice(VERSIONS)) await vault.remove(`portfolio-versions/${id}/${old.name}`);
+    } catch { /* no storage: the portfolio itself is still saved */ }
+  }
+  async function openVersions() {
+    showVersions = !showVersions;
+    if (showVersions) versions = (await vault.list(`portfolio-versions/${p.id}`)).map((e) => ({ name: e.name, at: Number(e.name.replace('.json', '')) || e.at }));
+  }
+  async function restoreVersion(v: { name: string }) {
+    showVersions = false;
+    const text = await vault.getText(`portfolio-versions/${p.id}/${v.name}`);
+    if (!text) return;
+    const m = JSON.parse(text);
+    change((p) => { p.name = m.name; p.options = withDefaults(m.options ?? {}); p.sections = sectionsOf(m, p.files); }); // an ordinary change: Undo brings the current state back
+    selected.clear();
+  }
+  const versionTime = (at: number) => new Date(at).toLocaleString(i18n.lang === 'ar' ? 'ar' : 'en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' });
   function flush() { clearTimeout(timer); const w = waiting; waiting = null; return w?.(); }
   onDestroy(flush);
 
@@ -195,6 +221,15 @@
     <span class="end">
       <button class="btn icon" onclick={undo} disabled={!canUndo} title={t('undo')} aria-label={t('undo')}>{@html icon('undo')}</button>
       <button class="btn icon" onclick={redo} disabled={!canRedo} title={t('redo')} aria-label={t('redo')}><span class="flip">{@html icon('undo')}</span></button>
+      <span class="versions">
+        <button class="btn icon" onclick={openVersions} aria-expanded={showVersions} title={t('previousVersions')} aria-label={t('previousVersions')}>{@html icon('repair')}</button>
+        {#if showVersions}
+          <div class="menu" role="menu" aria-label={t('previousVersions')}>
+            <strong>{t('previousVersions')}</strong>
+            {#each versions as v (v.name)}<button class="btn" role="menuitem" onclick={() => restoreVersion(v)}>{versionTime(v.at)}</button>{:else}<span class="muted">{t('noVersions')}</span>{/each}
+          </div>
+        {/if}
+      </span>
       <button class="btn" onclick={async () => { await flush(); onClose(); }}>{@html icon('close')}{t('close')}</button>
       <ThemeButton />
       <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
@@ -412,6 +447,9 @@
   .bar { display: flex; align-items: center; gap: var(--s-12); padding: var(--s-8) var(--s-16); background: var(--surface); border-bottom: 1px solid var(--line); min-width: 0; }
   .chip { display: inline-flex; align-items: center; gap: var(--s-8); padding: 0 var(--s-12); min-height: 28px; border-radius: 14px; background: var(--green-soft); color: var(--green-deep); font-weight: 600; font-size: var(--fs-12); }
   .name { max-width: 28ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .versions { position: relative; }
+  .menu { position: absolute; z-index: 20; inset-inline-end: 0; top: calc(100% + var(--s-8)); display: grid; gap: var(--s-8); min-width: 220px; padding: var(--s-12); border: 1px solid var(--line); border-radius: var(--r-12); background: var(--surface); box-shadow: var(--shadow); }
+  .menu .muted { color: var(--muted); }
   .end { display: flex; gap: var(--s-8); margin-inline-start: auto; align-items: center; }
   .flip { display: grid; transform: scaleX(-1); }
   .body { display: grid; grid-template-columns: 1fr 300px; min-height: 0; }

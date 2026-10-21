@@ -59,6 +59,11 @@ export function parse(entries: Record<string, Uint8Array>): any {
   return m;
 }
 
+/** The sections a manifest describes, their pages pointing at the already opened `files` (a page of a missing file is left out). */
+export const sectionsOf = (m: any, files: Portfolio['files']): Section[] => m.sections.map(({ pages, ...s }: any) => ({ ...s, items: pages
+  .filter((pg: any) => pg.blank || files[pg.file])
+  .map(({ file, ...pg }: any) => ({ ...pg, id: uid(), doc: pg.blank ? -1 : files[file].doc })) }));
+
 /** Opens a saved portfolio (manifest + files) in the engine. */
 export async function load(pool: EnginePool, entries: Record<string, Uint8Array>): Promise<Portfolio> {
   const m = parse(entries);
@@ -68,9 +73,7 @@ export async function load(pool: EnginePool, entries: Record<string, Uint8Array>
     const bytes = entries['files/' + id];
     if (bytes) files[id] = { ...f, doc: (await pool.add(bytes, f.mime)).id };
   }
-  const sections = m.sections.map(({ pages, ...s }: any) => ({ ...s, items: pages
-    .filter((pg: any) => pg.blank || files[pg.file])
-    .map(({ file, ...pg }: any) => ({ ...pg, id: uid(), doc: pg.blank ? -1 : files[file].doc })) }));
+  const sections = sectionsOf(m, files);
   return { id: m.id, name: m.name, created: m.created, options: withDefaults(m.options ?? {}), sections, files };
 }
 

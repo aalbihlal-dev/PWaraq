@@ -23,14 +23,29 @@ export async function pickPaths(multiple = false): Promise<string[]> {
   const r = await tauri!.dialog.open({ multiple, filters: FILTERS });
   return r == null ? [] : ([] as string[]).concat(r);
 }
-export const writePath = (path: string, bytes: Uint8Array): Promise<void> => tauri!.core.invoke('write_file', bytes, { headers: { path: ascii(path) } });
+/** Safe save: the new file is written beside the target, read back and checked by `check` (throws when it does not open), and only
+ *  then swapped in — the old file stays as `name.bak.ext`. If anything fails the target is untouched. */
+export async function writePath(path: string, bytes: Uint8Array, check?: (back: Uint8Array) => Promise<unknown>): Promise<void> {
+  const tmp: string = await tauri!.core.invoke('save_temp', bytes, { headers: { path: ascii(path) } });
+  try {
+    if (check) await check(new Uint8Array(await tauri!.core.invoke('read_file', { path: tmp })));
+    await tauri!.core.invoke('save_commit', { path, tmp });
+  } catch (e) { await tauri!.core.invoke('save_discard', { path, tmp }); throw e; }
+}
 /** The system "Save as" window, then writes; the chosen path, or null when cancelled. */
-export async function saveAs(name: string, bytes: Uint8Array): Promise<string | null> {
+export async function saveAs(name: string, bytes: Uint8Array, check?: (back: Uint8Array) => Promise<unknown>): Promise<string | null> {
   const ext = name.slice(name.lastIndexOf('.') + 1);
   const path = await tauri!.dialog.save({ defaultPath: name, filters: [{ name: ext.toUpperCase(), extensions: [ext] }] });
-  if (path) await writePath(path, bytes);
+  if (path) await writePath(path, bytes, check);
   return path;
 }
+// Waraq's own folder in the app data folder (drafts, crash log, portfolio versions); see src/lib/vault.ts
+export const vaultPut = (path: string, bytes: Uint8Array): Promise<void> => tauri!.core.invoke('vault_put', bytes, { headers: { path: ascii(path) } });
+export const vaultGet = async (path: string): Promise<Uint8Array> => new Uint8Array(await tauri!.core.invoke('vault_get', { path }));
+export const vaultList = (dir: string): Promise<{ name: string; size: number; at: number }[]> => tauri!.core.invoke('vault_list', { dir });
+export const vaultRemove = (path: string): Promise<void> => tauri!.core.invoke('vault_remove', { path });
+/** Shows a vault folder (or selects one file) in Explorer; its full path. */
+export const vaultReveal = (path: string, select = false): Promise<string> => tauri!.core.invoke('vault_reveal', { path, select });
 /** The 1 px frame Windows draws round the window, in the title bar's colour, so the top edge shows no hairline. */
 export function setBorder(cssRgb: string) {
   const [r, g, b] = cssRgb.match(/\d+/g)!.map(Number);

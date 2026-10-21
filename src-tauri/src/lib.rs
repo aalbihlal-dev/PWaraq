@@ -1,5 +1,6 @@
 // The Waraq desktop shell: a frameless window (the page draws its own top bar), the files the user asked for
 // (command line, second launch, drop), read/write straight to disk, and the Office/CAD converter command.
+mod safe;
 use tauri::ipc::{InvokeBody, Request, Response};
 use tauri::{Emitter, Manager};
 
@@ -30,17 +31,81 @@ fn body<'a>(req: &'a Request<'a>) -> Result<&'a [u8], String> {
     }
 }
 
-/// Writes the bytes to the `path` header through a temp file, so a crash never leaves a half-written PDF.
+/// Safe save, step 1: the bytes go to a temp file beside the target (the `path` header); its path comes back so the
+/// page can read it again and check it opens. Step 2 is `save_commit` (or `save_discard` when the check fails).
 #[tauri::command]
-fn write_file(request: Request) -> Result<(), String> {
-    let path = std::path::PathBuf::from(header(&request, "path")?);
-    let tmp = path.with_extension("waraq-tmp");
-    std::fs::write(&tmp, body(&request)?)
-        .and_then(|_| std::fs::rename(&tmp, &path))
-        .map_err(|e| {
-            let _ = std::fs::remove_file(&tmp);
-            e.to_string()
-        })
+fn save_temp(request: Request) -> Result<String, String> {
+    let target = std::path::PathBuf::from(header(&request, "path")?);
+    let tmp = safe::write_temp(&target, body(&request)?).map_err(|e| e.to_string())?;
+    Ok(tmp.to_string_lossy().into_owned())
+}
+#[tauri::command]
+fn save_commit(path: String, tmp: String) -> Result<(), String> {
+    safe::commit(std::path::Path::new(&path), std::path::Path::new(&tmp)).map_err(|e| e.to_string())
+}
+#[tauri::command]
+fn save_discard(path: String, tmp: String) {
+    if std::path::Path::new(&tmp) == safe::temp_of(std::path::Path::new(&path)) {
+        let _ = std::fs::remove_file(tmp);
+    }
+}
+
+/// Waraq's own folder (drafts, crash log, portfolio versions) in the app data folder.
+fn vault(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
+    app.path().app_data_dir().map(|d| d.join("vault")).map_err(|e| e.to_string())
+}
+#[tauri::command]
+fn vault_put(app: tauri::AppHandle, request: Request) -> Result<(), String> {
+    safe::put(&vault(&app)?, &header(&request, "path")?, body(&request)?).map_err(|e| e.to_string())
+}
+#[tauri::command]
+fn vault_get(app: tauri::AppHandle, path: String) -> Result<Response, String> {
+    let p = safe::inside(&vault(&app)?, &path).map_err(|e| e.to_string())?;
+    std::fs::read(p).map(Response::new).map_err(|e| e.to_string())
+}
+#[tauri::command]
+fn vault_list(app: tauri::AppHandle, dir: String) -> Result<Vec<safe::Entry>, String> {
+    safe::list(&vault(&app)?, &dir).map_err(|e| e.to_string())
+}
+#[tauri::command]
+fn vault_remove(app: tauri::AppHandle, path: String) -> Result<(), String> {
+    safe::remove(&vault(&app)?, &path).map_err(|e| e.to_string())
+}
+/// Shows a vault folder (or one file, selected) in Explorer; the full path comes back.
+#[tauri::command]
+fn vault_reveal(app: tauri::AppHandle, path: String, select: bool) -> Result<String, String> {
+    let p = safe::inside(&vault(&app)?, &path).map_err(|e| e.to_string())?;
+    let _ = std::fs::create_dir_all(if select { p.parent().unwrap_or(&p) } else { &p });
+    #[cfg(windows)]
+    {
+        let mut c = std::process::Command::new("explorer");
+        if select { c.arg(format!("/select,{}", p.display())); } else { c.arg(&p); }
+        let _ = c.spawn();
+    }
+    Ok(p.to_string_lossy().into_owned())
+}
+
+/// Opens the mail program or the GitHub issue page for a crash report — only those two targets, only after a click in the page.
+#[tauri::command]
+fn open_external(url: String) -> Result<(), String> {
+    if !(url.starts_with("mailto:support@pwaraq.com") || url.starts_with("https://github.com/tshi-dev/PWaraq/")) {
+        return Err("not allowed".into());
+    }
+    #[cfg(windows)]
+    std::process::Command::new("rundll32").args(["url.dll,FileProtocolHandler", url.as_str()]).spawn().map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+static CRASH_HOME: std::sync::OnceLock<std::path::PathBuf> = std::sync::OnceLock::new();
+/// A Rust panic is written to the crash log (the vault's crash-log folder) before the program goes down.
+fn log_panics() {
+    std::panic::set_hook(Box::new(|info| {
+        let Some(vault) = CRASH_HOME.get() else { return };
+        let msg = info.payload().downcast_ref::<&str>().map(|s| s.to_string()).or_else(|| info.payload().downcast_ref::<String>().cloned()).unwrap_or_default();
+        let at = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis() as u64).unwrap_or(0);
+        let loc = info.location().map(|l| format!("{}:{}", l.file(), l.line())).unwrap_or_default();
+        let _ = safe::put(vault, &format!("crash-log/{at}-panic.json"), safe::panic_entry(&msg, &loc, at, std::env::var("USERPROFILE").ok().as_deref()).as_bytes());
+    }));
 }
 
 /// Office/CAD → PDF through the 0.3.3 add-on packs. Contract (src/lib/convert.ts `Desktop.convertToPdf`): the file
@@ -70,6 +135,7 @@ fn set_border(window: tauri::WebviewWindow, color: u32) {
 }
 
 pub fn run() {
+    log_panics();
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
             // a second launch (double-clicked file) hands its file to the running window
@@ -82,6 +148,9 @@ pub fn run() {
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
+            if let Ok(d) = app.path().app_data_dir() {
+                let _ = CRASH_HOME.set(d.join("vault"));
+            }
             let mut win = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::default())
                 .title("Waraq")
                 .inner_size(1280.0, 800.0)
@@ -102,7 +171,7 @@ pub fn run() {
             set_border(win.build()?, 0x00f8fbfa); // paper, until the page reports its title bar colour
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![launch_paths, read_file, write_file, convert_to_pdf, set_border])
+        .invoke_handler(tauri::generate_handler![launch_paths, read_file, save_temp, save_commit, save_discard, vault_put, vault_get, vault_list, vault_remove, vault_reveal, open_external, convert_to_pdf, set_border])
         .run(tauri::generate_context!())
         .expect("error while running Waraq");
 }
