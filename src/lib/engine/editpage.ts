@@ -87,7 +87,11 @@ export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[
       if (host) members.set(host, [z, ...(members.get(host) ?? [])]); else loose.push(z);
     }
     for (const mk of marks) {
-      const mid = (mk.x0 + mk.x1) / 2, host = loose.find((z) => Math.abs(z.x0 - mid) < 0.06) ?? full.find((f) => mid >= f.x0 - 0.01 && mid <= f.x1 + 0.01) ?? [...full, ...loose].sort((a, b) => Math.abs((a.x0 + a.x1) / 2 - mid) - Math.abs((b.x0 + b.x1) / 2 - mid))[0];
+      // MuPDF lists a mark right after its letter; that letter is the host when the mark stands over or beside it
+      // (a mark's glyph may lean into the next letter's box), else the letter whose box holds the mark
+      const mid = (mk.x0 + mk.x1) / 2, i = r.chars.indexOf(mk), before = r.chars.slice(0, i).reverse().find((ch) => ch.c > 0x20 && !isMark(ch.c));
+      const over = before && (full.includes(before) || loose.includes(before)) && mid >= before.x0 - before.size * 0.3 && mid <= before.x1 + before.size * 0.3 ? before : undefined;
+      const host = over ?? loose.find((z) => Math.abs(z.x0 - mid) < 0.06) ?? full.find((f) => mid >= f.x0 - 0.01 && mid <= f.x1 + 0.01) ?? [...full, ...loose].sort((a, b) => Math.abs((a.x0 + a.x1) / 2 - mid) - Math.abs((b.x0 + b.x1) / 2 - mid))[0];
       if (host) tail.set(host, [...(tail.get(host) ?? []), mk]);
     }
     // the letters of one glyph in reading order: lam before its alef, the Allah word as written, otherwise as the producer's map
