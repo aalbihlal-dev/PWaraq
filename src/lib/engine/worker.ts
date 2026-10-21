@@ -5,6 +5,7 @@ import { assemble } from './assemble';
 import { compress, protect, unlock, guardOf, sealLikeSource } from './tools';
 import { editPage, pageObjects, type Edit, type Own } from './editpage';
 import { findSpots, signPdf } from './sign';
+import { listSignatures, prepareSignature } from './signcert';
 import { findMatches, redact } from './redact';
 import { fillForm, listFields } from './forms';
 import { addTextLayer } from './ocr';
@@ -189,7 +190,10 @@ const ops: Record<string, (r: Req) => any> = {
     finally { d.destroy(); }
   },
   // signing mode: the file in `bytes` with the signature sets drawn on its pages
-  async sign(r) { await loadFonts(); return signPdf(mupdf, r.bytes, r.pages, r.photos, () => fonts!); },
+  async sign(r) { await loadFonts(); return signPdf(mupdf, r.bytes, r.pages, r.photos, () => fonts!, r.password ?? ''); },
+  // certificate signatures: the file with a signature field, appearance and /Sig placeholder appended; the signatures a file holds
+  async sigprepare(r) { await loadFonts(); return prepareSignature(mupdf, r.bytes, r.password ?? '', r.plan, r.photos, () => fonts!); },
+  siglist(r) { return listSignatures(mupdf, r.bytes, r.password ?? ''); },
 };
 
 self.onmessage = async ({ data }: MessageEvent<Req>) => {

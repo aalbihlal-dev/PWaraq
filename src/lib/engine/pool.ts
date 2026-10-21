@@ -102,6 +102,9 @@ export class EnginePool {
   /** A whole-file tool (compress, protect, unlock) on `bytes`, in whichever worker is free. */
   tool<T = Uint8Array>(op: 'compress' | 'protect' | 'unlock' | 'guard' | 'seal' | 'redact' | 'formfields' | 'fillform' | 'ocrlayer' | 'annotlist' | 'annotapply' | 'verify' | 'repair', args: Record<string, any>) { return this.run<T>({ op, priority: 0, args, any: true }); }
 
+  /** The password the open document was opened with ('' when none). */
+  get password() { return this.sources.get(0)?.password ?? ''; }
+
   /** `out` (a new copy of the open document) with the document's own protection: same algorithm, password and limits. */
   keep(out: Uint8Array) {
     const s = this.sources.get(0);

@@ -7,7 +7,7 @@ import { editPage, BASELINE, type Box, type Edit } from './editpage.ts';
 import type { Fonts } from './textpage.ts';
 
 /** A place to sign (`sign`) or to date (`date`): `label` = the word found, the box itself = the blank to write on. */
-export type Spot = Box & { page: number; kind: 'sign' | 'date'; rtl: boolean; field?: boolean; label?: Box };
+export type Spot = Box & { page: number; kind: 'sign' | 'date'; rtl: boolean; field?: boolean; name?: string; label?: Box }; // name: the field's /T
 
 // longest first, so «الاسم والتوقيع» wins over «التوقيع» inside it
 const WORDS: [RegExp, Spot['kind']][] = [
@@ -19,12 +19,15 @@ const BLANK = /[_.…‥]/;
 type Ch = { c: string; q: MuPDF.Quad };
 /** Every spot on page `index`. */
 export function findSpots(page: MuPDF.Page, index: number): Spot[] {
-  const [, , W] = page.getBounds(), out: Spot[] = [];
+  const [, , W] = page.getBounds(), out: Spot[] = [], signed: Box[] = []; // signed: signature fields already filled (a label under one is done)
   // empty signature form fields
   for (const w of (page as MuPDF.PDFPage).getWidgets?.() ?? []) {
-    if (w.getFieldType() !== 'signature' || !w.getObject().get('V').isNull()) continue;
+    if (w.getFieldType() !== 'signature') continue;
     const [x0, y0, x1, y1] = w.getRect();
-    out.push({ page: index, kind: 'sign', field: true, rtl: false, x: x0, y: y0, w: x1 - x0, h: y1 - y0 });
+    if (!w.getObject().get('V').isNull()) { signed.push({ x: x0, y: y0, w: x1 - x0, h: y1 - y0 }); continue; }
+    const parts: string[] = [];
+    for (let d = w.getObject(); d.isDictionary(); d = d.get('Parent')) { const t = d.get('T'); if (t.isString()) parts.unshift(t.asString()); }
+    out.push({ page: index, kind: 'sign', field: true, name: parts.join('.'), rtl: false, x: x0, y: y0, w: x1 - x0, h: y1 - y0 });
   }
   // labels in the text: each character normalised (Arabic presentation forms -> letters), with a map back to its box
   const st = page.toStructuredText('preserve-whitespace');
@@ -49,7 +52,7 @@ export function findSpots(page: MuPDF.Page, index: number): Spot[] {
     }
   }
   // a signature field with a "Signature" label next to it is one spot
-  return out.filter((s) => s.field || !out.some((f) => f.field && overlap(f, s)));
+  return out.filter((s) => s.field || !(out.some((f) => f.field && overlap(f, s)) || signed.some((f) => overlap(f, s))));
 }
 
 const boxOf = (cs: Ch[]): Box => {
@@ -110,9 +113,10 @@ export function setEdits(set: SignSet, p: Placed, colour = [0, 0, 0]): Edit[] {
 
 /** `bytes` signed in place: each page's placed sets drawn onto it. The page keeps its links, form fields and bookmarks
  *  (only its contents and resources change), so the rest of the file is as it was. */
-export function signPdf(m: typeof MuPDF, bytes: Uint8Array, pages: { page: number; edits: Edit[] }[], photos: Uint8Array[], fonts: () => Fonts): Uint8Array {
+export function signPdf(m: typeof MuPDF, bytes: Uint8Array, pages: { page: number; edits: Edit[] }[], photos: Uint8Array[], fonts: () => Fonts, password = ''): Uint8Array {
   const doc = new m.PDFDocument(bytes);
   try {
+    if (doc.needsPassword() && !doc.authenticatePassword(password)) throw new Error('WRONG_PASSWORD');
     for (const { page, edits } of pages) {
       if (!edits.length) continue;
       const one = editPage(m, doc, page, edits, photos, fonts), from = one.findPage(0), to = doc.findPage(page);

@@ -546,7 +546,17 @@ and streams with the file's own key, and leaves a /Sig /Contents string unencryp
   end. Shown in the Sign panel ("Signatures in this file") and as a badge in its toolbar.
 - **Timestamp**: off by default; only to a URL the person types, with the note that a hash is sent, never the document.
 - Not done: Acrobat not tested on this PC (OpenSSL cross-check instead); the warning before Save in App.svelte (owned by
-  another session; `willBreakSignatures()` in `src/lib/engine/signcert.ts` is ready for a two-line hook).
+  another session; `willBreakSignatures()` in `src/lib/engine/pades.ts` is ready for a two-line hook).
+
+**Built (21 Oct 2026):** as decided above. Sign task: toolbar badge ("1 signature · Valid / Changed after signing /
+Invalid"), "Signatures in this file" panel (signer, time, page, verdict, self-signed note, reason/location, timestamp),
+"Digital ID (certificate)" section (new ID: name, email, RSA 2048 or P-256, 1–10 years, passphrase; import .pfx/.p12;
+passphrase typed once per sitting; reason, location; timestamp URL off by default), a warning bar when a drawn set would
+invalidate existing signatures. Checks: `tests/unit/certsign.test.mjs` (7: sign+verify, one byte changed, appended
+change, counter-sign, protected file, existing field, .pfx modern/legacy/EC, OpenSSL both ways),
+`tests/e2e/certsign.spec.ts` (2, EN+AR), ID form in the audit. Screenshots:
+`../Archive-2026-10-12/screenshots/waraq-1.0-preview/certsign/`. Still to do: the Save hook in App.svelte (see
+side-session note certsign-notes.md), a badge outside the Sign task, verifying the timestamp server's own signature.
 
 ## .waraq robustness (owner asked 21 Oct 2026: "is .waraq not failing, even with the website?") — to build after the desktop slice
 Round trip is tested (portfolio.spec). Gaps found by reading `openPortfolioFile` (App.svelte) / `portfolio.ts`:

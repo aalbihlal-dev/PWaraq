@@ -10,8 +10,8 @@ const KEEP = 12;
 
 function db(): Promise<IDBDatabase> {
   return new Promise((ok, fail) => {
-    const r = indexedDB.open('waraq', 2);
-    r.onupgradeneeded = () => { for (const s of ['recent', 'signatures']) if (!r.result.objectStoreNames.contains(s)) r.result.createObjectStore(s, { keyPath: 'key' }); };
+    const r = indexedDB.open('waraq', 3);
+    r.onupgradeneeded = () => { for (const s of ['recent', 'signatures', 'ids']) if (!r.result.objectStoreNames.contains(s)) r.result.createObjectStore(s, { keyPath: 'key' }); };
     r.onsuccess = () => ok(r.result); r.onerror = () => fail(r.error);
   });
 }
@@ -49,6 +49,11 @@ export async function signatureList(): Promise<Signature[]> {
 }
 export async function keepSignature(sig: Signature) { try { await tx('readwrite', (s) => { s.put(sig); }, 'signatures'); } catch {} }
 export async function dropSignature(key: string) { try { await tx('readwrite', (s) => { s.delete(key); }, 'signatures'); } catch {} }
+
+// digital IDs for certificate signatures (src/lib/ids.ts locks the private key; the record is opaque here)
+export async function idList<T extends { key: string }>(): Promise<T[]> { try { return ((await tx<T[]>('readonly', (s) => s.getAll(), 'ids')) ?? []).sort((a: any, b: any) => a.at - b.at); } catch { return []; } }
+export async function keepId(id: { key: string }) { await tx('readwrite', (s) => { s.put(id); }, 'ids'); }
+export async function dropId(key: string) { try { await tx('readwrite', (s) => { s.delete(key); }, 'ids'); } catch {} }
 
 /** The file behind a recent entry, asking the browser for permission again if needed (a click allows that). */
 export async function reopen(r: Recent): Promise<File | null> {

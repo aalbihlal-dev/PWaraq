@@ -11,15 +11,20 @@
   import { icon } from '../lib/icons.js';
   import { pickFiles, saveFile, signatureList, keepSignature, dropSignature, type Signature } from '../lib/store';
   import { uid } from '../lib/pages';
+  import { buildCms, covered, fromPdfDate, hex, parseCert, pdfDate, timestamp as tsaToken, verifyCms, type Check, type SigEntry } from '../lib/engine/pades';
+  import type { Prepared, SigPlan } from '../lib/engine/signcert';
+  import { cat } from '../lib/engine/der';
+  import { createId, importId, listIds, removeId, unlockId, type DigitalId, type Unlocked } from '../lib/ids';
 
   let { pool, first, onDone }: { pool: EnginePool; first: { name: string; bytes: Uint8Array; sizes: { w: number; h: number }[] };
     onDone: (signed: Uint8Array | null) => void | Promise<void> } = $props();
 
   // the files of this sitting; the first is the document open in the workspace (engine source 0)
   type Mark = Placed & { spot?: number; dateSpot?: number };
-  type Doc = { name: string; bytes: Uint8Array; doc: number | null; sizes: { w: number; h: number }[]; spots: Spot[] | null; placed: Mark[]; used: number[] };
+  type SigInfo = SigEntry & { whole: boolean; check: Check }; // a certificate signature in the file, checked
+  type Doc = { name: string; bytes: Uint8Array; doc: number | null; sizes: { w: number; h: number }[]; spots: Spot[] | null; placed: Mark[]; used: number[]; sigs: SigInfo[] | null };
   // svelte-ignore state_referenced_locally (the first file is taken once, when signing mode opens)
-  let files = $state<Doc[]>([{ name: first.name, bytes: first.bytes, doc: 0, sizes: first.sizes, spots: null, placed: [], used: [] }]);
+  let files = $state<Doc[]>([{ name: first.name, bytes: first.bytes, doc: 0, sizes: first.sizes, spots: null, placed: [], used: [], sigs: null }]);
   let cur = $state(0), page = $state(0), busy = $state('');
   const f = $derived(files[cur]);
   const size = $derived(f.sizes[page] ?? { w: 595, h: 842 });
@@ -32,7 +37,7 @@
   let day = $state(new Date().toISOString().slice(0, 10)); // the session's date: today unless changed
   let calendar = $state<'gregory' | 'islamic-umalqura'>(prefs.calendar ?? 'gregory'), style = $state<'numeric' | 'long' | 'iso'>(prefs.style ?? 'numeric');
   let name = $state<string>(prefs.name ?? '');
-  $effect(() => { try { localStorage.setItem('waraq-sign', JSON.stringify({ sig: chosen, calendar, style, name })); } catch {} });
+  $effect(() => { try { localStorage.setItem('waraq-sign', JSON.stringify({ sig: chosen, calendar, style, name, id: idKey, useCert, tsa })); } catch {} });
   const sig = $derived(library.find((s) => s.key === chosen) ?? library[0]);
   const dateText = $derived(formatDate(new Date(day + 'T12:00'), calendar, style, i18n.lang));
   const set = $derived({ ratio: sig ? sig.w / sig.h : 3, name, date: dateText });
@@ -109,6 +114,68 @@
       const found: Spot[] = await pool.run({ op: 'spots', priority: 1, any: true, args: { bytes: d.bytes.slice() } });
       d.spots = found.sort((a, b) => a.page - b.page || a.y - b.y || (a.kind === 'sign' ? -1 : 1));
     }
+    if (!d.sigs) d.sigs = await verifyAll(d.bytes, d.doc === 0 ? pool.password : '');
+  }
+  // --- certificate signatures in the file: listed by the engine, checked here with WebCrypto (maths only) --------------
+  async function verifyAll(bytes: Uint8Array, password: string): Promise<SigInfo[]> {
+    try {
+      const list = await pool.run<SigEntry[]>({ op: 'siglist', priority: 1, any: true, args: { bytes: bytes.slice(), password } });
+      const out: SigInfo[] = [];
+      for (const s of list) { const c = covered(bytes, s.byteRange); out.push({ ...s, whole: c.whole, check: await verifyCms(s.contents, c.ranges) }); }
+      return out;
+    } catch { return []; }
+  }
+  const status = (sigs: SigInfo[]): Key => (sigs.some((s) => !s.check.ok) ? 'sigInvalid' : sigs.at(-1)!.whole ? 'sigValid' : 'sigChanged');
+  const sigHelp = (s: SigInfo): Key => (s.check.problem ? 'sigUnsupported' : !s.check.signatureOk ? 'sigBadKey' : !s.check.digestOk ? 'sigBrokenHelp' : s.whole ? 'sigValidHelp' : 'sigChangedHelp');
+  const when = (d: Date | null) => d?.toLocaleString(i18n.lang === 'ar' ? 'ar-u-nu-latn' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' }) ?? '';
+
+  // --- digital IDs on this device; the chosen one signs when "Also sign with my digital ID" is on ----------------------
+  let ids = $state<DigitalId[]>([]), idKey = $state<string | null>(prefs.id ?? null), useCert = $state(!!prefs.useCert);
+  let pass = $state(''), reason = $state(''), location = $state(''), tsa = $state<string>(prefs.tsa ?? '');
+  // drawing a set into a page rewrites it: every certificate signature already in the file would stop matching
+  const breaking = $derived(!!f.sigs?.length && f.placed.length > (useCert ? 1 : 0));
+  let idForm = $state<'' | 'new' | 'import'>(''), idBusy = $state(false);
+  let newName = $state<string>(prefs.name ?? ''), newEmail = $state(''), newAlg = $state<'rsa' | 'p256'>('rsa'), newYears = $state(3), pass1 = $state(''), pass2 = $state('');
+  let pfx = $state<{ name: string; bytes: Uint8Array } | null>(null), pfxPass = $state(''), pfxInput: HTMLInputElement;
+  let unlocked: Unlocked | null = null; // the key for this sitting, never written anywhere
+  const id = $derived(ids.find((i) => i.key === idKey) ?? ids[0]);
+  const passOk = $derived(pass1.length >= 8 && pass1 === pass2);
+  async function loadIds() { ids = await listIds(); }
+  async function makeNewId() {
+    idBusy = true;
+    try { const i = await createId({ name: newName, email: newEmail, alg: newAlg, years: newYears }, pass1); idKey = i.key; idForm = ''; pass1 = pass2 = ''; await loadIds(); }
+    catch (e) { alert(String((e as Error).message || e)); }
+    idBusy = false;
+  }
+  async function choosePfx() {
+    const [p] = await pickFiles({ accept: { 'application/x-pkcs12': ['.pfx', '.p12'] }, fallback: () => pfxInput.click() });
+    if (p) pfx = { name: p.file.name, bytes: new Uint8Array(await p.file.arrayBuffer()) };
+  }
+  async function doImport() {
+    if (!pfx) return;
+    idBusy = true;
+    try { const i = await importId(pfx.bytes, pfxPass, pass1); idKey = i.key; idForm = ''; pfx = null; pfxPass = pass1 = pass2 = ''; await loadIds(); }
+    catch (e) { const m = (e as Error).message; alert(t(m === 'WRONG_PASSWORD' ? 'wrongPfx' : m === 'NO_KEY' ? 'pfxNoKey' : 'pfxUnsupported')); }
+    idBusy = false;
+  }
+  async function dropIdClick(key: string) {
+    if (!confirm(t('confirmRemoveId'))) return;
+    await removeId(key); if (idKey === key) idKey = null; unlocked = null; await loadIds();
+  }
+  /** The file certificate-signed: the first placed set is the visible stamp (in the clicked empty field when there is one),
+   *  the other sets are drawn into the pages first; the engine appends the update, the CMS is made here and written in. */
+  async function certSign(d: Doc, signer: Unlocked, png: Uint8Array, password: string, pagesOf: (list: Mark[]) => { page: number; edits: ReturnType<typeof setEdits> }[]) {
+    const [head, ...rest] = d.placed, spot = head.spot != null ? d.spots![head.spot] : undefined;
+    const boxes = [head.sig, head.name, head.date].filter((b): b is Box => !!b), x = Math.min(...boxes.map((b) => b.x)), y = Math.min(...boxes.map((b) => b.y));
+    const url = tsa.trim();
+    const plan: SigPlan = { page: head.page, rect: { x, y, w: Math.max(...boxes.map((b) => b.x + b.w)) - x, h: Math.max(...boxes.map((b) => b.y + b.h)) - y }, field: spot?.field ? spot.name : undefined,
+      edits: setEdits(set, head, textColour), name: signer.cert.name, reason: reason.trim() || undefined, location: location.trim() || undefined, time: pdfDate(new Date()),
+      room: signer.id.cert.length + signer.id.chain.reduce((n, c) => n + c.length, 0) + 2048 + (url ? 8192 : 0), drawn: pagesOf(rest) };
+    const p = await pool.run<Prepared>({ op: 'sigprepare', priority: 0, any: true, args: { bytes: d.bytes.slice(), password, plan: $state.snapshot(plan), photos: [png.slice()] } });
+    const c = covered(p.bytes, p.byteRange), digest = new Uint8Array(await crypto.subtle.digest('SHA-256', cat(...c.ranges) as Uint8Array<ArrayBuffer>));
+    const cms = await buildCms({ key: signer.key, cert: signer.id.cert, chain: signer.id.chain, alg: signer.id.alg }, digest, url ? (sig) => tsaToken(url, sig) : undefined);
+    p.bytes.set(new TextEncoder().encode(hex(cms)), p.contentsAt);
+    return p.bytes;
   }
   const targets = (d: Doc) => (d.spots ?? []).map((s, i) => ({ s, i })).filter(({ s, i }) => s.kind === 'sign' && !d.used.includes(i));
   async function show(i: number) {
@@ -117,7 +184,7 @@
     const d = files[i], next = targets(d)[0];
     page = next ? next.s.page : !d.spots?.length && last ? Math.min(last.page, d.sizes.length - 1) : 0;
   }
-  onMount(() => { loadLibrary(); show(0); measure(); return () => library.forEach((s) => URL.revokeObjectURL(s.url)); });
+  onMount(() => { loadLibrary(); loadIds(); show(0); measure(); return () => library.forEach((s) => URL.revokeObjectURL(s.url)); });
 
   async function addFiles() {
     const picked = await pickFiles({ multiple: true, accept: { 'application/pdf': ['.pdf'] }, fallback: () => fileInput.click() });
@@ -125,7 +192,7 @@
   }
   let fileInput: HTMLInputElement;
   async function useFiles(list: File[]) {
-    for (const file of list) files.push({ name: file.name, bytes: new Uint8Array(await file.arrayBuffer()), doc: null, sizes: [], spots: null, placed: [], used: [] });
+    for (const file of list) files.push({ name: file.name, bytes: new Uint8Array(await file.arrayBuffer()), doc: null, sizes: [], spots: null, placed: [], used: [], sigs: null });
   }
 
   // --- placing the set -------------------------------------------------------------------------------------------------
@@ -168,17 +235,26 @@
   async function saveAll() {
     busy = t('savingSigned');
     try {
+      let signer: Unlocked | null = null;
+      if (useCert) {
+        if (!id || (!pass && unlocked?.id.key !== id.key)) { alert(t('needId')); busy = ''; return; }
+        if (unlocked?.id.key !== id.key) { try { unlocked = await unlockId(id, pass); } catch { alert(t('wrongPassphrase')); busy = ''; return; } }
+        signer = unlocked; pass = '';
+      }
       const png = new Uint8Array(await sig!.png.arrayBuffer());
+      const pagesOf = (list: Mark[]) => [...new Set(list.map((p) => p.page))].map((pg) => ({ page: pg, edits: list.filter((p) => p.page === pg).flatMap((p) => setEdits(set, p, textColour)) }));
       let firstSigned: Uint8Array | null = null;
       for (const [n, d] of files.entries()) {
         if (!d.placed.length) continue;
-        const pages = [...new Set(d.placed.map((p) => p.page))].map((pg) => ({ page: pg, edits: d.placed.filter((p) => p.page === pg).flatMap((p) => setEdits(set, p, textColour)) }));
-        const bytes = await pool.run<Uint8Array>({ op: 'sign', priority: 0, any: true, args: { bytes: d.bytes.slice(), pages: $state.snapshot(pages), photos: [png.slice()] } });
+        const password = n === 0 ? pool.password : '';
+        let bytes: Uint8Array;
+        if (signer) { busy = t('signingCert'); bytes = await certSign(d, signer, png, password, pagesOf); }
+        else bytes = await pool.run<Uint8Array>({ op: 'sign', priority: 0, any: true, args: { bytes: d.bytes.slice(), pages: $state.snapshot(pagesOf(d.placed)), photos: [png.slice()], password } });
         await saveFile(bytes, d.name.replace(/\.pdf$/i, '') + '-signed.pdf');
         if (n === 0) firstSigned = bytes;
       }
-      await onDone(firstSigned);
-    } catch (e) { alert(String((e as Error).message || e)); }
+      await onDone(firstSigned); // the signed file becomes the open document (a fresh workspace, in View)
+    } catch (e) { const m = String((e as Error).message || e); alert(m.startsWith('TSA_') ? t('tsaFailed') : m); }
     busy = '';
   }
 
@@ -221,6 +297,7 @@
 <svelte:window onkeydown={keys} />
 <input bind:this={photoInput} type="file" accept="image/png,image/jpeg" hidden onchange={(e) => { const p = e.currentTarget.files?.[0]; e.currentTarget.value = ''; if (p) usePhoto(p); }} />
 <input bind:this={fileInput} type="file" accept="application/pdf,.pdf" multiple hidden onchange={(e) => { const l = [...(e.currentTarget.files ?? [])]; e.currentTarget.value = ''; useFiles(l); }} />
+<input bind:this={pfxInput} type="file" accept=".pfx,.p12,application/x-pkcs12" hidden onchange={async (e) => { const p = e.currentTarget.files?.[0]; e.currentTarget.value = ''; if (p) pfx = { name: p.name, bytes: new Uint8Array(await p.arrayBuffer()) }; }} />
 <div class="signing">
   <div class="tools" role="toolbar" aria-label={t('sign')}>
     <span class="where num" title={f.name}>{f.name} · {cur + 1} / {files.length}</span>
@@ -230,6 +307,10 @@
     <button class="btn icon" onclick={() => (page = Math.min(f.sizes.length - 1, page + 1))} disabled={page >= f.sizes.length - 1} title={t('nextPage')} aria-label={t('nextPage')}><span class="fwd">{@html icon('arrow')}</span></button>
     <span class="sep"></span>
     <button class="btn icon" onclick={undo} disabled={!f.placed.length} title={t('undo')} aria-label={t('undo')}>{@html icon('undo')}</button>
+    {#if f.sigs?.length}
+      {@const st = status(f.sigs)}
+      <span class="badge" class:bad={st !== 'sigValid'} role="status">{@html icon(st === 'sigValid' ? 'shield' : 'warning')}<span class="num">{f.sigs.length}</span> {t(f.sigs.length === 1 ? 'signature1' : 'signatureN')} · {t(st)}</span>
+    {/if}
     <span class="end">
       <button class="btn primary" onclick={signNext} disabled={!!busy || !sig}>{@html icon('signature')}{t('signNext')} <kbd>Enter</kbd></button>
       <button class="btn" onclick={saveAll} disabled={!!busy || !files.some((d) => d.placed.length)}>{@html icon('download')}{t('saveAll')}</button>
@@ -271,6 +352,25 @@
     </div>
 
     <aside class="side" aria-label={t('options')}>
+      {#if f.sigs?.length}
+        <section aria-label={t('signatures')}>
+          <h2>{t('signatures')}</h2>
+          <ul class="files">
+            {#each f.sigs as s}
+              <li class="sigitem" class:bad={!s.check.ok}>
+                <span class="between"><span class="fname">{s.check.cert?.name || s.name || '?'}</span><span class="num muted">{t('page')} {s.page + 1}</span></span>
+                {#if fromPdfDate(s.time)}<span class="num muted">{when(fromPdfDate(s.time))}</span>{/if}
+                <span class="state">{@html icon(s.check.ok ? (s.whole ? 'check' : 'info') : 'warning')}<span>{t(sigHelp(s))}</span></span>
+                {#if s.check.cert?.selfSigned}<span class="help">{t('sigSelf')}</span>{/if}
+                {#if s.check.cert && !s.check.certValid}<span class="help">{t('sigExpired')}</span>{/if}
+                {#if s.reason || s.location}<span class="help" dir="auto">{[s.reason, s.location].filter(Boolean).join(' · ')}</span>{/if}
+                {#if s.check.timestamped}<span class="help">{t('sigTimestamped')} {when(s.check.signedAt)}</span>{/if}
+              </li>
+            {/each}
+          </ul>
+        </section>
+      {/if}
+      {#if breaking}<p class="note warn" role="status">{@html icon('warning')}<span>{t('breakWarn')}</span></p>{/if}
       {#if f.spots}
         {#each needs as n}
           <div class="need" role="status"><span>{t('needSign')} {n + 1}</span><button class="btn" onclick={() => (page = n)}>{t('go')}</button></div>
@@ -344,6 +444,65 @@
       </section>
 
       <section>
+        <h2>{t('digitalId')}</h2>
+        <label class="check"><input type="checkbox" bind:checked={useCert} /><span>{t('useCert')}</span></label>
+        <p class="help">{t('useCertHelp')}</p>
+        {#if useCert}
+          {#if ids.length}
+            <div class="lib" role="radiogroup" aria-label={t('digitalId')}>
+              {#each ids as i (i.key)}
+                {@const c = parseCert(i.cert)}
+                <span class="libitem">
+                  <button class="file idbtn" class:on={i.key === id?.key} role="radio" aria-checked={i.key === id?.key} onclick={() => (idKey = i.key)}>
+                    <span class="fname">{c.name}</span>
+                    <span class="num muted">{c.email ? c.email + ' · ' : ''}{t('validUntil')} {c.notAfter.toLocaleDateString(i18n.lang === 'ar' ? 'ar-u-nu-latn' : 'en-GB')}{c.selfSigned ? ' · ' + t('selfSignedShort') : ''}</span>
+                  </button>
+                  <button class="btn icon" onclick={() => dropIdClick(i.key)} title={t('removeId')} aria-label={t('removeId')}>{@html icon('delete')}</button>
+                </span>
+              {/each}
+            </div>
+            <label class="field"><span>{t('passphrase')}</span><input class="input" type="password" bind:value={pass} autocomplete="off" /></label>
+            <p class="help">{t('passOnceHelp')}</p>
+          {:else}<p class="help">{t('noIds')}</p>{/if}
+          {#if idForm}
+            <div class="maker">
+              {#if idForm === 'new'}
+                <label class="field"><span>{t('fullName')}</span><input class="input" bind:value={newName} dir="auto" /></label>
+                <label class="field"><span>{t('emailOptional')}</span><input class="input" type="email" bind:value={newEmail} dir="ltr" /></label>
+                <div class="field" role="radiogroup" aria-label={t('keyType')}><span>{t('keyType')}</span>
+                  <span class="row">
+                    <button class="btn" role="radio" class:on={newAlg === 'rsa'} aria-checked={newAlg === 'rsa'} onclick={() => (newAlg = 'rsa')}>{t('keyRsa')}</button>
+                    <button class="btn" role="radio" class:on={newAlg === 'p256'} aria-checked={newAlg === 'p256'} onclick={() => (newAlg = 'p256')}>{t('keyEc')}</button>
+                  </span>
+                </div>
+                <label class="field"><span>{t('validity')}</span>
+                  <select bind:value={newYears}>{#each [[1, 'years1'], [3, 'years3'], [5, 'years5'], [10, 'years10']] as [y, k]}<option value={y}>{t(k as Key)}</option>{/each}</select>
+                </label>
+              {:else}
+                <button class="btn" onclick={choosePfx}>{@html icon('upload')}{pfx ? pfx.name : t('choosePfx')}</button>
+                <label class="field"><span>{t('pfxPassword')}</span><input class="input" type="password" bind:value={pfxPass} autocomplete="off" /></label>
+                <p class="help">{t('pfxHelp')}</p>
+              {/if}
+              <label class="field"><span>{t('passphrase')}</span><input class="input" type="password" bind:value={pass1} autocomplete="new-password" /></label>
+              <label class="field"><span>{t('passphraseAgain')}</span><input class="input" type="password" bind:value={pass2} autocomplete="new-password" /></label>
+              <p class="help">{passOk ? t('passphraseHelp') : t('passphraseShort')}</p>
+              <span class="row">
+                {#if idForm === 'new'}<button class="btn primary" onclick={makeNewId} disabled={idBusy || !newName.trim() || !passOk}>{@html icon('check')}{t('createId')}</button>
+                {:else}<button class="btn primary" onclick={doImport} disabled={idBusy || !pfx || !passOk}>{@html icon('check')}{t('doImport')}</button>{/if}
+                <button class="btn" onclick={() => (idForm = '')}>{t('cancel')}</button>
+              </span>
+            </div>
+          {:else}
+            <span class="row"><button class="btn" onclick={() => (idForm = 'new')}>{@html icon('plus')}{t('newId')}</button><button class="btn" onclick={() => (idForm = 'import')}>{@html icon('upload')}{t('importId')}</button></span>
+          {/if}
+          <label class="field"><span>{t('sigReason')}</span><input class="input" bind:value={reason} dir="auto" /></label>
+          <label class="field"><span>{t('sigLocation')}</span><input class="input" bind:value={location} dir="auto" /></label>
+          <label class="field"><span>{t('timestampUrl')}</span><input class="input" type="url" bind:value={tsa} placeholder="https://" dir="ltr" /></label>
+          <p class="help">{t('timestampHelp')}</p>
+        {/if}
+      </section>
+
+      <section>
         <h2>{t('dateLabel')}</h2>
         <input class="input" type="date" bind:value={day} aria-label={t('dateLabel')} />
         <div class="row" role="radiogroup" aria-label={t('calendar')}>
@@ -377,6 +536,21 @@
   .end { display: flex; gap: var(--s-8); margin-inline-start: auto; }
   kbd { font: inherit; font-size: var(--fs-12); opacity: .85; }
   .btn.on { background: var(--green-soft); border-color: var(--green); color: var(--green-deep); }
+  .badge { display: inline-flex; align-items: center; gap: var(--s-8); min-height: var(--control); padding: 0 var(--s-12); border-radius: var(--r-8); background: var(--green-soft); color: var(--green-deep); font-weight: 600; white-space: nowrap; }
+  .badge.bad { color: var(--danger); background: var(--surface); border: 1px solid var(--danger); }
+  .badge :global(svg) { flex: none; }
+  .note.warn { border: 1px solid var(--danger); background: var(--surface); }
+  .note.warn :global(svg) { color: var(--danger); }
+  .sigitem { display: grid; gap: var(--s-8); padding: var(--s-8) var(--s-12); border: 1px solid var(--green); border-radius: var(--r-8); background: var(--surface); }
+  .sigitem.bad { border-color: var(--danger); }
+  .between { display: flex; justify-content: space-between; gap: var(--s-8); }
+  .state { display: flex; gap: var(--s-8); font-weight: 600; }
+  .state :global(svg) { flex: none; color: var(--green); }
+  .sigitem.bad .state :global(svg) { color: var(--danger); }
+  .check { display: flex; align-items: center; gap: var(--s-8); min-height: var(--control); font-weight: 600; }
+  .check input { width: 20px; height: 20px; margin: 0; accent-color: var(--green); }
+  .idbtn { flex: 1; }
+  .field input[type='password'], .field input[type='email'], .field input[type='url'] { min-height: var(--control); padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); font-weight: 400; }
   .body { display: grid; grid-template-columns: 1fr 320px; min-height: 0; }
   .stage { position: relative; overflow: auto; display: grid; place-items: center; padding: var(--s-24); background: var(--canvas); min-height: 0; }
   .busy { position: absolute; inset: 0; z-index: 3; margin: 0; display: grid; place-items: center; background: var(--veil); font-size: var(--fs-16); font-weight: 600; }

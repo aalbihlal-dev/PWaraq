@@ -59,6 +59,12 @@ for (const [lang, theme] of COMBOS) test(`design rules hold on every screen (${l
   await expect(page.locator('.spot').first()).toBeVisible();
   await clean(page, 'signing');
   await page.screenshot({ path: info.outputPath(`sign-${lang}-${theme}.png`) });
+  await page.locator('.check input').check(); // certificate signatures: the digital ID section with the "new ID" form open
+  await page.locator('.side .row .btn').filter({ hasText: lang === 'ar' ? 'هوية جديدة' : 'New ID' }).click();
+  await expect(page.locator('.maker select')).toBeVisible();
+  await clean(page, 'signing-id');
+  await page.screenshot({ path: info.outputPath(`signid-${lang}-${theme}.png`) });
+  await page.locator('.check input').uncheck();
   await page.locator('.task').nth(0).click(); // back to View
 
   await page.locator('.end .btn').filter({ has: page.locator('svg') }).nth(2).click(); // Close
