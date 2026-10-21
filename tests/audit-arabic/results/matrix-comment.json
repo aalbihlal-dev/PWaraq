@@ -86,9 +86,9 @@
   "type": "bilingual",
   "arrangement": "2 columns EN | AR",
   "variant": "rot90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -125,9 +125,9 @@
   "type": "bilingual",
   "arrangement": "2 columns EN | AR",
   "variant": "rot180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -177,9 +177,9 @@
   "type": "bilingual",
   "arrangement": "2 columns EN | AR",
   "variant": "rot270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -320,9 +320,9 @@
   "type": "bilingual",
   "arrangement": "2 columns EN | AR",
   "variant": "origin-crop-rot270",
-  "pass": "warn",
-  "value": "icon centre 18.3 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -359,9 +359,9 @@
   "type": "bilingual",
   "arrangement": "2 columns EN | AR",
   "variant": "stored90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -411,9 +411,9 @@
   "type": "bilingual",
   "arrangement": "2 columns EN | AR",
   "variant": "stored180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -463,9 +463,9 @@
   "type": "bilingual",
   "arrangement": "2 columns EN | AR",
   "variant": "stored270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -515,9 +515,9 @@
   "type": "bilingual",
   "arrangement": "2 columns EN | AR",
   "variant": "stored90-origin-crop",
-  "pass": "warn",
-  "value": "icon centre 17.9 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -619,9 +619,9 @@
   "type": "book page",
   "arrangement": "A5, footnotes, tashkeel",
   "variant": "rot90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -671,9 +671,9 @@
   "type": "book page",
   "arrangement": "A5, footnotes, tashkeel",
   "variant": "rot180",
-  "pass": "warn",
-  "value": "icon centre 25.4 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.9 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -723,9 +723,9 @@
   "type": "book page",
   "arrangement": "A5, footnotes, tashkeel",
   "variant": "rot270",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -879,9 +879,9 @@
   "type": "book page",
   "arrangement": "A5, footnotes, tashkeel",
   "variant": "origin-crop-rot270",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 3 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -931,9 +931,9 @@
   "type": "book page",
   "arrangement": "A5, footnotes, tashkeel",
   "variant": "stored90",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.9 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -983,9 +983,9 @@
   "type": "book page",
   "arrangement": "A5, footnotes, tashkeel",
   "variant": "stored180",
-  "pass": "warn",
-  "value": "icon centre 25.4 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.9 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1035,9 +1035,9 @@
   "type": "book page",
   "arrangement": "A5, footnotes, tashkeel",
   "variant": "stored270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.9 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1087,9 +1087,9 @@
   "type": "book page",
   "arrangement": "A5, footnotes, tashkeel",
   "variant": "stored90-origin-crop",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.6 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1191,9 +1191,9 @@
   "type": "CAD-like drawing",
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "rot90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.7 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1230,9 +1230,9 @@
   "type": "CAD-like drawing",
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "rot180",
-  "pass": "warn",
-  "value": "icon centre 25.4 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.9 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1282,9 +1282,9 @@
   "type": "CAD-like drawing",
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "rot270",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.7 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1425,9 +1425,9 @@
   "type": "CAD-like drawing",
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "origin-crop-rot270",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 3.2 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1464,9 +1464,9 @@
   "type": "CAD-like drawing",
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "stored90",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.9 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1516,9 +1516,9 @@
   "type": "CAD-like drawing",
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "stored180",
-  "pass": "warn",
-  "value": "icon centre 25.4 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.9 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1568,9 +1568,9 @@
   "type": "CAD-like drawing",
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "stored270",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.9 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1620,9 +1620,9 @@
   "type": "CAD-like drawing",
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "stored90-origin-crop",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.7 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1724,9 +1724,9 @@
   "type": "contract",
   "arrangement": "numbered clauses + two signature cells",
   "variant": "rot90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1763,9 +1763,9 @@
   "type": "contract",
   "arrangement": "numbered clauses + two signature cells",
   "variant": "rot180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1815,9 +1815,9 @@
   "type": "contract",
   "arrangement": "numbered clauses + two signature cells",
   "variant": "rot270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1958,9 +1958,9 @@
   "type": "contract",
   "arrangement": "numbered clauses + two signature cells",
   "variant": "origin-crop-rot270",
-  "pass": "warn",
-  "value": "icon centre 18.3 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -1997,9 +1997,9 @@
   "type": "contract",
   "arrangement": "numbered clauses + two signature cells",
   "variant": "stored90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -2049,9 +2049,9 @@
   "type": "contract",
   "arrangement": "numbered clauses + two signature cells",
   "variant": "stored180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -2101,9 +2101,9 @@
   "type": "contract",
   "arrangement": "numbered clauses + two signature cells",
   "variant": "stored270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -2153,9 +2153,9 @@
   "type": "contract",
   "arrangement": "numbered clauses + two signature cells",
   "variant": "stored90-origin-crop",
-  "pass": "warn",
-  "value": "icon centre 17.9 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -2257,9 +2257,9 @@
   "type": "form with boxes",
   "arrangement": "boxed fields, checkboxes",
   "variant": "rot90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -2296,9 +2296,9 @@
   "type": "form with boxes",
   "arrangement": "boxed fields, checkboxes",
   "variant": "rot180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -2348,9 +2348,9 @@
   "type": "form with boxes",
   "arrangement": "boxed fields, checkboxes",
   "variant": "rot270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -2491,9 +2491,9 @@
   "type": "form with boxes",
   "arrangement": "boxed fields, checkboxes",
   "variant": "origin-crop-rot270",
-  "pass": "warn",
-  "value": "icon centre 18.3 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -2530,9 +2530,9 @@
   "type": "form with boxes",
   "arrangement": "boxed fields, checkboxes",
   "variant": "stored90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -2582,9 +2582,9 @@
   "type": "form with boxes",
   "arrangement": "boxed fields, checkboxes",
   "variant": "stored180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -2634,9 +2634,9 @@
   "type": "form with boxes",
   "arrangement": "boxed fields, checkboxes",
   "variant": "stored270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -2686,9 +2686,9 @@
   "type": "form with boxes",
   "arrangement": "boxed fields, checkboxes",
   "variant": "stored90-origin-crop",
-  "pass": "warn",
-  "value": "icon centre 17.9 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -2790,9 +2790,9 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "rot90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -2829,9 +2829,9 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "rot180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -2881,9 +2881,9 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "rot270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3024,9 +3024,9 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "origin-crop-rot270",
-  "pass": "warn",
-  "value": "icon centre 18.3 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3063,9 +3063,9 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "stored90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3115,9 +3115,9 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "stored180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3167,9 +3167,9 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "stored270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3219,9 +3219,9 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "stored90-origin-crop",
-  "pass": "warn",
-  "value": "icon centre 17.9 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3323,9 +3323,9 @@
   "type": "letter",
   "arrangement": "1 column, portrait",
   "variant": "rot90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3375,9 +3375,9 @@
   "type": "letter",
   "arrangement": "1 column, portrait",
   "variant": "rot180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3427,9 +3427,9 @@
   "type": "letter",
   "arrangement": "1 column, portrait",
   "variant": "rot270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3583,9 +3583,9 @@
   "type": "letter",
   "arrangement": "1 column, portrait",
   "variant": "origin-crop-rot270",
-  "pass": "warn",
-  "value": "icon centre 18.3 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3635,9 +3635,9 @@
   "type": "letter",
   "arrangement": "1 column, portrait",
   "variant": "stored90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3687,9 +3687,9 @@
   "type": "letter",
   "arrangement": "1 column, portrait",
   "variant": "stored180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3739,9 +3739,9 @@
   "type": "letter",
   "arrangement": "1 column, portrait",
   "variant": "stored270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3791,9 +3791,9 @@
   "type": "letter",
   "arrangement": "1 column, portrait",
   "variant": "stored90-origin-crop",
-  "pass": "warn",
-  "value": "icon centre 17.9 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3895,9 +3895,9 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "rot90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3934,9 +3934,9 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "rot180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -3986,9 +3986,9 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "rot270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -4129,9 +4129,9 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "origin-crop-rot270",
-  "pass": "warn",
-  "value": "icon centre 18.3 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -4168,9 +4168,9 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "stored90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -4220,9 +4220,9 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "stored180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -4272,9 +4272,9 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "stored270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -4324,9 +4324,9 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "stored90-origin-crop",
-  "pass": "warn",
-  "value": "icon centre 17.9 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -4428,9 +4428,9 @@
   "type": "newspaper",
   "arrangement": "3 columns, headline",
   "variant": "rot90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -4467,9 +4467,9 @@
   "type": "newspaper",
   "arrangement": "3 columns, headline",
   "variant": "rot180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -4519,9 +4519,9 @@
   "type": "newspaper",
   "arrangement": "3 columns, headline",
   "variant": "rot270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -4662,9 +4662,9 @@
   "type": "newspaper",
   "arrangement": "3 columns, headline",
   "variant": "origin-crop-rot270",
-  "pass": "warn",
-  "value": "icon centre 18.3 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -4701,9 +4701,9 @@
   "type": "newspaper",
   "arrangement": "3 columns, headline",
   "variant": "stored90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -4753,9 +4753,9 @@
   "type": "newspaper",
   "arrangement": "3 columns, headline",
   "variant": "stored180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -4805,9 +4805,9 @@
   "type": "newspaper",
   "arrangement": "3 columns, headline",
   "variant": "stored270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -4857,9 +4857,9 @@
   "type": "newspaper",
   "arrangement": "3 columns, headline",
   "variant": "stored90-origin-crop",
-  "pass": "warn",
-  "value": "icon centre 17.9 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -4961,9 +4961,9 @@
   "type": "poster",
   "arrangement": "A3 portrait, huge type, colour",
   "variant": "rot90",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.9 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5000,9 +5000,9 @@
   "type": "poster",
   "arrangement": "A3 portrait, huge type, colour",
   "variant": "rot180",
-  "pass": "warn",
-  "value": "icon centre 25.6 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.7 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5052,9 +5052,9 @@
   "type": "poster",
   "arrangement": "A3 portrait, huge type, colour",
   "variant": "rot270",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.9 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5195,9 +5195,9 @@
   "type": "poster",
   "arrangement": "A3 portrait, huge type, colour",
   "variant": "origin-crop-rot270",
-  "pass": "warn",
-  "value": "icon centre 18.3 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.7 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5234,9 +5234,9 @@
   "type": "poster",
   "arrangement": "A3 portrait, huge type, colour",
   "variant": "stored90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.7 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5286,9 +5286,9 @@
   "type": "poster",
   "arrangement": "A3 portrait, huge type, colour",
   "variant": "stored180",
-  "pass": "warn",
-  "value": "icon centre 25.6 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.7 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5338,9 +5338,9 @@
   "type": "poster",
   "arrangement": "A3 portrait, huge type, colour",
   "variant": "stored270",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.7 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5390,9 +5390,9 @@
   "type": "poster",
   "arrangement": "A3 portrait, huge type, colour",
   "variant": "stored90-origin-crop",
-  "pass": "warn",
-  "value": "icon centre 17.9 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 3 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5494,9 +5494,9 @@
   "type": "receipt",
   "arrangement": "long narrow 80 mm",
   "variant": "rot90",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.7 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5533,9 +5533,9 @@
   "type": "receipt",
   "arrangement": "long narrow 80 mm",
   "variant": "rot180",
-  "pass": "warn",
-  "value": "icon centre 25.3 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 3 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5585,9 +5585,9 @@
   "type": "receipt",
   "arrangement": "long narrow 80 mm",
   "variant": "rot270",
-  "pass": "warn",
-  "value": "icon centre 18.3 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.7 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5728,9 +5728,9 @@
   "type": "receipt",
   "arrangement": "long narrow 80 mm",
   "variant": "origin-crop-rot270",
-  "pass": "warn",
-  "value": "icon centre 17.9 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.9 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5767,9 +5767,9 @@
   "type": "receipt",
   "arrangement": "long narrow 80 mm",
   "variant": "stored90",
-  "pass": "warn",
-  "value": "icon centre 17.9 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 3 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5819,9 +5819,9 @@
   "type": "receipt",
   "arrangement": "long narrow 80 mm",
   "variant": "stored180",
-  "pass": "warn",
-  "value": "icon centre 25.3 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 3 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5871,9 +5871,9 @@
   "type": "receipt",
   "arrangement": "long narrow 80 mm",
   "variant": "stored270",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 3 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -5923,9 +5923,9 @@
   "type": "receipt",
   "arrangement": "long narrow 80 mm",
   "variant": "stored90-origin-crop",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.7 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6014,9 +6014,9 @@
   "type": "slide",
   "arrangement": "landscape 16:9, large type",
   "variant": "rot90",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6053,9 +6053,9 @@
   "type": "slide",
   "arrangement": "landscape 16:9, large type",
   "variant": "rot180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6092,9 +6092,9 @@
   "type": "slide",
   "arrangement": "landscape 16:9, large type",
   "variant": "rot270",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6209,9 +6209,9 @@
   "type": "slide",
   "arrangement": "landscape 16:9, large type",
   "variant": "origin-crop-rot270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6248,9 +6248,9 @@
   "type": "slide",
   "arrangement": "landscape 16:9, large type",
   "variant": "stored90",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6287,9 +6287,9 @@
   "type": "slide",
   "arrangement": "landscape 16:9, large type",
   "variant": "stored180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6326,9 +6326,9 @@
   "type": "slide",
   "arrangement": "landscape 16:9, large type",
   "variant": "stored270",
-  "pass": "warn",
-  "value": "icon centre 18.1 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6365,9 +6365,9 @@
   "type": "slide",
   "arrangement": "landscape 16:9, large type",
   "variant": "stored90-origin-crop",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6456,9 +6456,9 @@
   "type": "table report",
   "arrangement": "landscape A4, wide table",
   "variant": "rot90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6495,9 +6495,9 @@
   "type": "table report",
   "arrangement": "landscape A4, wide table",
   "variant": "rot180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6547,9 +6547,9 @@
   "type": "table report",
   "arrangement": "landscape A4, wide table",
   "variant": "rot270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6690,9 +6690,9 @@
   "type": "table report",
   "arrangement": "landscape A4, wide table",
   "variant": "origin-crop-rot270",
-  "pass": "warn",
-  "value": "icon centre 18.3 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6729,9 +6729,9 @@
   "type": "table report",
   "arrangement": "landscape A4, wide table",
   "variant": "stored90",
-  "pass": "warn",
-  "value": "icon centre 18.2 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6781,9 +6781,9 @@
   "type": "table report",
   "arrangement": "landscape A4, wide table",
   "variant": "stored180",
-  "pass": "warn",
-  "value": "icon centre 25.5 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6833,9 +6833,9 @@
   "type": "table report",
   "arrangement": "landscape A4, wide table",
   "variant": "stored270",
-  "pass": "warn",
-  "value": "icon centre 18 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",
@@ -6885,9 +6885,9 @@
   "type": "table report",
   "arrangement": "landscape A4, wide table",
   "variant": "stored90-origin-crop",
-  "pass": "warn",
-  "value": "icon centre 17.9 pt from the click",
-  "note": "icon sits off the clicked point (anchored by a page corner, not by the click)"
+  "pass": true,
+  "value": "icon centre 2.8 pt from the click",
+  "note": ""
  },
  {
   "writer": "comment",

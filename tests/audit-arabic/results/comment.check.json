@@ -4,7 +4,7 @@
   "file": "comment.pdf",
   "page": 0,
   "label": "freetext-stack",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
   "status": "exact"
  },
@@ -13,7 +13,7 @@
   "file": "comment.pdf",
   "page": 0,
   "label": "freetext-stack",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
   "status": "exact"
  },
@@ -22,25 +22,25 @@
   "file": "comment.pdf",
   "page": 0,
   "label": "freetext-stack",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "comment",
   "file": "comment.pdf",
   "page": 0,
   "label": "freetext-stack",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-  "status": "marks-lost"
+  "status": "exact"
  },
  {
   "writer": "comment",
   "file": "comment.pdf",
   "page": 0,
   "label": "freetext-stack",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
   "status": "exact"
  },
@@ -49,7 +49,7 @@
   "file": "comment.pdf",
   "page": 0,
   "label": "freetext-stack",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
   "status": "exact"
  },
@@ -58,16 +58,16 @@
   "file": "comment.pdf",
   "page": 0,
   "label": "freetext-stack",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "پژوهش چگونه گفتگو گچ",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "comment",
   "file": "comment.pdf",
   "page": 0,
   "label": "freetext-stack",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "Hello world 123",
   "status": "exact"
  },
@@ -76,7 +76,7 @@
   "file": "comment.pdf",
   "page": 0,
   "label": "freetext-stack",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "ب",
   "status": "exact"
  },
@@ -85,7 +85,7 @@
   "file": "comment.pdf",
   "page": 1,
   "label": "freetext-long",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "هذا نص طويل جدا يجب أن ينتقل إلى عدة أسط",
   "status": "exact"
  },
@@ -94,7 +94,7 @@
   "file": "comment.pdf",
   "page": 1,
   "label": "freetext-long",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "استقلاليةاستقلاليةاستقلاليةاستقلاليةاستق",
   "status": "exact"
  },
@@ -103,7 +103,7 @@
   "file": "comment.pdf",
   "page": 1,
   "label": "freetext-long",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "هذا نص طويل جدا يجب أن ينتقل إلى عدة أسط",
   "status": "exact"
  },
@@ -112,7 +112,7 @@
   "file": "comment.pdf",
   "page": 1,
   "label": "freetext-long",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "ب",
   "status": "exact"
  },
@@ -121,7 +121,7 @@
   "file": "comment.pdf",
   "page": 2,
   "label": "freetext-colours",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
   "status": "exact"
  },
@@ -130,7 +130,7 @@
   "file": "comment.pdf",
   "page": 2,
   "label": "freetext-colours",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
   "status": "exact"
  },
@@ -139,7 +139,7 @@
   "file": "comment.pdf",
   "page": 2,
   "label": "freetext-colours",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
   "status": "exact"
  },
@@ -148,7 +148,7 @@
   "file": "comment.pdf",
   "page": 5,
   "label": "rot90",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
   "status": "exact"
  },
@@ -157,7 +157,7 @@
   "file": "comment.pdf",
   "page": 5,
   "label": "rot90",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
   "status": "exact"
  },
@@ -166,7 +166,7 @@
   "file": "comment.pdf",
   "page": 6,
   "label": "rot180",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
   "status": "exact"
  },
@@ -175,7 +175,7 @@
   "file": "comment.pdf",
   "page": 6,
   "label": "rot180",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
   "status": "exact"
  },
@@ -184,7 +184,7 @@
   "file": "comment.pdf",
   "page": 7,
   "label": "rot270",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
   "status": "exact"
  },
@@ -193,7 +193,7 @@
   "file": "comment.pdf",
   "page": 7,
   "label": "rot270",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
   "status": "exact"
  },
@@ -202,7 +202,7 @@
   "file": "comment.pdf",
   "page": 8,
   "label": "crop-origin",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
   "status": "exact"
  },
@@ -211,7 +211,7 @@
   "file": "comment.pdf",
   "page": 8,
   "label": "crop-origin",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
   "status": "exact"
  },
@@ -220,7 +220,7 @@
   "file": "comment.pdf",
   "page": 9,
   "label": "crop-origin-rot90",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
   "status": "exact"
  },
@@ -229,7 +229,7 @@
   "file": "comment.pdf",
   "page": 10,
   "label": "size-A3",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
   "status": "exact"
  },
@@ -238,737 +238,8 @@
   "file": "comment.pdf",
   "page": 11,
   "label": "size-square300",
-  "consumer": "edgecopy",
+  "consumer": "annotation",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
   "status": "exact"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "mupdf",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "mupdf",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "mupdf",
-  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "mupdf",
-  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "mupdf",
-  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "mupdf",
-  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "mupdf",
-  "text": "پژوهش چگونه گفتگو گچ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "mupdf",
-  "text": "Hello world 123",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "mupdf",
-  "text": "ب",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 1,
-  "label": "freetext-long",
-  "consumer": "mupdf",
-  "text": "هذا نص طويل جدا يجب أن ينتقل إلى عدة أسط",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 1,
-  "label": "freetext-long",
-  "consumer": "mupdf",
-  "text": "استقلاليةاستقلاليةاستقلاليةاستقلاليةاستق",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 1,
-  "label": "freetext-long",
-  "consumer": "mupdf",
-  "text": "هذا نص طويل جدا يجب أن ينتقل إلى عدة أسط",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 1,
-  "label": "freetext-long",
-  "consumer": "mupdf",
-  "text": "ب",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 2,
-  "label": "freetext-colours",
-  "consumer": "mupdf",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 2,
-  "label": "freetext-colours",
-  "consumer": "mupdf",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 2,
-  "label": "freetext-colours",
-  "consumer": "mupdf",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 5,
-  "label": "rot90",
-  "consumer": "mupdf",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 5,
-  "label": "rot90",
-  "consumer": "mupdf",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 6,
-  "label": "rot180",
-  "consumer": "mupdf",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 6,
-  "label": "rot180",
-  "consumer": "mupdf",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 7,
-  "label": "rot270",
-  "consumer": "mupdf",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 7,
-  "label": "rot270",
-  "consumer": "mupdf",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 8,
-  "label": "crop-origin",
-  "consumer": "mupdf",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 8,
-  "label": "crop-origin",
-  "consumer": "mupdf",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 9,
-  "label": "crop-origin-rot90",
-  "consumer": "mupdf",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 10,
-  "label": "size-A3",
-  "consumer": "mupdf",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 11,
-  "label": "size-square300",
-  "consumer": "mupdf",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfium",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfium",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfium",
-  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfium",
-  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfium",
-  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfium",
-  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfium",
-  "text": "پژوهش چگونه گفتگو گچ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfium",
-  "text": "Hello world 123",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfium",
-  "text": "ب",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 1,
-  "label": "freetext-long",
-  "consumer": "pdfium",
-  "text": "هذا نص طويل جدا يجب أن ينتقل إلى عدة أسط",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 1,
-  "label": "freetext-long",
-  "consumer": "pdfium",
-  "text": "استقلاليةاستقلاليةاستقلاليةاستقلاليةاستق",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 1,
-  "label": "freetext-long",
-  "consumer": "pdfium",
-  "text": "هذا نص طويل جدا يجب أن ينتقل إلى عدة أسط",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 1,
-  "label": "freetext-long",
-  "consumer": "pdfium",
-  "text": "ب",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 2,
-  "label": "freetext-colours",
-  "consumer": "pdfium",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 2,
-  "label": "freetext-colours",
-  "consumer": "pdfium",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 2,
-  "label": "freetext-colours",
-  "consumer": "pdfium",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 5,
-  "label": "rot90",
-  "consumer": "pdfium",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 5,
-  "label": "rot90",
-  "consumer": "pdfium",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 6,
-  "label": "rot180",
-  "consumer": "pdfium",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 6,
-  "label": "rot180",
-  "consumer": "pdfium",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 7,
-  "label": "rot270",
-  "consumer": "pdfium",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 7,
-  "label": "rot270",
-  "consumer": "pdfium",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 8,
-  "label": "crop-origin",
-  "consumer": "pdfium",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 8,
-  "label": "crop-origin",
-  "consumer": "pdfium",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 9,
-  "label": "crop-origin-rot90",
-  "consumer": "pdfium",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 10,
-  "label": "size-A3",
-  "consumer": "pdfium",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 11,
-  "label": "size-square300",
-  "consumer": "pdfium",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfjs",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfjs",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfjs",
-  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfjs",
-  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfjs",
-  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfjs",
-  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfjs",
-  "text": "پژوهش چگونه گفتگو گچ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfjs",
-  "text": "Hello world 123",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 0,
-  "label": "freetext-stack",
-  "consumer": "pdfjs",
-  "text": "ب",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 1,
-  "label": "freetext-long",
-  "consumer": "pdfjs",
-  "text": "هذا نص طويل جدا يجب أن ينتقل إلى عدة أسط",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 1,
-  "label": "freetext-long",
-  "consumer": "pdfjs",
-  "text": "استقلاليةاستقلاليةاستقلاليةاستقلاليةاستق",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 1,
-  "label": "freetext-long",
-  "consumer": "pdfjs",
-  "text": "هذا نص طويل جدا يجب أن ينتقل إلى عدة أسط",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 1,
-  "label": "freetext-long",
-  "consumer": "pdfjs",
-  "text": "ب",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 2,
-  "label": "freetext-colours",
-  "consumer": "pdfjs",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 2,
-  "label": "freetext-colours",
-  "consumer": "pdfjs",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 2,
-  "label": "freetext-colours",
-  "consumer": "pdfjs",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 5,
-  "label": "rot90",
-  "consumer": "pdfjs",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 5,
-  "label": "rot90",
-  "consumer": "pdfjs",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 6,
-  "label": "rot180",
-  "consumer": "pdfjs",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 6,
-  "label": "rot180",
-  "consumer": "pdfjs",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 7,
-  "label": "rot270",
-  "consumer": "pdfjs",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 7,
-  "label": "rot270",
-  "consumer": "pdfjs",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 8,
-  "label": "crop-origin",
-  "consumer": "pdfjs",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 8,
-  "label": "crop-origin",
-  "consumer": "pdfjs",
-  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 9,
-  "label": "crop-origin-rot90",
-  "consumer": "pdfjs",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 10,
-  "label": "size-A3",
-  "consumer": "pdfjs",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "comment",
-  "file": "comment.pdf",
-  "page": 11,
-  "label": "size-square300",
-  "consumer": "pdfjs",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
  }
 ]

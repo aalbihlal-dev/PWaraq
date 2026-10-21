@@ -4,474 +4,6 @@
   "file": "sign.pdf",
   "page": 0,
   "label": "name-0",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد الأحمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 0,
-  "label": "name-0",
-  "consumer": "edgecopy",
-  "text": "21/10/2026",
-  "status": "exact"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 1,
-  "label": "name-1",
-  "consumer": "edgecopy",
-  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 1,
-  "label": "name-1",
-  "consumer": "edgecopy",
-  "text": "21/10/2026",
-  "status": "exact"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 2,
-  "label": "name-2",
-  "consumer": "edgecopy",
-  "text": "محمد بن عبدالله Al-Ahmad 2026",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 2,
-  "label": "name-2",
-  "consumer": "edgecopy",
-  "text": "21 أكتوبر 2026",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 3,
-  "label": "name-3",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد الأحمد الحربي الشمري الدوسر",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 3,
-  "label": "name-3",
-  "consumer": "edgecopy",
-  "text": "21 October 2026",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 4,
-  "label": "name-4",
-  "consumer": "edgecopy",
-  "text": "پژمان",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 4,
-  "label": "name-4",
-  "consumer": "edgecopy",
-  "text": "2026-10-21",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 5,
-  "label": "name-5",
-  "consumer": "edgecopy",
-  "text": "ب",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 5,
-  "label": "name-5",
-  "consumer": "edgecopy",
-  "text": "2026-10-21",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 6,
-  "label": "name-6",
-  "consumer": "edgecopy",
-  "text": "Abdullah Al-Ahmad",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 6,
-  "label": "name-6",
-  "consumer": "edgecopy",
-  "text": "10/05/1448 هـ",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 7,
-  "label": "name-7",
-  "consumer": "edgecopy",
-  "text": "الدكتور/ عبدالله (المشرف)",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 7,
-  "label": "name-7",
-  "consumer": "edgecopy",
-  "text": "10/05/1448 AH",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 8,
-  "label": "name-8",
-  "consumer": "edgecopy",
-  "text": "سارة ٢٠٢٦",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 8,
-  "label": "name-8",
-  "consumer": "edgecopy",
-  "text": "10 جمادى الأولى 1448 هـ",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 9,
-  "label": "date-gregory-numeric-ar",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 9,
-  "label": "date-gregory-numeric-ar",
-  "consumer": "edgecopy",
-  "text": "21/10/2026",
-  "status": "exact"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 10,
-  "label": "date-gregory-numeric-en",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 10,
-  "label": "date-gregory-numeric-en",
-  "consumer": "edgecopy",
-  "text": "21/10/2026",
-  "status": "exact"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 11,
-  "label": "date-gregory-long-ar",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 11,
-  "label": "date-gregory-long-ar",
-  "consumer": "edgecopy",
-  "text": "21 أكتوبر 2026",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 12,
-  "label": "date-gregory-long-en",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 12,
-  "label": "date-gregory-long-en",
-  "consumer": "edgecopy",
-  "text": "21 October 2026",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 13,
-  "label": "date-gregory-iso-ar",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 13,
-  "label": "date-gregory-iso-ar",
-  "consumer": "edgecopy",
-  "text": "2026-10-21",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 14,
-  "label": "date-gregory-iso-en",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 14,
-  "label": "date-gregory-iso-en",
-  "consumer": "edgecopy",
-  "text": "2026-10-21",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 15,
-  "label": "date-islamic-umalqura-numeric-ar",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 15,
-  "label": "date-islamic-umalqura-numeric-ar",
-  "consumer": "edgecopy",
-  "text": "10/05/1448 هـ",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 16,
-  "label": "date-islamic-umalqura-numeric-en",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 16,
-  "label": "date-islamic-umalqura-numeric-en",
-  "consumer": "edgecopy",
-  "text": "10/05/1448 AH",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 17,
-  "label": "date-islamic-umalqura-long-ar",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 17,
-  "label": "date-islamic-umalqura-long-ar",
-  "consumer": "edgecopy",
-  "text": "10 جمادى الأولى 1448 هـ",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 18,
-  "label": "date-islamic-umalqura-long-en",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 18,
-  "label": "date-islamic-umalqura-long-en",
-  "consumer": "edgecopy",
-  "text": "10 Jumada I 1448 AH",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 19,
-  "label": "date-islamic-umalqura-iso-ar",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 19,
-  "label": "date-islamic-umalqura-iso-ar",
-  "consumer": "edgecopy",
-  "text": "1448-05-10 هـ",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 20,
-  "label": "date-islamic-umalqura-iso-en",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 20,
-  "label": "date-islamic-umalqura-iso-en",
-  "consumer": "edgecopy",
-  "text": "1448-05-10 AH",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 21,
-  "label": "rot90",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد الأحمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 21,
-  "label": "rot90",
-  "consumer": "edgecopy",
-  "text": "21/10/2026",
-  "status": "exact"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 22,
-  "label": "rot180",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد الأحمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 22,
-  "label": "rot180",
-  "consumer": "edgecopy",
-  "text": "21/10/2026",
-  "status": "exact"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 23,
-  "label": "rot270",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد الأحمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 23,
-  "label": "rot270",
-  "consumer": "edgecopy",
-  "text": "21/10/2026",
-  "status": "exact"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 24,
-  "label": "crop-origin",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد الأحمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 24,
-  "label": "crop-origin",
-  "consumer": "edgecopy",
-  "text": "21/10/2026",
-  "status": "exact"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 25,
-  "label": "size-A5",
-  "consumer": "edgecopy",
-  "text": "عبدالله محمد الأحمد",
-  "status": "wrong"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 25,
-  "label": "size-A5",
-  "consumer": "edgecopy",
-  "text": "21/10/2026",
-  "status": "exact"
- },
- {
-  "writer": "sign",
-  "file": "sign.pdf",
-  "page": 0,
-  "label": "name-0",
   "consumer": "mupdf",
   "text": "عبدالله محمد الأحمد",
   "status": "exact"
@@ -519,7 +51,7 @@
   "label": "name-2",
   "consumer": "mupdf",
   "text": "21 أكتوبر 2026",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "sign",
@@ -591,7 +123,7 @@
   "label": "name-6",
   "consumer": "mupdf",
   "text": "10/05/1448 هـ",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "sign",
@@ -618,7 +150,7 @@
   "label": "name-8",
   "consumer": "mupdf",
   "text": "سارة ٢٠٢٦",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "sign",
@@ -627,7 +159,7 @@
   "label": "name-8",
   "consumer": "mupdf",
   "text": "10 جمادى الأولى 1448 هـ",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "sign",
@@ -681,7 +213,7 @@
   "label": "date-gregory-long-ar",
   "consumer": "mupdf",
   "text": "21 أكتوبر 2026",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "sign",
@@ -753,7 +285,7 @@
   "label": "date-islamic-umalqura-numeric-ar",
   "consumer": "mupdf",
   "text": "10/05/1448 هـ",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "sign",
@@ -789,7 +321,7 @@
   "label": "date-islamic-umalqura-long-ar",
   "consumer": "mupdf",
   "text": "10 جمادى الأولى 1448 هـ",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "sign",
@@ -825,7 +357,7 @@
   "label": "date-islamic-umalqura-iso-ar",
   "consumer": "mupdf",
   "text": "1448-05-10 هـ",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "sign",
@@ -987,7 +519,7 @@
   "label": "name-2",
   "consumer": "pdfium",
   "text": "21 أكتوبر 2026",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "sign",
@@ -1059,7 +591,7 @@
   "label": "name-6",
   "consumer": "pdfium",
   "text": "10/05/1448 هـ",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "sign",
@@ -1149,7 +681,7 @@
   "label": "date-gregory-long-ar",
   "consumer": "pdfium",
   "text": "21 أكتوبر 2026",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "sign",
@@ -1221,7 +753,7 @@
   "label": "date-islamic-umalqura-numeric-ar",
   "consumer": "pdfium",
   "text": "10/05/1448 هـ",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "sign",
@@ -1293,7 +825,7 @@
   "label": "date-islamic-umalqura-iso-ar",
   "consumer": "pdfium",
   "text": "1448-05-10 هـ",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "sign",
@@ -1428,7 +960,7 @@
   "label": "name-1",
   "consumer": "pdfjs",
   "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-  "status": "marks-lost"
+  "status": "nfkc-only"
  },
  {
   "writer": "sign",
@@ -1455,7 +987,7 @@
   "label": "name-2",
   "consumer": "pdfjs",
   "text": "21 أكتوبر 2026",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "sign",
@@ -1554,7 +1086,7 @@
   "label": "name-8",
   "consumer": "pdfjs",
   "text": "سارة ٢٠٢٦",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "sign",
@@ -1563,7 +1095,7 @@
   "label": "name-8",
   "consumer": "pdfjs",
   "text": "10 جمادى الأولى 1448 هـ",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "sign",
@@ -1617,7 +1149,7 @@
   "label": "date-gregory-long-ar",
   "consumer": "pdfjs",
   "text": "21 أكتوبر 2026",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "sign",
@@ -1725,7 +1257,7 @@
   "label": "date-islamic-umalqura-long-ar",
   "consumer": "pdfjs",
   "text": "10 جمادى الأولى 1448 هـ",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "sign",
@@ -1761,7 +1293,7 @@
   "label": "date-islamic-umalqura-iso-ar",
   "consumer": "pdfjs",
   "text": "1448-05-10 هـ",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "sign",

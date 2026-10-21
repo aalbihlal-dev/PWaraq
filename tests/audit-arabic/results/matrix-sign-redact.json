@@ -295,7 +295,7 @@
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "plain",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -321,7 +321,7 @@
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "rot90",
   "pass": false,
-  "value": "found 0/1 blanks, 1 extra, 1 date spots",
+  "value": "found 0/1 blanks, 1 extra, 0 date spots",
   "note": "extra spot(s) not on a blank"
  },
  {
@@ -347,7 +347,7 @@
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "rot180",
   "pass": false,
-  "value": "found 0/1 blanks, 1 extra, 1 date spots",
+  "value": "found 0/1 blanks, 1 extra, 0 date spots",
   "note": "extra spot(s) not on a blank"
  },
  {
@@ -359,9 +359,9 @@
   "type": "CAD-like drawing",
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "rot180",
-  "pass": "warn",
-  "value": "1/1 placed, 1 over existing text, 0 away from the blank",
-  "note": "signature / name / date over existing text"
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "sign",
@@ -373,7 +373,7 @@
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "rot270",
   "pass": false,
-  "value": "found 0/1 blanks, 1 extra, 1 date spots",
+  "value": "found 0/1 blanks, 1 extra, 0 date spots",
   "note": "extra spot(s) not on a blank"
  },
  {
@@ -399,7 +399,7 @@
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "origin",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -425,7 +425,7 @@
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "crop",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -451,7 +451,7 @@
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "origin-crop-rot270",
   "pass": false,
-  "value": "found 0/1 blanks, 1 extra, 1 date spots",
+  "value": "found 0/1 blanks, 1 extra, 0 date spots",
   "note": "extra spot(s) not on a blank"
  },
  {
@@ -477,7 +477,7 @@
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "stored90",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -503,7 +503,7 @@
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "stored180",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -529,7 +529,7 @@
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "stored270",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -555,7 +555,7 @@
   "arrangement": "A3 landscape, vector lines, title block",
   "variant": "stored90-origin-crop",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -607,7 +607,7 @@
   "arrangement": "numbered clauses + two signature cells",
   "variant": "rot90",
   "pass": false,
-  "value": "found 0/2 blanks, 2 extra, 0 date spots",
+  "value": "found 0/2 blanks, 1 extra, 0 date spots",
   "note": "extra spot(s) not on a blank"
  },
  {
@@ -620,7 +620,7 @@
   "arrangement": "numbered clauses + two signature cells",
   "variant": "rot90",
   "pass": true,
-  "value": "2/2 placed, 0 over existing text, 0 away from the blank",
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
  },
  {
@@ -659,7 +659,7 @@
   "arrangement": "numbered clauses + two signature cells",
   "variant": "rot270",
   "pass": false,
-  "value": "found 0/2 blanks, 2 extra, 0 date spots",
+  "value": "found 0/2 blanks, 1 extra, 0 date spots",
   "note": "extra spot(s) not on a blank"
  },
  {
@@ -672,7 +672,7 @@
   "arrangement": "numbered clauses + two signature cells",
   "variant": "rot270",
   "pass": true,
-  "value": "2/2 placed, 0 over existing text, 0 away from the blank",
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
  },
  {
@@ -737,7 +737,7 @@
   "arrangement": "numbered clauses + two signature cells",
   "variant": "origin-crop-rot270",
   "pass": false,
-  "value": "found 0/2 blanks, 2 extra, 0 date spots",
+  "value": "found 0/2 blanks, 1 extra, 0 date spots",
   "note": "extra spot(s) not on a blank"
  },
  {
@@ -750,7 +750,7 @@
   "arrangement": "numbered clauses + two signature cells",
   "variant": "origin-crop-rot270",
   "pass": true,
-  "value": "2/2 placed, 0 over existing text, 0 away from the blank",
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
  },
  {
@@ -1152,9 +1152,22 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "plain",
-  "pass": false,
-  "value": "found 0/1 blanks, 0 extra, 1 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "invoice-a4--plain",
+  "source": "variant",
+  "doc": "invoice-a4",
+  "type": "invoice",
+  "arrangement": "table, bilingual numbers",
+  "variant": "plain",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "redaction",
@@ -1192,8 +1205,21 @@
   "arrangement": "table, bilingual numbers",
   "variant": "rot90",
   "pass": false,
-  "value": "found 0/1 blanks, 0 extra, 1 date spots",
-  "note": "blank missed"
+  "value": "found 0/1 blanks, 1 extra, 0 date spots",
+  "note": "extra spot(s) not on a blank"
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "invoice-a4--rot90",
+  "source": "variant",
+  "doc": "invoice-a4",
+  "type": "invoice",
+  "arrangement": "table, bilingual numbers",
+  "variant": "rot90",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "redaction",
@@ -1231,8 +1257,21 @@
   "arrangement": "table, bilingual numbers",
   "variant": "rot180",
   "pass": false,
-  "value": "found 0/1 blanks, 0 extra, 1 date spots",
-  "note": "blank missed"
+  "value": "found 0/1 blanks, 1 extra, 0 date spots",
+  "note": "extra spot(s) not on a blank"
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "invoice-a4--rot180",
+  "source": "variant",
+  "doc": "invoice-a4",
+  "type": "invoice",
+  "arrangement": "table, bilingual numbers",
+  "variant": "rot180",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "redaction",
@@ -1270,8 +1309,21 @@
   "arrangement": "table, bilingual numbers",
   "variant": "rot270",
   "pass": false,
-  "value": "found 0/1 blanks, 0 extra, 1 date spots",
-  "note": "blank missed"
+  "value": "found 0/1 blanks, 1 extra, 0 date spots",
+  "note": "extra spot(s) not on a blank"
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "invoice-a4--rot270",
+  "source": "variant",
+  "doc": "invoice-a4",
+  "type": "invoice",
+  "arrangement": "table, bilingual numbers",
+  "variant": "rot270",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "redaction",
@@ -1308,9 +1360,22 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "origin",
-  "pass": false,
-  "value": "found 0/1 blanks, 0 extra, 1 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "invoice-a4--origin",
+  "source": "variant",
+  "doc": "invoice-a4",
+  "type": "invoice",
+  "arrangement": "table, bilingual numbers",
+  "variant": "origin",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "redaction",
@@ -1347,9 +1412,22 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "crop",
-  "pass": false,
-  "value": "found 0/1 blanks, 0 extra, 1 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "invoice-a4--crop",
+  "source": "variant",
+  "doc": "invoice-a4",
+  "type": "invoice",
+  "arrangement": "table, bilingual numbers",
+  "variant": "crop",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "redaction",
@@ -1387,8 +1465,21 @@
   "arrangement": "table, bilingual numbers",
   "variant": "origin-crop-rot270",
   "pass": false,
-  "value": "found 0/1 blanks, 0 extra, 1 date spots",
-  "note": "blank missed"
+  "value": "found 0/1 blanks, 1 extra, 0 date spots",
+  "note": "extra spot(s) not on a blank"
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "invoice-a4--origin-crop-rot270",
+  "source": "variant",
+  "doc": "invoice-a4",
+  "type": "invoice",
+  "arrangement": "table, bilingual numbers",
+  "variant": "origin-crop-rot270",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "redaction",
@@ -1425,9 +1516,22 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "stored90",
-  "pass": false,
-  "value": "found 0/1 blanks, 0 extra, 1 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "invoice-a4--stored90",
+  "source": "variant",
+  "doc": "invoice-a4",
+  "type": "invoice",
+  "arrangement": "table, bilingual numbers",
+  "variant": "stored90",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "redaction",
@@ -1464,9 +1568,22 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "stored180",
-  "pass": false,
-  "value": "found 0/1 blanks, 0 extra, 1 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "invoice-a4--stored180",
+  "source": "variant",
+  "doc": "invoice-a4",
+  "type": "invoice",
+  "arrangement": "table, bilingual numbers",
+  "variant": "stored180",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "redaction",
@@ -1503,9 +1620,22 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "stored270",
-  "pass": false,
-  "value": "found 0/1 blanks, 0 extra, 1 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "invoice-a4--stored270",
+  "source": "variant",
+  "doc": "invoice-a4",
+  "type": "invoice",
+  "arrangement": "table, bilingual numbers",
+  "variant": "stored270",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "redaction",
@@ -1542,9 +1672,22 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "stored90-origin-crop",
-  "pass": false,
-  "value": "found 0/1 blanks, 0 extra, 1 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "invoice-a4--stored90-origin-crop",
+  "source": "variant",
+  "doc": "invoice-a4",
+  "type": "invoice",
+  "arrangement": "table, bilingual numbers",
+  "variant": "stored90-origin-crop",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "redaction",
@@ -1582,7 +1725,7 @@
   "arrangement": "1 column, portrait",
   "variant": "plain",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -1597,19 +1740,6 @@
   "pass": true,
   "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
- },
- {
-  "writer": "sign",
-  "check": "date label already filled",
-  "subject": "letter-a4--plain",
-  "source": "variant",
-  "doc": "letter-a4",
-  "type": "letter",
-  "arrangement": "1 column, portrait",
-  "variant": "plain",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
  },
  {
   "writer": "redaction",
@@ -1647,7 +1777,7 @@
   "arrangement": "1 column, portrait",
   "variant": "rot90",
   "pass": false,
-  "value": "found 0/1 blanks, 1 extra, 1 date spots",
+  "value": "found 0/1 blanks, 1 extra, 0 date spots",
   "note": "extra spot(s) not on a blank"
  },
  {
@@ -1662,19 +1792,6 @@
   "pass": true,
   "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
- },
- {
-  "writer": "sign",
-  "check": "date label already filled",
-  "subject": "letter-a4--rot90",
-  "source": "variant",
-  "doc": "letter-a4",
-  "type": "letter",
-  "arrangement": "1 column, portrait",
-  "variant": "rot90",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
  },
  {
   "writer": "redaction",
@@ -1712,7 +1829,7 @@
   "arrangement": "1 column, portrait",
   "variant": "rot180",
   "pass": false,
-  "value": "found 0/1 blanks, 1 extra, 1 date spots",
+  "value": "found 0/1 blanks, 1 extra, 0 date spots",
   "note": "extra spot(s) not on a blank"
  },
  {
@@ -1727,19 +1844,6 @@
   "pass": true,
   "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
- },
- {
-  "writer": "sign",
-  "check": "date label already filled",
-  "subject": "letter-a4--rot180",
-  "source": "variant",
-  "doc": "letter-a4",
-  "type": "letter",
-  "arrangement": "1 column, portrait",
-  "variant": "rot180",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
  },
  {
   "writer": "redaction",
@@ -1777,7 +1881,7 @@
   "arrangement": "1 column, portrait",
   "variant": "rot270",
   "pass": false,
-  "value": "found 0/1 blanks, 1 extra, 1 date spots",
+  "value": "found 0/1 blanks, 1 extra, 0 date spots",
   "note": "extra spot(s) not on a blank"
  },
  {
@@ -1794,19 +1898,6 @@
   "note": ""
  },
  {
-  "writer": "sign",
-  "check": "date label already filled",
-  "subject": "letter-a4--rot270",
-  "source": "variant",
-  "doc": "letter-a4",
-  "type": "letter",
-  "arrangement": "1 column, portrait",
-  "variant": "rot270",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
- },
- {
   "writer": "redaction",
   "check": "find phone + e-mail",
   "subject": "letter-a4--rot270",
@@ -1842,7 +1933,7 @@
   "arrangement": "1 column, portrait",
   "variant": "origin",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -1857,19 +1948,6 @@
   "pass": true,
   "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
- },
- {
-  "writer": "sign",
-  "check": "date label already filled",
-  "subject": "letter-a4--origin",
-  "source": "variant",
-  "doc": "letter-a4",
-  "type": "letter",
-  "arrangement": "1 column, portrait",
-  "variant": "origin",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
  },
  {
   "writer": "redaction",
@@ -1907,7 +1985,7 @@
   "arrangement": "1 column, portrait",
   "variant": "crop",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -1922,19 +2000,6 @@
   "pass": true,
   "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
- },
- {
-  "writer": "sign",
-  "check": "date label already filled",
-  "subject": "letter-a4--crop",
-  "source": "variant",
-  "doc": "letter-a4",
-  "type": "letter",
-  "arrangement": "1 column, portrait",
-  "variant": "crop",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
  },
  {
   "writer": "redaction",
@@ -1972,7 +2037,7 @@
   "arrangement": "1 column, portrait",
   "variant": "origin-crop-rot270",
   "pass": false,
-  "value": "found 0/1 blanks, 1 extra, 1 date spots",
+  "value": "found 0/1 blanks, 1 extra, 0 date spots",
   "note": "extra spot(s) not on a blank"
  },
  {
@@ -1987,19 +2052,6 @@
   "pass": true,
   "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
- },
- {
-  "writer": "sign",
-  "check": "date label already filled",
-  "subject": "letter-a4--origin-crop-rot270",
-  "source": "variant",
-  "doc": "letter-a4",
-  "type": "letter",
-  "arrangement": "1 column, portrait",
-  "variant": "origin-crop-rot270",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
  },
  {
   "writer": "redaction",
@@ -2037,7 +2089,7 @@
   "arrangement": "1 column, portrait",
   "variant": "stored90",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -2052,19 +2104,6 @@
   "pass": true,
   "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
- },
- {
-  "writer": "sign",
-  "check": "date label already filled",
-  "subject": "letter-a4--stored90",
-  "source": "variant",
-  "doc": "letter-a4",
-  "type": "letter",
-  "arrangement": "1 column, portrait",
-  "variant": "stored90",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
  },
  {
   "writer": "redaction",
@@ -2102,7 +2141,7 @@
   "arrangement": "1 column, portrait",
   "variant": "stored180",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -2117,19 +2156,6 @@
   "pass": true,
   "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
- },
- {
-  "writer": "sign",
-  "check": "date label already filled",
-  "subject": "letter-a4--stored180",
-  "source": "variant",
-  "doc": "letter-a4",
-  "type": "letter",
-  "arrangement": "1 column, portrait",
-  "variant": "stored180",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
  },
  {
   "writer": "redaction",
@@ -2167,7 +2193,7 @@
   "arrangement": "1 column, portrait",
   "variant": "stored270",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -2182,19 +2208,6 @@
   "pass": true,
   "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
- },
- {
-  "writer": "sign",
-  "check": "date label already filled",
-  "subject": "letter-a4--stored270",
-  "source": "variant",
-  "doc": "letter-a4",
-  "type": "letter",
-  "arrangement": "1 column, portrait",
-  "variant": "stored270",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
  },
  {
   "writer": "redaction",
@@ -2232,7 +2245,7 @@
   "arrangement": "1 column, portrait",
   "variant": "stored90-origin-crop",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -2247,19 +2260,6 @@
   "pass": true,
   "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
- },
- {
-  "writer": "sign",
-  "check": "date label already filled",
-  "subject": "letter-a4--stored90-origin-crop",
-  "source": "variant",
-  "doc": "letter-a4",
-  "type": "letter",
-  "arrangement": "1 column, portrait",
-  "variant": "stored90-origin-crop",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
  },
  {
   "writer": "redaction",
@@ -2296,9 +2296,22 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "plain",
-  "pass": false,
-  "value": "found 0/2 blanks, 0 extra, 0 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 2/2 blanks, 0 extra, 1 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "letter-letter--plain",
+  "source": "variant",
+  "doc": "letter-letter",
+  "type": "letter",
+  "arrangement": "US Letter, 1 column",
+  "variant": "plain",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "sign",
@@ -2310,8 +2323,21 @@
   "arrangement": "US Letter, 1 column",
   "variant": "rot90",
   "pass": false,
-  "value": "found 0/2 blanks, 0 extra, 0 date spots",
-  "note": "blank missed"
+  "value": "found 0/2 blanks, 1 extra, 1 date spots",
+  "note": "extra spot(s) not on a blank"
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "letter-letter--rot90",
+  "source": "variant",
+  "doc": "letter-letter",
+  "type": "letter",
+  "arrangement": "US Letter, 1 column",
+  "variant": "rot90",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "sign",
@@ -2323,8 +2349,21 @@
   "arrangement": "US Letter, 1 column",
   "variant": "rot180",
   "pass": false,
-  "value": "found 0/2 blanks, 0 extra, 0 date spots",
-  "note": "blank missed"
+  "value": "found 0/2 blanks, 1 extra, 1 date spots",
+  "note": "extra spot(s) not on a blank"
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "letter-letter--rot180",
+  "source": "variant",
+  "doc": "letter-letter",
+  "type": "letter",
+  "arrangement": "US Letter, 1 column",
+  "variant": "rot180",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "sign",
@@ -2336,8 +2375,21 @@
   "arrangement": "US Letter, 1 column",
   "variant": "rot270",
   "pass": false,
-  "value": "found 0/2 blanks, 0 extra, 0 date spots",
-  "note": "blank missed"
+  "value": "found 0/2 blanks, 1 extra, 1 date spots",
+  "note": "extra spot(s) not on a blank"
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "letter-letter--rot270",
+  "source": "variant",
+  "doc": "letter-letter",
+  "type": "letter",
+  "arrangement": "US Letter, 1 column",
+  "variant": "rot270",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "sign",
@@ -2348,9 +2400,22 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "origin",
-  "pass": false,
-  "value": "found 0/2 blanks, 0 extra, 0 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 2/2 blanks, 0 extra, 1 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "letter-letter--origin",
+  "source": "variant",
+  "doc": "letter-letter",
+  "type": "letter",
+  "arrangement": "US Letter, 1 column",
+  "variant": "origin",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "sign",
@@ -2361,9 +2426,22 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "crop",
-  "pass": false,
-  "value": "found 0/2 blanks, 0 extra, 0 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 2/2 blanks, 0 extra, 1 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "letter-letter--crop",
+  "source": "variant",
+  "doc": "letter-letter",
+  "type": "letter",
+  "arrangement": "US Letter, 1 column",
+  "variant": "crop",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "sign",
@@ -2375,8 +2453,21 @@
   "arrangement": "US Letter, 1 column",
   "variant": "origin-crop-rot270",
   "pass": false,
-  "value": "found 0/2 blanks, 0 extra, 0 date spots",
-  "note": "blank missed"
+  "value": "found 0/2 blanks, 1 extra, 1 date spots",
+  "note": "extra spot(s) not on a blank"
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "letter-letter--origin-crop-rot270",
+  "source": "variant",
+  "doc": "letter-letter",
+  "type": "letter",
+  "arrangement": "US Letter, 1 column",
+  "variant": "origin-crop-rot270",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "sign",
@@ -2387,9 +2478,22 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "stored90",
-  "pass": false,
-  "value": "found 0/2 blanks, 0 extra, 0 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 2/2 blanks, 0 extra, 1 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "letter-letter--stored90",
+  "source": "variant",
+  "doc": "letter-letter",
+  "type": "letter",
+  "arrangement": "US Letter, 1 column",
+  "variant": "stored90",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "sign",
@@ -2400,9 +2504,22 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "stored180",
-  "pass": false,
-  "value": "found 0/2 blanks, 0 extra, 0 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 2/2 blanks, 0 extra, 1 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "letter-letter--stored180",
+  "source": "variant",
+  "doc": "letter-letter",
+  "type": "letter",
+  "arrangement": "US Letter, 1 column",
+  "variant": "stored180",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "sign",
@@ -2413,9 +2530,22 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "stored270",
-  "pass": false,
-  "value": "found 0/2 blanks, 0 extra, 0 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 2/2 blanks, 0 extra, 1 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "letter-letter--stored270",
+  "source": "variant",
+  "doc": "letter-letter",
+  "type": "letter",
+  "arrangement": "US Letter, 1 column",
+  "variant": "stored270",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "sign",
@@ -2426,9 +2556,22 @@
   "type": "letter",
   "arrangement": "US Letter, 1 column",
   "variant": "stored90-origin-crop",
-  "pass": false,
-  "value": "found 0/2 blanks, 0 extra, 0 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 2/2 blanks, 0 extra, 1 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "letter-letter--stored90-origin-crop",
+  "source": "variant",
+  "doc": "letter-letter",
+  "type": "letter",
+  "arrangement": "US Letter, 1 column",
+  "variant": "stored90-origin-crop",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "redaction",
@@ -2752,7 +2895,7 @@
   "arrangement": "1 column, portrait",
   "variant": "flatbed150",
   "pass": true,
-  "value": "found 1/1 blanks, 0 extra, 1 date spots",
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
   "note": ""
  },
  {
@@ -2767,19 +2910,6 @@
   "pass": true,
   "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
- },
- {
-  "writer": "sign",
-  "check": "date label already filled",
-  "subject": "letter-a4--flatbed150+ocr",
-  "source": "hybrid",
-  "doc": "letter-a4",
-  "type": "letter",
-  "arrangement": "1 column, portrait",
-  "variant": "flatbed150",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
  },
  {
   "writer": "redaction",
@@ -2842,22 +2972,22 @@
   "type": "letter",
   "arrangement": "1 column, portrait",
   "variant": "flatbed300",
-  "pass": false,
-  "value": "found 0/1 blanks, 0 extra, 1 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
+  "note": ""
  },
  {
   "writer": "sign",
-  "check": "date label already filled",
+  "check": "set lands on the blank, clear of text",
   "subject": "letter-a4--flatbed300+ocr",
   "source": "hybrid",
   "doc": "letter-a4",
   "type": "letter",
   "arrangement": "1 column, portrait",
   "variant": "flatbed300",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "redaction",
@@ -2960,7 +3090,7 @@
   "arrangement": "1 column, portrait",
   "variant": "skew3",
   "pass": "warn",
-  "value": "2 spots",
+  "value": "1 spots",
   "note": "geometry changed by the scan: count only"
  },
  {
@@ -2975,19 +3105,6 @@
   "pass": true,
   "value": "1/1 placed, 0 over existing text, 0 away from the blank",
   "note": ""
- },
- {
-  "writer": "sign",
-  "check": "date label already filled",
-  "subject": "letter-a4--skew3+ocr",
-  "source": "hybrid",
-  "doc": "letter-a4",
-  "type": "letter",
-  "arrangement": "1 column, portrait",
-  "variant": "skew3",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
  },
  {
   "writer": "redaction",
@@ -3038,21 +3155,8 @@
   "arrangement": "1 column, portrait",
   "variant": "faded",
   "pass": false,
-  "value": "found 0/1 blanks, 0 extra, 1 date spots",
+  "value": "found 0/1 blanks, 0 extra, 0 date spots",
   "note": "blank missed"
- },
- {
-  "writer": "sign",
-  "check": "date label already filled",
-  "subject": "letter-a4--faded+ocr",
-  "source": "hybrid",
-  "doc": "letter-a4",
-  "type": "letter",
-  "arrangement": "1 column, portrait",
-  "variant": "faded",
-  "pass": "warn",
-  "value": "1 date spot(s) offered",
-  "note": "the date line already has a date: a date spot there would write over it"
  },
  {
   "writer": "redaction",
@@ -3180,9 +3284,22 @@
   "type": "invoice",
   "arrangement": "table, bilingual numbers",
   "variant": "flatbed150",
-  "pass": false,
-  "value": "found 0/1 blanks, 0 extra, 1 date spots",
-  "note": "blank missed"
+  "pass": true,
+  "value": "found 1/1 blanks, 0 extra, 0 date spots",
+  "note": ""
+ },
+ {
+  "writer": "sign",
+  "check": "set lands on the blank, clear of text",
+  "subject": "invoice-a4--flatbed150+ocr",
+  "source": "hybrid",
+  "doc": "invoice-a4",
+  "type": "invoice",
+  "arrangement": "table, bilingual numbers",
+  "variant": "flatbed150",
+  "pass": true,
+  "value": "1/1 placed, 0 over existing text, 0 away from the blank",
+  "note": ""
  },
  {
   "writer": "redaction",

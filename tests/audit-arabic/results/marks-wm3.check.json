@@ -6,7 +6,7 @@
   "label": "wm3-0",
   "consumer": "mupdf",
   "text": "نسخة ٢٠٢٦",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "marks-wm3",
@@ -15,7 +15,7 @@
   "label": "wm3-1",
   "consumer": "mupdf",
   "text": "نسخة ٢٠٢٦",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "marks-wm3",
@@ -24,7 +24,7 @@
   "label": "wm3-2",
   "consumer": "mupdf",
   "text": "نسخة ٢٠٢٦",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "marks-wm3",
@@ -33,7 +33,7 @@
   "label": "wm3-3",
   "consumer": "mupdf",
   "text": "نسخة ٢٠٢٦",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "marks-wm3",
@@ -42,7 +42,7 @@
   "label": "wm3-4",
   "consumer": "mupdf",
   "text": "نسخة ٢٠٢٦",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "marks-wm3",
@@ -51,7 +51,7 @@
   "label": "wm3-5",
   "consumer": "mupdf",
   "text": "نسخة ٢٠٢٦",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "marks-wm3",
@@ -60,7 +60,7 @@
   "label": "wm3-6",
   "consumer": "mupdf",
   "text": "نسخة ٢٠٢٦",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "marks-wm3",
@@ -132,7 +132,7 @@
   "label": "wm3-0",
   "consumer": "pdfjs",
   "text": "نسخة ٢٠٢٦",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "marks-wm3",
@@ -141,7 +141,7 @@
   "label": "wm3-1",
   "consumer": "pdfjs",
   "text": "نسخة ٢٠٢٦",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "marks-wm3",
@@ -150,7 +150,7 @@
   "label": "wm3-2",
   "consumer": "pdfjs",
   "text": "نسخة ٢٠٢٦",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "marks-wm3",
@@ -159,7 +159,7 @@
   "label": "wm3-3",
   "consumer": "pdfjs",
   "text": "نسخة ٢٠٢٦",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "marks-wm3",
@@ -168,7 +168,7 @@
   "label": "wm3-4",
   "consumer": "pdfjs",
   "text": "نسخة ٢٠٢٦",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "marks-wm3",
@@ -177,7 +177,7 @@
   "label": "wm3-5",
   "consumer": "pdfjs",
   "text": "نسخة ٢٠٢٦",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "marks-wm3",
@@ -186,6 +186,6 @@
   "label": "wm3-6",
   "consumer": "pdfjs",
   "text": "نسخة ٢٠٢٦",
-  "status": "wrong"
+  "status": "exact"
  }
 ]

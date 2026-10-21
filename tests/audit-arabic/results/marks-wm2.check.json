@@ -132,7 +132,7 @@
   "label": "wm2-0",
   "consumer": "pdfjs",
   "text": "بِسْمِ اللَّهِ",
-  "status": "marks-lost"
+  "status": "nfkc-only"
  },
  {
   "writer": "marks-wm2",
@@ -141,7 +141,7 @@
   "label": "wm2-1",
   "consumer": "pdfjs",
   "text": "بِسْمِ اللَّهِ",
-  "status": "marks-lost"
+  "status": "nfkc-only"
  },
  {
   "writer": "marks-wm2",
@@ -150,7 +150,7 @@
   "label": "wm2-2",
   "consumer": "pdfjs",
   "text": "بِسْمِ اللَّهِ",
-  "status": "marks-lost"
+  "status": "nfkc-only"
  },
  {
   "writer": "marks-wm2",
@@ -159,7 +159,7 @@
   "label": "wm2-3",
   "consumer": "pdfjs",
   "text": "بِسْمِ اللَّهِ",
-  "status": "marks-lost"
+  "status": "nfkc-only"
  },
  {
   "writer": "marks-wm2",
@@ -168,7 +168,7 @@
   "label": "wm2-4",
   "consumer": "pdfjs",
   "text": "بِسْمِ اللَّهِ",
-  "status": "marks-lost"
+  "status": "nfkc-only"
  },
  {
   "writer": "marks-wm2",
@@ -177,7 +177,7 @@
   "label": "wm2-5",
   "consumer": "pdfjs",
   "text": "بِسْمِ اللَّهِ",
-  "status": "marks-lost"
+  "status": "nfkc-only"
  },
  {
   "writer": "marks-wm2",
@@ -186,6 +186,6 @@
   "label": "wm2-6",
   "consumer": "pdfjs",
   "text": "بِسْمِ اللَّهِ",
-  "status": "marks-lost"
+  "status": "nfkc-only"
  }
 ]

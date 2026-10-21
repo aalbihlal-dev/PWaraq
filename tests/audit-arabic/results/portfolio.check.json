@@ -15,7 +15,7 @@
   "label": "cover-classic",
   "consumer": "mupdf",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -69,7 +69,7 @@
   "label": "cover-minimal",
   "consumer": "mupdf",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -123,7 +123,7 @@
   "label": "cover-band",
   "consumer": "mupdf",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -177,7 +177,7 @@
   "label": "cover-frame",
   "consumer": "mupdf",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -231,7 +231,7 @@
   "label": "cover-side",
   "consumer": "mupdf",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -285,7 +285,7 @@
   "label": "cover-split",
   "consumer": "mupdf",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -339,7 +339,7 @@
   "label": "cover-geometric",
   "consumer": "mupdf",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -393,7 +393,7 @@
   "label": "cover-editorial",
   "consumer": "mupdf",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -438,7 +438,7 @@
   "label": "divider-classic",
   "consumer": "mupdf",
   "text": "القسم ٣",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -456,7 +456,7 @@
   "label": "divider-minimal",
   "consumer": "mupdf",
   "text": "القسم ٣",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -474,7 +474,7 @@
   "label": "divider-band",
   "consumer": "mupdf",
   "text": "القسم ٣",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -492,7 +492,7 @@
   "label": "divider-frame",
   "consumer": "mupdf",
   "text": "القسم ٣",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -510,7 +510,7 @@
   "label": "divider-side",
   "consumer": "mupdf",
   "text": "القسم ٣",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -528,7 +528,7 @@
   "label": "divider-split",
   "consumer": "mupdf",
   "text": "القسم ٣",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -546,7 +546,7 @@
   "label": "divider-geometric",
   "consumer": "mupdf",
   "text": "القسم ٣",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -564,7 +564,7 @@
   "label": "divider-editorial",
   "consumer": "mupdf",
   "text": "القسم ٣",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -609,7 +609,7 @@
   "label": "cover-tashkeel-indic",
   "consumer": "mupdf",
   "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -1833,15 +1833,6 @@
   "label": "cover-classic",
   "consumer": "pdfjs",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "wrong"
- },
- {
-  "writer": "portfolio",
-  "file": "portfolio.pdf",
-  "page": 0,
-  "label": "cover-classic",
-  "consumer": "pdfjs",
-  "text": "عبدالله محمد الأحمد",
   "status": "exact"
  },
  {
@@ -1850,6 +1841,15 @@
   "page": 0,
   "label": "cover-classic",
   "consumer": "pdfjs",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "pdfjs",
   "text": "سارة بنت خالد الدوسري",
   "status": "exact"
  },
@@ -1860,7 +1860,7 @@
   "label": "cover-classic",
   "consumer": "pdfjs",
   "text": "پژمان Al-Ahmad",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -1887,15 +1887,6 @@
   "label": "cover-minimal",
   "consumer": "pdfjs",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "wrong"
- },
- {
-  "writer": "portfolio",
-  "file": "portfolio.pdf",
-  "page": 1,
-  "label": "cover-minimal",
-  "consumer": "pdfjs",
-  "text": "عبدالله محمد الأحمد",
   "status": "exact"
  },
  {
@@ -1904,6 +1895,15 @@
   "page": 1,
   "label": "cover-minimal",
   "consumer": "pdfjs",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "pdfjs",
   "text": "سارة بنت خالد الدوسري",
   "status": "exact"
  },
@@ -1914,7 +1914,7 @@
   "label": "cover-minimal",
   "consumer": "pdfjs",
   "text": "پژمان Al-Ahmad",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -1941,15 +1941,6 @@
   "label": "cover-band",
   "consumer": "pdfjs",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "wrong"
- },
- {
-  "writer": "portfolio",
-  "file": "portfolio.pdf",
-  "page": 2,
-  "label": "cover-band",
-  "consumer": "pdfjs",
-  "text": "عبدالله محمد الأحمد",
   "status": "exact"
  },
  {
@@ -1958,6 +1949,15 @@
   "page": 2,
   "label": "cover-band",
   "consumer": "pdfjs",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "pdfjs",
   "text": "سارة بنت خالد الدوسري",
   "status": "exact"
  },
@@ -1968,7 +1968,7 @@
   "label": "cover-band",
   "consumer": "pdfjs",
   "text": "پژمان Al-Ahmad",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -1995,7 +1995,7 @@
   "label": "cover-frame",
   "consumer": "pdfjs",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "portfolio",
@@ -2022,7 +2022,7 @@
   "label": "cover-frame",
   "consumer": "pdfjs",
   "text": "پژمان Al-Ahmad",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -2049,7 +2049,7 @@
   "label": "cover-side",
   "consumer": "pdfjs",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "portfolio",
@@ -2076,7 +2076,7 @@
   "label": "cover-side",
   "consumer": "pdfjs",
   "text": "پژمان Al-Ahmad",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -2103,7 +2103,7 @@
   "label": "cover-split",
   "consumer": "pdfjs",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "portfolio",
@@ -2130,7 +2130,7 @@
   "label": "cover-split",
   "consumer": "pdfjs",
   "text": "پژمان Al-Ahmad",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -2157,7 +2157,7 @@
   "label": "cover-geometric",
   "consumer": "pdfjs",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "portfolio",
@@ -2184,7 +2184,7 @@
   "label": "cover-geometric",
   "consumer": "pdfjs",
   "text": "پژمان Al-Ahmad",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -2211,7 +2211,7 @@
   "label": "cover-editorial",
   "consumer": "pdfjs",
   "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "portfolio",
@@ -2238,7 +2238,7 @@
   "label": "cover-editorial",
   "consumer": "pdfjs",
   "text": "پژمان Al-Ahmad",
-  "status": "exact"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -2418,7 +2418,7 @@
   "label": "cover-tashkeel-indic",
   "consumer": "pdfjs",
   "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-  "status": "marks-lost"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -2427,7 +2427,7 @@
   "label": "cover-tashkeel-indic",
   "consumer": "pdfjs",
   "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "portfolio",
@@ -2553,7 +2553,7 @@
   "label": "toc-rtl",
   "consumer": "pdfjs",
   "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-  "status": "marks-lost"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
@@ -2661,7 +2661,7 @@
   "label": "toc-ltr-arabic-titles",
   "consumer": "pdfjs",
   "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-  "status": "marks-lost"
+  "status": "wrong"
  },
  {
   "writer": "portfolio",
