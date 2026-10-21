@@ -154,7 +154,10 @@ export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number,
       // a band through the letters' middle (every glyph's box crosses it; the next lines' ascenders and descenders do
       // not) plus the harakat's own boxes, which sit above the band
       const from = e.from;
-      redactText.push({ x: from.x, y: from.y + from.h * 0.3, w: from.w, h: from.h * 0.4 });
+      // a little wider than the line's box: MuPDF's box of a glyph follows the font's /W, and a subset that lists a narrower width than the ink leaves the line's first letter
+      // standing just outside it (Edge's Arial Unicode MS, the Arabic 'طب' pair: the old first letter stayed under the new line)
+      const pad = e.size * 0.25;
+      redactText.push({ x: from.x - pad, y: from.y + from.h * 0.3, w: from.w + 2 * pad, h: from.h * 0.4 });
       const st = page.toStructuredText('preserve-whitespace');
       st.walk({ onChar(c, origin, _f, _s, q) {
         if (!isMark(c.codePointAt(0)!) || origin[0] < from.x - 1 || origin[0] > from.x + from.w + 1 || origin[1] < from.y - 1 || origin[1] > from.y + from.h + 1) return;
