@@ -1,6 +1,6 @@
 // `pnpm stress` — the low-token stress pipeline: scripts do everything, an AI only reads the one-page report.
 //   node tools/stress/run.mjs [--quick | --sample 0.25] [--suites unit,edit,ocr,write] [--e2e] [--jobs N] [--seed s]
-//        [--deep] [--resume] [--strict] [--generate] [--fetch] [--update-baseline] [--baseline file] [--cache dir]
+//        [--no-deep] [--resume] [--strict] [--generate] [--fetch] [--update-baseline] [--baseline file] [--cache dir]
 // Stages: 1 corpus (existing fixtures; --generate rebuilds them, --fetch downloads the public OCR sets into the cache),
 // 2 shards (one child process per file/page/test file, all cores but 2, per-shard time limit, a crash is a case not a
 // stop), 3 numeric judges (suites.mjs), 4 comparison with tests/stress/baseline.json → stress-report.md (new failures
@@ -60,7 +60,7 @@ export async function runStress(o, { suites = defaultSuites, root = ROOT, log = 
   // stages 3-4: judge → (deep: second readers) → compare → report
   const cases = jobs.flatMap((j) => j.cases ?? []);
   if (o.deep) for (const n of names) if (suites[n].deep) { log(`deep: ${n}`); await suites[n].deep({ jobs, dir, root, cases, run: (cmd, opt) => runCommand(cmd, opt) }); }
-  const cmp = compare(cases, baseline, { strict: o.strict, limits });
+  const cmp = compare(cases, baseline, { strict: o.strict, limits, sampled: o.sample < 1 });
   const seconds = Math.round((Date.now() - t0) / 1000);
   fs.writeFileSync(path.join(cache, 'stress-results.jsonl'), cases.map((c) => JSON.stringify(c)).join('\n') + '\n');
   const md = report(cmp, { when: new Date().toISOString().slice(0, 16).replace('T', ' '), mode: o.quick ? 'quick' : 'full', cases: cases.length, seconds, sampled: o.sample < 1 ? o.sample : 0 });
@@ -82,7 +82,7 @@ export function parse(argv) {
   return {
     quick, sample: +val('sample', quick ? 0.1 : 1), seed: val('seed', 'waraq'), jobs: +val('jobs', Math.max(1, os.cpus().length - 2)),
     suites: val('suites', 'unit,edit,ocr,write' + (has('e2e') ? ',e2e' : '')).split(','), e2e: has('e2e'), resume: has('resume'), strict: has('strict'),
-    generate: has('generate'), deep: has('deep'), fetch: has('fetch'), updateBaseline: has('update-baseline'),
+    generate: has('generate'), deep: !has('no-deep'), fetch: has('fetch'), updateBaseline: has('update-baseline'),
     baseline: val('baseline', 'tests/stress/baseline.json'), cache: val('cache', '.stress-cache'),
   };
 }

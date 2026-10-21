@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { compare, makeBaseline, pool, report, runCommand, sample, tally } from '../../tools/stress/lib.mjs';
+import { compare, makeBaseline, pool, report, runCommand, sample, short, tally } from '../../tools/stress/lib.mjs';
 import { parse, runStress } from '../../tools/stress/run.mjs';
 import { fail, judgeEdit, OCR_ROW } from '../../tools/stress/suites.mjs';
 
@@ -33,7 +33,7 @@ test('pool never runs more than n at once', async () => {
 
 test('compare: only new failures are listed; breaches for majors, slice drops and OCR placement', () => {
   const base = makeBaseline([c('a', 'edit', 'pass'), c('b', 'edit', 'major'), c('o', 'ocr', 'pass', { metrics: { placed: 99 } })]);
-  assert.deepEqual(base.failing, ['b']);
+  assert.deepEqual(base.failing, [short('b')]);
   assert.equal(base.majorAllowed, 1);
   // same state: nothing new, no breach
   let r = compare([c('a', 'edit', 'pass'), c('b', 'edit', 'major'), c('o', 'ocr', 'pass', { metrics: { placed: 99 } })], base);
@@ -41,7 +41,7 @@ test('compare: only new failures are listed; breaches for majors, slice drops an
   // a new major beyond the allowance, a slice that fell by more than a point, placement under 95
   r = compare([c('a', 'edit', 'major'), c('b', 'edit', 'major'), c('o', 'ocr', 'pass', { metrics: { placed: 90 } })], base);
   assert.deepEqual(r.newFailures.map((x) => x.id), ['a']);
-  assert.equal(r.breaches.length, 3, r.breaches.join(' / '));
+  assert.equal(r.breaches.length, 4, r.breaches.join(' / ')); // majors over the allowance, a new major, slice drop, placement
   // strict: any major breaches
   assert.equal(compare([c('b', 'edit', 'major')], base, { strict: true }).breaches.length >= 1, true);
   // a drop of exactly one point is allowed

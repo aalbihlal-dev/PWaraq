@@ -33,6 +33,8 @@ export async function pool(tasks, n) {
   await Promise.all(Array.from({ length: Math.max(1, Math.min(n, tasks.length)) }, async () => { while (next < tasks.length) await tasks[next++](); }));
 }
 
+/** Short stable id for the baseline's failing list (keeps the committed file small). */
+export const short = (id) => createHash('sha1').update(id).digest('base64url').slice(0, 8);
 const rate = (c) => (c.total ? (100 * c.pass) / c.total : 100);
 /** cases → { slice: { total, pass, minor, major } } */
 export function tally(cases) {
@@ -47,7 +49,7 @@ export function makeBaseline(cases, extra = {}) {
   return {
     when: new Date().toISOString(), ...extra,
     slices: Object.fromEntries(Object.entries(t).map(([k, v]) => [k, { ...v, rate: +rate(v).toFixed(2) }])),
-    failing: cases.filter((c) => c.status !== 'pass').map((c) => c.id).sort(),
+    failing: cases.filter((c) => c.status !== 'pass').map((c) => short(c.id)).sort(),
     majorAllowed: cases.filter((c) => c.status === 'major').length,
   };
 }
@@ -57,11 +59,13 @@ export const DEFAULT_LIMITS = { maxMajor: 0, ocrPlacement: 95, sliceDrop: 1, ocr
 /**
  * Compares a run with the baseline. Breaches: majors above the allowed count (baseline.majorAllowed; 0 with `strict` or
  * without a baseline), OCR placement under the limit, a slice whose pass rate is more than `sliceDrop` points under the
- * baseline's. `newFailures` = failing now and not failing in the baseline (what the report lists).
+ * baseline's, on full runs only, a major that is not in the baseline. `newFailures` = failing now and not failing in the baseline (what the report lists).
  */
-export function compare(cases, baseline, { strict = false, limits = {} } = {}) {
+export function compare(cases, baseline, { strict = false, limits = {}, sampled = false } = {}) {
   const L = { ...DEFAULT_LIMITS, ...limits }, t = tally(cases), known = new Set(baseline?.failing ?? []);
-  const breaches = [], newFailures = cases.filter((c) => c.status !== 'pass' && !known.has(c.id));
+  const breaches = [], newFailures = cases.filter((c) => c.status !== 'pass' && !known.has(short(c.id)));
+  const newMajors = newFailures.filter((c) => c.status === 'major').length;
+  if (baseline && newMajors) breaches.push(`new major issues: ${newMajors} (not in the baseline)`);
   const majors = cases.filter((c) => c.status === 'major').length, allowed = strict || !baseline ? L.maxMajor : baseline.majorAllowed ?? L.maxMajor;
   if (majors > allowed) breaches.push(`major issues: ${majors} (allowed ${allowed})`);
   const placed = cases.filter((c) => typeof c.metrics?.placed === 'number').map((c) => c.metrics.placed);
@@ -71,7 +75,8 @@ export function compare(cases, baseline, { strict = false, limits = {} } = {}) {
   for (const [k, v] of Object.entries(t)) {
     const now = rate(v), was = baseline?.slices?.[k]?.rate, drop = was === undefined ? 0 : was - now;
     slices[k] = { ...v, rate: +now.toFixed(2), baseline: was ?? null, drop: +drop.toFixed(2) };
-    if (drop > L.sliceDrop) breaches.push(`slice ${k}: ${now.toFixed(1)} % vs baseline ${was.toFixed(1)} % (more than ${L.sliceDrop} point worse)`);
+    // a sample's rate wobbles (whole files / manifests are drawn): only full runs are held to the slice limit
+    if (!sampled && drop > L.sliceDrop) breaches.push(`slice ${k}: ${now.toFixed(1)} % vs baseline ${was.toFixed(1)} % (more than ${L.sliceDrop} point worse)`);
   }
   return { breaches, newFailures, slices, majors, placement };
 }
