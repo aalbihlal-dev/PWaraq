@@ -47,7 +47,7 @@
           "English",
           "Arabic"
         ],
-        "displayLanguageSelector": true,
+        "displayLanguageSelector": false,
         "installerIcon": "icons/icon.ico",
         "headerImage": "installer/header.bmp",
         "sidebarImage": "installer/sidebar.bmp",
@@ -55,6 +55,18 @@
         "compression": "lzma"
       }
     },
-    "publisher": "Waraq"
+    "publisher": "Waraq",
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDgwOUM0MThCODQ0QTcyRjAKUldUd2NrcUVpMEdjZ0MxMnpNK28wL0JPVStkVTZlaXp5K1NEQWJaL2FDclU1TVNIeGhJbUFVMGYK",
+      "endpoints": [
+        "https://www.pwaraq.com/downloads-1.0/manifest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
   }
 }

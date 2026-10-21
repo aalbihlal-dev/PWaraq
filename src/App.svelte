@@ -20,6 +20,8 @@
   import { CONVERTIBLE_ACCEPT, isConvertible, toPdf } from './lib/convert';
   import { isDesktop, onOpenPaths, readPath, writePath, saveAs, baseName } from './lib/desktop';
   import TitleBar from './components/TitleBar.svelte';
+  import PackPrompt from './components/PackPrompt.svelte';
+  import { update, version, started, check as checkUpdate, restart } from './lib/update.svelte';
   import Workspace from './components/Workspace.svelte';
   import Portfolio from './components/Portfolio.svelte';
 
@@ -68,6 +70,7 @@
     });
     const every = setInterval(keepDraft, EVERY);
     if (isDesktop) onOpenPaths(async ([p]) => openFile(await readPath(p), undefined, p));
+    started();
     return () => clearInterval(every);
   });
 
@@ -115,7 +118,7 @@
     try {
       if (isConvertible(file.name)) { // Word, Excel, PowerPoint, DWG, DXF: converted first (desktop app only)
         try { await show(await toPdf(file), file.name.replace(/\.[^.]+$/, '') + '.pdf', true); }
-        catch (e) { error = (e as Error)?.message === 'DESKTOP_ONLY' ? t('officeDesktopOnly') : t('officeFailed'); }
+        catch (e) { const m = (e as Error)?.message; if (m !== 'NO_PACKS') error = m === 'DESKTOP_ONLY' ? t('officeDesktopOnly') : t('officeFailed'); }
         busy = false; return;
       }
       const bytes = bytes0 = new Uint8Array(await file.arrayBuffer());
@@ -219,7 +222,7 @@
   <CrashReport entry={report[0]} restored={restoredWork} onclose={() => { crash.markSeen(report); report = []; }} />
 {/if}
 <Notice message={notice} slow={health?.kind === 'slow'} oncancel={() => pool.cancelAll()} />
-{#if isDesktop}<TitleBar flush={!!(doc || portfolio)} />{/if}
+{#if isDesktop}<TitleBar flush={!!(doc || portfolio)} /><PackPrompt />{/if}
 <input bind:this={picker} type="file" accept="application/pdf,.pdf,.waraq,{CONVERTIBLE_ACCEPT}" hidden onchange={(e) => { openFile(e.currentTarget.files?.[0]); e.currentTarget.value = ''; }} />
 
 {#if doc}
@@ -285,6 +288,21 @@
       {:else}<p class="muted">{t('noRecent')}</p>{/if}
     </section>
     <p class="muted small privacy">{@html icon('shield')}{t('privacy')}</p>
+    {#if isDesktop}
+      <div class="updaterow">
+        {#if update.rolledBack}<p class="muted small" role="status">{t('updateRolledBack').replace('{failed}', update.rolledBack.failed).replace('{back}', update.rolledBack.back)}</p>{/if}
+        <p class="crashrow">
+          <span class="muted small">{t('appName')} {version}</span>
+          {#if update.status === 'ready'}<button class="btn primary" onclick={restart}>{t('updateRestart')} · {update.version}</button>
+          {:else if update.status === 'downloading'}<span class="muted small" role="status">{t('updateDownloading')} {update.version}{update.total ? ` · ${Math.round((update.done / update.total) * 100)}%` : '…'}</span>
+          {:else if update.status === 'checking'}<span class="muted small" role="status">{t('updateChecking')}</span>
+          {:else}
+            {#if update.status !== 'idle'}<span class="muted small" role="status">{t(update.status === 'latest' ? 'updateLatest' : 'updateFailed')}</span>{/if}
+            <button class="btn" onclick={checkUpdate}>{t('updateCheck')}</button>
+          {/if}
+        </p>
+      </div>
+    {/if}
     {#if crashes}
       <p class="crashrow">
         <button class="btn" onclick={copyReport}>{copied ? t('crashCopied') : t('copyCrash')}</button>
@@ -322,7 +340,8 @@
   .lock label { display: inline-flex; align-items: center; gap: var(--s-8); }
   .lock span { display: flex; gap: var(--s-8); }
   .lock input { min-height: var(--control); padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); }
-  .crashrow { display: flex; gap: var(--s-8); margin: 0; }
+  .crashrow { display: flex; gap: var(--s-8); margin: 0; align-items: center; flex-wrap: wrap; }
+  .updaterow { display: grid; gap: var(--s-8); justify-items: center; }
   .banner { display: grid; gap: var(--s-8); justify-items: center; padding: var(--s-16); border: 1px solid var(--green); border-radius: var(--r-12); background: var(--green-soft); text-align: center; max-width: 520px; }
   .banner p { margin: 0; }
   .banner span { display: flex; gap: var(--s-8); }

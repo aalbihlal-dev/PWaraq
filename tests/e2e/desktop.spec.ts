@@ -7,10 +7,12 @@ import { open, fixture } from './helpers';
 // tools/dev/tauri-smoke.mjs. Here: the bar sits at the top in the paper colour, 36 px buttons at the top-right corner
 // in English and Arabic, the buttons reach the window, and the design audit stays green with the bar on screen.
 const audit = fs.readFileSync(path.join(import.meta.dirname, '..', '..', 'tools', 'ui-audit.js'), 'utf8');
-const stub = () => {
+const stub = (updateVersion?: string) => {
   const calls: string[] = []; (window as any).tauriCalls = calls;
   const win = { isMaximized: async () => calls.includes('toggleMaximize'), onResized: () => {}, minimize: () => calls.push('minimize'), toggleMaximize: () => calls.push('toggleMaximize'), close: () => calls.push('close') };
-  (window as any).__TAURI__ = { core: { invoke: async () => [] }, event: { listen: async () => () => {} }, dialog: {}, window: { getCurrentWindow: () => win } };
+  // commands the start screen calls: app_started (rollback note or null), check_update (an update or null), download_update
+  const invoke = async (cmd: string) => { if (cmd.endsWith('_update')) calls.push(cmd); return cmd === 'check_update' ? (updateVersion ? { version: updateVersion, notes: '' } : null) : cmd === 'app_started' ? null : []; };
+  (window as any).__TAURI__ = { core: { invoke }, event: { listen: async () => () => {} }, dialog: {}, window: { getCurrentWindow: () => win } };
 };
 async function bar(page: Page, tone: '--paper' | '--surface') {
   const bar = page.locator('.titlebar'), box = (await bar.boundingBox())!;
@@ -36,6 +38,33 @@ for (const lang of ['en', 'ar']) test(`desktop title bar: paper colour, top-righ
   await page.locator('.titlebar').getByRole('button', { name: name.max, exact: true }).click();
   await page.locator('.titlebar').getByRole('button', { name: name.close, exact: true }).click();
   expect(await page.evaluate(() => (window as any).tauriCalls)).toEqual(['minimize', 'toggleMaximize', 'close']);
+});
+
+// The updater row on the start screen: a found update is downloaded in the background and waits for the click on
+// "Restart to update"; nothing installs on its own (install_update is only called by that button).
+for (const lang of ['en', 'ar']) test(`update ready: Restart to update waits for a click (${lang})`, async ({ page }, info) => {
+  await page.addInitScript((l) => { localStorage.setItem('waraq-lang', l); localStorage.removeItem('waraq-update-checked'); }, lang);
+  await page.addInitScript(stub, '1.0.1');
+  await page.goto('/');
+  const restart = page.getByRole('button', { name: lang === 'ar' ? 'أعد التشغيل للتحديث · 1.0.1' : 'Restart to update · 1.0.1' });
+  await expect(restart).toBeVisible();
+  const box = (await restart.boundingBox())!; expect(box.height).toBeGreaterThanOrEqual(36);
+  const calls = await page.evaluate(() => (window as any).tauriCalls as string[]);
+  expect(calls).toContain('check_update'); expect(calls).toContain('download_update'); expect(calls).not.toContain('install_update');
+  expect((await page.evaluate(audit) as { sample: unknown[] }).sample).toEqual([]);
+  await page.screenshot({ path: info.outputPath(`desktop-update-ready-${lang}.png`) });
+  await restart.click();
+  expect(await page.evaluate(() => (window as any).tauriCalls)).toContain('install_update');
+});
+
+test('no update: the row offers a manual check and reports the latest version', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('waraq-update-checked', String(Date.now()))); // checked today: no automatic check
+  await page.addInitScript(stub);
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Check for updates' })).toBeVisible();
+  expect(await page.evaluate(() => (window as any).tauriCalls)).not.toContain('check_update');
+  await page.getByRole('button', { name: 'Check for updates' }).click();
+  await expect(page.getByText('You have the latest version.')).toBeVisible();
 });
 
 test('the web build shows no title bar', async ({ page }) => {

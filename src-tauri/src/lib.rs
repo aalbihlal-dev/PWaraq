@@ -1,6 +1,9 @@
 // The Waraq desktop shell: a frameless window (the page draws its own top bar), the files the user asked for
 // (command line, second launch, drop), read/write straight to disk, and the Office/CAD converter command.
+mod convert;
+mod packs;
 mod safe;
+mod update;
 use tauri::ipc::{InvokeBody, Request, Response};
 use tauri::{Emitter, Manager};
 
@@ -108,15 +111,22 @@ fn log_panics() {
     }));
 }
 
-/// Office/CAD → PDF through the 0.3.3 add-on packs. Contract (src/lib/convert.ts `Desktop.convertToPdf`): the file
-/// name in the `name` header and its bytes as the body; PDF bytes back, or an error text the page shows.
-/// shortcut: the packs (LibreOffice, LibreDWG) are not wired yet, so every call answers NO_PACKS; upgrade when the
-/// packs session lands (run `commands()` from convert.ts on the pack folder, pack download + SHA-256 as in 0.3.3).
+/// Office/CAD → PDF through the add-on pack (convert.rs). Contract (src/lib/convert.ts `Desktop.convertToPdf`): the
+/// file name in the `name` header and its bytes as the body; PDF bytes back, or an error text the page shows —
+/// NO_PACKS (the page then offers the download), UNSUPPORTED, CANCELLED, TIMEOUT, CONVERSION_FAILED.
 #[tauri::command]
-fn convert_to_pdf(request: Request) -> Result<Response, String> {
-    let _name = header(&request, "name")?;
-    let _bytes = body(&request)?;
-    Err("NO_PACKS".into())
+async fn convert_to_pdf(app: tauri::AppHandle, request: Request<'_>) -> Result<Response, String> {
+    let name = header(&request, "name")?;
+    let bytes = body(&request)?.to_vec();
+    if !packs::installed(&app, "office") {
+        return Err("NO_PACKS".into());
+    }
+    let pack = packs::dir(&app, "office");
+    tauri::async_runtime::spawn_blocking(move || convert::convert(&pack, &name, &bytes)).await.map_err(|e| e.to_string())?.map(Response::new)
+}
+#[tauri::command]
+fn convert_cancel() {
+    convert::CANCEL.store(true, std::sync::atomic::Ordering::Relaxed);
 }
 
 /// Colours the 1 px frame Windows 11 draws round a frameless window (else it is the accent colour, or the desktop
@@ -136,7 +146,13 @@ fn set_border(window: tauri::WebviewWindow, color: u32) {
 
 pub fn run() {
     log_panics();
+    let context = tauri::generate_context!();
+    if let Some(dir) = update::dir_from(&context.config().identifier) {
+        update::start_or_roll_back(&dir, &context.package_info().version.to_string()); // may run the last good installer and exit
+    }
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .manage(update::Pending::default())
         .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
             // a second launch (double-clicked file) hands its file to the running window
             if let Some(w) = app.get_webview_window("main") {
@@ -171,7 +187,7 @@ pub fn run() {
             set_border(win.build()?, 0x00f8fbfa); // paper, until the page reports its title bar colour
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![launch_paths, read_file, save_temp, save_commit, save_discard, vault_put, vault_get, vault_list, vault_remove, vault_reveal, open_external, convert_to_pdf, set_border])
-        .run(tauri::generate_context!())
+        .invoke_handler(tauri::generate_handler![launch_paths, read_file, save_temp, save_commit, save_discard, vault_put, vault_get, vault_list, vault_remove, vault_reveal, open_external, convert_to_pdf, convert_cancel, packs::pack_status, packs::pack_install, packs::pack_cancel, packs::pack_remove, set_border, update::app_started, update::check_update, update::download_update, update::install_update])
+        .run(context)
         .expect("error while running Waraq");
 }
