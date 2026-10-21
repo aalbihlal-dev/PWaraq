@@ -23,7 +23,7 @@ export function judgeEdit(r, c, b) {
   const readBack = r.extract?.mupdfLineOk || (looseOnly && r.extract.srcLoose) || c.pdfium?.lineOk || c.pdfium?.lettersOk || b.pdfjs?.lettersOk, pageHas = r.extract?.mupdfPageHas || c.pdfium?.pageHas || c.pymupdf?.pageHas || b.pdfjs?.pageHas;
   const corpusOverlap = /^(waraq|cadlike)/.test(r.file) && /small|large/.test(r.kind);
   if (!r.after) why.push('new line not found on the page');
-  else if (!readBack && !pageHas && !r.fidelity?.wrapped && deep) why.push('typed text not read back by any reader');
+  else if (!readBack && !pageHas && !r.fidelity?.wrapped && deep && !r.side?.crowded) why.push('typed text not read back by any reader');
   if (looseOnly && !r.extract.srcLoose) why.push('the line Waraq wrote reads back with its marks / spaces in another order (the source line read exactly)');
   if (r.drawn?.notdef) why.push(`${r.drawn.notdef} .notdef glyph box(es) drawn`);
   // on a scan with an OCR layer the "lines" lost or moved are invisible layer text (the picture is not touched): minor, see minorEdit
@@ -45,6 +45,7 @@ export function minorEdit(r) {
   else if (!r.extract?.mupdfLineOk) why.push('marks / spaces read back in another order (as the source file already did)');
   if (/(^|\/)(hybrid-|mixed-text-scan)/.test(r.file) && r.side && (r.side.othersGone || r.side.othersMoved)) why.push(`${r.side.othersGone} line(s) of the invisible OCR layer lost, ${r.side.othersMoved} moved`);
   if (r.side && (r.side.othersGone || r.side.othersMoved) && pictureSame(r.side)) why.push(`${r.side.othersGone + r.side.othersMoved} other line(s) read differently (the picture outside the line is unchanged)`);
+  if (r.side?.crowded && !r.extract?.mupdfLineOk) why.push(`${r.side.crowded} other line(s) stand inside the editing box: the new line is drawn over them and readers merge the two`);
   if (r.fidelity?.wrapped) why.push('wrapped');
   if (r.fidelity && Math.abs(r.fidelity.dEdge) > 2) why.push(`edge moved ${r.fidelity.dEdge} pt`);
   if (r.fidelity && Math.abs(r.fidelity.dBase) > 1) why.push(`baseline moved ${r.fidelity.dBase} pt`);

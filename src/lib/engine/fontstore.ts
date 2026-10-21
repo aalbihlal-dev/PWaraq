@@ -139,7 +139,10 @@ export function writer(m: typeof MuPDF, store: Store, out: MuPDF.PDFDocument) {
     measure: (l: Line) => pieces(l).reduce((w, p) => w + p.width, 0),
     faceFor(l: Line) { const ps = pieces(l), ar = ps.find((p) => scriptOf(p.run.cs) === 'arab') ?? ps[0]; return ar ? { face: ar.face, missing: ar.missing, reason: ar.reason } : null; },
     draw(l: Line, h: number) {
-      const ps = pieces(l), width = ps.reduce((w, p) => w + p.width, 0), tz = l.fit && width > l.fit ? l.fit / width : 1;
+      let ps = pieces(l), width = ps.reduce((w, p) => w + p.width, 0);
+      // a line wider than its box gets a smaller font first (down to 70 %: letters keep their shape and the word gaps readers look for), horizontal scaling only for what is left
+      if (l.fit && width > l.fit) { l = { ...l, size: l.size * Math.max(0.7, l.fit / width) }; ps = pieces(l); width = ps.reduce((w, p) => w + p.width, 0); }
+      const tz = l.fit && width > l.fit ? l.fit / width : 1;
       let x = l.align === 'right' ? l.x - width * tz : l.align === 'center' ? l.x - (width * tz) / 2 : l.x, ops = '';
       const color = l.color.map(n).join(' ');
       for (const p of ps) {

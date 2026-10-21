@@ -202,6 +202,8 @@ for (const f of files) {
       const kept = others.filter((x) => o2.lines.some((y) => norm(y.text) === norm(x.text) && near(x, y, 0.6)));
       const gone = others.filter((x) => !o2.lines.some((y) => norm(y.text) === norm(x.text)));
       r.side = { othersBefore: others.length, othersKept: kept.length, othersGone: gone.length, othersMoved: others.length - kept.length - gone.length, goneSample: gone.slice(0, 2).map((x) => x.text.slice(0, 40)), imagesBefore: objs.images.length, imagesAfter: o2.images.length, fontsAfter: fontsOf(p2), growth: saved.length - bytes.length };
+      // other text standing inside the editing box (the audit's box runs to the page margin): the new line is drawn over it and readers merge the two, which no writer can undo
+      r.side.crowded = others.filter((x) => { const ox = Math.min(x.x + x.w, edit.x + edit.w) - Math.max(x.x, edit.x), oy = Math.min(x.y + x.h, l.y + l.h) - Math.max(x.y, l.y); return ox > 0 && oy > 0 && ox * oy > 0.2 * x.w * x.h; }).length;
       // is the rest of the page the same PICTURE? Rendered at 144 dpi; the pixels outside the edited line's band (three lines allowed for a
       // wrap) that changed: how many (as a share of that area) and the tallest connected blob of them (a neighbour line moved by a point is a blob)
       {

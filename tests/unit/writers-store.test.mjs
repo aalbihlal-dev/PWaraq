@@ -52,3 +52,13 @@ test('forms: Arabic answers with harakat and Persian letters keep them, filled a
   assert.ok(a > b * 1.1, `${a} vs ${b}`);
   assert.ok(text(fillForm(m, blankForm, { [id]: PERSIAN }, true, withStore())).includes('پ'));
 });
+
+test('a line wider than its box gets a smaller font first (down to 70 %), horizontal scaling only for the rest', async () => {
+  const { writer } = await import('../../src/lib/engine/fontstore.ts');
+  const { store } = await import('./store.mjs'), doc = new m.PDFDocument(), w = writer(m, store, doc);
+  const line = { text: 'هذا نص عربي طويل يجب أن يدخل الصندوق', x: 400, y: 100, size: 20, color: [0, 0, 0], align: 'right' }, width = w.measure(line);
+  const size = (ops) => +/ Tf/.exec(ops).input.slice(0, /Tf/.exec(ops).index).trim().split(' ').pop(), tz = (ops) => +(/([\d.]+) Tz/.exec(ops)?.[1] ?? 100);
+  const mild = w.draw({ ...line, fit: width * 0.85 }, 200), hard = w.draw({ ...line, fit: width * 0.4 }, 200);
+  assert.ok(size(mild) < 20 && size(mild) >= 14 && tz(mild) === 100, 'a mild squeeze only shrinks the font');
+  assert.ok(Math.abs(size(hard) - 14) < 0.01 && tz(hard) < 100, 'a hard squeeze stops at 70 % and scales the rest');
+});
