@@ -23,7 +23,7 @@ fn header(req: &Request, name: &str) -> Result<String, String> {
     let v = req.headers().get(name).ok_or(format!("missing {name}"))?.to_str().map_err(|e| e.to_string())?;
     Ok(percent_encoding::percent_decode_str(v).decode_utf8_lossy().into_owned())
 }
-fn body(req: &Request) -> Result<&[u8], String> {
+fn body<'a>(req: &'a Request<'a>) -> Result<&'a [u8], String> {
     match req.body() {
         InvokeBody::Raw(b) => Ok(b),
         _ => Err("bytes expected".into()),
@@ -84,7 +84,14 @@ pub fn run() {
                     ));
                 }
             }
-            win.build()?;
+            let window = win.build()?;
+            #[cfg(windows)]
+            {
+                // no DWM border: Windows 11 draws a 1 px accent-coloured line round a frameless window otherwise
+                use windows_sys::Win32::Graphics::Dwm::{DwmSetWindowAttribute, DWMWA_BORDER_COLOR, DWMWA_COLOR_NONE};
+                let hwnd = window.hwnd()?.0 as *mut core::ffi::c_void;
+                unsafe { DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR as u32, &DWMWA_COLOR_NONE as *const u32 as *const core::ffi::c_void, 4) };
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![launch_paths, read_file, write_file, convert_to_pdf])

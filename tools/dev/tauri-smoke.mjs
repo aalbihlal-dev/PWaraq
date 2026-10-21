@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..', '..');
-const args = process.argv.slice(2), out = args.find((a) => !a.startsWith('--')) ?? path.join(root, 'test-results', 'tauri');
+const args = process.argv.slice(2), out = args.find((a) => !a.startsWith('--')) ?? path.join(root, 'src-tauri', 'target', 'smoke'); // not test-results: Playwright wipes it
 fs.mkdirSync(out, { recursive: true });
 if (!args.includes('--no-build')) {
   const r = spawnSync(process.execPath, ['node_modules/@tauri-apps/cli/tauri.js', 'build', '--debug', '--no-bundle'], { cwd: root, stdio: 'inherit' });
@@ -22,7 +22,7 @@ let failed = 0;
 for (const [theme, lang] of [['light', 'en'], ['dim', 'en'], ['dark', 'en'], ['graphite', 'en'], ['light', 'ar']]) {
   const p = spawn(exe, [path.join(root, 'tests/fixtures/three.pdf')], { env: { ...process.env, WARAQ_UI: `${theme},${lang}` }, stdio: 'ignore' });
   await sleep(Number(process.env.SETTLE || 7000));
-  const png = path.join(out, `${theme}-${lang}.png`);
+  fs.mkdirSync(out, { recursive: true }); const png = path.join(out, `${theme}-${lang}.png`);
   const r = spawnSync('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(import.meta.dirname, 'win-shot.ps1'), String(p.pid), png, surface(theme)], { encoding: 'utf8' });
   spawnSync('taskkill', ['/PID', String(p.pid), '/F', '/T'], { stdio: 'ignore' });
   console.log(`${theme} ${lang}: ${r.stdout.trim()} ${r.stderr.trim()}`);

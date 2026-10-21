@@ -32,7 +32,7 @@ foreach ($y in 12, 24, 38) { foreach ($x in 24, 200, [int]($w / 2)) { $c = & $he
 foreach ($y in 12..60) { $c = & $hex $bmp.GetPixel(8, $y); if ($c -ne $Expect) { $bad += "(8,$y)=$c" } }
 # the page: white with dark text somewhere in the middle
 $white = 0; $dark = 0; $n = 0
-for ($y = [int]($hh * 0.3); $y -lt [int]($hh * 0.9); $y += 4) { for ($x = [int]($w * 0.3); $x -lt [int]($w * 0.7); $x += 4) {
+for ($y = [int]($hh * 0.3); $y -lt [int]($hh * 0.98); $y += 4) { for ($x = [int]($w * 0.3); $x -lt [int]($w * 0.7); $x += 4) {
   $c = $bmp.GetPixel($x, $y); $n++
   if ($c.R -ge 250 -and $c.G -ge 250 -and $c.B -ge 250) { $white++ } elseif ($c.R -le 90 -and $c.G -le 90 -and $c.B -le 90) { $dark++ }
 } }
