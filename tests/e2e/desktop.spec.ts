@@ -19,7 +19,7 @@ async function bar(page: Page, tone: '--paper' | '--surface') {
   expect(box.y).toBe(0); expect(box.height).toBe(40); expect(box.width).toBe(1366);
   const paper = await page.evaluate((v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim(), tone);
   expect(await bar.evaluate((e) => getComputedStyle(e).backgroundColor)).toBe(await page.evaluate((c) => { const d = document.createElement('i'); d.style.color = c; document.body.append(d); const v = getComputedStyle(d).color; d.remove(); return v; }, paper));
-  for (const b of await bar.locator('button').all()) { const r = (await b.boundingBox())!; expect(r.width).toBeGreaterThanOrEqual(36); expect(r.height).toBeGreaterThanOrEqual(36); expect(r.x).toBeGreaterThan(1366 - 160); }
+  for (const b of await bar.locator('.win button').all()) { const r = (await b.boundingBox())!; expect(r.width).toBeGreaterThanOrEqual(36); expect(r.height).toBeGreaterThanOrEqual(36); expect(r.x).toBeGreaterThan(1366 - 160); }
   expect((await page.evaluate(audit) as { sample: unknown[] }).sample).toEqual([]);
 }
 
@@ -70,5 +70,6 @@ test('no update: the row offers a manual check and reports the latest version', 
 test('the web build shows no title bar', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.titlebar')).toHaveCount(0);
+  await expect(page.locator('.rail')).toHaveCount(0); // start screen: no rail
   expect(await page.evaluate(() => 'desktop' in document.documentElement.dataset)).toBe(false);
 });

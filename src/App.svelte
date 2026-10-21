@@ -222,7 +222,7 @@
   <CrashReport entry={report[0]} restored={restoredWork} onclose={() => { crash.markSeen(report); report = []; }} />
 {/if}
 <Notice message={notice} slow={health?.kind === 'slow'} oncancel={() => pool.cancelAll()} />
-{#if isDesktop}<TitleBar flush={!!(doc || portfolio)} /><PackPrompt />{/if}
+{#if isDesktop || doc || portfolio}<TitleBar flush={!!(doc || portfolio)} />{/if}{#if isDesktop}<PackPrompt />{/if}
 <input bind:this={picker} type="file" accept="application/pdf,.pdf,.waraq,{CONVERTIBLE_ACCEPT}" hidden onchange={(e) => { openFile(e.currentTarget.files?.[0]); e.currentTarget.value = ''; }} />
 
 {#if doc}

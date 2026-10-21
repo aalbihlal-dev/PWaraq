@@ -12,7 +12,7 @@
   import { build, plan, manifest, used, fileTitle, sectionsOf, withDefaults, type Portfolio, type Section } from '../lib/portfolio';
   import * as vault from '../lib/vault';
   import { setTask } from '../lib/crashlog';
-  import FileName from './FileName.svelte';
+  import { rail } from '../lib/rail.svelte';
   import AutoText from './AutoText.svelte';
   import { pickFiles, saveFile, writePortfolio, readPortfolio, readPortfolioFile, remember } from '../lib/store';
   import { DESIGNS, PAPERS, COLOURS, type Paper } from '../lib/engine/designs';
@@ -73,7 +73,8 @@
   }
   const versionTime = (at: number) => new Date(at).toLocaleString(i18n.lang === 'ar' ? 'ar' : 'en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' });
   function flush() { clearTimeout(timer); const w = waiting; waiting = null; return w?.(); }
-  onDestroy(flush);
+  $effect(() => { rail.name = p.name; rail.modified = false; });
+  onDestroy(() => { flush(); rail.name = ''; });
 
   // files -> engine sources, written once into the portfolio's folder
   async function load(files: File[]) {
@@ -220,7 +221,6 @@
   <header class="bar">
     <img src="/brand-mark.svg" alt="" width="28" height="28" />
     <span class="chip">{@html icon('library')}{t('portfolio')}</span>
-    <FileName name={p.name} fill={false} />
     <button class="btn" onclick={() => choose(true, addSections)} disabled={!!busy}>{@html icon('plus')}{t('addSection')}</button>
     <span class="end">
       <button class="btn icon" onclick={undo} disabled={!canUndo} title={t('undo')} aria-label={t('undo')}>{@html icon('undo')}</button>

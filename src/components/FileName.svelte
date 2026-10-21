@@ -11,7 +11,7 @@
 </script>
 
 <span class="wrap" class:fill onfocusout={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) open = false; }} onkeydown={(e) => { if (e.key === 'Escape') open = false; }} role="presentation">
-  <button class="name" title={name} aria-expanded={open} aria-label={t('fullName')} onclick={() => (open = !open)}>
+  <button class="name" dir="auto" title={name} aria-expanded={open} aria-label={t('fullName')} onclick={() => (open = !open)}>
     <span class="head">{parts[0]}</span><span class="tail">{parts[1]}</span>
   </button>
   {#if open}
@@ -23,14 +23,15 @@
 </span>
 
 <style>
-  .wrap { position: relative; flex: 0 100 auto; min-width: 12ch; max-width: 40%; display: flex; } /* gives way before the task buttons do */
+  .wrap { position: relative; flex: 0 1 auto; min-width: 0; max-width: 100%; display: flex; justify-content: center; }
   .wrap.fill { flex-grow: 1; }
   .name { display: flex; min-width: 0; max-width: 100%; min-height: var(--control); align-items: center; padding: 0 var(--s-8); border: 1px solid transparent; border-radius: var(--r-8);
-    background: none; font-size: var(--fs-14); font-weight: 700; color: var(--ink); text-align: start; overflow: hidden; }
+    background: none; font-size: var(--fs-16); font-weight: 600; color: var(--ink); text-align: start; overflow: hidden; }
   .name:hover, .name[aria-expanded='true'] { border-color: var(--line); background: var(--paper); }
+    .head, .tail { unicode-bidi: isolate; }
   .head { flex: 0 1 auto; min-width: 2ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tail { flex: none; white-space: pre; }
-  .pop { position: absolute; z-index: 30; top: calc(100% + var(--s-8)); inset-inline-start: 0; width: max-content; max-width: min(480px, 90vw); display: grid; gap: var(--s-8); justify-items: start;
+  .pop { position: absolute; z-index: 30; top: calc(100% + var(--s-8)); left: 50%; transform: translateX(-50%); width: max-content; max-width: min(480px, 90vw); display: grid; gap: var(--s-8); justify-items: start;
     padding: var(--s-12); border: 1px solid var(--line); border-radius: var(--r-12); background: var(--surface); box-shadow: var(--shadow); }
   .pop p { margin: 0; overflow-wrap: anywhere; user-select: text; }
 </style>
