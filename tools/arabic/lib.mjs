@@ -10,9 +10,10 @@ export const OUT = path.join(ROOT, 'tests/fixtures/arabic-create');
 export const SHOTS = path.resolve(ROOT, '../Archive-2026-10-12/screenshots/arabic-audit');
 export { m, hb };
 export const font = (f) => new m.Font(f.replace(/\.ttf$/, ''), fs.readFileSync(path.join(ROOT, 'public/fonts', f.endsWith('.ttf') ? f : f + '.ttf')));
-export const fonts = () => ({ regular: font('Tajawal-Regular'), bold: font('Tajawal-Bold') });
+export const fonts = () => ({ regular: font('Tajawal-Regular'), bold: font('Tajawal-Bold'), ...(process.env.LEGACY ? {} : { store: own }) });
 export const fontBytes = (f) => new Uint8Array(fs.readFileSync(path.join(ROOT, 'public/fonts', f)));
-export const own = { hb, file: fontBytes };
+import { makeSubsetter } from '../../src/lib/engine/fontstore.ts';
+export const own = { hb, file: fontBytes, subset: makeSubsetter(fs.readFileSync(path.join(ROOT, 'node_modules/harfbuzzjs/dist/harfbuzz-subset.wasm'))) }; // the font service's store (LEGACY=1: none, the old writer)
 
 // The text scenarios every writer is tried with (logical order, as typed)
 export const T = {

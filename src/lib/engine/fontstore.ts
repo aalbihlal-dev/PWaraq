@@ -152,10 +152,11 @@ export function writer(m: typeof MuPDF, store: Store, out: MuPDF.PDFDocument) {
         let arr = '', pen = 0, rise = 0;
         const flush = () => { if (arr) ops += `[${arr}] TJ `; arr = ''; };
         for (const g of p.glyphs) {
-          if (!e.used.has(g.gid) && g.uni.length) e.used.set(g.gid, g.uni);
+          const read = g.rtl && g.uni.length > 1 && !(g.uni.length === 1 && g.uni[0] === 0x200b) ? [...g.uni].reverse() : g.uni; // a joined pair (lam-alef) is read back right to left by MuPDF and pdf.js: the map holds it reversed
+          if (!e.used.has(g.gid) && g.uni.length) e.used.set(g.gid, read);
           const dy = n(g.y), piece = g.uni.length === 1 && g.uni[0] === 0x200b;
           if (dy !== rise) { flush(); ops += `${dy} Ts `; rise = dy; }
-          const own = !piece && e.used.get(g.gid)!.join() !== g.uni.join(); // a glyph shared by several letters (dotless skeletons): its own letters here
+          const own = !piece && e.used.get(g.gid)!.join() !== read.join(); // a glyph shared by several letters (dotless skeletons): its own letters here
           if (piece || own) { flush(); ops += `/Span <</ActualText <FEFF${piece ? '' : hex16(g.uni)}>>> BDC `; }
           const before = g.x - pen; if (Math.abs(before) > 0.005) arr += ` ${n((-before * 1000) / l.size)} `;
           arr += `<${g.gid.toString(16).padStart(4, '0')}>`;

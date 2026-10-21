@@ -39,7 +39,7 @@ async function loadFonts() {
   if (fonts) return;
   const get = async (f: string) => new Uint8Array(await (await fetch(new URL('/fonts/' + f, location.origin))).arrayBuffer());
   const [regular, bold] = await Promise.all([get('Tajawal-Regular.ttf'), get('Tajawal-Bold.ttf')]);
-  fonts = { regular: new mupdf.Font('Tajawal', regular), bold: new mupdf.Font('Tajawal-Bold', bold) };
+  fonts = { regular: new mupdf.Font('Tajawal', regular), bold: new mupdf.Font('Tajawal-Bold', bold), store: await loadOwn() }; // the font service shapes and subsets every line
 }
 
 type Req = { id: number; op: string; doc?: number; [k: string]: any };

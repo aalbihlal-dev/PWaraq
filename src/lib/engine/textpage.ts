@@ -4,8 +4,11 @@
 // shortcut: no HarfBuzz here yet (a replaced line in the page editor uses it, ownfont.ts) — no harakat or Persian letters on these pages.
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 import { runs as bidiRuns } from './bidi.ts';
+import { writer as storeWriter, getFace, scriptOf, shapeRun, type Store } from './fontstore.ts';
 
-export type Fonts = { regular: MuPDF.Font; bold: MuPDF.Font };
+/** Tajawal for the pages Waraq writes. With `store` (the font service: HarfBuzz, the bundled families, a subsetter) text is shaped
+ *  and written through it; without it the old presentation-form writer is used (tests that bring no font service). */
+export type Fonts = { regular: MuPDF.Font; bold: MuPDF.Font; store?: Store };
 export type Line = { text: string; x: number; y: number; size: number; bold?: boolean; color?: number[]; align?: 'left' | 'right' | 'center'; max?: number;
   parts?: { text: string; x: number }[]; tz?: number }; // parts: the line's words, each at its own x (from the left), as one piece of text; tz: horizontal scale
 export type TextPage = { w: number; h: number; lines: Line[]; rules?: number[][]; links?: { rect: number[]; to: number }[];
@@ -62,6 +65,15 @@ export function measure(font: MuPDF.Font, text: string, size: number) {
   return visual(text).reduce((w, g) => w + font.advanceGlyph(font.encodeCharacter(g.code)) * size, 0);
 }
 
+/** The width of a line in `fonts` (regular or bold) as it will be written: shaped through the font service when there is one, else
+ *  from the glyph advances. Wrapping and fitting use this, so what is measured is what is drawn. */
+export function widthOf(fonts: Fonts, bold = false): (text: string, size: number) => number {
+  const store = fonts.store;
+  if (!store) return (text, size) => measure(bold ? fonts.bold : fonts.regular, text, size);
+  const cache = new Map<string, import('./fontstore.ts').Face | null>();
+  return (text, size) => bidiRuns([...text].map((c) => c.codePointAt(0)!)).reduce((w, run) => w + shapeRun(store.hb, getFace(store, { name: 'Tajawal', bold }, scriptOf(run.cs), run.cs, cache).face, run, size).width, 0);
+}
+
 /** Lines of `text` (its own line breaks kept) that fit `width` (as `measure` measures them), broken between words. */
 export function wrap(measure: (text: string) => number, text: string, width: number) {
   return text.split('\n').flatMap((para) => {
@@ -84,11 +96,16 @@ export function wrap(measure: (text: string) => number, text: string, width: num
  *  `finish` gives each font a map from glyph back to the letters it was drawn for, so text copies as written.
  *  `draw` gives only the drawing commands (for text added onto an existing page, with `fonts` as its font resources). */
 export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts) {
-  const faces = [fonts.regular, fonts.bold].map((font) => ({ font, ref: out.addFont(font), used: new Map<number, number[]>() }));
+  // with the font service every line goes through its writer (HarfBuzz: harakat, Persian and Urdu letters, subset faces, one map entry
+  // per glyph); the old writer below stays for lines made of words at their own x (the OCR layer) and for callers without a store
+  const sw = fonts.store ? storeWriter(m, fonts.store, out) : null, resources: Record<string, MuPDF.PDFObject> = sw ? sw.fonts : {};
+  const made: ({ font: MuPDF.Font; ref: MuPDF.PDFObject; used: Map<number, number[]> } | undefined)[] = [];
+  const faceOf = (i: number) => made[i] ??= (() => { const font = i ? fonts.bold : fonts.regular, ref = out.addFont(font); resources['WqT' + i] = ref; return { font, ref, used: new Map<number, number[]>() }; })();
   const n = (v: number) => +v.toFixed(2);
-  const resources = { WqT0: faces[0].ref, WqT1: faces[1].ref };
   return {
     fonts: resources,
+    /** The width `draw` gives a line (regular or bold). */
+    width: (text: string, size: number, bold = false) => widthOf(fonts, bold)(text, size),
     /** `under`: drawing commands and their resources put below the page's own (a background photo). */
     add(p: TextPage, under?: { ops: string; res: Record<string, Record<string, MuPDF.PDFObject>> }): MuPDF.PDFObject {
       return out.addPage([0, 0, p.w, p.h], 0, { ...under?.res, Font: resources }, (under?.ops ?? '') + this.draw(p));
@@ -100,7 +117,14 @@ export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts
       for (const r of p.rules ?? []) ops += `${r.slice(4, 7).map(n).join(' ')} rg ${n(r[0])} ${n(p.h - r[1] - r[3])} ${n(r[2])} ${n(r[3])} re f
 `;
       for (const l of p.lines) {
-        const face = faces[l.bold ? 1 : 0], font = face.font;
+        if (sw && !l.parts) { // a line through the font service; a long one shrinks to its width
+          const line = (size: number) => ({ text: l.text, x: l.x, y: l.y, size, color: l.color ?? INK, align: l.align ?? 'left' as const, bold: l.bold, hint: { name: 'Tajawal' } });
+          let size = l.size; const width = sw.measure(line(size));
+          if (l.max && width > l.max) size *= l.max / width;
+          ops += sw.draw(line(size), p.h);
+          continue;
+        }
+        const face = faceOf(l.bold ? 1 : 0), font = face.font;
         const gids = (text: string) => visual(text).map((g) => {
           const gid = font.encodeCharacter(g.code);
           face.used.set(gid, g.uni.length > 1 ? [...g.uni].reverse() : g.uni); // a joined pair is read back right to left
@@ -132,7 +156,7 @@ export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts
       }
       return ops;
     },
-    finish() { for (const f of faces) f.ref.put('ToUnicode', out.addStream(toUnicode(f.used), {})); },
+    finish() { sw?.finish(); for (const f of made) if (f) f.ref.put('ToUnicode', out.addStream(toUnicode(f.used), {})); },
   };
 }
 
