@@ -639,3 +639,13 @@ Scripts do everything; an AI only reads a one-page summary. Orchestrator (~300 l
 
 ## iPhone and iPad (owner, 21 Oct 2026) — LATER, only when every other version (web, Windows, Store) is stable
 Not started. Notes for then: the web app already runs the same engine in the browser, so a first step is an installable PWA for iPad/iPhone Safari (touch UI: bigger targets, pinch zoom, a compact bottom task bar instead of the 10-button row, Files-app open/save through the file picker/share sheet, no right-click, memory limits of iOS Safari for big drawings and OCR — measure); a native app is a second step (Tauri 2 mobile/iOS or a thin WKWebView shell; needs a Mac + Apple developer account, App Store review, no Office/CAD pack there, no Surya). Decide after the Windows release and real users' feedback.
+
+## 1.0 BETA RELEASE GATE (owner chose option B on 21 Oct 2026, target: evening of 22 Oct 2026)
+Go live as "1.0 beta" when ALL of these hold (then ask the owner for the final go; nothing goes live without it):
+1. Arabic editing: stress `edit` majors <= 1 % of edit cases, and every remaining one is listed with its cause in the release notes.
+2. Arabic writing: `write` majors only where an outside reader cannot follow the PDF standard (e.g. no bidi in a reader), each explained; text Waraq writes copies/searches in logical order in Acrobat-like readers (ActualText).
+3. Full verification on a clean checkout: `pnpm check` 0/0, unit all pass, e2e all pass (built app + dev-only specs), design audit green EN+AR on 4 themes, Tauri smoke + installer test green.
+4. The publishing agent's independent test (OTHER-AGENT-TO-DO step 5, incl. 5f–5j) on the final build: no serious problem open.
+5. The website preview (step 9) checked; the site states the known limits honestly (scanned-book OCR, readers that reorder mixed Arabic/Latin on copy).
+6. Backup bundle of all repos made the same day; GitHub synced with the release commit.
+Then: owner's go → Production upload of the 1.0 site, the Windows installer on the downloads page, 0.3.3 kept as "classic"; auto-switch of 0.3.3 users later.
