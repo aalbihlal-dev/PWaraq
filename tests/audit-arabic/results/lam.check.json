@@ -114,7 +114,7 @@
   "label": "lone-lam-alef",
   "consumer": "pdfium",
   "text": "لا شيء",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "lam",

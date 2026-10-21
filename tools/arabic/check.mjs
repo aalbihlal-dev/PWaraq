@@ -10,6 +10,9 @@ const consumers = fs.readdirSync(res).filter((f) => f.startsWith(name + '.') && 
 const ws = (s) => s.replace(/[\s‎‏‪-‮⁦-⁩]+/g, '');
 const marks = (s) => s.replace(/[ً-ٰٟـ]/g, '');
 const rev = (s) => [...s].reverse().join('');
+// the words of a line without punctuation: a reader that returns them in another order still read them
+const core = (t) => t.normalize('NFKC').replace(/[^\p{L}\p{N}\s]/gu, '').replace(/[ً-ٰٟـ]/g, '').split(/\s+/).filter(Boolean);
+const sameWords = (want, got) => { const have = new Map(); for (const w of core(got)) have.set(w, (have.get(w) ?? 0) + 1); return core(want).every((w) => have.get(w) > 0); };
 const out = [];
 // comment text boxes are annotations: their text is the annotation's /Contents, not page text (no reader's text extraction returns it)
 if (man[0]?.writer === 'comment' || man[0]?.writer === 'proto-comment') {
@@ -29,6 +32,7 @@ for (const c of consumers) {
       else if (nf.includes(ws(e.normalize('NFKC')))) st = 'nfkc-only';
       else if (marks(nf).includes(marks(ws(e.normalize('NFKC'))))) st = 'marks-lost';
       else if (marks(nf).includes(marks(ws(rev(e.normalize('NFKC')))))) st = 'reversed';
+      else if (c === 'pdfium' && sameWords(e, raw)) st = 'word-order'; // the wasm PDFium has no bidi: right words, drawn order (Edge's real viewer reorders)
       else st = 'wrong';
       out.push({ writer: p.writer, file: p.file, page: p.page, label: p.label, consumer: c, text: e.slice(0, 40), status: st });
     }

@@ -222,7 +222,7 @@
   "label": "plain",
   "consumer": "pdfium",
   "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "proto",
@@ -231,7 +231,7 @@
   "label": "plain",
   "consumer": "pdfium",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "proto",
@@ -240,7 +240,7 @@
   "label": "plain",
   "consumer": "pdfium",
   "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "proto",
@@ -258,7 +258,7 @@
   "label": "plain",
   "consumer": "pdfium",
   "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "proto",
@@ -312,7 +312,7 @@
   "label": "plain",
   "consumer": "pdfium",
   "text": "10/05/1448 هـ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "proto",
@@ -321,7 +321,7 @@
   "label": "plain",
   "consumer": "pdfium",
   "text": "التاريخ: ٢١/١٠/٢٠٢٦",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "proto",
@@ -375,7 +375,7 @@
   "label": "actualtext",
   "consumer": "pdfium",
   "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "proto",

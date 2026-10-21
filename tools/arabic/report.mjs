@@ -28,7 +28,7 @@ export function hasGsub(file) {
 
 /** Grade one edit and say why. */
 export function grade(r) {
-  const c = checks[r.id] ?? {}, b = browser[r.id] ?? {}, why = [];
+  const c = checks[r.id] ?? {}, b = browser[r.id] ?? {}, why = [], notes = [];
   if (r.error) return { grade: 'major', why: ['engine error: ' + r.error] };
   const readBack = r.extract?.mupdfLineOk || c.pdfium?.lineOk || c.pdfium?.lettersOk || b.pdfjs?.lettersOk;
   const pageHas = r.extract?.mupdfPageHas || c.pdfium?.pageHas || c.pymupdf?.pageHas || b.pdfjs?.pageHas;
@@ -44,8 +44,10 @@ export function grade(r) {
   // both readers' pictures differ from the browser's picture of the same text in the same font: the file is wrong, not the reader
   if (b.compare && b.compare.inkMupdf && b.compare.inkPdfjs && b.compare.mupdfVsRef.iou < 0.45 && b.compare.pdfjsVsRef.iou < 0.45 && !r.fidelity?.wrapped) why.push(`major: drawn line differs from the browser's rendering of the same text in the same font (overlap ${b.compare.mupdfVsRef.iou} / ${b.compare.pdfjsVsRef.iou})`);
   if (r.extract && !r.extract.oldGone && /similar|mixed/.test(r.scenario) && r.lifted.length >= 15 && r.kind !== 'real') why.push('major: the old text is still in the file');
-  if (why.some((w) => w.startsWith('major'))) return { grade: 'major', why };
-  if (r.font?.using) why.push(`minor: own font ${r.font.own || '?'} not kept → ${r.font.using}${r.font.missing.length ? ' (lacks ' + r.font.missing.slice(0, 8).join('') + ')' : ''}`);
+  if (why.some((w) => w.startsWith('major'))) return { grade: 'major', why, notes };
+  // a font that cannot shape Arabic (no GSUB, no cmap, Type 3) is not kept by design since the font service: a note, not a defect
+  if (r.font?.using && r.font.missing.length) why.push(`minor: own font ${r.font.own || '?'} lacks ${r.font.missing.slice(0, 8).join('')} → ${r.font.using}`);
+  else if (r.font?.using) notes.push(`own font ${r.font.own || '?'} cannot shape Arabic → ${r.font.using}`);
   if (r.fidelity?.wrapped) why.push('minor: wrapped onto a second line (over the line below)');
   if (r.fidelity && Math.abs(r.fidelity.dEdge) > 2) why.push(`minor: line edge moved ${r.fidelity.dEdge} pt`);
   if (r.fidelity && Math.abs(r.fidelity.dBase) > 1) why.push(`minor: baseline moved ${r.fidelity.dBase} pt`);
@@ -57,7 +59,7 @@ export function grade(r) {
   if (b.pdfjs && !b.pdfjs.lettersOk && !b.pdfjs.lettersReversed) why.push('minor: pdf.js copies the line differently' + (b.pdfjs.junk ? ' with junk ' + b.pdfjs.junk : ''));
   if (b.compare && b.compare.inkMupdf && b.compare.mupdfVsRef.iou < 0.6 && !r.fidelity?.wrapped) why.push(`minor: drawn line differs from the browser's rendering (overlap ${b.compare.mupdfVsRef.iou})`);
   if (r.side && r.side.growth > 250_000) why.push('minor: file grew by ' + Math.round(r.side.growth / 1024) + ' kB');
-  return { grade: why.length ? 'minor' : 'OK', why };
+  return { grade: why.length ? 'minor' : 'OK', why, notes };
 }
 
 const graded = data.results.map((r) => ({ r, ...grade(r) }));
