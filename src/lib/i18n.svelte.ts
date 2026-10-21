@@ -18,6 +18,7 @@ const strings = {
   pages: ['Pages', 'الصفحات'],
   page: ['Page', 'الصفحة'],
   of: ['of', 'من'],
+  zoom: ['Zoom', 'التكبير'], zoomFit: ['Fit page', 'ملاءمة الصفحة'],
   zoomIn: ['Zoom in (Ctrl +)', 'تكبير (Ctrl +)'], zoomOut: ['Zoom out (Ctrl −)', 'تصغير (Ctrl −)'],
   fitWidth: ['Fit width', 'ملء العرض'], fitPage: ['Whole page', 'الصفحة كاملة'],
   find: ['Find in document (Ctrl F)', 'البحث في المستند (Ctrl F)'],

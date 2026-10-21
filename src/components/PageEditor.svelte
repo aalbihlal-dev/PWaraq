@@ -48,6 +48,11 @@
   });
   const fontText = (f: NonNullable<typeof fontInfo>) => (!f.using ? t('fontOwn') : f.source === 'system' ? t('fontSystem') : f.reason === 'missing' && f.missing.length ? t('fontMissing') : t('fontUnusable'))
     .replace('{font}', f.font || '?').replace('{using}', f.using ?? '').replace('{letters}', f.missing.join(' '));
+  // the editing box in the font the line will be written in (a system font by name when the browser has it, else the bundled family)
+  const family = (o: Obj) => {
+    const own = o.line != null ? found.lines[o.line]?.font : '', name = (o.id === selected && fontInfo ? (fontInfo.using ?? fontInfo.font) : own) ?? '';
+    return /^[A-Za-z0-9 -]+$/.test(name.trim()) ? `'${name.trim().replace(/ Bold$/, '')}', Tajawal, sans-serif` : 'Tajawal, sans-serif';
+  };
   const photos: Uint8Array[] = [];
   let urls = $state<string[]>([]);
 
@@ -67,7 +72,10 @@
 
   // the page fills the middle; s = screen pixels per point
   let sw = $state(0), sh = $state(0);
-  const s = $derived(sw && sh ? Math.max(0.2, Math.min((sw - 48) / size.w, (sh - 48) / size.h)) : 0);
+  // zoom: 0 = the page fits the window; otherwise points shown as that many pixels (1 = 100 %), the stage scrolls
+  let zoom = $state(0);
+  const fit = $derived(sw && sh ? Math.max(0.2, Math.min((sw - 48) / size.w, (sh - 48) / size.h)) : 0);
+  const s = $derived(fit && zoom ? zoom : fit);
 
   // background: the page with what the edits take away already gone (the rest is drawn on top while editing)
   let canvas = $state<HTMLCanvasElement>(), clean = $state(''); // clean: the untouched page, for pictures of photos being moved
@@ -279,6 +287,9 @@
     <button class="btn icon" onclick={undo} disabled={!canUndo} title={t('undo')} aria-label={t('undo')}>{@html icon('undo')}</button>
     <button class="btn icon" onclick={redo} disabled={!canRedo} title={t('redo')} aria-label={t('redo')}><span class="flip">{@html icon('undo')}</span></button>
     <button class="btn icon" onclick={remove} disabled={!sel} title={t('delete')} aria-label={t('delete')}>{@html icon('delete')}</button>
+    <label class="zoomer"><span class="sr">{t('zoom')}</span><select bind:value={zoom} aria-label={t('zoom')}>
+      <option value={0}>{t('zoomFit')}</option>{#each [0.5, 0.75, 1, 1.25, 1.5, 2, 3] as z}<option value={z}>{Math.round(z * 100)}%</option>{/each}
+    </select></label>
     <span class="where num">{label}</span>
     <button class="btn" onclick={onCancel} disabled={!!busy && doc >= 0}>{@html icon('close')}{t('cancel')}</button>
     <button class="btn primary" onclick={save} disabled={!!busy}>{@html icon('check')}{t('savePage')}</button>
@@ -305,7 +316,7 @@
                 <div class="obj text" class:on={o.id === selected} data-obj={o.id} style="left:{o.x * s}px;top:{o.y * s}px;width:{o.w * s}px">
                   {#if o.id === selected}<div class="grip" title={t('moveHandle')} onpointerdown={(e) => drag(e, o, 'move')}></div>{/if}
                   <textarea bind:value={o.text} dir="auto" rows="1" spellcheck="false" placeholder={t('typeHere')} aria-label={t('textOptions')}
-                    style="font-size:{o.size * s}px;font-weight:{o.bold ? 700 : 400};color:{rgb(o.color)};text-align:{o.align};line-height:{LEADING};transform:translateY({shift[o.bold ? 1 : 0] * o.size * s}px)"
+                    style="font-family:{family(o)};font-size:{o.size * s}px;font-weight:{o.bold ? 700 : 400};color:{rgb(o.color)};text-align:{o.align};line-height:{LEADING};transform:translateY({shift[o.bold ? 1 : 0] * o.size * s}px)"
                     oninput={() => direction(o)} onfocus={() => { select(o.id); typing = snap(); }} onblur={() => typed(o)}></textarea>
                   {#if o.id === selected}<div class="corner" title={t('resizeHandle')} onpointerdown={(e) => drag(e, o, 'size')}></div>{/if}
                 </div>
@@ -379,9 +390,10 @@
   .where { margin-inline-start: auto; color: var(--muted); }
   .btn.on { background: var(--green-soft); border-color: var(--green); color: var(--green-deep); }
   .body { display: grid; grid-template-columns: 1fr 300px; min-height: 0; }
-  .stage { position: relative; overflow: auto; display: grid; place-items: center; padding: var(--s-24); background: var(--canvas); min-height: 0; }
+  .stage { position: relative; overflow: auto; display: flex; padding: var(--s-24); background: var(--canvas); min-height: 0; }
   .busy { position: absolute; inset: 0; z-index: 3; margin: 0; display: grid; place-items: center; background: var(--veil); font-size: var(--fs-16); font-weight: 600; }
-  .sheet { position: relative; background: var(--surface); box-shadow: var(--shadow); touch-action: none; }
+  .sheet { position: relative; flex: none; margin: auto; background: var(--surface); box-shadow: var(--shadow); touch-action: none; }
+  .zoomer select { min-height: var(--control); padding: 0 var(--s-8); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); font: inherit; }
   .sheet.placing { cursor: text; }
   .sheet canvas { position: absolute; inset: 0; }
   .hit { position: absolute; padding: 0; border: 1px solid transparent; border-radius: 2px; background: transparent; cursor: pointer; }
