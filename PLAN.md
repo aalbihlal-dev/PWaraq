@@ -540,7 +540,7 @@ Round trip is tested (portfolio.spec). Gaps found by reading `openPortfolioFile`
 7. **Tests:** kill the engine mid-edit, kill the app mid-save (the target is either the old file or the new, never half), restore a draft, a broken PDF, 5-draft rotation.
 
 **B. Never lose the project (owner decisions needed at 3 and 4)**
-1. **Source:** GitHub (tshi-dev/PWaraq) is the main copy; also keep a monthly `git bundle` of `waraq-next` and `PWaraq` on a second drive (a scheduled task — owner picks the folder).
+1. **Source:** GitHub (tshi-dev/PWaraq) is the main copy; **offline backups (owner, 21 Oct): `PDF Open Source\Backups\<date>\` with a verified `git bundle` per repo (waraq-next, PWaraq, waraq) + SHA256SUMS + README; first set made 21 Oct 2026; new dated set monthly and before big changes. Same disk as the project, so a disk failure would take both — copy the newest folder to a USB stick now and then.**
 2. **Website:** every Cloudflare Pages deployment is kept; rollback = "Rollback to this deployment" in the dashboard; before each upload the publishing agent notes the current deployment id in OTHER-AGENT-TO-DO Results. Keep the last 3 website ZIPs in `waraq/publish`.
 3. **Releases:** keep every installer + SHA-256 + manifest per version (`release-full/`, later GitHub Releases) so a bad update can be pulled and the old version pinned; the updater never removes the previous version until the new one starts.
 4. **Secrets and accounts:** the owner keeps recovery codes for Cloudflare, GitHub (2FA) and the domain registrar in a password manager; write a one-page "if I lose access" list (account, recovery method, where the code is — no secrets in the repo).
