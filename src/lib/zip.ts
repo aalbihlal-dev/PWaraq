@@ -28,20 +28,27 @@ export function zip(files: Record<string, Uint8Array>): Uint8Array {
   return out;
 }
 
-/** Reads a ZIP written by `zip` (stored files only); throws on anything else. */
-export function unzip(bytes: Uint8Array): Record<string, Uint8Array> {
+/** Reads a ZIP written by `zip` (stored files only); throws on anything else, on a file whose checksum fails, and on more than
+ *  `max` entries or bytes in total (a zip bomb is refused from the directory, before anything is copied). */
+export function unzip(bytes: Uint8Array, max = { entries: 2000, bytes: 4 * 2 ** 30 }): Record<string, Uint8Array> {
   const v = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength), dec = new TextDecoder(), out: Record<string, Uint8Array> = {};
   let end = bytes.length - 22;
   while (end >= 0 && v.getUint32(end, true) !== 0x06054b50) end--;
   if (end < 0) throw new Error('not a zip');
-  let p = v.getUint32(end + 16, true);
-  for (let i = 0, count = v.getUint16(end + 10, true); i < count; i++) {
+  let p = v.getUint32(end + 16, true), total = 0;
+  const count = v.getUint16(end + 10, true);
+  if (count > max.entries) throw new Error('zip: too many entries');
+  for (let i = 0; i < count; i++) {
+    if (p + 46 > bytes.length) throw new Error('bad zip');
     if (v.getUint32(p, true) !== 0x02014b50) throw new Error('bad zip');
     const method = v.getUint16(p + 10, true), size = v.getUint32(p + 20, true), nlen = v.getUint16(p + 28, true);
     const extra = v.getUint16(p + 30, true), note = v.getUint16(p + 32, true), local = v.getUint32(p + 42, true);
     if (method !== 0) throw new Error('compressed zip entries are not supported');
+    if ((total += size) > max.bytes) throw new Error('zip: too large');
     const name = dec.decode(bytes.subarray(p + 46, p + 46 + nlen)), start = local + 30 + v.getUint16(local + 26, true) + v.getUint16(local + 28, true);
+    if (local + 30 > bytes.length || start + size > bytes.length) throw new Error('bad zip');
     out[name] = bytes.slice(start, start + size);
+    if (crc32(out[name]) !== v.getUint32(p + 16, true)) throw new Error('bad zip: checksum');
     p += 46 + nlen + extra + note;
   }
   return out;

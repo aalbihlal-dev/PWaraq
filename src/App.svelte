@@ -7,7 +7,7 @@
   import ThemeButton from './components/ThemeButton.svelte';
   import { icon } from './lib/icons.js';
   import { recentList, remember, forget, reopen, pickFiles, saveFile, readPortfolio, writePortfolio, type Recent } from './lib/store';
-  import { newPortfolio, load, type Portfolio as PortfolioData } from './lib/portfolio';
+  import { newPortfolio, load, parse, PortfolioError, type Portfolio as PortfolioData } from './lib/portfolio';
   import { unzip } from './lib/zip';
   import { CONVERTIBLE_ACCEPT, isConvertible, toPdf } from './lib/convert';
   import { isDesktop, onOpenPaths, readPath, writePath, saveAs, baseName } from './lib/desktop';
@@ -57,8 +57,10 @@
         busy = false; return;
       }
       const bytes = new Uint8Array(await file.arrayBuffer());
-      if (/\.waraq$/i.test(file.name)) await openPortfolioFile(bytes);
-      else {
+      if (/\.waraq$/i.test(file.name)) {
+        try { await openPortfolioFile(bytes); }
+        catch (e) { error = t((e as PortfolioError).kind === 'newer' ? 'portfolioNewer' : 'portfolioInvalid'); } // damaged, foreign or unsafe: never "not a PDF"
+      } else {
         try { await show(bytes, file.name); }
         catch (e) { if ((e as Error)?.message === 'PASSWORD') { locked = { bytes, name: file.name, size: file.size, handle, path }; busy = false; return; } throw e; }
         remember({ key: `pdf:${file.name}:${file.size}`, kind: 'pdf', name: file.name, pages: doc!.sizes.length, handle, path, thumb: await cover() });
@@ -76,7 +78,8 @@
   }
 
   async function openPortfolioFile(bytes: Uint8Array) {
-    const entries = unzip(bytes), m = JSON.parse(new TextDecoder().decode(entries['manifest.json']));
+    let entries, m;
+    try { entries = unzip(bytes); m = parse(entries); } catch (e) { throw e instanceof PortfolioError ? e : new PortfolioError('invalid'); }
     for (const [name, data] of Object.entries(entries)) await writePortfolio(m.id, name, data); // kept on this device from now on
     await showPortfolio(await load(pool, entries));
   }

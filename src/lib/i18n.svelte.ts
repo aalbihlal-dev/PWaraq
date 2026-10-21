@@ -24,6 +24,8 @@ const strings = {
   noResults: ['No results', 'لا نتائج'],
   reading: ['Reading the document…', 'جارٍ قراءة المستند…'],
   notPdf: ['This file could not be opened as a PDF.', 'تعذر فتح هذا الملف كملف PDF.'],
+  portfolioInvalid: ['This is not a valid Waraq portfolio. The file may be damaged.', 'هذا ليس ملف حافظة ورق صالحًا. ربما الملف تالف.'],
+  portfolioNewer: ['This portfolio was made with a newer Waraq. Update Waraq to open it.', 'أُنشئت هذه الحافظة بإصدار أحدث من ورق. حدّث ورق لفتحها.'],
   thumbnails: ['Thumbnails', 'الصور المصغرة'],
   // start screen
   recent: ['Recent', 'الأخيرة'],

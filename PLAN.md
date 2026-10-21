@@ -527,6 +527,7 @@ Round trip is tested (portfolio.spec). Gaps found by reading `openPortfolioFile`
 1. a damaged or foreign `.waraq` shows "not a PDF" → say "not a valid Waraq portfolio" (EN+AR);
 2. no `app === 'waraq-portfolio'` / `version` check → "made with a newer Waraq" instead of opening blindly;
 3. entry names and `manifest.id` unvalidated → reject names with `..`, `/`, `\`, drive letters, absolute paths, and ids that are not `[a-z0-9-]`; cap entry count and total unzipped size (zip-bomb); needed BEFORE the desktop app writes them to disk;
+**Done 21 Oct 2026 (Sonnet session):** `parse()` in portfolio.ts (manifest/version/id/entry-name checks), `unzip` limits + checksum, messages `portfolioInvalid`/`portfolioNewer`; tests waraq-file.test.mjs + waraq-file.spec.ts (the .waraq double-click on desktop is not run yet).
 4. tests: corrupt zip, wrong manifest, newer version, path-traversal entry, 200 MB portfolio, Arabic names; desktop: double-click a `.waraq` (file association is in tauri.conf.json, never run yet).
 
 ## Recovery plan (owner, 21 Oct 2026: "we also need a recovery plan")
