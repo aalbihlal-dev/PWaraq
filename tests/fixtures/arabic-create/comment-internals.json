@@ -1,0 +1,83 @@
+[
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF06450631062D0628062700200",
+  "da": "(/Helv 12 Tf .13725491 .23529412 .21176471 rg)",
+  "ap": ".13725491 .23529412 .21176471 RG\n0 w\n60 762 475 50 re\nW\nn\nq\n1 0 -0 1 60 762 cm\n1 0 0 -1 -0 50 cm\nq\n0 0 475 74 re\nW n\n.13725491 .23529412 .21176471 rg\nBT\n/F0 12 ",
+  "fonts": [
+   "F0:/Nimbus#20Sans#20Regular"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF0627064406410627062A06480",
+  "da": "(/Helv 12 Tf .13725491 .23529412 .21176471 rg)",
+  "ap": ".13725491 .23529412 .21176471 RG\n0 w\n60 692 475 50 re\nW\nn\nq\n1 0 -0 1 60 692 cm\n1 0 0 -1 -0 50 cm\nq\n0 0 475 74 re\nW n\n.13725491 .23529412 .21176471 rg\nBT\n/F0 12 ",
+  "fonts": [
+   "F0:/Nimbus#20Sans#20Regular"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF0631064206450020062706440",
+  "da": "(/Helv 12 Tf .13725491 .23529412 .21176471 rg)",
+  "ap": ".13725491 .23529412 .21176471 RG\n0 w\n60 622 475 50 re\nW\nn\nq\n1 0 -0 1 60 622 cm\n1 0 0 -1 -0 50 cm\nq\n0 0 475 74 re\nW n\n.13725491 .23529412 .21176471 rg\nBT\n/F0 12 ",
+  "fonts": [
+   "F0:/Nimbus#20Sans#20Regular"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF0628065006330652064506500",
+  "da": "(/Helv 12 Tf .13725491 .23529412 .21176471 rg)",
+  "ap": ".13725491 .23529412 .21176471 RG\n0 w\n60 552 475 50 re\nW\nn\nq\n1 0 -0 1 60 552 cm\n1 0 0 -1 -0 50 cm\nq\n0 0 475 74 re\nW n\n.13725491 .23529412 .21176471 rg\nBT\n/F0 12 ",
+  "fonts": [
+   "F0:/Nimbus#20Sans#20Regular"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF0644062700200625064406470",
+  "da": "(/Helv 12 Tf .13725491 .23529412 .21176471 rg)",
+  "ap": ".13725491 .23529412 .21176471 RG\n0 w\n60 482 475 50 re\nW\nn\nq\n1 0 -0 1 60 482 cm\n1 0 0 -1 -0 50 cm\nq\n0 0 475 74 re\nW n\n.13725491 .23529412 .21176471 rg\nBT\n/F0 12 ",
+  "fonts": [
+   "F0:/Nimbus#20Sans#20Regular"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF0627064406460635002000280",
+  "da": "(/Helv 12 Tf .13725491 .23529412 .21176471 rg)",
+  "ap": ".13725491 .23529412 .21176471 RG\n0 w\n60 412 475 50 re\nW\nn\nq\n1 0 -0 1 60 412 cm\n1 0 0 -1 -0 50 cm\nq\n0 0 475 74 re\nW n\n.13725491 .23529412 .21176471 rg\nBT\n/F0 12 ",
+  "fonts": [
+   "F0:/Nimbus#20Sans#20Regular"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF067E069806480647063400200",
+  "da": "(/Helv 12 Tf .13725491 .23529412 .21176471 rg)",
+  "ap": ".13725491 .23529412 .21176471 RG\n0 w\n60 342 475 50 re\nW\nn\nq\n1 0 -0 1 60 342 cm\n1 0 0 -1 -0 50 cm\nq\n0 0 475 74 re\nW n\n.13725491 .23529412 .21176471 rg\nBT\n/F0 12 ",
+  "fonts": [
+   "F0:/Nimbus#20Sans#20Regular"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "(Hello world 123)",
+  "da": "(/Helv 12 Tf .13725491 .23529412 .21176471 rg)",
+  "ap": ".13725491 .23529412 .21176471 RG\n0 w\n60 272 475 50 re\nW\nn\nq\n1 0 -0 1 60 272 cm\nBT\n.13725491 .23529412 .21176471 rg\n0 54.800004 Td\n0 -14.400001 Td\n/Helv 12 Tf\n(H",
+  "fonts": [
+   "Helv:/Helvetica"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF0628>",
+  "da": "(/Helv 12 Tf .13725491 .23529412 .21176471 rg)",
+  "ap": ".13725491 .23529412 .21176471 RG\n0 w\n60 202 475 50 re\nW\nn\nq\n1 0 -0 1 60 202 cm\n1 0 0 -1 -0 50 cm\nq\n0 0 475 74 re\nW n\n.13725491 .23529412 .21176471 rg\nBT\n/F0 12 ",
+  "fonts": [
+   "F0:/Nimbus#20Sans#20Regular"
+  ]
+ }
+]

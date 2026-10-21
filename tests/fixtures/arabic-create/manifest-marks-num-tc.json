@@ -1,0 +1,65 @@
+[
+ {
+  "writer": "marks-num-tc",
+  "file": "marks-num-tc.pdf",
+  "page": 0,
+  "label": "num-tc-0",
+  "expect": [
+   "1 / 7"
+  ]
+ },
+ {
+  "writer": "marks-num-tc",
+  "file": "marks-num-tc.pdf",
+  "page": 1,
+  "label": "num-tc-1",
+  "expect": [
+   "2 / 7"
+  ]
+ },
+ {
+  "writer": "marks-num-tc",
+  "file": "marks-num-tc.pdf",
+  "page": 2,
+  "label": "num-tc-2",
+  "expect": [
+   "3 / 7"
+  ]
+ },
+ {
+  "writer": "marks-num-tc",
+  "file": "marks-num-tc.pdf",
+  "page": 3,
+  "label": "num-tc-3",
+  "expect": [
+   "4 / 7"
+  ]
+ },
+ {
+  "writer": "marks-num-tc",
+  "file": "marks-num-tc.pdf",
+  "page": 4,
+  "label": "num-tc-4",
+  "expect": [
+   "5 / 7"
+  ]
+ },
+ {
+  "writer": "marks-num-tc",
+  "file": "marks-num-tc.pdf",
+  "page": 5,
+  "label": "num-tc-5",
+  "expect": [
+   "6 / 7"
+  ]
+ },
+ {
+  "writer": "marks-num-tc",
+  "file": "marks-num-tc.pdf",
+  "page": 6,
+  "label": "num-tc-6",
+  "expect": [
+   "7 / 7"
+  ]
+ }
+]

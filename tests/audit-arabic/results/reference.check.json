@@ -1,0 +1,326 @@
+[
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "edgecopy",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "edgecopy",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "edgecopy",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "edgecopy",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "edgecopy",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "edgecopy",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "edgecopy",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "edgecopy",
+  "text": "Hello world 123",
+  "status": "exact"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "edgecopy",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "mupdf",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "mupdf",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "mupdf",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "mupdf",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "mupdf",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "mupdf",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "mupdf",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "exact"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "mupdf",
+  "text": "Hello world 123",
+  "status": "exact"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "mupdf",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfium",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfium",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfium",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfium",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfium",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfium",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfium",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "reversed"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfium",
+  "text": "Hello world 123",
+  "status": "exact"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfium",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfjs",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfjs",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfjs",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfjs",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfjs",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfjs",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfjs",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfjs",
+  "text": "Hello world 123",
+  "status": "exact"
+ },
+ {
+  "writer": "reference",
+  "file": "reference.pdf",
+  "page": 0,
+  "label": "edge-print",
+  "consumer": "pdfjs",
+  "text": "ب",
+  "status": "exact"
+ }
+]

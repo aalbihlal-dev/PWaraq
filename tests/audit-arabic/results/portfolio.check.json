@@ -1,0 +1,2729 @@
+[
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "mupdf",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "mupdf",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "mupdf",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "mupdf",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "mupdf",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "mupdf",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "mupdf",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "mupdf",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "mupdf",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "mupdf",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "mupdf",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "mupdf",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "mupdf",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "mupdf",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "mupdf",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "mupdf",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "mupdf",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "mupdf",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "mupdf",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "mupdf",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "mupdf",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "mupdf",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "mupdf",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "mupdf",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "mupdf",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "mupdf",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "mupdf",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "mupdf",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "mupdf",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "mupdf",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "mupdf",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "mupdf",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "mupdf",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "mupdf",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "mupdf",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "mupdf",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "mupdf",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "mupdf",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "mupdf",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "mupdf",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "mupdf",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "mupdf",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "mupdf",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "mupdf",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "mupdf",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "mupdf",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "mupdf",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "mupdf",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 8,
+  "label": "divider-classic",
+  "consumer": "mupdf",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 8,
+  "label": "divider-classic",
+  "consumer": "mupdf",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 9,
+  "label": "divider-minimal",
+  "consumer": "mupdf",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 9,
+  "label": "divider-minimal",
+  "consumer": "mupdf",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 10,
+  "label": "divider-band",
+  "consumer": "mupdf",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 10,
+  "label": "divider-band",
+  "consumer": "mupdf",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 11,
+  "label": "divider-frame",
+  "consumer": "mupdf",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 11,
+  "label": "divider-frame",
+  "consumer": "mupdf",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 12,
+  "label": "divider-side",
+  "consumer": "mupdf",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 12,
+  "label": "divider-side",
+  "consumer": "mupdf",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 13,
+  "label": "divider-split",
+  "consumer": "mupdf",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 13,
+  "label": "divider-split",
+  "consumer": "mupdf",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 14,
+  "label": "divider-geometric",
+  "consumer": "mupdf",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 14,
+  "label": "divider-geometric",
+  "consumer": "mupdf",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 15,
+  "label": "divider-editorial",
+  "consumer": "mupdf",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 15,
+  "label": "divider-editorial",
+  "consumer": "mupdf",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 16,
+  "label": "cover-long150ar",
+  "consumer": "mupdf",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 17,
+  "label": "cover-long200latin",
+  "consumer": "mupdf",
+  "text": "A very long English title for the portfo",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 18,
+  "label": "cover-tashkeel-indic",
+  "consumer": "mupdf",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "marks-lost"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 18,
+  "label": "cover-tashkeel-indic",
+  "consumer": "mupdf",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 18,
+  "label": "cover-tashkeel-indic",
+  "consumer": "mupdf",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 18,
+  "label": "cover-tashkeel-indic",
+  "consumer": "mupdf",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 19,
+  "label": "cover-onechar",
+  "consumer": "mupdf",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 20,
+  "label": "cover-all-long",
+  "consumer": "mupdf",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 21,
+  "label": "divider-long150",
+  "consumer": "mupdf",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 22,
+  "label": "divider-long200latin",
+  "consumer": "mupdf",
+  "text": "A very long English title for the portfo",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "mupdf",
+  "text": "القسم 1: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "mupdf",
+  "text": "القسم 2: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "mupdf",
+  "text": "القسم 3: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "mupdf",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "mupdf",
+  "text": "القسم 5: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "mupdf",
+  "text": "A very long English title for the portfo",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "mupdf",
+  "text": "القسم 7: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "mupdf",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "marks-lost"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "mupdf",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "mupdf",
+  "text": "القسم 10: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "mupdf",
+  "text": "القسم 11: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "mupdf",
+  "text": "القسم 12: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "mupdf",
+  "text": "القسم 1: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "mupdf",
+  "text": "القسم 2: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "mupdf",
+  "text": "القسم 3: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "mupdf",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "mupdf",
+  "text": "القسم 5: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "mupdf",
+  "text": "A very long English title for the portfo",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "mupdf",
+  "text": "القسم 7: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "mupdf",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "marks-lost"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "mupdf",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "mupdf",
+  "text": "القسم 10: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "mupdf",
+  "text": "القسم 11: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "mupdf",
+  "text": "القسم 12: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 29,
+  "label": "cover-band-A3",
+  "consumer": "mupdf",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 30,
+  "label": "cover-split-A5",
+  "consumer": "mupdf",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 31,
+  "label": "cover-frame-landscape",
+  "consumer": "mupdf",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "pdfium",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "pdfium",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "pdfium",
+  "text": "عبدالله محمد الأحمد",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "pdfium",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "pdfium",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "pdfium",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "pdfium",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "pdfium",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "pdfium",
+  "text": "عبدالله محمد الأحمد",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "pdfium",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "pdfium",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "pdfium",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "pdfium",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "pdfium",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "pdfium",
+  "text": "عبدالله محمد الأحمد",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "pdfium",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "pdfium",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "pdfium",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "pdfium",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "pdfium",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "pdfium",
+  "text": "عبدالله محمد الأحمد",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "pdfium",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "pdfium",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "pdfium",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "pdfium",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "pdfium",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "pdfium",
+  "text": "عبدالله محمد الأحمد",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "pdfium",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "pdfium",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "pdfium",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "pdfium",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "pdfium",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "pdfium",
+  "text": "عبدالله محمد الأحمد",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "pdfium",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "pdfium",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "pdfium",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "pdfium",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "pdfium",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "pdfium",
+  "text": "عبدالله محمد الأحمد",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "pdfium",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "pdfium",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "pdfium",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "pdfium",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "pdfium",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "pdfium",
+  "text": "عبدالله محمد الأحمد",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "pdfium",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "pdfium",
+  "text": "پژمان Al-Ahmad",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "pdfium",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 8,
+  "label": "divider-classic",
+  "consumer": "pdfium",
+  "text": "القسم ٣",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 8,
+  "label": "divider-classic",
+  "consumer": "pdfium",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 9,
+  "label": "divider-minimal",
+  "consumer": "pdfium",
+  "text": "القسم ٣",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 9,
+  "label": "divider-minimal",
+  "consumer": "pdfium",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 10,
+  "label": "divider-band",
+  "consumer": "pdfium",
+  "text": "القسم ٣",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 10,
+  "label": "divider-band",
+  "consumer": "pdfium",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 11,
+  "label": "divider-frame",
+  "consumer": "pdfium",
+  "text": "القسم ٣",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 11,
+  "label": "divider-frame",
+  "consumer": "pdfium",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 12,
+  "label": "divider-side",
+  "consumer": "pdfium",
+  "text": "القسم ٣",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 12,
+  "label": "divider-side",
+  "consumer": "pdfium",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 13,
+  "label": "divider-split",
+  "consumer": "pdfium",
+  "text": "القسم ٣",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 13,
+  "label": "divider-split",
+  "consumer": "pdfium",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 14,
+  "label": "divider-geometric",
+  "consumer": "pdfium",
+  "text": "القسم ٣",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 14,
+  "label": "divider-geometric",
+  "consumer": "pdfium",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 15,
+  "label": "divider-editorial",
+  "consumer": "pdfium",
+  "text": "القسم ٣",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 15,
+  "label": "divider-editorial",
+  "consumer": "pdfium",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 16,
+  "label": "cover-long150ar",
+  "consumer": "pdfium",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 17,
+  "label": "cover-long200latin",
+  "consumer": "pdfium",
+  "text": "A very long English title for the portfo",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 18,
+  "label": "cover-tashkeel-indic",
+  "consumer": "pdfium",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 18,
+  "label": "cover-tashkeel-indic",
+  "consumer": "pdfium",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 18,
+  "label": "cover-tashkeel-indic",
+  "consumer": "pdfium",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 18,
+  "label": "cover-tashkeel-indic",
+  "consumer": "pdfium",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 19,
+  "label": "cover-onechar",
+  "consumer": "pdfium",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 20,
+  "label": "cover-all-long",
+  "consumer": "pdfium",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 21,
+  "label": "divider-long150",
+  "consumer": "pdfium",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 22,
+  "label": "divider-long200latin",
+  "consumer": "pdfium",
+  "text": "A very long English title for the portfo",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfium",
+  "text": "القسم 1: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfium",
+  "text": "القسم 2: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfium",
+  "text": "القسم 3: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfium",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfium",
+  "text": "القسم 5: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfium",
+  "text": "A very long English title for the portfo",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfium",
+  "text": "القسم 7: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfium",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfium",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfium",
+  "text": "القسم 10: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfium",
+  "text": "القسم 11: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfium",
+  "text": "القسم 12: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfium",
+  "text": "القسم 1: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfium",
+  "text": "القسم 2: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfium",
+  "text": "القسم 3: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfium",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfium",
+  "text": "القسم 5: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfium",
+  "text": "A very long English title for the portfo",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfium",
+  "text": "القسم 7: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfium",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfium",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfium",
+  "text": "القسم 10: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfium",
+  "text": "القسم 11: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfium",
+  "text": "القسم 12: مرحبا بالعالم، هذا ن",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 29,
+  "label": "cover-band-A3",
+  "consumer": "pdfium",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 30,
+  "label": "cover-split-A5",
+  "consumer": "pdfium",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 31,
+  "label": "cover-frame-landscape",
+  "consumer": "pdfium",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "pdfjs",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "pdfjs",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "pdfjs",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "pdfjs",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "pdfjs",
+  "text": "پژمان Al-Ahmad",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "consumer": "pdfjs",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "pdfjs",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "pdfjs",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "pdfjs",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "pdfjs",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "pdfjs",
+  "text": "پژمان Al-Ahmad",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "consumer": "pdfjs",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "pdfjs",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "pdfjs",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "pdfjs",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "pdfjs",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "pdfjs",
+  "text": "پژمان Al-Ahmad",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "consumer": "pdfjs",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "pdfjs",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "pdfjs",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "pdfjs",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "pdfjs",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "pdfjs",
+  "text": "پژمان Al-Ahmad",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "consumer": "pdfjs",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "pdfjs",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "pdfjs",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "pdfjs",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "pdfjs",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "pdfjs",
+  "text": "پژمان Al-Ahmad",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "consumer": "pdfjs",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "pdfjs",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "pdfjs",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "pdfjs",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "pdfjs",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "pdfjs",
+  "text": "پژمان Al-Ahmad",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "consumer": "pdfjs",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "pdfjs",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "pdfjs",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "pdfjs",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "pdfjs",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "pdfjs",
+  "text": "پژمان Al-Ahmad",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "consumer": "pdfjs",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "pdfjs",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "pdfjs",
+  "text": "دراسة حالة: المملكة العربية السعودية ٢٠٢",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "pdfjs",
+  "text": "عبدالله محمد الأحمد",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "pdfjs",
+  "text": "سارة بنت خالد الدوسري",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "pdfjs",
+  "text": "پژمان Al-Ahmad",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "consumer": "pdfjs",
+  "text": "إشراف: د. فاطمة الزهراء بن عبدالله",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 8,
+  "label": "divider-classic",
+  "consumer": "pdfjs",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 8,
+  "label": "divider-classic",
+  "consumer": "pdfjs",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 9,
+  "label": "divider-minimal",
+  "consumer": "pdfjs",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 9,
+  "label": "divider-minimal",
+  "consumer": "pdfjs",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 10,
+  "label": "divider-band",
+  "consumer": "pdfjs",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 10,
+  "label": "divider-band",
+  "consumer": "pdfjs",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 11,
+  "label": "divider-frame",
+  "consumer": "pdfjs",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 11,
+  "label": "divider-frame",
+  "consumer": "pdfjs",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 12,
+  "label": "divider-side",
+  "consumer": "pdfjs",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 12,
+  "label": "divider-side",
+  "consumer": "pdfjs",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 13,
+  "label": "divider-split",
+  "consumer": "pdfjs",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 13,
+  "label": "divider-split",
+  "consumer": "pdfjs",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 14,
+  "label": "divider-geometric",
+  "consumer": "pdfjs",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 14,
+  "label": "divider-geometric",
+  "consumer": "pdfjs",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 15,
+  "label": "divider-editorial",
+  "consumer": "pdfjs",
+  "text": "القسم ٣",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 15,
+  "label": "divider-editorial",
+  "consumer": "pdfjs",
+  "text": "الفصل الثالث: النتائج والمناقشة",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 16,
+  "label": "cover-long150ar",
+  "consumer": "pdfjs",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 17,
+  "label": "cover-long200latin",
+  "consumer": "pdfjs",
+  "text": "A very long English title for the portfo",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 18,
+  "label": "cover-tashkeel-indic",
+  "consumer": "pdfjs",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "marks-lost"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 18,
+  "label": "cover-tashkeel-indic",
+  "consumer": "pdfjs",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 18,
+  "label": "cover-tashkeel-indic",
+  "consumer": "pdfjs",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 18,
+  "label": "cover-tashkeel-indic",
+  "consumer": "pdfjs",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 19,
+  "label": "cover-onechar",
+  "consumer": "pdfjs",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 20,
+  "label": "cover-all-long",
+  "consumer": "pdfjs",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 21,
+  "label": "divider-long150",
+  "consumer": "pdfjs",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 22,
+  "label": "divider-long200latin",
+  "consumer": "pdfjs",
+  "text": "A very long English title for the portfo",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfjs",
+  "text": "القسم 1: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfjs",
+  "text": "القسم 2: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfjs",
+  "text": "القسم 3: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfjs",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfjs",
+  "text": "القسم 5: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfjs",
+  "text": "A very long English title for the portfo",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfjs",
+  "text": "القسم 7: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfjs",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "marks-lost"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfjs",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfjs",
+  "text": "القسم 10: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfjs",
+  "text": "القسم 11: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "consumer": "pdfjs",
+  "text": "القسم 12: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfjs",
+  "text": "القسم 1: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfjs",
+  "text": "القسم 2: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfjs",
+  "text": "القسم 3: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfjs",
+  "text": "عنوان عربي طويل جدا للاختبار يتضمن كلمات",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfjs",
+  "text": "القسم 5: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfjs",
+  "text": "A very long English title for the portfo",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfjs",
+  "text": "القسم 7: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfjs",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "marks-lost"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfjs",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfjs",
+  "text": "القسم 10: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfjs",
+  "text": "القسم 11: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "consumer": "pdfjs",
+  "text": "القسم 12: مرحبا بالعالم، هذا ن",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 29,
+  "label": "cover-band-A3",
+  "consumer": "pdfjs",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 30,
+  "label": "cover-split-A5",
+  "consumer": "pdfjs",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 31,
+  "label": "cover-frame-landscape",
+  "consumer": "pdfjs",
+  "text": "التقرير السنوي لمشروع التحول الرقمي وأثر",
+  "status": "exact"
+ }
+]

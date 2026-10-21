@@ -1,0 +1,65 @@
+[
+ {
+  "writer": "marks-wm3",
+  "file": "marks-wm3.pdf",
+  "page": 0,
+  "label": "wm3-0",
+  "expect": [
+   "نسخة ٢٠٢٦"
+  ]
+ },
+ {
+  "writer": "marks-wm3",
+  "file": "marks-wm3.pdf",
+  "page": 1,
+  "label": "wm3-1",
+  "expect": [
+   "نسخة ٢٠٢٦"
+  ]
+ },
+ {
+  "writer": "marks-wm3",
+  "file": "marks-wm3.pdf",
+  "page": 2,
+  "label": "wm3-2",
+  "expect": [
+   "نسخة ٢٠٢٦"
+  ]
+ },
+ {
+  "writer": "marks-wm3",
+  "file": "marks-wm3.pdf",
+  "page": 3,
+  "label": "wm3-3",
+  "expect": [
+   "نسخة ٢٠٢٦"
+  ]
+ },
+ {
+  "writer": "marks-wm3",
+  "file": "marks-wm3.pdf",
+  "page": 4,
+  "label": "wm3-4",
+  "expect": [
+   "نسخة ٢٠٢٦"
+  ]
+ },
+ {
+  "writer": "marks-wm3",
+  "file": "marks-wm3.pdf",
+  "page": 5,
+  "label": "wm3-5",
+  "expect": [
+   "نسخة ٢٠٢٦"
+  ]
+ },
+ {
+  "writer": "marks-wm3",
+  "file": "marks-wm3.pdf",
+  "page": 6,
+  "label": "wm3-6",
+  "expect": [
+   "نسخة ٢٠٢٦"
+  ]
+ }
+]

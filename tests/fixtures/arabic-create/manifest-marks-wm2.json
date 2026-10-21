@@ -1,0 +1,65 @@
+[
+ {
+  "writer": "marks-wm2",
+  "file": "marks-wm2.pdf",
+  "page": 0,
+  "label": "wm2-0",
+  "expect": [
+   "بِسْمِ اللَّهِ"
+  ]
+ },
+ {
+  "writer": "marks-wm2",
+  "file": "marks-wm2.pdf",
+  "page": 1,
+  "label": "wm2-1",
+  "expect": [
+   "بِسْمِ اللَّهِ"
+  ]
+ },
+ {
+  "writer": "marks-wm2",
+  "file": "marks-wm2.pdf",
+  "page": 2,
+  "label": "wm2-2",
+  "expect": [
+   "بِسْمِ اللَّهِ"
+  ]
+ },
+ {
+  "writer": "marks-wm2",
+  "file": "marks-wm2.pdf",
+  "page": 3,
+  "label": "wm2-3",
+  "expect": [
+   "بِسْمِ اللَّهِ"
+  ]
+ },
+ {
+  "writer": "marks-wm2",
+  "file": "marks-wm2.pdf",
+  "page": 4,
+  "label": "wm2-4",
+  "expect": [
+   "بِسْمِ اللَّهِ"
+  ]
+ },
+ {
+  "writer": "marks-wm2",
+  "file": "marks-wm2.pdf",
+  "page": 5,
+  "label": "wm2-5",
+  "expect": [
+   "بِسْمِ اللَّهِ"
+  ]
+ },
+ {
+  "writer": "marks-wm2",
+  "file": "marks-wm2.pdf",
+  "page": 6,
+  "label": "wm2-6",
+  "expect": [
+   "بِسْمِ اللَّهِ"
+  ]
+ }
+]

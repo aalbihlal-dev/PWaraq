@@ -1,0 +1,866 @@
+[
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "edgecopy",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "edgecopy",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "edgecopy",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "edgecopy",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "marks-lost"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "edgecopy",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "edgecopy",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "edgecopy",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "edgecopy",
+  "text": "Hello world 123",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "edgecopy",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "edgecopy",
+  "text": "لا",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "edgecopy",
+  "text": "10/05/1448 هـ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "edgecopy",
+  "text": "التاريخ: ٢١/١٠/٢٠٢٦",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "edgecopy",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "edgecopy",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "edgecopy",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "edgecopy",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "marks-lost"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "edgecopy",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "edgecopy",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "edgecopy",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "edgecopy",
+  "text": "Hello world 123",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "edgecopy",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "edgecopy",
+  "text": "لا",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "edgecopy",
+  "text": "10/05/1448 هـ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "edgecopy",
+  "text": "التاريخ: ٢١/١٠/٢٠٢٦",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "mupdf",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "mupdf",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "mupdf",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "mupdf",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "marks-lost"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "mupdf",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "mupdf",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "mupdf",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "mupdf",
+  "text": "Hello world 123",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "mupdf",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "mupdf",
+  "text": "لا",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "mupdf",
+  "text": "10/05/1448 هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "mupdf",
+  "text": "التاريخ: ٢١/١٠/٢٠٢٦",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "mupdf",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "reversed"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "mupdf",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "mupdf",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "reversed"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "mupdf",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "mupdf",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "reversed"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "mupdf",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "mupdf",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "mupdf",
+  "text": "Hello world 123",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "mupdf",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "mupdf",
+  "text": "لا",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "mupdf",
+  "text": "10/05/1448 هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "mupdf",
+  "text": "التاريخ: ٢١/١٠/٢٠٢٦",
+  "status": "reversed"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfium",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfium",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfium",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfium",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfium",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfium",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfium",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfium",
+  "text": "Hello world 123",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfium",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfium",
+  "text": "لا",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfium",
+  "text": "10/05/1448 هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfium",
+  "text": "التاريخ: ٢١/١٠/٢٠٢٦",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfium",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfium",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfium",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfium",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfium",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfium",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfium",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfium",
+  "text": "Hello world 123",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfium",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfium",
+  "text": "لا",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfium",
+  "text": "10/05/1448 هـ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfium",
+  "text": "التاريخ: ٢١/١٠/٢٠٢٦",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfjs",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfjs",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfjs",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfjs",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "marks-lost"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfjs",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfjs",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfjs",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfjs",
+  "text": "Hello world 123",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfjs",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfjs",
+  "text": "لا",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfjs",
+  "text": "10/05/1448 هـ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 0,
+  "label": "plain",
+  "consumer": "pdfjs",
+  "text": "التاريخ: ٢١/١٠/٢٠٢٦",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfjs",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfjs",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfjs",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfjs",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "marks-lost"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfjs",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfjs",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfjs",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfjs",
+  "text": "Hello world 123",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfjs",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfjs",
+  "text": "لا",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfjs",
+  "text": "10/05/1448 هـ",
+  "status": "exact"
+ },
+ {
+  "writer": "proto",
+  "file": "proto.pdf",
+  "page": 1,
+  "label": "actualtext",
+  "consumer": "pdfjs",
+  "text": "التاريخ: ٢١/١٠/٢٠٢٦",
+  "status": "exact"
+ }
+]
