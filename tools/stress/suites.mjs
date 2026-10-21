@@ -11,20 +11,26 @@ const crash = (shard, r) => (r.timedOut ? `timeout after ${shard.timeout / 1000}
 export const fail = (shard, slice, why) => [{ id: `${slice}:${shard.id}`, slice, status: 'major', why, repro: shard.cmd.map((a) => (/\s/.test(a) ? `"${a}"` : a)).join(' ') }];
 
 /** Engine-only judgement of one edit record from tools/arabic/audit-edit.mjs (the "major" rules of report.mjs that need no second reader). */
+// the rest of the page is the same picture: at 144 dpi under 0.5 % of it changed and no changed blob is taller than 2 px (a line moved by a point is one)
+const pictureSame = (side) => side?.outsideFrac != null && side.outsideDiff >= 0 && side.outsideFrac <= 0.005 && side.outsideBlobH <= 2;
 export function judgeEdit(r, c, b) {
   if (r.error) return ['engine error: ' + r.error];
   // without second readers (c = PDFium/qpdf/PyMuPDF checks, b = pdf.js + browser picture) MuPDF alone cannot condemn a line: see `unconfirmed`
   const why = [], deep = !!(c || b); c ??= {}; b ??= {};
-  const readBack = r.extract?.mupdfLineOk || r.extract?.mupdfLineLoose || c.pdfium?.lineOk || c.pdfium?.lettersOk || b.pdfjs?.lettersOk, pageHas = r.extract?.mupdfPageHas || c.pdfium?.pageHas || c.pymupdf?.pageHas || b.pdfjs?.pageHas;
+  // marks / spaces in another order are excused only where the ORIGINAL line already read back in that order (the source file's own text layer, srcLoose);
+  // text Waraq wrote that comes back that way is what a user copies out: a defect
+  const looseOnly = r.extract && !r.extract.mupdfLineOk && r.extract.mupdfLineLoose;
+  const readBack = r.extract?.mupdfLineOk || (looseOnly && r.extract.srcLoose) || c.pdfium?.lineOk || c.pdfium?.lettersOk || b.pdfjs?.lettersOk, pageHas = r.extract?.mupdfPageHas || c.pdfium?.pageHas || c.pymupdf?.pageHas || b.pdfjs?.pageHas;
   const corpusOverlap = /^(waraq|cadlike)/.test(r.file) && /small|large/.test(r.kind);
   if (!r.after) why.push('new line not found on the page');
   else if (!readBack && !pageHas && !r.fidelity?.wrapped && deep) why.push('typed text not read back by any reader');
+  if (looseOnly && !r.extract.srcLoose) why.push('the line Waraq wrote reads back with its marks / spaces in another order (the source line read exactly)');
   if (r.drawn?.notdef) why.push(`${r.drawn.notdef} .notdef glyph box(es) drawn`);
   // on a scan with an OCR layer the "lines" lost or moved are invisible layer text (the picture is not touched): minor, see minorEdit
   const layerOnly = /(^|\/)(hybrid-|mixed-text-scan)/.test(r.file);
   // lines "lost" or "moved" are judged by the picture: when the pixels outside the edited line are the same (outsideDiff small) the line is still
   // there and only reads back differently (a Type 3 font, a joined piece): minor, see minorEdit; without the picture measure the text rule stays
-  const sameRest = r.side?.outsideDiff != null && r.side.outsideDiff >= 0 && r.side.outsideDiff <= 60;
+  const sameRest = pictureSame(r.side);
   if (r.side && (r.side.othersGone || r.side.othersMoved) && !corpusOverlap && !layerOnly && !sameRest) why.push(`${r.side.othersGone} other line(s) lost, ${r.side.othersMoved} moved`);
   if (c.pdfium && !c.pdfium.opens) why.push('PDFium cannot open the file');
   if (b.pdfjs?.error) why.push('pdf.js cannot open the file: ' + String(b.pdfjs.error).slice(0, 60));
@@ -35,10 +41,10 @@ export function judgeEdit(r, c, b) {
 }
 export function minorEdit(r) {
   const why = [];
-  if (!r.extract?.mupdfLineOk && !r.extract?.mupdfLineLoose) why.push('unconfirmed: MuPDF alone does not read the line back (--deep asks PDFium, pdf.js)');
-  else if (!r.extract?.mupdfLineOk) why.push('marks / spaces read back in another order');
+  if (!r.extract?.mupdfLineOk && !(r.extract?.mupdfLineLoose && r.extract.srcLoose)) why.push('unconfirmed: MuPDF alone does not read the line back (--deep asks PDFium, pdf.js)');
+  else if (!r.extract?.mupdfLineOk) why.push('marks / spaces read back in another order (as the source file already did)');
   if (/(^|\/)(hybrid-|mixed-text-scan)/.test(r.file) && r.side && (r.side.othersGone || r.side.othersMoved)) why.push(`${r.side.othersGone} line(s) of the invisible OCR layer lost, ${r.side.othersMoved} moved`);
-  if (r.side && (r.side.othersGone || r.side.othersMoved) && r.side.outsideDiff != null && r.side.outsideDiff >= 0 && r.side.outsideDiff <= 60) why.push(`${r.side.othersGone + r.side.othersMoved} other line(s) read differently (the picture outside the line is unchanged)`);
+  if (r.side && (r.side.othersGone || r.side.othersMoved) && pictureSame(r.side)) why.push(`${r.side.othersGone + r.side.othersMoved} other line(s) read differently (the picture outside the line is unchanged)`);
   if (r.fidelity?.wrapped) why.push('wrapped');
   if (r.fidelity && Math.abs(r.fidelity.dEdge) > 2) why.push(`edge moved ${r.fidelity.dEdge} pt`);
   if (r.fidelity && Math.abs(r.fidelity.dBase) > 1) why.push(`baseline moved ${r.fidelity.dBase} pt`);
@@ -129,7 +135,7 @@ export const suites = {
       const w = crash(s, r); if (w) return fail(s, 'write', w);
       const f = path.join(ROOT, 'tests/audit-arabic/results', s.id + '.check.json');
       if (!fs.existsSync(f)) return fail(s, 'write', 'no check file written');
-      return JSON.parse(fs.readFileSync(f, 'utf8')).map((o) => ({ id: `write:${s.id}|${o.consumer}|${o.file}|p${o.page}|${o.label}|${o.text}`, slice: 'write', status: o.status === 'exact' ? 'pass' : /nfkc|marks|word-order/.test(o.status) ? 'minor' : 'major', why: o.status === 'exact' ? '' : `${o.consumer} reads it back as ${o.status}`, repro: `node tools/arabic/check.mjs ${s.id}` }));
+      return JSON.parse(fs.readFileSync(f, 'utf8')).map((o) => ({ id: `write:${s.id}|${o.consumer}|${o.file}|p${o.page}|${o.label}|${o.text}`, slice: 'write', status: o.status === 'exact' ? 'pass' : /nfkc|word-order/.test(o.status) ? 'minor' : 'major', why: o.status === 'exact' ? '' : `${o.consumer} reads it back as ${o.status}`, repro: `node tools/arabic/check.mjs ${s.id}` }));
     },
   },
   // Playwright journeys (only with --e2e): the JSON reporter lists every spec.

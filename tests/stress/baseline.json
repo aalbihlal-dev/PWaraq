@@ -1,6 +1,6 @@
 {
- "when": "2026-10-21T16:57:55.926Z",
- "seconds": 264,
+ "when": "2026-10-21T17:30:48.540Z",
+ "seconds": 199,
  "cases": 3982,
  "slices": {
   "unit": {
@@ -13,8 +13,8 @@
   "edit": {
    "total": 2604,
    "pass": 2036,
-   "minor": 488,
-   "major": 80,
+   "minor": 265,
+   "major": 303,
    "rate": 78.19
   },
   "ocr": {
@@ -27,8 +27,8 @@
   "write": {
    "total": 1284,
    "pass": 676,
-   "minor": 270,
-   "major": 338,
+   "minor": 249,
+   "major": 359,
    "rate": 52.65
   }
  },
@@ -1231,5 +1231,5 @@
   "zkXvs1Rr",
   "ztssKcnG"
  ],
- "majorAllowed": 429
+ "majorAllowed": 673
 }

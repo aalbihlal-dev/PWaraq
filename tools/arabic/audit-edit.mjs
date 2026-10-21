@@ -187,7 +187,7 @@ for (const f of files) {
       const cand = o2.lines.filter((x) => Math.abs(x.base - l.base) < l.size * 0.6 && x.x < edit.x + edit.w && x.x + x.w > edit.x);
       const newLine = cand.sort((a, b) => b.w - a.w)[0] ?? null;
       r.after = newLine ? lineInfo(newLine) : null;
-      r.extract = { mupdfLine: newLine?.text ?? null, mupdfLineOk: !!newLine && sameLine(newLine.text, text), mupdfLineLoose: !!newLine && looseLine(newLine.text, text), mupdfPageHas: norm(text2).includes(norm(text)), oldGone: !norm(text2).includes(norm(l.text)) || norm(l.text) === norm(text) || norm(text).includes(norm(l.text)) };
+      r.extract = { mupdfLine: newLine?.text ?? null, mupdfLineOk: !!newLine && sameLine(newLine.text, text), mupdfLineLoose: !!newLine && looseLine(newLine.text, text), srcLoose: looseLine(l.text, text) && !sameLine(l.text, text), mupdfPageHas: norm(text2).includes(norm(text)), oldGone: !norm(text2).includes(norm(l.text)) || norm(l.text) === norm(text) || norm(text).includes(norm(l.text)) };
       r.extract.diff = newLine ? liftDiff(newLine.text, text) : ['lost'];
       // (b) what was drawn: glyph 0 (tofu) in the new commands, how many text objects
       const ops = lastContent(p2);
@@ -202,14 +202,24 @@ for (const f of files) {
       const kept = others.filter((x) => o2.lines.some((y) => norm(y.text) === norm(x.text) && near(x, y, 0.6)));
       const gone = others.filter((x) => !o2.lines.some((y) => norm(y.text) === norm(x.text)));
       r.side = { othersBefore: others.length, othersKept: kept.length, othersGone: gone.length, othersMoved: others.length - kept.length - gone.length, goneSample: gone.slice(0, 2).map((x) => x.text.slice(0, 40)), imagesBefore: objs.images.length, imagesAfter: o2.images.length, fontsAfter: fontsOf(p2), growth: saved.length - bytes.length };
-      // is the rest of the page the same PICTURE? (pixels outside the edited line's band, three lines allowed for a wrap, that changed)
+      // is the rest of the page the same PICTURE? Rendered at 144 dpi; the pixels outside the edited line's band (three lines allowed for a
+      // wrap) that changed: how many (as a share of that area) and the tallest connected blob of them (a neighbour line moved by a point is a blob)
       {
-        const grey = (pg) => { const x = pg.toPixmap(m.Matrix.identity, m.ColorSpace.DeviceGray, false); return { w: x.getWidth(), h: x.getHeight(), px: x.getPixels().slice() }; };
-        const g1 = grey(page), g2 = grey(p2), x0 = Math.min(l.x, edit.x) - 6, x1 = Math.max(l.x + l.w, edit.x + edit.w) + 6, y0 = l.y - 6, y1 = Math.max(l.y + l.h, edit.y + edit.h) + 3 * l.h + 6;
-        let n = 0;
-        if (g1.w === g2.w && g1.h === g2.h) for (let y = 0; y < g1.h; y++) for (let x = 0; x < g1.w; x++) { if (x >= x0 && x <= x1 && y >= y0 && y <= y1) continue; if (Math.abs(g1.px[y * g1.w + x] - g2.px[y * g1.w + x]) > 60) n++; }
-        else n = -1;
-        r.side.outsideDiff = n;
+        const S = m.Matrix.scale(2, 2), grey = (pg) => { const x = pg.toPixmap(S, m.ColorSpace.DeviceGray, false); return { w: x.getWidth(), h: x.getHeight(), px: x.getPixels().slice() }; };
+        const g1 = grey(page), g2 = grey(p2), x0 = (Math.min(l.x, edit.x) - 6) * 2, x1 = (Math.max(l.x + l.w, edit.x + edit.w) + 6) * 2, y0 = (l.y - 6) * 2, y1 = (Math.max(l.y + l.h, edit.y + edit.h) + 3 * l.h + 6) * 2;
+        if (g1.w === g2.w && g1.h === g2.h) {
+          const { w, h } = g1, ch = new Uint8Array(w * h); let n = 0;
+          for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { if (x >= x0 && x <= x1 && y >= y0 && y <= y1) continue; if (Math.abs(g1.px[y * w + x] - g2.px[y * w + x]) > 60) { ch[y * w + x] = 1; n++; } }
+          let tall = 0; const stack = [];
+          for (let i = 0; i < ch.length; i++) if (ch[i] === 1) { // 8-connected blobs: their tallest bounding box
+            let top = h, bot = 0; ch[i] = 2; stack.push(i);
+            while (stack.length) { const j = stack.pop(), jy = (j / w) | 0, jx = j - jy * w; top = Math.min(top, jy); bot = Math.max(bot, jy);
+              for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const yy = jy + dy, xx = jx + dx; if (yy < 0 || xx < 0 || yy >= h || xx >= w) continue; const k = yy * w + xx; if (ch[k] === 1) { ch[k] = 2; stack.push(k); } } }
+            tall = Math.max(tall, bot - top + 1);
+          }
+          const inside = Math.max(0, Math.min(x1, w) - Math.max(x0, 0)) * Math.max(0, Math.min(y1, h) - Math.max(y0, 0));
+          r.side.outsideDiff = n; r.side.outsideFrac = +(n / Math.max(1, w * h - inside)).toFixed(5); r.side.outsideBlobH = tall;
+        } else r.side.outsideDiff = -1;
       }
       // the new line and its neighbours, after
       const after = crop(p2, { x: before.box[0] + 4, y: before.box[1] + 4, w: before.box[2] - before.box[0] - 8, h: before.box[3] - before.box[1] - 8 }, 4, 4);
