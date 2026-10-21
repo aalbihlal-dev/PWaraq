@@ -9,6 +9,7 @@
   import { saveFile } from '../lib/store';
   import { CONVERTIBLE_ACCEPT, desktop, toPdf } from '../lib/convert';
   import { zip } from '../lib/zip';
+  import { addUnique } from '../lib/names';
 
   let { pool, kind, sizes, name, bytes, password, onReplace }: { pool: EnginePool; kind: 'stamp' | 'convert' | 'protect';
     sizes: { w: number; h: number }[]; name: string; bytes: Uint8Array; password?: string; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
@@ -16,7 +17,7 @@
   let busy = $state(''), note = $state(''), error = $state('');
   async function run(label: string, job: () => Promise<void>) {
     busy = label; error = ''; note = '';
-    try { await job(); } catch (e) { error = /PASSWORD/.test(String((e as Error)?.message)) ? t('wrongPassword') : t('toolFailed'); }
+    try { await job(); } catch (e) { const msg = String((e as Error)?.message); error = /NEED_OWNER/.test(msg) ? t('needOwner') : /PASSWORD/.test(msg) ? t('wrongPassword') : t('toolFailed'); }
     busy = '';
   }
   const all = () => sizes.map((_, page) => ({ doc: 0, page }));
@@ -44,7 +45,7 @@
   // Convert
   let level = $state<'recommended' | 'small'>('recommended'), dpi = $state(150);
   const shrink = () => run(t('compressing'), async () => {
-    const out = await pool.tool('compress', { bytes: bytes.slice(), level });
+    const out = await pool.tool('compress', { bytes: bytes.slice(), level, current: password ?? '' });
     if (out.length >= bytes.length) { note = t('alreadySmall'); return; }
     note = `${mb(bytes.length)} → ${mb(out.length)}`;
     await saveFile(out, `${base} (${t('smaller')}).pdf`);
@@ -54,7 +55,7 @@
     for (let page = 0; page < sizes.length; page++) {
       const bmp = await pool.run<ImageBitmap>({ op: 'render', page, priority: 1, args: { scale: dpi / 72 } });
       const c = new OffscreenCanvas(bmp.width, bmp.height); c.getContext('2d')!.drawImage(bmp, 0, 0); bmp.close();
-      files[`${base} ${String(page + 1).padStart(3, '0')}.png`] = new Uint8Array(await (await c.convertToBlob({ type: 'image/png' })).arrayBuffer());
+      addUnique(files, `${base} ${String(page + 1).padStart(3, '0')}.png`, new Uint8Array(await (await c.convertToBlob({ type: 'image/png' })).arrayBuffer()));
     }
     if (sizes.length === 1) await saveFile(Object.values(files)[0], `${base}.png`, 'image/png');
     else await saveFile(zip(files), `${base} (${t('images')}).zip`, 'application/zip');
@@ -73,9 +74,14 @@
   let pw = $state(''), pw2 = $state(''), print = $state(true), copy = $state(false);
   const pwOk = $derived(pw.length >= 4 && pw === pw2 && !pw.includes(','));
   const lock = () => run(t('applying'), async () => {
-    await saveFile(await pool.tool('protect', { bytes: bytes.slice(), password: pw, print, copy }), `${base} (${t('protected')}).pdf`);
+    await saveFile(await pool.tool('protect', { bytes: bytes.slice(), password: pw, print, copy, current: password ?? '' }), `${base} (${t('protected')}).pdf`);
     note = t('protectedSaved'); pw = pw2 = '';
   });
+  // a file with limits (no copy, no print …) opened without its owner password: only a copy with the same limits
+  let held = $state<{ restricted: boolean; owner: boolean } | null>(null);
+  $effect(() => { pool.tool<typeof held>('guard', { bytes: bytes.slice(), current: password ?? '' }).then((g) => (held = g)).catch(() => {}); });
+  const limited = $derived(!!held?.restricted && !held.owner);
+  const copyAs = () => run(t('applying'), async () => { await saveFile(bytes, `${base} (${t('copyWord')}).pdf`); });
   const free = () => run(t('applying'), async () => { await onReplace(await pool.tool('unlock', { bytes: bytes.slice(), password: password ?? '' })); });
 </script>
 
@@ -131,6 +137,11 @@
       <label class="btn" class:disabled={!canOffice || !!busy}>{@html icon('upload')}{t('officeChoose')}
         <input type="file" accept={CONVERTIBLE_ACCEPT} hidden disabled={!canOffice || !!busy} onchange={office} /></label>
     {:else}
+      {#if limited}
+      <h2>{t('limitedTitle')}</h2>
+      <p class="help">{t('limitedHelp')}</p>
+      <button class="btn primary" onclick={copyAs} disabled={!!busy}>{@html icon('download')}{t('copySave')}</button>
+      {:else}
       <h2>{t('protectTitle')}</h2>
       <p class="help">{t('protectHelp')}</p>
       <label class="field"><span>{t('password')}</span><input type="password" bind:value={pw} autocomplete="new-password" /></label>
@@ -144,6 +155,7 @@
         <p class="help">{t('unlockHelp')}</p>
         <button class="btn" onclick={free} disabled={!!busy}>{@html icon('unlock')}{t('unlockApply')}</button>
       {:else}<p class="help">{t('notLocked')}</p>{/if}
+      {/if}
     {/if}
     <p class="state num" aria-live="polite">{busy || note}</p>
     {#if error}<p class="error" role="alert">{error}</p>{/if}

@@ -2,7 +2,7 @@
 // first out), so drawing again at another zoom or drawing a zoom tile does not re-read the PDF.
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 import { assemble } from './assemble';
-import { compress, protect, unlock } from './tools';
+import { compress, protect, unlock, guardOf, sealLikeSource } from './tools';
 import { editPage, pageObjects, type Edit, type Own } from './editpage';
 import { findSpots, signPdf } from './sign';
 import { findMatches, redact } from './redact';
@@ -121,8 +121,11 @@ const ops: Record<string, (r: Req) => any> = {
     return assemble(mupdf, source, r.build, () => fonts!);
   },
   // whole-file tools (Convert, Protect)
-  compress(r) { return compress(mupdf, r.bytes, r.level); },
-  protect(r) { return protect(mupdf, r.bytes, r.password, r.print, r.copy); },
+  compress(r) { return compress(mupdf, r.bytes, r.level, r.current); },
+  protect(r) { return protect(mupdf, r.bytes, r.password, r.print, r.copy, r.current); },
+  // protection of the open document, and a new copy `bytes` of it protected the same way (Extract, Split, Save as copy)
+  guard(r) { const g = guardOf(mupdf, r.bytes, r.current); return g && { restricted: g.restricted, owner: g.owner }; },
+  seal(r) { return sealLikeSource(mupdf, r.bytes, r.src, r.current); },
   unlock(r) { return unlock(mupdf, r.bytes, r.password); },
   // redaction: boxes of phone numbers / e-mails / a word on a page, and the file with the marked areas removed
   redactfind(r) { const p = source(r.doc).doc.loadPage(r.page); try { return findMatches(p, r.kind, r.query); } finally { p.destroy(); } },

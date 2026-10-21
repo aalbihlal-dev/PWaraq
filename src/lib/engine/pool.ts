@@ -55,7 +55,13 @@ export class EnginePool {
   }
 
   /** A whole-file tool (compress, protect, unlock) on `bytes`, in whichever worker is free. */
-  tool<T = Uint8Array>(op: 'compress' | 'protect' | 'unlock' | 'redact' | 'formfields' | 'fillform' | 'ocrlayer' | 'annotlist' | 'annotapply', args: Record<string, any>) { return this.run<T>({ op, priority: 0, args, any: true }); }
+  tool<T = Uint8Array>(op: 'compress' | 'protect' | 'unlock' | 'guard' | 'seal' | 'redact' | 'formfields' | 'fillform' | 'ocrlayer' | 'annotlist' | 'annotapply', args: Record<string, any>) { return this.run<T>({ op, priority: 0, args, any: true }); }
+
+  /** `out` (a new copy of the open document) with the document's own protection: same algorithm, password and limits. */
+  keep(out: Uint8Array) {
+    const s = this.sources.get(0);
+    return s ? this.tool('seal', { bytes: out, src: s.bytes.slice(), current: s.password ?? '' }) : Promise.resolve(out);
+  }
 
   /** A new PDF from pages of the open sources. */
   build(build: Build) {
