@@ -134,7 +134,7 @@ test('letters the subset lacks: the full bundled font is used and the missing le
   assert.equal(embedded(page, line.base).getBuffer().asUint8Array().length, FULL.length);
   // a font Waraq does not have: the closest bundled one (here a sans line in Helvetica, not embedded)
   const helv = pick(hb, fontAt(src().loadPage(0), pageObjects(src().loadPage(0)).lines[0]), 'عنوان', true, file);
-  assert.equal(helv.using, 'Noto Sans Arabic Bold');
+  assert.equal(helv.using, 'Tajawal Bold'); // sans-like, one glyph per letter
 });
 
 // --- what the editor shows for a clicked line, on files from real producers (tests/fixtures/arabic) ---

@@ -19,7 +19,8 @@ const OUT = path.resolve(ROOT, arg('--out', 'tests/audit-arabic/out')), ONLY = a
 for (const d of ['', 'img', 'fonts']) fs.mkdirSync(path.join(OUT, d), { recursive: true });
 
 const file = (f) => new Uint8Array(fs.readFileSync(path.join(ROOT, 'public', 'fonts', f)));
-const own = { hb, file };
+import { makeSubsetter } from '../../src/lib/engine/fontstore.ts';
+const own = { hb, file, subset: makeSubsetter(fs.readFileSync(path.join(ROOT, 'node_modules/harfbuzzjs/dist/harfbuzz-subset.wasm'))) };
 const fonts = { regular: new m.Font('Tajawal-Regular', file('Tajawal-Regular.ttf')), bold: new m.Font('Tajawal-Bold', file('Tajawal-Bold.ttf')) };
 
 // ---- matching a page line to the paragraph it came from (bidi may scramble the order; the letters stay) ----

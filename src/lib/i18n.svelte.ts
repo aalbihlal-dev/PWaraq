@@ -94,6 +94,8 @@ const strings = {
   fontNote: ['New text is written in the Tajawal font. A changed line keeps its own font.', 'يُكتب النص الجديد بخط تجوال، ويبقى السطر المعدَّل بخطه الأصلي.'],
   fontOwn: ['Written in the line’s own font: {font}.', 'يُكتب بخط السطر الأصلي: {font}.'],
   fontMissing: ['This PDF’s copy of {font} lacks these letters: {letters}. The line is written in {using}, the closest font Waraq has.', 'نسخة الخط {font} في هذا الملف ينقصها هذه الحروف: {letters}. يُكتب السطر بخط {using}، وهو أقرب خط لدى ورق.'],
+  fontSystem: ['Written in {using}, the font installed on this PC ({font} in the file).', 'يُكتب بخط {using} المثبّت على هذا الجهاز ({font} في الملف).'],
+  fontShrink: ['The text is wider than its line: it will be squeezed to {pct} % of its width. Shorten it, or make the box wider.', 'النص أعرض من سطره: سيُضغط إلى {pct}٪ من عرضه. اختصره أو وسّع المربع.'],
   fontUnusable: ['{font} cannot be reused from this PDF. The line is written in {using}, the closest font Waraq has.', 'لا يمكن إعادة استخدام الخط {font} من هذا الملف. يُكتب السطر بخط {using}، وهو أقرب خط لدى ورق.'],
   textOptions: ['Text', 'النص'],
   fontSize: ['Size', 'الحجم'],

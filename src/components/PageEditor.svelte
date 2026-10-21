@@ -13,6 +13,8 @@
   import { i18n, t, type Key } from '../lib/i18n.svelte';
   import { icon } from '../lib/icons.js';
   import { pickFiles } from '../lib/store';
+  import { isDesktop, readPath } from '../lib/desktop';
+  import { WINDOWS_FONTS } from '../lib/engine/fontstore';
   import { uid } from '../lib/pages';
 
   let { pool, base, label, onSave, onCancel }: { pool: EnginePool; base: Item; label: string; onSave: (r: Saved) => void | Promise<void>; onCancel: () => void } = $props();
@@ -23,15 +25,28 @@
   let objs = $state<Obj[]>([]), selected = $state<string | null>(null), tool = $state<'select' | 'text' | 'redact'>('select'), busy = $state(t('openingPage'));
   const sel = $derived(objs.find((o) => o.id === selected));
   // a replaced line: the font it will be written in (its own, or the closest bundled one and the letters that were missing)
-  let fontInfo = $state<{ font: string; using: string | null; missing: string[] } | null>(null);
+  let fontInfo = $state<{ font: string; using: string | null; missing: string[]; reason?: 'own' | 'missing' | 'unusable' | 'none'; source?: 'pdf' | 'bundled' | 'system'; width?: number } | null>(null);
+  const systemTried = new Set<string>(); // families this sitting already looked for on this PC
   $effect(() => {
     const o = sel;
     if (o?.kind !== 'text' || !o.from || !o.text.trim()) { fontInfo = null; return; }
-    const args = { doc, page: 0, from: $state.snapshot(o.from), text: o.text, bold: o.bold };
-    const timer = setTimeout(() => pool.run<typeof fontInfo>({ op: 'fontcheck', page: 0, priority: 0, args }).then((f) => (fontInfo = f)).catch((e) => console.warn('font check:', e)), 200);
+    const args = { doc, page: 0, from: $state.snapshot(o.from), text: o.text, bold: o.bold, size: o.size };
+    const timer = setTimeout(() => pool.run<typeof fontInfo>({ op: 'fontcheck', page: 0, priority: 0, args }).then(async (f) => {
+      fontInfo = f;
+      // desktop: a line whose own copy of the font cannot be reused gets the whole font from this PC when it has it
+      if (f?.using && f.source !== 'system' && isDesktop && !systemTried.has(f.font)) {
+        systemTried.add(f.font);
+        const file = WINDOWS_FONTS[f.font.toLowerCase().replace(/[^a-z]/g, '')]?.[o.bold ? 1 : 0] ?? WINDOWS_FONTS[f.font.toLowerCase().replace(/[^a-z]/g, '')]?.[0];
+        if (file) try {
+          const bytes = new Uint8Array(await (await readPath('C:/Windows/Fonts/' + file)).arrayBuffer());
+          await pool.run({ op: 'addfont', page: 0, priority: 0, args: { name: f.font, bytes } });
+          fontInfo = await pool.run<typeof fontInfo>({ op: 'fontcheck', page: 0, priority: 0, args });
+        } catch (e) { console.warn('system font:', e); }
+      }
+    }).catch((e) => console.warn('font check:', e)), 200);
     return () => clearTimeout(timer);
   });
-  const fontText = (f: NonNullable<typeof fontInfo>) => (!f.using ? t('fontOwn') : f.missing.length ? t('fontMissing') : t('fontUnusable'))
+  const fontText = (f: NonNullable<typeof fontInfo>) => (!f.using ? t('fontOwn') : f.source === 'system' ? t('fontSystem') : f.reason === 'missing' && f.missing.length ? t('fontMissing') : t('fontUnusable'))
     .replace('{font}', f.font || '?').replace('{using}', f.using ?? '').replace('{letters}', f.missing.join(' '));
   const photos: Uint8Array[] = [];
   let urls = $state<string[]>([]);
@@ -335,6 +350,9 @@
         <p class="help">{t('textHelp')}</p>
         {#if o.from && fontInfo}
           <p class="note" class:warn={!!fontInfo.using} data-testid="font-note">{@html icon('info')}<span>{fontText(fontInfo)}</span></p>
+          {#if fontInfo.width && fontInfo.width > o.w * 1.18}
+            <p class="note warn" data-testid="shrink-note">{@html icon('info')}<span>{t('fontShrink').replace('{pct}', String(Math.round((o.w / fontInfo.width) * 100)))}</span></p>
+          {/if}
         {:else}
           <p class="note">{@html icon('info')}<span>{t('fontNote')}</span></p>
         {/if}

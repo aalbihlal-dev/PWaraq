@@ -11,15 +11,18 @@ import { fillForm, listFields } from './forms';
 import { addTextLayer } from './ocr';
 import { applyAnnots, listAnnots } from './annots';
 import type { Fonts } from './textpage';
-import { BUNDLED_FILES, fontAt, pick } from './ownfont';
+import { BUNDLED_FILES, fontAt, lineWidth, pick } from './ownfont';
+import { makeSubsetter } from './fontstore';
+import subsetWasm from 'harfbuzzjs/dist/harfbuzz-subset.wasm?url';
 
 // HarfBuzz and the bundled Arabic fonts, for a replaced line written in its own font (or the closest bundled one)
 let own: Own | null = null;
+const systemFonts = new Map<string, Uint8Array>(); // fonts of this PC the main thread read (desktop), by family name
 async function loadOwn() {
   if (own) return own;
-  const [hb, ...files] = await Promise.all([import('harfbuzzjs'), ...BUNDLED_FILES.map(async (f) => new Uint8Array(await (await fetch(new URL('/fonts/' + f, location.origin))).arrayBuffer()))]);
+  const [hb, sub, ...files] = await Promise.all([import('harfbuzzjs'), fetch(subsetWasm).then((r) => r.arrayBuffer()).catch(() => null), ...BUNDLED_FILES.map(async (f) => new Uint8Array(await (await fetch(new URL('/fonts/' + f, location.origin))).arrayBuffer()))]);
   const bytes = new Map<string, Uint8Array>(BUNDLED_FILES.map((f, i) => [f, files[i]]));
-  return (own = { hb, file: (f) => bytes.get(f)! });
+  return (own = { hb, file: (f) => bytes.get(f)!, subset: sub ? makeSubsetter(sub) : undefined, system: systemFonts });
 }
 
 // The engine (11 MB WebAssembly) loads after this worker is already listening: a message that arrives while it
@@ -166,7 +169,10 @@ const ops: Record<string, (r: Req) => any> = {
   // page editor: which font a replaced line will be written in, and the letters its own font lacks
   async fontcheck(r) {
     const o = await loadOwn(), p = source(r.doc).doc.loadPage(r.page);
-    try { const { font, using, missing } = pick(o.hb, fontAt(p, r.from), r.text, r.bold, o.file); return { font, using, missing }; } finally { p.destroy(); }
+    try { const f = fontAt(p, r.from), { font, using, missing, reason, source } = pick(o.hb, f, r.text, r.bold, o.file, o); return { font, using, missing, reason, source, width: r.size ? lineWidth(mupdf, o, f, r.text, r.size, r.bold) : 0 }; } finally { p.destroy(); }
+  },
+  // page editor (desktop): a font file of this PC, read by the main thread, for lines whose own font is a subset
+  addfont(r) { systemFonts.set(r.name, new Uint8Array(r.bytes)); return true; 
   },
   // page editor: the page with `edits` applied — a one-page PDF, or with `scale` the editor's background (what the edits
   // take away already gone) as a picture

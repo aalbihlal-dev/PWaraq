@@ -5,7 +5,8 @@
 // New text boxes are written in Tajawal; a replaced line keeps its own font (ownfont.ts, HarfBuzz).
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 import { measure, pageWriter, wrap, type Fonts, type Line } from './textpage.ts';
-import { fontAt, fontName, pick, shape, shapedWriter, type Harfbuzz } from './ownfont.ts';
+import { fontAt, fontName } from './ownfont.ts';
+import { writer, type Store } from './fontstore.ts';
 import { stamp } from './assemble.ts';
 import { logicalOrder, guessDirection, isMark, isRtl } from './bidi.ts';
 
@@ -25,8 +26,8 @@ export type Edit =
 export const LEADING = 1.3, BASELINE = 1.0;
 
 export type PageLine = Box & { text: string; size: number; bold: boolean; color: number[]; rtl: boolean; base: number; font: string }; // base: baseline y
-/** What a replaced line is written with: HarfBuzz and the bundled fonts' bytes by file name (ownfont.ts BUNDLED). */
-export type Own = { hb: Harfbuzz; file: (name: string) => Uint8Array };
+/** What a replaced line is written with: HarfBuzz, the bundled fonts' bytes by file name, a subsetter, system fonts (fontstore.ts). */
+export type Own = Store;
 /** Lines of text (only the ones that run left to right on the page as seen, which the editor can replace) and photos.
  *  The text of a line is rebuilt from where its glyphs stand (left to right) and turned back into reading order by
  *  the bidi algorithm (bidi.ts `logicalOrder`), because MuPDF's own reading order misplaces punctuation, numbers and
@@ -101,7 +102,7 @@ export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[
       const atoms = kept.map((cl) => cl[0].c), { order } = logicalOrder(atoms, guessDirection(atoms, pageDir));
       cs = order.flatMap((k) => kept[k].map((ch) => ch.c));
     }
-    const text = cs.map((c) => String.fromCodePoint(c)).join('').normalize('NFKC').replace(/\s+/g, ' ').trim();
+    const text = cs.map((c) => String.fromCodePoint(c)).join('').normalize('NFKC').replace(/[​‌‍﻿]/g, '').replace(/\s+/g, ' ').trim(); // invisible joiners: pieces of letters
     if (!text) continue;
     const letters = r.chars.filter((ch) => ch.c > 0x20), lead = letters.find((ch) => isRtl(ch.c)) ?? letters[0];
     lines.push({ ...r.box, text, size: lead.size, base: lead.y, bold: lead.font.isBold() || /bold|black|heavy/i.test(lead.font.getName()), color: rgb(lead.color), font: fontName(lead.font), rtl: /[\u0590-\u08ff]/.test(text) });
@@ -133,7 +134,7 @@ export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number,
   // a replaced line's font, read before its text is taken away
   type Text = Extract<Edit, { kind: 'text' }>;
   const texts = edits.filter((e): e is Text => e.kind === 'text' && !!e.text.trim());
-  const picks = new Map(own && !lift ? texts.filter((e) => e.from).map((e) => [e, pick(own.hb, fontAt(page, e.from!), e.text, e.bold, own.file)]) : []);
+  const hints = new Map(own && !lift ? texts.filter((e) => e.from).map((e) => { const f = fontAt(page, e.from!); return [e, f ? { name: f.getName(), bytes: f.getBuffer()?.asUint8Array().slice() ?? null, bold: f.isBold() || /bold|black|heavy/i.test(f.getName()), italic: f.isItalic() } : {}] as const; }) : []);
 
   // existing photos: taken away by emptying their own image resource when only they use it, else by redaction
   const redactImages: Box[] = [], redactText: Box[] = [];
@@ -149,7 +150,19 @@ export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number,
       const to = m.Matrix.concat(m.Matrix.concat(m.Matrix.translate(-e.from.x, -e.from.y), m.Matrix.scale(e.w / e.from.w, e.h / e.from.h)), m.Matrix.translate(e.x, e.y));
       place(keep ?? out.addImage(b.image), m.Matrix.concat(b.transform, to));
     }
-    if (e.kind === 'text' && e.from) redactText.push({ ...e.from, y: e.from.y + e.from.h * 0.15, h: e.from.h * 0.7 }); // a little inside, so the lines above and below stay
+    if (e.kind === 'text' && e.from) {
+      // a band through the letters' middle (every glyph's box crosses it; the next lines' ascenders and descenders do
+      // not) plus the harakat's own boxes, which sit above the band
+      const from = e.from;
+      redactText.push({ x: from.x, y: from.y + from.h * 0.3, w: from.w, h: from.h * 0.4 });
+      const st = page.toStructuredText('preserve-whitespace');
+      st.walk({ onChar(c, origin, _f, _s, q) {
+        if (!isMark(c.codePointAt(0)!) || origin[0] < from.x - 1 || origin[0] > from.x + from.w + 1 || origin[1] < from.y - 1 || origin[1] > from.y + from.h + 1) return;
+        const xs = [q[0], q[2], q[4], q[6]], ys = [q[1], q[3], q[5], q[7]];
+        redactText.push({ x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs) || 0.5, h: Math.max(...ys) - Math.min(...ys) || 0.5 });
+      } });
+      st.destroy();
+    }
   }
   const redact = (boxes: Box[], imageMethod: number, textMethod: number) => {
     if (!boxes.length) return;
@@ -165,23 +178,23 @@ export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number,
     for (const e of edits) if (e.kind === 'photo') { const img = new m.Image(photos[e.photo]); place(out.addImage(img), upright(img, e)); }
     const resources: Record<string, Record<string, MuPDF.PDFObject>> = { XObject: added };
     if (texts.length) {
-      const lines: Line[] = [], shaped = own && shapedWriter(m, own.hb, out);
+      const lines: Line[] = [], shaped = own && writer(m, own, out);
       let ops = '';
       for (const e of texts) {
-        const p = picks.get(e), f = p ? null : fonts!();
-        const width = p ? (t: string) => shape(own!.hb, p.shaper, t, e.size).width : (t: string) => measure(e.bold ? f!.bold : f!.regular, t, e.size);
-        (e.fit && !p ? [e.text.replace(/\s*\n\s*/g, ' ')] : wrap(width, e.text, e.w)).forEach((text, i) => {
+        const hint = hints.get(e), f = hint ? null : fonts!();
+        const width = hint ? (t: string) => shaped!.measure({ text: t, x: 0, y: 0, size: e.size, color: e.color, align: 'left', bold: e.bold, hint }) : (t: string) => measure(e.bold ? f!.bold : f!.regular, t, e.size);
+        (e.fit || hint ? [e.text.replace(/\s*\n\s*/g, ' ')] : wrap(width, e.text, e.w)).forEach((text, i) => { // a replaced line, or fit: one line, squeezed into the box when wider
           const l = { text, size: e.size, color: e.color, align: e.align, y: e.y + (BASELINE + i * LEADING) * e.size, x: e.align === 'right' ? e.x + e.w : e.align === 'center' ? e.x + e.w / 2 : e.x };
-          // shortcut: a line whose own font is bold stays bold when "bold" is switched off; a regular one is thickened
-          if (p) ops += shaped!.draw(p.shaper, { ...l, fake: e.bold && !p.shaper.bold }, H); else lines.push({ ...l, bold: e.bold, ...(e.fit ? { max: e.w } : {}) });
+          // a replaced line is written in its own font (or the closest face) run by run; "bold" thickens a face without a bold cut
+          if (hint) ops += shaped!.draw({ ...l, bold: e.bold, hint, fit: e.w }, H); else lines.push({ ...l, bold: e.bold, ...(e.fit ? { max: e.w } : {}) });
         });
       }
-      const writer = lines.length ? pageWriter(m, out, fonts!()) : null;
-      if (writer) ops += writer.draw({ w: 0, h: H, lines });
+      const tw = lines.length ? pageWriter(m, out, fonts!()) : null;
+      if (tw) ops += tw.draw({ w: 0, h: H, lines });
       // the writers work top-down on the page as seen; this matrix takes that to the page's own coordinates
       draw.push(`q ${m.Matrix.concat([1, 0, 0, -1, 0, H], inv).map(n).join(' ')} cm ${ops} Q`);
-      writer?.finish(); shaped?.finish();
-      resources.Font = { ...writer?.fonts, ...shaped?.fonts };
+      tw?.finish(); shaped?.finish();
+      resources.Font = { ...tw?.fonts, ...shaped?.fonts };
     }
     if (draw.length) { page.destroy(); stamp(out, out.findPage(0), draw.join('\n'), resources); page = out.loadPage(0); }
   }
