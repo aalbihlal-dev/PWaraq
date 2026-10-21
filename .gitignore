@@ -11,3 +11,5 @@ src-tauri/target/
 src-tauri/gen/
 release/*.exe
 release/*.sig
+release/*.msix
+
