@@ -3,8 +3,12 @@
   // search and copy work. The pictures stay as they are. The result replaces the document (then Save as usual).
   import type { EnginePool } from '../lib/engine/pool';
   import type { Layer } from '../lib/engine/ocr';
-  import { startOcr, mergePasses } from '../lib/ocr';
-  import { toGray, clean } from '../lib/ocr-clean';
+  import { onMount } from 'svelte';
+  import { startOcr, readPage, upright, pngOf } from '../lib/ocr';
+  import { toGray, clean, enlarge } from '../lib/ocr-clean';
+  import { bestAvailable, startBest, stopBest } from '../lib/ocr-best';
+  import { readBlocks, LONG_SIDE } from '../lib/ocr-strong';
+  import { alignBlocks } from '../lib/ocr-align';
   import { lazyPage } from '../lib/lazy';
   import { t } from '../lib/i18n.svelte';
   import { icon } from '../lib/icons.js';
@@ -12,14 +16,17 @@
   let { pool, sizes, bytes, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; bytes: Uint8Array; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
   const W = 560, k = (i: number) => W / sizes[i].w, lazy = lazyPage(() => pool, 'ocr', k);
   let ara = $state(true), eng = $state(true), scope = $state<'scanned' | 'all'>('scanned');
+  let quality = $state<'fast' | 'best'>('fast'), bestOn = $state(false); // Best: the desktop add-on, offered only where it can run
+  onMount(() => { bestAvailable().then((v) => (bestOn = v)); });
   let busy = $state(false), stopped = false, note = $state(''), error = $state(''), at = $state({ n: 0, of: 0, ratio: 0 });
   // both languages: an Arabic-only pass first, then Arabic + English, merged line by line (the surer reading wins) —
   // measured on tests/fixtures/ocr: 95 % of words right against 94 % for one ara+eng pass (tools/ocr-accuracy.mjs)
   const passes = $derived(ara && eng ? ['ara', 'ara+eng'] : [ara ? 'ara' : eng ? 'eng' : ''].filter(Boolean));
 
+  let abort: AbortController | undefined;
   async function start() {
     busy = true; stopped = false; error = note = ''; at = { n: 0, of: 0, ratio: 0 };
-    let engines: Awaited<ReturnType<typeof startOcr>>[] = [];
+    let engines: Awaited<ReturnType<typeof startOcr>>[] = [], best: string | null = null;
     try {
       // a page without any text is a scan (its words are read from its picture)
       const todo: number[] = [];
@@ -29,6 +36,8 @@
       if (!todo.length) { note = t('ocrNothing'); return; }
       at.of = todo.length;
       engines = await Promise.all(passes.map((l, k) => startOcr(l, (ratio) => (at.ratio = (k + ratio) / passes.length))));
+      if (quality === 'best') { best = await startBest(); if (!best) note = t('ocrBestOff'); } // declined or not started: Fast reads it
+      abort = new AbortController();
       const layers: Layer[] = [];
       for (const [n, page] of todo.entries()) {
         if (stopped) return;
@@ -38,17 +47,22 @@
         const canvas = document.createElement('canvas'); canvas.width = bmp.width; canvas.height = bmp.height;
         const ctx = canvas.getContext('2d')!; ctx.drawImage(bmp, 0, 0); bmp.close();
         // the picture Tesseract sees is grey, cleaned and straightened (the page itself stays as it is)
-        const img = ctx.getImageData(0, 0, canvas.width, canvas.height), { gray, angle } = clean(toGray(img.data, canvas.width, canvas.height));
-        for (let i = 0; i < gray.px.length; i++) img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = gray.px[i];
-        ctx.putImageData(img, 0, 0);
-        let lines = await engines[0].read(canvas, s * 72);
-        for (const e of engines.slice(1)) lines = mergePasses(lines, await e.read(canvas, s * 72));
-        layers.push({ page, scale: s, lines, tilt: { angle, w: canvas.width, h: canvas.height } });
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height), w0 = canvas.width, h0 = canvas.height;
+        const up = await upright((g, dpi) => engines[0].readGray(g, dpi), toGray(img.data, w0, h0), s * 72); // a sideways sheet is turned first
+        const { gray, angle, ruled } = clean(up.gray);
+        let lines = await readPage(engines, gray, s * 72, ruled);
+        if (best) { // the stronger model's text on Tesseract's word positions; if it fails, Tesseract's own reading stays
+          try {
+            const sc = Math.min(1, LONG_SIDE / Math.max(gray.w, gray.h)), small = sc < 1 ? enlarge(gray, sc) : gray;
+            lines = alignBlocks((await readBlocks(best, await pngOf(small), small.w, small.h, abort.signal)).map((b) => ({ ...b, x0: b.x0 / sc, x1: b.x1 / sc, y0: b.y0 / sc, y1: b.y1 / sc })), lines);
+          } catch { if (stopped) return; }
+        }
+        layers.push({ page, scale: s, lines, tilt: { angle, w: w0, h: h0, quarter: up.quarter } });
         canvas.width = canvas.height = 0;
       }
       await onReplace(await pool.tool('ocrlayer', { bytes: bytes.slice(), layers }));
     } catch { error = t('toolFailed'); }
-    finally { await Promise.all(engines.map((e) => e.stop())); busy = false; }
+    finally { await Promise.all(engines.map((e) => e.stop())); if (best) await stopBest(); busy = false; }
   }
 </script>
 
@@ -68,6 +82,12 @@
     <h2>{t('ocrPages')}</h2>
     <label class="choice"><input type="radio" bind:group={scope} value="scanned" disabled={busy} />{t('ocrScanned')}</label>
     <label class="choice"><input type="radio" bind:group={scope} value="all" disabled={busy} />{t('ocrAll')}</label>
+    {#if bestOn}
+      <h2>{t('ocrQuality')}</h2>
+      <label class="choice"><input type="radio" bind:group={quality} value="fast" disabled={busy} />{t('ocrFast')}</label>
+      <label class="choice"><input type="radio" bind:group={quality} value="best" disabled={busy} />{t('ocrBest')}</label>
+      {#if quality === 'best'}<p class="help">{t('ocrBestHelp')}</p>{/if}
+    {/if}
     <span class="grow"></span>
     {#if busy && at.n}
       <p class="state num" aria-live="polite">{t('ocrProgress')} {at.n} / {at.of} — {Math.round(at.ratio * 100)}%</p>
@@ -76,7 +96,7 @@
       <p class="state" aria-live="polite">{busy ? t('reading') : note}</p>
     {/if}
     {#if busy}
-      <button class="btn" onclick={() => (stopped = true)}>{@html icon('close')}{t('cancel')}</button>
+      <button class="btn" onclick={() => { stopped = true; abort?.abort(); }}>{@html icon('close')}{t('cancel')}</button>
     {:else}
       <button class="btn primary" onclick={start} disabled={!passes.length}>{@html icon('ocr')}{t('ocrStart')}</button>
     {/if}

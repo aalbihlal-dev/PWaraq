@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 import * as m from '../../engine/mupdf-wasm/dist/mupdf.js';
 import { open, saved, fixture } from './helpers';
 import { inkPlacement } from '../ocr-check.mjs';
+import { scanPdf } from '../fixtures/ocr/scan-fx.mjs';
+import fs from 'node:fs';
 
 test('ocr: a scanned page (English and Arabic) becomes searchable; the picture stays', async ({ page }) => {
   test.setTimeout(180_000);
@@ -60,6 +62,29 @@ test('ocr: a tilted page: every invisible word sits on its printed word, the pag
   expect(p.words).toBeGreaterThan(60);
   expect(p.placed).toBeGreaterThanOrEqual(0.95);
 });
+
+// a sheet scanned sideways and one upside down (the letter of the test set, turned): read upright, the words sit where they
+// are printed on the page as it is shown, and the page itself is not turned
+for (const [quarter, what] of [[1, 'sideways (90°)'], [2, 'upside down (180°)']] as const) {
+  test(`ocr: a sheet scanned ${what} is read the right way up; the words sit on the print, the page stays as it is`, async ({ page }, info) => {
+    test.setTimeout(180_000);
+    const src = m.Document.openDocument(fs.readFileSync(fixture('ocr/01-letter-naskh-300.pdf')), 'application/pdf');
+    const pix = src.loadPage(0).toPixmap(m.Matrix.scale(150 / 72, 150 / 72), m.ColorSpace.DeviceGray, false);
+    const file = info.outputPath(`turned-${quarter}.pdf`);
+    fs.writeFileSync(file, scanPdf(m, pix, [['turn', quarter]], 595, 842));
+    await open(page, file);
+    await page.getByRole('button', { name: 'OCR', exact: true }).click();
+    await page.getByRole('button', { name: 'Add searchable text' }).click();
+    await expect(page.getByText('Changed — not saved yet')).toBeVisible({ timeout: 150_000 });
+    const out = await saved(page, () => page.getByRole('button', { name: 'Save' }).first().click());
+    const doc = m.Document.openDocument(out.bytes, 'application/pdf');
+    expect(doc.countPages()).toBe(1);
+    expect(doc.loadPage(0).toStructuredText().asText()).toMatch(/إلى إدارة المكتبة العامة/);
+    const p = inkPlacement(m, out.bytes);
+    expect(p.words).toBeGreaterThan(60);
+    expect(p.placed).toBeGreaterThanOrEqual(0.95);
+  });
+}
 
 test('ocr: a page that already has text is left alone ("only pages without text")', async ({ page }) => {
   await open(page, fixture('three.pdf'));

@@ -13,3 +13,4 @@ release/*.exe
 release/*.sig
 release/*.msix
 
+tests/fixtures/ocr/v3/

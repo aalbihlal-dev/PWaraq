@@ -3,8 +3,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import * as m from '../../engine/mupdf-wasm/dist/mupdf.js';
-import { addTextLayer, layerWords } from '../../src/lib/engine/ocr.ts';
-import { unturn } from '../../src/lib/ocr-clean.ts';
+import { addTextLayer, layerWords, stripInvisible } from '../../src/lib/engine/ocr.ts';
+import { unturn, countRules, unevenness } from '../../src/lib/ocr-clean.ts';
 
 const scan = fs.readFileSync(new URL('../fixtures/scan.pdf', import.meta.url));
 const font = (f) => new m.Font(f, fs.readFileSync(new URL('../../public/fonts/' + f + '.ttf', import.meta.url)));
@@ -53,4 +53,44 @@ test('a layer read on a straightened picture is turned back: each word lands whe
     assert.ok(Math.hypot(dx, dy) < 4, `${g.text} is ${Math.hypot(dx, dy).toFixed(1)} pt off (${dx.toFixed(1)}, ${dy.toFixed(1)})`);
   }
   assert.match(open(out).loadPage(0).toStructuredText().asText(), /Invoice number/);
+});
+
+test('a sheet scanned sideways: read after a quarter turn, the words land where they are printed on the page', () => {
+  const k = 3, w = 595 * k, h = 400 * k; // the picture was turned 90 degrees clockwise to read it: the read picture is h x w
+  const words = [{ text: 'Invoice', x0: 300, y0: 200, x1: 390, y1: 230 }, { text: 'مرحبا', x0: 700, y0: 1200, x1: 790, y1: 1240 }]; // boxes on the turned picture
+  const out = addTextLayer(m, scan, [{ page: 0, scale: k, lines: [{ words: [words[0]] }, { words: [words[1]] }], tilt: { angle: 0, w, h, quarter: 1 } }], fonts);
+  const layer = layerWords(m, out, 0);
+  for (const g of words) {
+    const want = unturn(g, 0, w, h, 1), cx = (want.x0 + want.x1) / 2 / k, cy = (want.y0 + want.y1) / 2 / k, got = layer.find((l) => l.text === g.text);
+    assert.ok(got, g.text);
+    const d = Math.hypot((got.x0 + got.x1) / 2 - cx, (got.y0 + got.y1) / 2 - cy);
+    assert.ok(d < 4, `${g.text} is ${d.toFixed(1)} pt off (want ${cx.toFixed(0)}, ${cy.toFixed(0)}; got ${((got.x0 + got.x1) / 2).toFixed(0)}, ${((got.y0 + got.y1) / 2).toFixed(0)})`);
+    assert.ok(cx > 0 && cx < 595 && cy > 0 && cy < 400, 'on the page');
+  }
+});
+
+test('a hybrid PDF: the wrong invisible layer from before is removed when the page is read again, visible text stays', () => {
+  const k = 3, wrong = addTextLayer(m, scan, [{ page: 0, scale: k, lines: [{ words: [{ text: 'WRONGWORD', x0: 60 * k, y0: 85 * k, x1: 170 * k, y1: 115 * k }] }] }], fonts);
+  assert.match(open(wrong).loadPage(0).toStructuredText().asText(), /WRONGWORD/);
+  const right = addTextLayer(m, wrong, [{ page: 0, scale: k, lines: [{ words: [{ text: 'Invoice', x0: 60 * k, y0: 85 * k, x1: 170 * k, y1: 115 * k }] }] }], fonts);
+  const text = open(right).loadPage(0).toStructuredText().asText();
+  assert.match(text, /Invoice/);
+  assert.doesNotMatch(text, /WRONGWORD/);
+  assert.deepEqual(Buffer.from(pixels(right)), Buffer.from(pixels(scan)));
+  // visible text is kept: a page that has a real heading
+  const three = fs.readFileSync(new URL('../fixtures/three.pdf', import.meta.url)), d = open(three).asPDF();
+  stripInvisible(d.findPage(0));
+  assert.match(d.loadPage(0).toStructuredText().asText(), /Page one/);
+});
+
+test('clean-up helpers: ruled lines are counted, thick bands and short strokes are not; a shaded photo counts as uneven', () => {
+  const w = 400, h = 300, px = new Uint8Array(w * h).fill(255);
+  for (let x = 20; x < 380; x++) px[150 * w + x] = 0; // a table border
+  for (let x = 100; x < 130; x++) px[80 * w + x] = 0; // a short dash
+  for (let y = 20; y < 280; y++) px[y * w + 200] = 0; // a column border
+  assert.deepEqual(countRules({ w, h, px }), { across: 1, down: 1 }); // the border across, the border down; the short dash is neither
+  const text = new Uint8Array(w * h).fill(255); for (let y = 148; y < 160; y++) for (let x = 20; x < 380; x++) text[y * w + x] = 0; // a thick dark band: a line of joined letters, not a rule
+  assert.deepEqual(countRules({ w, h, px: text }), { across: 0, down: 0 });
+  const flat = { w, h, px: new Uint8Array(w * h).fill(240) }, shaded = { w, h, px: new Uint8Array(w * h).map((_, i) => 255 - Math.floor((i % w) / 4)) };
+  assert.ok(unevenness(flat) < 30); assert.ok(unevenness(shaded) > 30);
 });

@@ -8,8 +8,9 @@ import { stamp } from './assemble.ts';
 
 export type Word = { text: string; x0: number; y0: number; x1: number; y1: number }; // pixels of the picture, from its top left
 export type Line = { words: Word[]; confidence?: number }; // one printed line, its words in reading order
-export type Layer = { page: number; scale: number; lines: Line[]; tilt?: { angle: number; w: number; h: number } }; // scale: picture pixels per point of the
-// page as seen; tilt: the picture was straightened by `angle` degrees about its centre (w x h pixels) before reading
+export type Layer = { page: number; scale: number; lines: Line[]; tilt?: { angle: number; w: number; h: number; quarter?: number } }; // scale: picture pixels
+// per point of the page as seen; tilt: the w x h picture was turned by `quarter` quarter turns and straightened by `angle` degrees
+// about its centre before reading
 const RTL = /[֐-ࣿ]/;
 const num = (v: number) => +v.toFixed(3);
 
@@ -21,10 +22,14 @@ export function addTextLayer(m: typeof MuPDF, bytes: Uint8Array, layers: Layer[]
     // words were read on the straightened picture: the whole layer is turned back about the same centre, so each word
     // lies along the printed (tilted) line
     let turn = '';
-    if (tilt?.angle) {
-      const c = Math.cos((tilt.angle * Math.PI) / 180), s = Math.sin((tilt.angle * Math.PI) / 180), cx = tilt.w / 2 / scale, cy = seenH - tilt.h / 2 / scale;
-      turn = `${[c, s, -s, c, cx - c * cx + s * cy, cy - s * cx - c * cy].map(num).join(' ')} cm `;
+    if (tilt?.angle || tilt?.quarter) {
+      // first the quarter turns (the picture's centre moves: its sides swap), then the small angle about the turned centre
+      const q = tilt.quarter ?? 0, [W, H] = q % 2 ? [tilt.h, tilt.w] : [tilt.w, tilt.h];
+      const rot = (deg: number, fromX: number, fromY: number, toX: number, toY: number) => { const c = Math.cos((deg * Math.PI) / 180), s = Math.sin((deg * Math.PI) / 180); return `${[c, s, -s, c, toX - c * fromX + s * fromY, toY - s * fromX - c * fromY].map(num).join(' ')} cm `; };
+      if (q) turn += rot(90 * q, W / 2 / scale, seenH - H / 2 / scale, tilt.w / 2 / scale, seenH - tilt.h / 2 / scale);
+      if (tilt.angle) turn += rot(tilt.angle, W / 2 / scale, seenH - H / 2 / scale, W / 2 / scale, seenH - H / 2 / scale);
     }
+    stripInvisible(p); // a wrong OCR layer from before (a hybrid PDF) would double every search hit
     // a printed line is one piece of text (MuPDF reads a right-to-left line back in reading order only then, so copy gives
     // the words joined as read) whose words stand each in the middle of its own box, left to right as on the page, so a
     // search hit or a selection sits on the printed word
@@ -45,6 +50,22 @@ export function addTextLayer(m: typeof MuPDF, bytes: Uint8Array, layers: Layer[]
   }
   writer.finish();
   return doc.saveToBuffer('garbage=compact,compress').asUint8Array().slice();
+}
+
+/** Removes invisible text (render mode 3: an earlier OCR layer) from the page's content, keeps everything visible. */
+export function stripInvisible(p: MuPDF.PDFObject) {
+  const contents = p.get('Contents'), streams = contents.isArray() ? Array.from({ length: contents.length }, (_, i) => contents.get(i)) : contents.isStream() ? [contents] : [];
+  for (const s of streams) {
+    const text = String.fromCharCode(...s.readStream().asUint8Array());
+    // the render mode (Tr) is graphics state: set before BT (as Waraq writes it) or inside the block, saved and restored by q/Q
+    let mode = 0; const stack: number[] = [];
+    const kept = text.replace(/\bBT\b(?:(?!\bET\b)[\s\S])*?\bET\b|\bq\b|\bQ\b|(-?\d+)\s+Tr\b/g, (tok, tr) => {
+      if (tok === 'q') stack.push(mode); else if (tok === 'Q') mode = stack.pop() ?? mode; else if (tr !== undefined) mode = +tr;
+      else { const inside = [...tok.matchAll(/(-?\d+)\s+Tr\b/g)].map((x) => +x[1]); const invisible = mode === 3 || inside.includes(3); if (inside.length) mode = inside.at(-1)!; return invisible ? '' : tok; }
+      return tok;
+    });
+    if (kept !== text) s.writeStream(Uint8Array.from(kept, (c) => c.charCodeAt(0)));
+  }
 }
 
 /** The words of a page's text (layer) with their boxes in points from the page's top left, as search and selection see them. */

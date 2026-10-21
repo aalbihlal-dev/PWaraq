@@ -7,6 +7,16 @@ OCR pipeline reads with `*.txt` (the correct text). Two parts:
 Made by `make-ocr-set.mjs`: text in Noto Naskh / Noto Sans Arabic / Tajawal, drawn at 150–300 dpi, then blurred,
 noised, tilted or faded with `scan-fx.mjs`. The e2e OCR tests use pages 07 and 08. 8 pages, 870 words, 6 MB.
 
+## v3: types, arrangements, kinds of scan (`v3/`, git-ignored; `node tests/fixtures/ocr/make-ocr-v3.mjs`, 63 pages, 15 MB)
+Synthetic pages tagged in `v3/manifest.json` by document **type** (letter, invoice, contract, form with boxes, financial
+statement, three-column newspaper, book with footnotes, two-column paper, slide, certificate, poster, menu, timetable,
+bilingual both ways, full tashkeel, numbered list, small print, receipt, stamp + watermark, coloured background),
+**arrangement** (1–3 columns, tables with right-to-left columns, A4/A5/Letter/80 mm receipt, landscape, page /Rotate
+90/180/270) and **kind of scan** (flatbed 150/200/300 dpi, phone photo with perspective and shadow, uneven light, curved
+spine, skew 1/3/5°, faded, photocopy of a photocopy, 1-bit, bleed-through, pen strokes, hard JPEG, sheet turned
+90/180/270), the scan kinds all on the same letter and book pages so the scan is the only difference. The tool slices its
+numbers by each tag. Stamp and watermark words are not part of the truth.
+
 ## Real (`real/`, git-ignored; `node tools/get-ocr-set.mjs` downloads and builds it, ~14 MB of downloads in `real/dl/`)
 Only publicly published documents, nothing personal; the downloads are data and stay on this PC — nothing from `real/`
 is committed or redistributed.
