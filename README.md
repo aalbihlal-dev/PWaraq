@@ -24,6 +24,23 @@ you explicitly connect a processing engine of your own.
 | ![Contents page](docs/screenshots/portfolio-contents-page.png) | ![Divider page](docs/screenshots/portfolio-divider-page.png) |
 | Table of contents written by Waraq: real, searchable Arabic text; every line opens its page. | Section divider pages you write on directly. |
 
+### Waraq 1.0 in use
+| | |
+|---|---|
+| ![Comment](docs/screenshots/comment.png) | ![Arabic OCR](docs/screenshots/ocr-search-arabic.png) |
+| **Comment** — highlight, underline, strike-through, pen, shapes, arrows, text boxes and notes, saved as standard PDF comments that Acrobat shows too. | **OCR** — scanned Arabic and English pages get invisible text exactly over each printed word, so search and copy work. |
+| ![Organize in Arabic](docs/screenshots/organize-arabic.png) | ![Sign](docs/screenshots/sign.png) |
+| Full right-to-left layout in Arabic. | **Sign** — draw, type or photograph a signature, place it with the date, sign many files in one go. |
+| ![Redact](docs/screenshots/redact.png) | ![Convert](docs/screenshots/convert.png) |
+| **Redact** — remove text, photos and lines for good, not just paint over them. | **Convert** — compress, pages as images, and Word/Excel/PowerPoint/CAD to PDF in the desktop app. |
+
+Four themes, chosen by hand: Light, and three darks (calm green Dim, deeper Dark, and neutral Graphite).
+
+| | | |
+|---|---|---|
+| ![Dim](docs/screenshots/theme-dim.png) | ![Dark](docs/screenshots/theme-dark.png) | ![Graphite](docs/screenshots/theme-graphite.png) |
+| Dim | Dark | Graphite |
+
 ## What is in this repository
 
 | Folder | What it is | Status |
