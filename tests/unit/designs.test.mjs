@@ -24,7 +24,7 @@ test('every design: cover with three logos, names and supervisor; section page w
     ] }, () => fonts);
     const doc = m.Document.openDocument(bytes, 'application/pdf');
     assert.equal(doc.countPages(), 3);
-    const cover = doc.loadPage(0).toStructuredText().asText();
+    const cover = doc.loadPage(0).toStructuredText().asText().replace(/\s+/g, ' '); // (a long title may wrap onto lines)
     for (const s of ['مقرر التصميم', 'عبدالله', 'Sara Ali', 'إشراف: د. أحمد']) assert.ok(cover.includes(s), `${design}: ${s} in ${cover}`);
     const json = JSON.parse(doc.loadPage(0).toStructuredText('preserve-images').asJSON());
     assert.equal(json.blocks.filter((b) => b.type === 'image').length, 3, design + ': three logos');

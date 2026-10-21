@@ -316,7 +316,7 @@
   .thumb img { max-width: 100%; max-height: 100%; }
   .thumb :global(svg) { width: 28px; height: 28px; }
   .meta { display: grid; gap: var(--s-4); min-width: 0; }
-  .meta strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .meta strong { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; line-height: 1.3; } /* two lines, the full name is the tooltip */
   .x { position: absolute; top: 50%; inset-inline-end: var(--s-8); transform: translateY(-50%); }
   .lock { display: grid; gap: var(--s-8); justify-items: center; padding: var(--s-16); border: 1px solid var(--line); border-radius: var(--r-12); background: var(--surface); }
   .lock label { display: inline-flex; align-items: center; gap: var(--s-8); }

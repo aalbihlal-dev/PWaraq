@@ -15,6 +15,7 @@
   import Ocr from './Ocr.svelte';
   import Comment from './Comment.svelte';
   import { setTask } from '../lib/crashlog';
+  import FileName from './FileName.svelte';
 
   let { pool, sizes, name, bytes, modified, password, onOpen, onClose, onSave, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; bytes: Uint8Array; modified: boolean; password?: string;
     onOpen: () => void; onClose: () => void; onSave: () => void; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
@@ -81,7 +82,7 @@
 <div class="ws">
   <header class="bar">
     <img src="/brand-mark.svg" alt="" width="28" height="28" />
-    <strong class="name" title={name}>{name}</strong>
+    <FileName {name} />
     <nav class="tasks" aria-label="Tasks">
       {#each tasks as task}
         <button class="task" class:on={task === mode} disabled={applying} onclick={() => { if (task === 'edit' && mode !== 'edit') editPage = current; task_(task); }}>{t(task)}</button>
@@ -181,11 +182,14 @@
   .applying { position: absolute; inset: 0; z-index: 2; margin: 0; display: grid; place-items: center; background: var(--veil); font-size: var(--fs-16); font-weight: 600; }
   .mod { color: var(--muted); font-size: var(--fs-12); white-space: nowrap; }
   .bar { display: flex; align-items: center; gap: var(--s-12); padding: var(--s-8) var(--s-16); background: var(--surface); border-bottom: 1px solid var(--line); min-width: 0; }
-  .name { max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-14); }
-  .tasks { display: flex; gap: var(--s-8); margin-inline: auto; overflow-x: auto; }
+  .tasks { display: flex; flex: 0 0.001 auto; gap: var(--s-8); margin-inline: auto; overflow-x: auto; } /* the file name gives way first */
   .task { min-height: var(--control); padding: 0 var(--s-12); border: 0; border-radius: var(--r-8); background: none; color: var(--muted); font-weight: 600; white-space: nowrap; }
   .task.on { background: var(--green-soft); color: var(--ink); box-shadow: inset 0 -2px 0 var(--green); }
   .task:disabled { opacity: .55; cursor: default; }
+  @media (max-width: 1500px) { /* room for a long file name: tighter task buttons (still 36 px high, 8 px apart) */
+    .bar { gap: var(--s-8); }
+    .task { padding: 0 var(--s-8); }
+  }
   .end { display: flex; gap: var(--s-8); }
   .tools { display: flex; align-items: center; gap: var(--s-8); padding: var(--s-8) var(--s-16); background: var(--surface); border-bottom: 1px solid var(--line); }
   .sep { width: 1px; height: 24px; background: var(--line); }

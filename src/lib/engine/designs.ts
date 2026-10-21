@@ -2,7 +2,27 @@
 // grid, dotted). Eight designs, each in any accent colour, share one look per portfolio. Following common advice for
 // academic covers: lots of white space, one typeface (Tajawal), colour as an accent. Layout only — text is written by
 // pageWriter (real text, Arabic joined), logos are drawn by assemble. Units: points, y from the top.
-import type { Line, TextPage } from './textpage.ts';
+import { wrap, type Line, type TextPage } from './textpage.ts';
+
+/** Width of `text` in points at `size`, in the regular or bold face (the engine gives it; without it long titles only shrink). */
+export type Measure = (text: string, size: number, bold: boolean) => number;
+const MAX_LINES = 10, SMALLEST = 0.4;
+/** A long title on several lines: the biggest size (down to 40 %) at which it fits `line.max` in at most 10 lines and its lines stand within `room` above the title line. The last line
+ *  stays on `line.y` and the others stand above it, so what follows the title (rule, names) keeps its place; `up` is the height added. */
+function title(line: Line, measure: Measure | undefined, room: number): { lines: Line[]; up: number } {
+  if (!measure || !line.max || measure(line.text, line.size, !!line.bold) <= line.max / 0.75) return { lines: [line], up: 0 }; // up to 25 % too wide: it just shrinks (the writer does that)
+  let size = line.size, rows = wrap((t) => measure(t, size, !!line.bold), line.text, line.max);
+  while ((rows.length > MAX_LINES || (rows.length - 1) * size * 1.25 > room) && size > line.size * SMALLEST) { size *= 0.93; rows = wrap((t) => measure(t, size, !!line.bold), line.text, line.max); }
+  const pitch = size * 1.25;
+  return { lines: rows.map((text, i) => ({ ...line, text, size, y: line.y - (rows.length - 1 - i) * pitch })), up: (rows.length - 1) * pitch };
+}
+/** A note under the title: wrapped downward, up to 4 lines. */
+function note(line: Line, measure?: Measure): Line[] {
+  if (!measure || !line.max || measure(line.text, line.size, !!line.bold) <= line.max) return [line];
+  let size = line.size, rows = wrap((t) => measure(t, size, !!line.bold), line.text, line.max);
+  while (rows.length > 4 && size > line.size * 0.6) { size *= 0.93; rows = wrap((t) => measure(t, size, !!line.bold), line.text, line.max); }
+  return rows.map((text, i) => ({ ...line, text, size, y: line.y + i * size * 1.4 }));
+}
 
 export type Design = 'classic' | 'minimal' | 'band' | 'frame' | 'side' | 'split' | 'geometric' | 'editorial';
 export type Paper = 'plain' | 'lined' | 'grid' | 'dotted';
@@ -75,12 +95,13 @@ const accentRule = (L: Look, y: number, accent: number[]) =>
 
 /** The portfolio's cover: logos, title (and subtitle), names, supervisor. */
 export function coverPage(o: { w: number; h: number; design: Design; color?: string; rtl: boolean; title: string; subtitle?: string; names: string[];
-  supervisor?: string; supervisorLabel: string; logos?: Logos; photo?: { doc: number; place: 'top' | 'full' } }): TextPage {
+  supervisor?: string; supervisorLabel: string; logos?: Logos; photo?: { doc: number; place: 'top' | 'full' }; measure?: Measure }): TextPage {
   if (o.photo) return photoCover({ ...o, photo: o.photo });
   const accent = rgb(o.color ?? COLOURS[0]), L = look(o.design, o.w, o.h, o.rtl, accent, true), k = L.k;
   const images = logoRow(o.logos, L.logoArea ?? [0, o.w], L.logoY, 64 * k, L.logoInset), rules = [...L.rules];
   if (L.strip && images.length) rules.push([0, 0, o.w, L.strip, ...WHITE]); // logos sit on white above a band
-  const lines: Line[] = [{ text: o.title, x: L.x, y: L.titleY, size: (o.design === 'editorial' ? 46 : 38) * k, bold: true, color: L.title, align: L.align, max: L.max }];
+  const t = title({ text: o.title, x: L.x, y: L.titleY, size: (o.design === 'editorial' ? 46 : 38) * k, bold: true, color: L.title, align: L.align, max: L.max }, o.measure, L.titleY - 160 * k), lines: Line[] = t.lines;
+  if (o.design === 'editorial') rules[0][1] -= t.up; // the bar above the title moves up with it
   if (o.subtitle) lines.push({ text: o.subtitle, x: L.x, y: L.titleY + 34 * k, size: 16 * k, color: L.soft, align: L.align, max: L.max });
   if (L.rule) rules.push(accentRule(L, L.titleY + (o.subtitle ? 50 : 22) * k, accent));
   // names: under the title, below a band, or low on the page (minimal, editorial)
@@ -93,7 +114,7 @@ export function coverPage(o: { w: number; h: number; design: Design; color?: str
 
 /** A section page: label ("Section 3"), title, optional note; optional logos and the portfolio's title and name. */
 export function dividerPage(o: { w: number; h: number; label: string; title: string; note?: string; design?: Design; color?: string; rtl?: boolean;
-  logos?: Logos; header?: Header }): TextPage {
+  logos?: Logos; header?: Header; measure?: Measure }): TextPage {
   const d = o.design ?? 'classic', accent = rgb(o.color ?? COLOURS[0]), L = look(d, o.w, o.h, !!o.rtl, accent, false), k = L.k;
   const images = logoRow(o.logos, L.logoArea ?? [0, o.w], L.logoY - 8 * k, 44 * k, L.logoInset), rules = [...L.rules], lines: Line[] = [];
   let top = (images.length ? L.logoY - 8 * k + 44 * k + 24 * k : L.logoY + 4 * k);
@@ -107,10 +128,11 @@ export function dividerPage(o: { w: number; h: number; label: string; title: str
       if (o.header.name.trim()) lines.push({ text: o.header.name.trim(), x: hx, y: top + 16 * k, size: 15 * k, color: hc, align: ha, max: L.max });
     } else lines.push({ text: [o.header.title.trim(), o.header.name.trim()].filter(Boolean).join('  ·  '), x: hx, y: top + 12 * k, size: 11 * k, color: hc, align: ha, max: L.max });
   }
-  const y = L.titleY;
-  lines.push({ text: o.label, x: L.x, y: y - 48 * k, size: 14 * k, color: onColour ? L.soft : MUTED, align: L.align, max: L.max });
-  lines.push({ text: o.title, x: L.x, y, size: 34 * k, bold: true, color: L.title, align: L.align, max: L.max });
-  if (o.note) lines.push({ text: o.note, x: L.x, y: d === 'band' ? L.below + 64 * k : y + 64 * k, size: 14 * k, color: d === 'split' ? L.soft : MUTED, align: L.align, max: L.max });
+  const y = L.titleY, t = title({ text: o.title, x: L.x, y, size: 34 * k, bold: true, color: L.title, align: L.align, max: L.max }, o.measure, y - 200 * k);
+  if (d === 'editorial') rules[0][1] -= t.up;
+  lines.push({ text: o.label, x: L.x, y: y - t.up - 48 * k * (t.lines[0].size / (34 * k)), size: 14 * k, color: onColour ? L.soft : MUTED, align: L.align, max: L.max });
+  lines.push(...t.lines);
+  if (o.note) lines.push(...note({ text: o.note, x: L.x, y: d === 'band' ? L.below + 64 * k : y + 64 * k, size: 14 * k, color: d === 'split' ? L.soft : MUTED, align: L.align, max: L.max }, o.measure));
   if (L.rule) rules.push(accentRule(L, y + 22 * k, accent));
   return { w: o.w, h: o.h, lines, rules, polys: L.polys, images };
 }
@@ -136,7 +158,8 @@ function photoCover(o: Parameters<typeof coverPage>[0] & { photo: { doc: number;
   const accent = rgb(o.color ?? COLOURS[0]), k = Math.min(o.w, o.h) / 595, full = o.photo.place === 'full', x = o.w / 2, max = o.w - 128 * k;
   const top = o.h * 0.48, lines: Line[] = [], rules: number[][] = [];
   const titleY = full ? o.h * 0.44 : top + 96 * k, text = full ? WHITE : INK, soft = full ? tint(accent, 0.85) : MUTED;
-  lines.push({ text: o.title, x, y: titleY, size: 38 * k, bold: true, color: text, align: 'center', max });
+  const t = title({ text: o.title, x, y: titleY, size: 38 * k, bold: true, color: text, align: 'center', max }, o.measure, titleY - 160 * k);
+  lines.push(...t.lines);
   if (o.subtitle) lines.push({ text: o.subtitle, x, y: titleY + 34 * k, size: 16 * k, color: soft, align: 'center', max });
   rules.push([x - 32 * k, titleY + (o.subtitle ? 50 : 22) * k, 64 * k, 3 * k, ...(full ? WHITE : accent)]);
   if (!full) rules.push([0, top, o.w, 8 * k, ...accent]);

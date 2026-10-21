@@ -13,3 +13,13 @@ export function addUnique<T>(files: Record<string, T>, name: string, data: T): s
   files[own] = data;
   return own;
 }
+
+/** A long name split for display: the head may be shortened with … while the tail (about 30 %, never less than the extension and
+ *  a few letters before it, at most 18 characters) always stays visible, so ".pdf" and what tells two files apart are never hidden. */
+export function splitName(name: string, short = 24): [string, string] {
+  const chars = [...name];
+  if (chars.length <= short) return [name, ''];
+  const dot = name.lastIndexOf('.'), ext = dot > 0 && name.length - dot <= 6 ? name.length - dot : 0;
+  const tail = Math.min(18, Math.max(ext + 6, Math.round(chars.length * 0.3)));
+  return [chars.slice(0, chars.length - tail).join(''), chars.slice(-tail).join('')];
+}

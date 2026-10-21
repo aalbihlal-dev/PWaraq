@@ -86,6 +86,11 @@ export function wrap(measure: (text: string) => number, text: string, width: num
     for (const word of para.split(' ')) {
       const next = line ? line + ' ' + word : word;
       if (line && measure(next) > width) { out.push(line); line = word; } else line = next;
+      if (measure(line) > width && !line.includes(' ')) { // one word longer than the line: broken between letters
+        let chunk = '';
+        for (const ch of [...line]) { if (chunk && measure(chunk + ch) > width) { out.push(chunk); chunk = ch; } else chunk += ch; }
+        line = chunk;
+      }
     }
     return [...out, line];
   });
@@ -175,12 +180,18 @@ export function tocPages(o: { w: number; h: number; heading: string; rtl: boolea
     const lines: Line[] = [{ text: o.heading, x: o.rtl ? o.w - m : m, y: 100 * k, size: 28 * k, bold: true, color: INK, align: o.rtl ? 'right' : 'left' }];
     const rules = [[m, 120 * k, o.w - 2 * m, 1 * k, ...LINE]], links: TextPage['links'] = [];
     o.entries.slice(start, start + per).forEach((e, i) => {
-      const y = 150 * k + 30 * k * (i + 1) - 10 * k, size = 13 * k, num = String(e.number), nw = measure(regular, num, size) + 12 * k;
-      const room = o.w - 2 * m - nw - 24 * k, title = fit(regular, e.title, size, room), tw = measure(regular, title, size);
+      const y = 150 * k + 30 * k * (i + 1) - 10 * k, num = String(e.number), room = o.w - 2 * m - 24 * k;
+      // a long title is written on 2 or 3 lines (smaller each time) inside its row; only beyond that is it cut with …
+      let size = 13 * k, rows: string[] = [];
+      const lay = (pt: number) => { size = pt * k; rows = wrap((t) => measure(regular, t, size), e.title, room - (measure(regular, num, size) + 12 * k)); };
+      lay(13); if (rows.length > 1) { lay(11); if (rows.length > 2) { lay(9); if (rows.length > 3) lay(7.5); } }
+      if (rows.length > 3) rows = [...rows.slice(0, 2), fit(regular, rows.slice(2).join(' '), size, room - (measure(regular, num, size) + 12 * k))];
+      const nw = measure(regular, num, size) + 12 * k, pitch = size * 1.15, last = rows.length - 1;
+      rows.forEach((text, j) => lines.push({ text, x: o.rtl ? o.w - m : m, y: y + (j - last / 2) * pitch, size, color: INK, align: o.rtl ? 'right' : 'left' }));
+      const tw = measure(regular, rows[last], size), yl = y + (last / 2) * pitch;
       const dots = Math.max(0, Math.floor((o.w - 2 * m - nw - tw - 16 * k) / measure(regular, '. ', size)));
-      lines.push({ text: title, x: o.rtl ? o.w - m : m, y, size, color: INK, align: o.rtl ? 'right' : 'left' });
-      lines.push({ text: '. '.repeat(dots).trim(), x: o.rtl ? m + nw : o.w - m - nw, y, size, color: LINE.map((c) => c * 0.8), align: o.rtl ? 'left' : 'right', max: o.w - 2 * m - nw - tw - 16 * k });
-      lines.push({ text: num, x: o.rtl ? m : o.w - m, y, size, color: GREEN, align: o.rtl ? 'left' : 'right' });
+      lines.push({ text: '. '.repeat(dots).trim(), x: o.rtl ? m + nw : o.w - m - nw, y: yl, size, color: LINE.map((c) => c * 0.8), align: o.rtl ? 'left' : 'right', max: o.w - 2 * m - nw - tw - 16 * k });
+      lines.push({ text: num, x: o.rtl ? m : o.w - m, y: yl, size, color: GREEN, align: o.rtl ? 'left' : 'right' });
       links.push({ rect: [m, y - 20 * k, o.w - m, y + 8 * k], to: e.to });
     });
     pages.push({ w: o.w, h: o.h, lines, rules, links });

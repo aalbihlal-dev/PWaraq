@@ -398,7 +398,7 @@
   .files { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-8); }
   .file { width: 100%; min-height: var(--control); display: grid; gap: 0; padding: var(--s-8) var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--surface); text-align: start; }
   .file.on { border-color: var(--green); background: var(--green-soft); }
-  .fname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+  .fname { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; line-height: 1.3; font-weight: 600; }
   .lib { display: grid; gap: var(--s-8); }
   .libitem { display: flex; align-items: center; gap: var(--s-8); }
   .sigbtn { flex: 1; height: 64px; padding: var(--s-8); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--surface); }

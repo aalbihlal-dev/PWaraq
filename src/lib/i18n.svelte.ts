@@ -308,6 +308,7 @@ const strings = {
   crashAttach: ['The crash log file is shown in a folder. Attach it to your email.', 'ظهر ملف سجل الأعطال في مجلد. أرفقه برسالتك.'],
   copyCrash: ['Copy crash report', 'نسخ تقرير العطل'], openCrashFolder: ['Open crash log folder', 'فتح مجلد سجل الأعطال'],
   crashCopied: ['Copied.', 'تم النسخ.'],
+  fullName: ['Full name', 'الاسم كاملًا'], copyName: ['Copy name', 'نسخ الاسم'],
   minimize: ['Minimise', 'تصغير'],
   maximize: ['Maximise', 'تكبير'],
   restore: ['Restore', 'استعادة'],

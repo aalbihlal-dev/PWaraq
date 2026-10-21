@@ -12,6 +12,8 @@
   import { build, plan, manifest, used, fileTitle, sectionsOf, withDefaults, type Portfolio, type Section } from '../lib/portfolio';
   import * as vault from '../lib/vault';
   import { setTask } from '../lib/crashlog';
+  import FileName from './FileName.svelte';
+  import AutoText from './AutoText.svelte';
   import { pickFiles, saveFile, writePortfolio, readPortfolio, readPortfolioFile, remember } from '../lib/store';
   import { DESIGNS, PAPERS, COLOURS, type Paper } from '../lib/engine/designs';
   import { turned } from '../lib/pages';
@@ -218,7 +220,7 @@
   <header class="bar">
     <img src="/brand-mark.svg" alt="" width="28" height="28" />
     <span class="chip">{@html icon('library')}{t('portfolio')}</span>
-    <strong class="name" title={p.name}>{p.name}</strong>
+    <FileName name={p.name} fill={false} />
     <button class="btn" onclick={() => choose(true, addSections)} disabled={!!busy}>{@html icon('plus')}{t('addSection')}</button>
     <span class="end">
       <button class="btn icon" onclick={undo} disabled={!canUndo} title={t('undo')} aria-label={t('undo')}>{@html icon('undo')}</button>
@@ -268,7 +270,7 @@
               <ol>
                 {#each layout.shown as sec (sec.id)}
                   <li class:auto={sec.fromFile}>
-                    <input bind:value={sec.title} oninput={() => (sec.fromFile = false)} aria-label={t('sectionTitle')} />
+                    <AutoText bind:value={sec.title} oninput={() => (sec.fromFile = false)} label={t('sectionTitle')} auto={sec.fromFile} />
                     {#if sec.fromFile}<span class="from" title={t('fromFileName')}>{@html icon('info')}<span>{t('fromFileName')}</span></span>{/if}
                     <span class="num pg">{layout.target.get(sec.id)! + 1}</span>
                   </li>
@@ -283,7 +285,7 @@
               ondragend={() => { dragSection = -1; dropSection = null; }}>{@html icon('move')}</span>
             <button class="btn icon fold" onclick={() => (s.collapsed = !s.collapsed)} aria-expanded={!s.collapsed} title={s.collapsed ? t('openSection') : t('closeSection')} aria-label={s.collapsed ? t('openSection') : t('closeSection')}>{@html icon(s.collapsed ? 'chevron-down' : 'chevron-up')}</button>
             <span class="badge num">{t('section')} {gi + 1}</span>
-            <input class="title" class:auto={s.fromFile} bind:value={s.title} oninput={() => (s.fromFile = false)} readonly={s.locked} aria-label={t('sectionTitle')} />
+            <span class="titlebox"><AutoText variant="title" bind:value={s.title} oninput={() => (s.fromFile = false)} readonly={s.locked} label={t('sectionTitle')} auto={s.fromFile} /></span>
             {#if s.fromFile}<span class="from" title={t('fromFileName')}>{@html icon('info')}</span>{/if}
             {#if s.collapsed}<span class="hiddenpages num">{s.items.length} {t('pagesCount')} · {t('hiddenPages')}</span>{/if}
             <span class="end">
@@ -307,9 +309,9 @@
               <div class="paperbox" style={pp.box}>
                 <div class="paper d-{p.options.design}" style={pp.inner}>
                   <span class="lbl">{t('section')} {gi + 1}</span>
-                  <textarea rows="3" bind:value={s.title} oninput={() => (s.fromFile = false)} readonly={s.locked} aria-label={t('sectionTitle')}></textarea>
+                  <AutoText variant="plain" maxLines={6} bind:value={s.title} oninput={() => (s.fromFile = false)} readonly={s.locked} label={t('sectionTitle')} />
                   <i class="rule"></i>
-                  <input bind:value={s.note} placeholder={t('dividerNote')} readonly={s.locked} aria-label={t('dividerNote')} />
+                  <AutoText variant="note" multiline bind:value={s.note} placeholder={t('dividerNote')} readonly={s.locked} label={t('dividerNote')} />
                 </div>
               </div>
               <span class="dnum num">{(layout.target.get(s.id) ?? 0) + 1}
@@ -330,7 +332,7 @@
     {/if}
 
     <aside class="side" aria-label={t('options')}>
-      <label class="field"><span>{t('portfolioName')}</span><input bind:value={p.name} /></label>
+      <label class="field"><span>{t('portfolioName')}</span><AutoText maxLines={8} bind:value={p.name} label={t('portfolioName')} /></label>
 
       <section class="group" aria-label={t('page')}>
         <h3>{t('page')}</h3>
@@ -357,10 +359,10 @@
         <label class="switch"><input type="checkbox" checked={p.options.cover.on} onchange={(e) => change((p) => (p.options.cover.on = e.currentTarget.checked))} /><h3>{t('cover')}</h3></label>
         {#if p.options.cover.on}
           {@const c = p.options.cover}
-          <label class="field"><span>{t('coverTitle')}</span><input bind:value={c.title} placeholder={p.name} /></label>
-          <label class="field"><span>{t('coverSubtitle')}</span><input bind:value={c.subtitle} /></label>
-          <label class="field"><span>{t('coverNames')}</span><textarea rows="3" bind:value={c.names} placeholder={t('coverNamesHint')}></textarea></label>
-          <label class="field"><span>{t('coverSupervisor')}</span><input bind:value={c.supervisor} /></label>
+          <label class="field"><span>{t('coverTitle')}</span><AutoText maxLines={8} bind:value={c.title} placeholder={p.name} label={t('coverTitle')} /></label>
+          <label class="field"><span>{t('coverSubtitle')}</span><AutoText maxLines={8} bind:value={c.subtitle} label={t('coverSubtitle')} /></label>
+          <label class="field"><span>{t('coverNames')}</span><AutoText multiline maxLines={6} bind:value={c.names} placeholder={t('coverNamesHint')} label={t('coverNames')} /></label>
+          <label class="field"><span>{t('coverSupervisor')}</span><AutoText bind:value={c.supervisor} label={t('coverSupervisor')} /></label>
           <span class="sub">{t('coverPhoto')}</span>
           <div class="photo">
             {#if c.photo}
@@ -457,7 +459,7 @@
   .body { display: grid; grid-template-columns: 1fr 300px; min-height: 0; }
   .side { display: flex; flex-direction: column; gap: var(--s-16); padding: var(--s-16); background: var(--surface); border-inline-start: 1px solid var(--line); overflow-y: auto; }
   .field { display: grid; gap: var(--s-8); font-weight: 600; }
-  .field input:not([type]), .field select { min-height: var(--control); padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); font-weight: 400; }
+  .field select { min-height: var(--control); padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); font-weight: 400; }
   .field input[type='range'] { accent-color: var(--green); min-height: var(--control); }
   .switch { display: flex; align-items: center; gap: var(--s-8); min-height: var(--control); font-weight: 600; }
   .switch input { width: 20px; height: 20px; accent-color: var(--green); }
@@ -470,9 +472,7 @@
   /* section header row in the grid */
   .sec { display: flex; align-items: center; gap: var(--s-8); flex-wrap: wrap; padding: var(--s-12) var(--s-8) var(--s-8); border-top: 1px solid var(--line); margin-top: var(--s-8); }
   .badge { padding: 0 var(--s-8); min-height: 28px; display: inline-flex; align-items: center; border-radius: var(--r-8); background: var(--green); color: var(--on-green); font-weight: 600; font-size: var(--fs-12); }
-  .title { min-height: var(--control); min-width: 240px; padding: 0 var(--s-12); border: 1px solid transparent; border-radius: var(--r-8); background: transparent; font-size: var(--fs-18); font-weight: 600; }
-  .title:hover, .title:focus { border-color: var(--line); background: var(--surface); }
-  .title.auto, li.auto input { background: var(--green-soft); border-color: var(--green); }
+  .titlebox { flex: 1 1 240px; min-width: 0; max-width: 720px; }
   .from { display: inline-flex; align-items: center; gap: var(--s-4); color: var(--green-deep); font-size: var(--fs-12); }
   .btn.on { background: var(--green-soft); border-color: var(--green); color: var(--green-deep); }
   /* contents block: the table of contents as it will read, titles editable */
@@ -483,20 +483,21 @@
   .help { margin: var(--s-4) 0 var(--s-16); color: var(--muted); }
   .toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-8); }
   .toc li { display: flex; align-items: center; gap: var(--s-8); }
-  .toc li input { flex: 1; min-height: var(--control); padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); }
+  .toc li :global(textarea) { flex: 1; min-width: 0; }
   .toc li .from span { max-width: 22ch; }
   .pg { min-width: 32px; text-align: end; font-weight: 600; color: var(--green); }
   /* divider page card: what the divider will show, written on directly */
   .dcell { display: grid; justify-items: center; gap: var(--s-8); padding: var(--s-8); }
   .paperbox { position: relative; }
   .paper { position: absolute; left: 50%; top: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-4); padding: var(--s-8); background: #fff; box-shadow: var(--shadow); border-top: 4px solid var(--acc); }
-  .paper.d-band { border-top: 0; background: linear-gradient(var(--acc) 0 42%, #fff 42%); } .paper.d-band .lbl, .paper.d-band textarea { color: #fff; }
+  .paper.d-band { border-top: 0; background: linear-gradient(var(--acc) 0 42%, #fff 42%); } .paper.d-band .lbl, .paper.d-band :global(textarea.plain) { color: #fff; }
   .paper.d-frame { border-top: 0; box-shadow: var(--shadow), inset 0 0 0 6px #fff, inset 0 0 0 7px var(--acc); }
   .paper.d-side { border-top: 0; border-inline-end: 8px solid var(--acc); }
   .dnum { display: flex; align-items: center; gap: var(--s-8); font-size: var(--fs-14); color: var(--muted); }
   .paper .lbl { font-size: var(--fs-12); color: var(--muted); }
-  .paper textarea { width: 100%; resize: none; border: 1px dashed var(--line); border-radius: var(--r-8); text-align: center; font: 700 var(--fs-14)/1.3 var(--font); color: var(--ink); background: transparent; }
-  .paper input { width: 100%; min-height: var(--control); border: 1px dashed var(--line); border-radius: var(--r-8); text-align: center; font-size: var(--fs-12); color: var(--muted); background: transparent; }
+  .paper :global(textarea.plain), .paper :global(textarea.note) { border: 1px dashed var(--line); text-align: center; background: transparent; }
+  .paper :global(textarea.plain) { font: 700 var(--fs-14)/1.3 var(--font); color: var(--ink); }
+  .paper :global(textarea.note) { font-size: var(--fs-12); color: var(--muted); }
   .paper .rule { width: 32px; height: 3px; background: var(--green); }
   /* side panel groups */
   .group { display: flex; flex-direction: column; gap: var(--s-12); padding-top: var(--s-16); border-top: 1px solid var(--line); }
@@ -507,7 +508,6 @@
   .btn.danger:hover { background: var(--danger); border-color: var(--danger); color: var(--on-green); }
   .trio { display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--s-8); }
   .trio .btn { padding: 0 var(--s-8); }
-  .field textarea { padding: var(--s-8) var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); font: inherit; font-weight: 400; resize: vertical; }
   .papers, .designs { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-8); }
   .tile { display: grid; justify-items: center; gap: var(--s-4); padding: var(--s-8) var(--s-4); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--surface); font-size: var(--fs-12); font-weight: 600; color: var(--ink); }
   .tile:hover, .tile.on { border-color: var(--green); background: var(--green-soft); }
@@ -529,15 +529,15 @@
   .seg button.on { background: var(--green-soft); border-color: var(--green); color: var(--ink); }
   /* section header: closed / locked */
   .fold { flex: none; }
-  .sec.closed .title { color: var(--muted); }
-  .sec.locked .title { background: transparent; }
+  .sec.closed .titlebox :global(textarea) { color: var(--muted); }
   .hiddenpages { color: var(--muted); font-size: var(--fs-14); }
   /* cover card */
   .covercard { display: inline-grid; justify-items: center; gap: var(--s-8); margin: 0 0 var(--s-16); }
   .mini { position: relative; width: 210px; height: 297px; display: flex; flex-direction: column; align-items: center; gap: var(--s-4); padding: var(--s-12); background: #fff; box-shadow: var(--shadow); text-align: center; overflow: hidden; }
   .mini .logos { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-8); width: 100%; height: 28px; }
   .mini .logos i { display: grid; place-items: center; } .mini .logos img { max-width: 100%; max-height: 28px; }
-  .mini strong { margin-top: 64px; font-size: var(--fs-16); line-height: 1.3; }
+  .mini strong { margin-top: 64px; font-size: var(--fs-16); line-height: 1.3; max-width: 100%; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; line-clamp: 5; overflow: hidden; } /* a preview: the printed cover wraps the whole title */
+  .mini .names, .mini small { max-width: 100%; overflow-wrap: anywhere; }
   .mini small { font-size: var(--fs-12); color: var(--muted); }
   .mini .names { display: grid; margin-top: var(--s-12); font-size: var(--fs-12); }
   .mini .sup { position: absolute; bottom: var(--s-16); left: 0; right: 0; }

@@ -26,3 +26,15 @@ test('addUnique: ZIP entries never replace each other', () => {
   assert.deepEqual([addUnique(files, 'p.pdf', 1), addUnique(files, 'p.pdf', 2), addUnique(files, 'p.pdf', 3)], ['p.pdf', 'p (2).pdf', 'p (3).pdf']);
   assert.deepEqual(Object.values(files), [1, 2, 3]);
 });
+
+test('a long name keeps its end visible: the tail holds the extension and a few letters before it', async () => {
+  const { splitName } = await import('../../src/lib/names.ts');
+  assert.deepEqual(splitName('report.pdf'), ['report.pdf', '']);
+  const long = 'x'.repeat(100) + '-final-version-2.pdf';
+  const [head, tail] = splitName(long);
+  assert.equal(head + tail, long);
+  assert.ok(tail.endsWith('-2.pdf') && tail.length <= 18 && head.startsWith('xxxx'));
+  const ar = 'تقرير الأسبوع الأول من مقرر التحليل الإنشائي والتصميم للمباني الخرسانية المسلحة.pdf';
+  assert.ok(splitName(ar)[1].endsWith('.pdf') && splitName(ar).join('') === ar);
+  assert.equal(splitName('a'.repeat(50) + '.verylongextension')[1].length, 18); // an odd long "extension" is not treated as one
+});
