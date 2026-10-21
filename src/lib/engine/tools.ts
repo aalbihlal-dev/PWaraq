@@ -2,7 +2,7 @@
 // Pure (MuPDF passed in) so the Node self-check (tests/unit/tools.test.mjs) runs the same code as the engine worker.
 // "Seen" coordinates = the page as it is shown: origin bottom-left, x right, y up, after the page's Rotate and CropBox.
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
-import { pageWriter, measure, type Fonts } from './textpage.ts';
+import { pageWriter, widthOf, type Fonts } from './textpage.ts';
 import { stamp } from './assemble.ts';
 
 const num = (v: number) => +v.toFixed(3);
@@ -42,7 +42,7 @@ export function pageNumbers(m: typeof MuPDF, out: MuPDF.PDFDocument, pages: numb
   pages.forEach((i, n) => {
     const p = out.findPage(i), { box, rot, seenW, seenH } = pageBox(p), k = Math.min(2.4, Math.max(1, Math.min(seenW, seenH) / 595)), size = style.size ?? 10 * k, gap = 20 * k;
     const plain = style.total ? (arab ? `${start + n} من ${last}` : `${start + n} / ${last}`) : String(start + n), label = arab ? indic(plain) : plain;
-    const width = arab ? measure(fonts!.regular, label, size) : [...label].reduce((w, c) => w + (c === ' ' || c === '/' ? 0.278 : 0.556), 0) * size;
+    const width = arab ? widthOf(fonts!)(label, size) : [...label].reduce((w, c) => w + (c === ' ' || c === '/' ? 0.278 : 0.556), 0) * size;
     const x = pos[1] === 'l' ? gap : pos[1] === 'r' ? seenW - gap - width : (seenW - width) / 2;
     const y = pos[0] === 'b' ? gap : seenH - gap - size;
     const halo = size * 0.2;
@@ -65,11 +65,11 @@ export function watermark(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts,
     const p = out.findPage(i), { box, rot, seenW, seenH } = pageBox(p);
     // size: as asked, but never wider than the page's diagonal allows
     let size = w.size ?? (w.tile ? 36 : 72);
-    const wide = measure(fonts.bold, w.text, size), room = Math.hypot(seenW, seenH) * (w.tile ? 0.5 : 0.8);
+    const wide = widthOf(fonts, true)(w.text, size), room = Math.hypot(seenW, seenH) * (w.tile ? 0.5 : 0.8);
     if (wide > room) size *= room / wide;
     const color = w.color ?? [0.082, 0.467, 0.365], lines = [];
     if (w.tile) { // a grid in the turned frame, centred on the page, reaching past its corners
-      const width = measure(fonts.bold, w.text, size), sx = width + size * 2.5, sy = size * 3.6, half = Math.hypot(seenW, seenH) / 2;
+      const width = widthOf(fonts, true)(w.text, size), sx = width + size * 2.5, sy = size * 3.6, half = Math.hypot(seenW, seenH) / 2;
       for (let r = -Math.ceil(half / sy); r <= Math.ceil(half / sy); r++) for (let q = -Math.ceil(half / sx) - 1; q <= Math.ceil(half / sx) + 1; q++) lines.push({ text: w.text, x: q * sx + (r % 2 ? sx / 2 : 0), y: r * sy + size * 0.35, size, bold: true, align: 'center' as const, color });
     } else lines.push({ text: w.text, x: 0, y: size * 0.35, size, bold: true, align: 'center' as const, color });
     const ops = writer.draw({ w: 0, h: 0, lines });
