@@ -182,7 +182,8 @@ export { dividerPage } from './designs.ts';
 export function tocPerPage(w: number, h: number) { const k = Math.min(w, h) / 595; return Math.max(1, Math.floor((h - 150 * k - 64 * k) / (30 * k))); }
 
 /** Table of contents pages: each entry its title, a dotted leader and its page number, the whole row a link. */
-export function tocPages(o: { w: number; h: number; heading: string; rtl: boolean; entries: { title: string; number: number; to: number }[] }, regular: MuPDF.Font): TextPage[] {
+export function tocPages(o: { w: number; h: number; heading: string; rtl: boolean; entries: { title: string; number: number; to: number }[] }, regular: MuPDF.Font | ((text: string, size: number) => number)): TextPage[] {
+  const mw = typeof regular === 'function' ? regular : (text: string, size: number) => measure(regular, text, size);
   const k = Math.min(o.w, o.h) / 595, m = 64 * k, per = tocPerPage(o.w, o.h), pages: TextPage[] = [];
   for (let start = 0; start < Math.max(1, o.entries.length); start += per) {
     const lines: Line[] = [{ text: o.heading, x: o.rtl ? o.w - m : m, y: 100 * k, size: 28 * k, bold: true, color: INK, align: o.rtl ? 'right' : 'left' }];
@@ -191,13 +192,13 @@ export function tocPages(o: { w: number; h: number; heading: string; rtl: boolea
       const y = 150 * k + 30 * k * (i + 1) - 10 * k, num = String(e.number), room = o.w - 2 * m - 24 * k;
       // a long title is written on 2 or 3 lines (smaller each time) inside its row; only beyond that is it cut with …
       let size = 13 * k, rows: string[] = [];
-      const lay = (pt: number) => { size = pt * k; rows = wrap((t) => measure(regular, t, size), e.title, room - (measure(regular, num, size) + 12 * k)); };
+      const lay = (pt: number) => { size = pt * k; rows = wrap((t) => mw( t, size), e.title, room - (mw( num, size) + 12 * k)); };
       lay(13); if (rows.length > 1) { lay(11); if (rows.length > 2) { lay(9); if (rows.length > 3) lay(8.5); } } // never smaller than 8.5 pt: beyond three rows the end is cut with …
-      if (rows.length > 3) rows = [...rows.slice(0, 2), fit(regular, rows.slice(2).join(' '), size, room - (measure(regular, num, size) + 12 * k))];
-      const nw = measure(regular, num, size) + 12 * k, pitch = size * 1.15, last = rows.length - 1;
+      if (rows.length > 3) rows = [...rows.slice(0, 2), fit(mw, rows.slice(2).join(' '), size, room - (mw( num, size) + 12 * k))];
+      const nw = mw( num, size) + 12 * k, pitch = size * 1.15, last = rows.length - 1;
       rows.forEach((text, j) => lines.push({ text, x: o.rtl ? o.w - m : m, y: y + (j - last / 2) * pitch, size, color: INK, align: o.rtl ? 'right' : 'left' }));
-      const tw = measure(regular, rows[last], size), yl = y + (last / 2) * pitch;
-      const dots = Math.max(0, Math.floor((o.w - 2 * m - nw - tw - 16 * k) / measure(regular, '. ', size)));
+      const tw = mw( rows[last], size), yl = y + (last / 2) * pitch;
+      const dots = Math.max(0, Math.floor((o.w - 2 * m - nw - tw - 16 * k) / mw( '. ', size)));
       lines.push({ text: '. '.repeat(dots).trim(), x: o.rtl ? m + nw : o.w - m - nw, y: yl, size, color: LINE.map((c) => c * 0.8), align: o.rtl ? 'left' : 'right', max: o.w - 2 * m - nw - tw - 16 * k });
       lines.push({ text: num, x: o.rtl ? m : o.w - m, y: yl, size, color: GREEN, align: o.rtl ? 'left' : 'right' });
       links.push({ rect: [m, y - 20 * k, o.w - m, y + 8 * k], to: e.to });
@@ -208,9 +209,9 @@ export function tocPages(o: { w: number; h: number; heading: string; rtl: boolea
 }
 
 // shorten a title with … until it fits
-function fit(font: MuPDF.Font, text: string, size: number, room: number) {
-  if (measure(font, text, size) <= room) return text;
+function fit(width: (text: string, size: number) => number, text: string, size: number, room: number) {
+  if (width(text, size) <= room) return text;
   let t = [...text];
-  while (t.length > 1 && measure(font, t.join('') + '…', size) > room) t.pop();
+  while (t.length > 1 && width(t.join('') + '…', size) > room) t.pop();
   return t.join('').trimEnd() + '…';
 }

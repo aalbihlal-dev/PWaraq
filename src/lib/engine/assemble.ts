@@ -2,7 +2,7 @@
 // re-arranged) and Portfolio (many files in sections). Pure: the MuPDF module and the sources are passed in, so the
 // same code runs in the engine worker and in the Node self-check (tests/unit/assemble.test.mjs).
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
-import { pageWriter, tocPages, measure, type Fonts, type TextPage } from './textpage.ts';
+import { pageWriter, tocPages, widthOf, type Fonts, type TextPage } from './textpage.ts';
 import { dividerPage, coverPage, paperPage, type Paper } from './designs.ts';
 import { crop, pageNumbers, watermark, type NumberStyle, type Watermark } from './tools.ts';
 
@@ -20,8 +20,8 @@ export type Source = { doc: MuPDF.Document; bytes: Uint8Array };
 
 export function assemble(m: typeof MuPDF, source: (id: number) => Source, b: Build, fonts?: () => Fonts): Uint8Array {
   const out = new m.PDFDocument(), images = new Map<number, MuPDF.PDFObject>();
-  const measuring = (t: string, size: number, bold: boolean) => measure(bold ? fonts!().bold : fonts!().regular, t, size); // long titles on cover and section pages wrap by it
-  const page = (it: Item): TextPage | undefined => it.cover ? coverPage({ ...it.cover, measure: measuring }) : it.divider ? dividerPage({ ...it.divider, measure: measuring }) : it.toc ? tocPages(it.toc, fonts!().regular)[0]
+  const measuring = (t: string, size: number, bold: boolean) => widthOf(fonts!(), bold)(t, size); // long titles on cover and section pages wrap by it
+  const page = (it: Item): TextPage | undefined => it.cover ? coverPage({ ...it.cover, measure: measuring }) : it.divider ? dividerPage({ ...it.divider, measure: measuring }) : it.toc ? tocPages(it.toc, widthOf(fonts!()))[0]
     : it.blank && it.paper && it.paper !== 'plain' ? paperPage(it.fit!.w, it.fit!.h, it.paper) : undefined;
   const made = b.items.map(page), writer = made.some(Boolean) ? pageWriter(m, out, fonts!()) : null;
   // a background photo (cover): scaled to fill its box, cropped to it; then the see-through colour over it
