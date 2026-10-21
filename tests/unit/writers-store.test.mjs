@@ -62,3 +62,11 @@ test('a line wider than its box gets a smaller font first (down to 70 %), horizo
   assert.ok(size(mild) < 20 && size(mild) >= 14 && tz(mild) === 100, 'a mild squeeze only shrinks the font');
   assert.ok(Math.abs(size(hard) - 14) < 0.01 && tz(hard) < 100, 'a hard squeeze stops at 70 % and scales the rest');
 });
+
+test("a PDF's own subset with only a glyph-index cmap ((1,0), codes are glyph numbers) is not a face: Latin typed into its line would draw the wrong glyphs", async () => {
+  const fs = await import('node:fs'), { createFace } = await import('../../src/lib/engine/fontstore.ts'), { fontAt } = await import('../../src/lib/engine/ownfont.ts'), { pageObjects } = await import('../../src/lib/engine/editpage.ts'), { store } = await import('./store.mjs');
+  const page = new m.PDFDocument(new Uint8Array(fs.readFileSync(new URL('./../fixtures/arabic/libreoffice-sakkal-majalla.pdf', import.meta.url)))).loadPage(0), l = pageObjects(page).lines.find((x) => x.rtl);
+  const f = fontAt(page, { x: l.x, y: l.y, w: l.w, h: l.h });
+  assert.equal(createFace(store.hb, f.getName(), f.getBuffer().asUint8Array().slice(), { source: 'pdf' }), null);
+  assert.ok(createFace(store.hb, 'Tajawal', store.file('Tajawal-Regular.ttf'), { source: 'pdf' }), 'a font with a Unicode cmap is kept');
+});

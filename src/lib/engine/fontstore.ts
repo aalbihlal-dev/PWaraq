@@ -49,6 +49,8 @@ export function createFace(hb: Harfbuzz, name: string, bytes: Uint8Array, o: { b
   try {
     const face = new hb.Face(new hb.Blob(bytes)), font = new hb.Font(face), cmap = new Set(face.collectUnicodes());
     if (!face.upem || !cmap.size) return null;
+    // a subset a producer cut down for its own text can carry only a glyph-index cmap ((1,0): code n = glyph n, no Unicode table): its codes are not letters, and 'W' would draw glyph 87
+    if (o.source === 'pdf') { const t = face.referenceTable('cmap'); if (t && t.length > 4) { const n = (t[2] << 8) | t[3]; let uni = false; for (let i = 0; i < n && 4 + i * 8 + 3 < t.length; i++) { const plat = (t[4 + i * 8] << 8) | t[5 + i * 8], enc = (t[6 + i * 8] << 8) | t[7 + i * 8]; if (plat === 0 || (plat === 3 && (enc === 1 || enc === 10))) uni = true; } if (!uni) return null; } }
     const shapes = face.getTableScriptTags('GSUB').includes('arab');
     return { name, bytes, face, font, upem: face.upem, bold: !!o.bold, italic: !!o.italic, source: o.source, shapes, cmap, has: (cp) => cmap.has(cp) };
   } catch { return null; }

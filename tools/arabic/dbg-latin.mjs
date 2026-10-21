@@ -15,3 +15,4 @@ for (const run of bidiRuns([...text].map((c) => c.codePointAt(0)))) {
   const sh = shapeRun(own.hb, r.face, run, 10);
   console.log(JSON.stringify(String.fromCodePoint(...cs)), '->', r.face.name, r.face.source, r.reason, 'glyphs', sh.glyphs.map((g) => g.gid).join(','));
 }
+fs.writeFileSync(process.env.DUMP ?? 'own-font.ttf', hint.bytes); // the PDF's own font program, to open with fontTools
