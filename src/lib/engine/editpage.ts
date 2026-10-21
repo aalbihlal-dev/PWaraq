@@ -49,7 +49,19 @@ export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[
       const xs = [q[0], q[2], q[4], q[6]];
       cur.chars.push({ c: c.codePointAt(0)!, x0: Math.min(...xs), x1: Math.max(...xs), y: origin[1], size, font, color });
     },
-    endLine() { if (cur && flat && cur.chars.some((ch) => ch.c > 0x20)) raws.push(cur); cur = null; },
+    endLine() {
+      if (cur && flat && cur.chars.some((ch) => ch.c > 0x20)) {
+        // MuPDF lists what ends a right-to-left line (a full stop and its mark, at the left end) first: back to the end
+        const ls = cur.chars.filter((ch) => ch.c > 0x20 && !isMark(ch.c) && isRtl(ch.c));
+        if (ls.length > 1 && ls[0].x0 > ls[ls.length - 1].x0) {
+          const left = Math.min(...ls.map((ch) => ch.x0)); let k = 0;
+          while (k < cur.chars.length && (isMark(cur.chars[k].c) || /[\p{P}\p{S}]/u.test(String.fromCodePoint(cur.chars[k].c))) && cur.chars[k].x0 < left + 0.5) k++; // punctuation and marks only
+          if (k) cur.chars.push(...cur.chars.splice(0, k));
+        }
+        raws.push(cur);
+      }
+      cur = null;
+    },
   });
   st.destroy();
   // pieces of one line: same baseline (within a third of the size), no big gap between them
@@ -58,7 +70,10 @@ export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[
   for (const r of raws) {
     const size = r.chars.find((ch) => ch.c > 0x20)?.size ?? 10, last = merged[merged.length - 1];
     if (last && Math.abs(last.base - r.base) < size * 0.34 && (r.box.x - (last.box.x + last.box.w) < size * 0.5 && last.box.x - (r.box.x + r.box.w) < size * 0.5)) {
-      last.chars.push(...r.chars);
+      // pieces of one line are listed in the direction of their letters: right-to-left pieces, the right one first
+      const dirOf = (cs: Ch[]) => { const ls = cs.filter((ch) => ch.c > 0x20 && !isMark(ch.c)); return ls.length > 1 ? (ls[0].x0 > ls[ls.length - 1].x0 ? 'rtl' : 'ltr') : null; };
+      const rtlPieces = (dirOf(last.chars) ?? dirOf(r.chars)) === 'rtl', rightOfLast = r.box.x + r.box.w / 2 > last.box.x + last.box.w / 2; // the baselines differ by a hair: position decides which comes first
+      if (rtlPieces === rightOfLast) last.chars.unshift(...r.chars); else last.chars.push(...r.chars);
       const x0 = Math.min(last.box.x, r.box.x), y0 = Math.min(last.box.y, r.box.y), x1 = Math.max(last.box.x + last.box.w, r.box.x + r.box.w), y1 = Math.max(last.box.y + last.box.h, r.box.y + r.box.h);
       last.box = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
     } else merged.push(r);
@@ -144,11 +159,7 @@ export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[
     const letterXs = kept.filter((cl) => cl[0].c > 0x20 && isRtl(cl[0].c)).map((cl) => cl[0].x0);
     const listedLtr = letterXs.filter((x, i) => i && x > letterXs[i - 1]).length > letterXs.length / 2; // LibreOffice lists boxless lines left to right
     if (degenerate && !listedLtr) {
-      // overlapping, kerned glyphs make positions unreliable on boxless lines; MuPDF lists them in reading order, except
-      // that what ends the line (a full stop and its mark) comes first: those go back to the end
-      const first = letterXs.length ? Math.min(...letterXs) : 0, lead = kept.findIndex((cl) => cl[0].c > 0x20 && isRtl(cl[0].c)), head = kept.slice(0, Math.max(0, lead));
-      order = [...kept.keys()].slice(head.length); const tailAtoms = [...kept.keys()].slice(0, head.length).filter((k) => kept[k][0].x0 < first + 0.5 || !isRtl(kept[k][0].c));
-      order.push(...tailAtoms);
+      order = [...kept.keys()]; // MuPDF lists boxless right-to-left pieces in reading order (overlapping, kerned glyphs make their positions unreliable)
     } else order = logicalOrder(atoms, guessDirection(atoms, pageDir)).order;
     const cs = order.flatMap((k) => kept[k].map((ch) => ch.c));
     // invisible joiners (pieces of letters) go; kashida (tatweel) is justification, not text — except the Hijri year's هـ
@@ -208,14 +219,25 @@ export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number,
       // a little wider than the line's box: MuPDF's box of a glyph follows the font's /W, and a subset that lists a narrower width than the ink leaves the line's first letter
       // standing just outside it (Edge's Arial Unicode MS, the Arabic 'طب' pair: the old first letter stayed under the new line)
       const pad = e.size * 0.25;
-      redactText.push({ x: from.x - pad, y: from.y + from.h * 0.3, w: from.w + 2 * pad, h: from.h * 0.4 });
+      // what is taken away stops short of any glyph of ANOTHER line it would touch (a descender of the line above, an ascender of the line below, a Type 1 mark's full-height box):
+      // those glyphs are the neighbours', so they are hard limits, down to a thin strip that still crosses this line's own letters
+      const base = e.y + BASELINE * e.size, mid = base - e.size * 0.3, above: Box[] = [], below: Box[] = [], marks: Box[] = [];
       const st = page.toStructuredText('preserve-whitespace');
       st.walk({ onChar(c, origin, _f, _s, q) {
-        if (!isMark(c.codePointAt(0)!) || origin[0] < from.x - 1 || origin[0] > from.x + from.w + 1 || origin[1] < from.y - 1 || origin[1] > from.y + from.h + 1) return;
-        const xs = [q[0], q[2], q[4], q[6]], ys = [q[1], q[3], q[5], q[7]];
-        redactText.push({ x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs) || 0.5, h: Math.max(...ys) - Math.min(...ys) || 0.5 });
+        const xs = [q[0], q[2], q[4], q[6]], ys = [q[1], q[3], q[5], q[7]], quad = { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs) || 0.5, h: Math.max(...ys) - Math.min(...ys) || 0.5 };
+        const cy = quad.y + quad.h / 2; // a glyph whose box centre lies outside this line's box belongs to another line (a mark's origin rides above its letter: it is this line's)
+        if ((cy < from.y || cy > from.y + from.h) && !isMark(c.codePointAt(0)!)) { if (c.trim()) (cy < from.y ? above : below).push(quad); return; }
+        if (isMark(c.codePointAt(0)!) && origin[0] >= from.x - 1 && origin[0] <= from.x + from.w + 1 && origin[1] >= from.y - 1 && origin[1] <= from.y + from.h + 1) marks.push(quad);
       } });
       st.destroy();
+      const limit = (b: Box, keep: number): Box => {
+        let top = b.y, bottom = b.y + b.h;
+        for (const n of above) if (n.x + n.w > b.x && n.x < b.x + b.w) top = Math.max(top, Math.min(n.y + n.h + 0.2, keep - 0.5));
+        for (const n of below) if (n.x + n.w > b.x && n.x < b.x + b.w) bottom = Math.min(bottom, Math.max(n.y - 0.2, keep + 0.5));
+        return { x: b.x, w: b.w, y: top, h: Math.max(0.5, bottom - top) };
+      };
+      redactText.push(limit({ x: from.x - pad, y: from.y + from.h * 0.3, w: from.w + 2 * pad, h: from.h * 0.4 }, mid));
+      for (const mk of marks) redactText.push(limit(mk, mk.y + mk.h / 2));
     }
   }
   const redact = (boxes: Box[], imageMethod: number, textMethod: number) => {
