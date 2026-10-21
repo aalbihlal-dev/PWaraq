@@ -23,8 +23,10 @@ const AR = new Map<number, [number, number]>();
 }
 const LAM_ALEF: Record<number, number> = { 0x622: 0xfef5, 0x623: 0xfef7, 0x625: 0xfef9, 0x627: 0xfefb };
 const isMark = (c: number) => (c >= 0x64b && c <= 0x65f) || c === 0x670;
-const isArabic = (c: number) => (c >= 0x600 && c <= 0x6ff) || (c >= 0xfb50 && c <= 0xfeff);
-const isLtr = (c: number) => /[A-Za-z0-9À-ɏ٠-٩]/.test(String.fromCodePoint(c));
+// Arabic-Indic digits and the Arabic thousands and decimal separators are numbers: they keep their order inside a line
+const isDigit = (c: number) => (c >= 0x660 && c <= 0x669) || (c >= 0x6f0 && c <= 0x6f9) || c === 0x66b || c === 0x66c;
+const isArabic = (c: number) => ((c >= 0x600 && c <= 0x6ff) || (c >= 0xfb50 && c <= 0xfeff)) && !isDigit(c);
+const isLtr = (c: number) => isDigit(c) || /[A-Za-z0-9À-ɏ]/.test(String.fromCodePoint(c));
 const joinsNext = (c?: number) => c === 0x640 || (c !== undefined && AR.get(c)?.[1] === 4);
 const MIRROR: Record<string, string> = { '(': ')', ')': '(', '[': ']', ']': '[', '{': '}', '}': '{', '<': '>', '>': '<', '«': '»', '»': '«' };
 
@@ -46,7 +48,7 @@ function join(cs: number[]): Glyph[] {
 /** Text in reading order -> its direction runs (right-to-left ones still in reading order), left to right as they appear on the page. */
 export function runs(text: string): { rtl: boolean; cs: number[] }[] {
   const cs = [...text].map((ch) => ch.codePointAt(0)!);
-  const firstStrong = cs.find((c) => isArabic(c) || isLtr(c));
+  const firstStrong = cs.find((c) => (isArabic(c) && !isMark(c)) || (isLtr(c) && !isDigit(c) && !(c >= 0x30 && c <= 0x39))); // the paragraph's direction comes from the first letter, never from a digit
   const rtl = firstStrong !== undefined && isArabic(firstStrong);
   // runs: in a right-to-left line, left-to-right words (Latin, numbers) keep their order; elsewhere the reverse
   const strong = rtl ? isLtr : (c: number) => isArabic(c) && !isMark(c);
