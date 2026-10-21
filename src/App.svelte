@@ -10,27 +10,30 @@
   import { newPortfolio, load, type Portfolio as PortfolioData } from './lib/portfolio';
   import { unzip } from './lib/zip';
   import { CONVERTIBLE_ACCEPT, isConvertible, toPdf } from './lib/convert';
+  import { isDesktop, onOpenPaths, readPath, writePath, saveAs, baseName } from './lib/desktop';
+  import TitleBar from './components/TitleBar.svelte';
   import Workspace from './components/Workspace.svelte';
   import Portfolio from './components/Portfolio.svelte';
 
   const pool = new EnginePool();
-  let doc = $state<{ name: string; sizes: { w: number; h: number }[]; bytes: Uint8Array; modified: boolean; password?: string } | null>(null);
+  let doc = $state<{ name: string; sizes: { w: number; h: number }[]; bytes: Uint8Array; modified: boolean; password?: string; path?: string } | null>(null);
+  let openedPath: string | undefined; // desktop: the file on disk behind `doc`, so Save writes straight back
   let portfolio = $state<PortfolioData | null>(null);
   let busy = $state(false), error = $state(''), over = $state(false), recent = $state<Recent[]>([]);
   let picker: HTMLInputElement;
 
   $effect(() => { document.documentElement.lang = i18n.lang; document.documentElement.dir = i18n.lang === 'ar' ? 'rtl' : 'ltr'; });
   const refresh = async () => (recent = await recentList());
-  onMount(refresh);
+  onMount(() => { refresh(); if (isDesktop) onOpenPaths(async ([p]) => openFile(await readPath(p), undefined, p)); });
 
   async function show(bytes: Uint8Array, name: string, modified = false, password?: string) {
     await setDocument(bytes);
     const sizes = await pool.open(bytes, password);
     doc = null; portfolio = null; await tick(); // a new document gets a fresh workspace
-    doc = { name, sizes, bytes, modified, password };
+    doc = { name, sizes, bytes, modified, password, path: openedPath };
   }
   // a password-protected PDF: asked for on the start screen, then opened with it
-  let locked = $state<{ bytes: Uint8Array; name: string; size: number; handle?: FileSystemFileHandle } | null>(null), typed = $state('');
+  let locked = $state<{ bytes: Uint8Array; name: string; size: number; handle?: FileSystemFileHandle; path?: string } | null>(null), typed = $state('');
   async function unlockOpen(e: SubmitEvent) {
     e.preventDefault();
     if (!locked) return;
@@ -39,14 +42,14 @@
       const l = locked;
       await show(l.bytes, l.name, false, typed);
       locked = null; typed = '';
-      remember({ key: `pdf:${l.name}:${l.size}`, kind: 'pdf', name: l.name, pages: doc!.sizes.length, handle: l.handle, thumb: await cover() });
+      remember({ key: `pdf:${l.name}:${l.size}`, kind: 'pdf', name: l.name, pages: doc!.sizes.length, handle: l.handle, path: l.path, thumb: await cover() });
     } catch { error = t('wrongPassword'); }
     busy = false;
   }
 
-  async function openFile(file?: File | null, handle?: FileSystemFileHandle) {
+  async function openFile(file?: File | null, handle?: FileSystemFileHandle, path?: string) {
     if (!file) return;
-    busy = true; error = '';
+    busy = true; error = ''; openedPath = path;
     try {
       if (isConvertible(file.name)) { // Word, Excel, PowerPoint, DWG, DXF: converted first (desktop app only)
         try { await show(await toPdf(file), file.name.replace(/\.[^.]+$/, '') + '.pdf', true); }
@@ -57,8 +60,8 @@
       if (/\.waraq$/i.test(file.name)) await openPortfolioFile(bytes);
       else {
         try { await show(bytes, file.name); }
-        catch (e) { if ((e as Error)?.message === 'PASSWORD') { locked = { bytes, name: file.name, size: file.size, handle }; busy = false; return; } throw e; }
-        remember({ key: `pdf:${file.name}:${file.size}`, kind: 'pdf', name: file.name, pages: doc!.sizes.length, handle, thumb: await cover() });
+        catch (e) { if ((e as Error)?.message === 'PASSWORD') { locked = { bytes, name: file.name, size: file.size, handle, path }; busy = false; return; } throw e; }
+        remember({ key: `pdf:${file.name}:${file.size}`, kind: 'pdf', name: file.name, pages: doc!.sizes.length, handle, path, thumb: await cover() });
       }
     } catch { error = t('notPdf'); }
     busy = false;
@@ -93,7 +96,7 @@
       } else {
         const file = await reopen(r);
         if (!file) throw new Error('gone');
-        busy = false; return openFile(file, r.handle);
+        busy = false; return openFile(file, r.handle, r.path);
       }
     } catch { error = t('missing'); }
     busy = false;
@@ -101,7 +104,7 @@
 
   async function pick() {
     const [first] = await pickFiles({ accept: { 'application/pdf': ['.pdf'], 'application/zip': ['.waraq'], 'application/octet-stream': CONVERTIBLE_ACCEPT.split(',') }, fallback: () => picker.click() });
-    if (first) openFile(first.file, first.handle);
+    if (first) openFile(first.file, first.handle, first.path);
   }
   async function drop(e: DragEvent) {
     e.preventDefault(); over = false;
@@ -112,13 +115,17 @@
   async function close() { doc = null; portfolio = null; refresh(); }
   async function save() {
     if (!doc) return;
-    if (await saveFile(doc.bytes, doc.name)) doc.modified = false;
+    if (isDesktop) { // straight to the file; "Save as" when there is none or it cannot be written
+      const path = (doc.path && await writePath(doc.path, doc.bytes).then(() => doc!.path, () => null)) || await saveAs(doc.name, doc.bytes);
+      if (path) { openedPath = doc.path = path; doc.name = baseName(path); doc.modified = false; }
+    } else if (await saveFile(doc.bytes, doc.name)) doc.modified = false;
   }
   const thumbs = new Map<Blob, string>();
   const thumbUrl = (b: Blob) => thumbs.get(b) ?? (thumbs.set(b, URL.createObjectURL(b)), thumbs.get(b)!);
   const when = (at: number) => new Intl.RelativeTimeFormat(i18n.lang, { numeric: 'auto' }).format(Math.round((at - Date.now()) / 86_400_000), 'day');
 </script>
 
+{#if isDesktop}<TitleBar flush={!!(doc || portfolio)} />{/if}
 <input bind:this={picker} type="file" accept="application/pdf,.pdf,.waraq,{CONVERTIBLE_ACCEPT}" hidden onchange={(e) => { openFile(e.currentTarget.files?.[0]); e.currentTarget.value = ''; }} />
 
 {#if doc}

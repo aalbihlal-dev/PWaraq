@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Waraq",
+  "version": "1.0.0",
+  "identifier": "com.waraq.app",
+  "build": {
+    "devUrl": "http://localhost:5188",
+    "frontendDist": "../dist",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "security": { "csp": null }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico"],
+    "fileAssociations": [
+      { "ext": ["pdf"], "name": "PDF document", "description": "PDF document", "mimeType": "application/pdf", "role": "Editor" },
+      { "ext": ["waraq"], "name": "Waraq portfolio", "description": "Waraq portfolio", "role": "Editor" }
+    ],
+    "windows": { "nsis": { "installMode": "currentUser", "languages": ["English", "Arabic"] } }
+  }
+}

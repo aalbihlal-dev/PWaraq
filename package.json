@@ -11,6 +11,7 @@
   "devDependencies": {
     "@playwright/test": "^1.64.1",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@tauri-apps/cli": "^2.12.3",
     "@tsconfig/svelte": "^5.0.8",
     "svelte": "^5.57.2",
     "svelte-check": "^4.7.6",
@@ -24,6 +25,10 @@
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "preview": "vite preview",
     "test:e2e": "playwright test",
-    "test:unit": "node --test \"tests/unit/*.test.mjs\""
+    "test:unit": "node --test \"tests/unit/*.test.mjs\"",
+    "tauri": "tauri",
+    "desktop": "tauri dev",
+    "desktop:build": "tauri build",
+    "desktop:smoke": "node tools/dev/tauri-smoke.mjs"
   }
 }

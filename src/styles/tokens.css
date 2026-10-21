@@ -61,3 +61,4 @@ button { cursor: pointer; }
 svg.icon { width: 18px; height: 18px; flex: none; }
 html, body { overflow: hidden; }
 #app { height: 100%; }
+html[data-desktop] #app { display: grid; grid-template-rows: 40px minmax(0, 1fr); } /* desktop app: our title bar on top */

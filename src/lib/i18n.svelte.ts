@@ -277,6 +277,9 @@ const strings = {
   cDefaultText: ['Text', 'نص'],
   cNone: ['Click a comment to change its colour, text or size.', 'انقر تعليقًا لتغيير لونه أو نصه أو حجمه.'],
   cCount: ['comments', 'تعليقات'],
+  minimize: ['Minimise', 'تصغير'],
+  maximize: ['Maximise', 'تكبير'],
+  restore: ['Restore', 'استعادة'],
 } satisfies Record<string, [string, string]>;
 
 export type Key = keyof typeof strings;

@@ -7,3 +7,5 @@ playwright-report/
 public/ocr/
 .venv-surya/
 tests/fixtures/ocr/real/
+src-tauri/target/
+src-tauri/gen/

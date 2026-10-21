@@ -1,8 +1,10 @@
 ﻿// What Waraq remembers on this device: recent files (IndexedDB; with a file handle where the browser gives one, so a
 // click reopens the file itself) and portfolios (their .waraq bytes in the browser's private file storage, OPFS).
-// The desktop app (Tauri, Phase 4) will keep plain paths instead.
+// The desktop app (Tauri) keeps plain paths and reads/writes them through src/lib/desktop.ts.
 
-export type Recent = { key: string; kind: 'pdf' | 'portfolio'; name: string; at: number; pages?: number; thumb?: Blob; handle?: FileSystemFileHandle };
+import { isDesktop, pickPaths, readPath, saveAs } from './desktop';
+
+export type Recent = { key: string; kind: 'pdf' | 'portfolio'; name: string; at: number; pages?: number; thumb?: Blob; handle?: FileSystemFileHandle; path?: string };
 const KEEP = 12;
 
 function db(): Promise<IDBDatabase> {
@@ -48,6 +50,7 @@ export async function dropSignature(key: string) { try { await tx('readwrite', (
 
 /** The file behind a recent entry, asking the browser for permission again if needed (a click allows that). */
 export async function reopen(r: Recent): Promise<File | null> {
+  if (r.path && isDesktop) return readPath(r.path).catch(() => null);
   if (!r.handle) return null;
   try {
     const h = r.handle as any;
@@ -86,7 +89,8 @@ export async function readPortfolio(id: string): Promise<Record<string, Uint8Arr
 }
 
 /** Opens files with the system picker where the browser has one (gives handles for "recent"), else `fallback`. */
-export async function pickFiles(o: { multiple?: boolean; accept: Record<string, string[]>; fallback: () => void }): Promise<{ file: File; handle?: FileSystemFileHandle }[]> {
+export async function pickFiles(o: { multiple?: boolean; accept: Record<string, string[]>; fallback: () => void }): Promise<{ file: File; handle?: FileSystemFileHandle; path?: string }[]> {
+  if (isDesktop) return Promise.all((await pickPaths(!!o.multiple)).map(async (path) => ({ file: await readPath(path), path })));
   const picker = !navigator.webdriver && (window as any).showOpenFilePicker; // automated tests use the plain file input
   if (!picker) { o.fallback(); return []; }
   try {
@@ -97,6 +101,7 @@ export async function pickFiles(o: { multiple?: boolean; accept: Record<string, 
 
 /** Saves bytes as a file: the system "Save as" window where there is one, otherwise a download. */
 export async function saveFile(bytes: Uint8Array, name: string, mime = 'application/pdf') {
+  if (isDesktop) return !!(await saveAs(name, bytes));
   const picker = !navigator.webdriver && (window as any).showSaveFilePicker; // automated tests get a download
   const ext = name.slice(name.lastIndexOf('.'));
   if (picker) {

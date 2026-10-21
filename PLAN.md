@@ -17,7 +17,7 @@ Not pushed: everything after the Portfolio/404 commit. Public repo history rewri
 | C | **Support — website page DONE 20 Oct** (`waraq/dist/support.html`, footer links, issue template in PWaraq; ZIP waits for the owner's yes, OTHER-AGENT-TO-DO step 8). Left: the app's Help/⋯ "Report a problem" item opening `/support#v=…` (with dark modes, same menu). **Earlier text:** (owner, 20 Oct): one page on the website, `pwaraq.com/support` (EN+AR), holds everything; for now it links to GitHub issues only (the owner gives the rest — email, form — later). The app's quiet Help/⋯ item "Report a problem" just opens that page (with version, Windows/browser and language as URL hash so the page can prefill the issue link; nothing sent automatically). Website footer links to it too.** | Page live-ready in the website ZIP; app item opens it EN+AR; audit green. | GitHub issue template OK? Later: email/form. |
 | D | **Quality pass — DONE 20 Oct** (report `Archive-2026-10-12/reviews/WARAQ-1.0-QUALITY-PASS-2026-10-20.md`: built app opens a file in 0.3 s, 10 tasks fit at 1366 px EN+AR, only a 16 px slider to fix; the publishing agent's independent test is still open). **Original:** **Quality pass** — publishing agent's preview test (steps 3–5), fix every finding; full EN+AR click-through at 1366×768; `pnpm check`, unit, e2e, audit all green on a fresh checkout. | Zero open findings; screenshots in Archive. | Look at the screenshots. |
 | E | **Push to GitHub** — subtree pull into PWaraq, scan for private data, `git push --force-with-lease` once (history rewrite), README updated. | Repo shows tshi-dev as author on every commit, licence AGPL-3.0, security policy present. | Say "push". |
-| F | **Phase 4a — desktop (Tauri)** — **seamless top edge (owner, 20 Oct): no Windows title bar; the window top is the same paper colour as the app background, one smooth surface with the task bar, our own minimise/maximise/close buttons in Waraq colours, draggable, no border line or colour step, rounded corners and shadow as Windows 11 draws them**, installer, updater, file associations, right-click "Open in Waraq", packs download on first use, offline. | Installed on this PC, every task works from a double-clicked PDF; installer ≤ 0.3.3's size. | Test the installer. |
+| F | **Phase 4a — desktop (Tauri)** — **first slice built 21 Oct (see "Phase 4a — desktop shell" below; needs Rust on the PC to compile)** — **seamless top edge (owner, 20 Oct): no Windows title bar; the window top is the same paper colour as the app background, one smooth surface with the task bar, our own minimise/maximise/close buttons in Waraq colours, draggable, no border line or colour step, rounded corners and shadow as Windows 11 draws them**, installer, updater, file associations, right-click "Open in Waraq", packs download on first use, offline. | Installed on this PC, every task works from a double-clicked PDF; installer ≤ 0.3.3's size. | Test the installer. |
 | G | **Phase 4b — website** — product page + `/app` (Waraq 1.0 web), Report a problem in the footer, download card for the 1.0 desktop app; 0.3.3 stays live until G is approved. | Website ZIP ready for the publishing agent; beta online only when A–F are done. | Yes to go live. |
 | H | **Switch 0.3.3 users** — 0.3.3 updater points at 1.0; 0.3.x folder kept for fixes only. | Update tested from an installed 0.3.3. | Yes to publish. |
 
@@ -465,6 +465,32 @@ the browser build cannot run them and says so ("This works in the Waraq desktop 
 - **Font subsetting:** `assemble` calls MuPDF `subsetFonts()` when Waraq embedded its own Tajawal (cover, divider,
   contents, watermark): ~470 KB → ~90 KB on a three-page test, text unchanged. Other exports are not subsetted, so
   fonts of the user's own PDFs stay whole and editable.
+
+## Phase 4a — desktop shell with Tauri 2 (step F, 21 Oct 2026, first slice)
+Built in `src-tauri/` (Rust, ~100 lines) + `src/lib/desktop.ts` + `TitleBar.svelte`; the web build is untouched
+(`desktop.ts` does nothing when `window.__TAURI__` is missing; `tests/e2e/desktop.spec.ts` checks both).
+- **Decided:** Tauri 2 with the global API (`withGlobalTauri`, no npm `@tauri-apps/api`), identifier `com.waraq.app`,
+  icon from `../Designs/Logo` (`pnpm tauri icon`). Frameless window (`decorations: false, shadow: true`); the page draws a
+  40 px bar in the paper colour (surface colour once a document is open, so bar and task bar are one flat surface),
+  draggable, double-click maximises, our own minimise / maximise / close (36 px, Waraq hover colours). The buttons stay
+  top-right in Arabic too (the corner Windows uses; Edge, VS Code do the same).
+- **Files:** native Open/Save dialogs (`tauri-plugin-dialog`), bytes read/written by our own Rust commands (`read_file`,
+  `write_file` via a temp file + rename; text arguments ride percent-encoded in headers). "Save" writes straight back to
+  the opened path, "Save as" when there is none or writing fails; every other export goes through the Save-as window.
+  Recent files keep the path. A file on the command line (double-click, file association `.pdf` / `.waraq` in the NSIS
+  bundle), a second launch (`tauri-plugin-single-instance` → `open-paths` event) or a file dropped on the window
+  (`tauri://drag-drop`) opens in the running window. Window size/position remembered (`tauri-plugin-window-state`).
+- **Converter bridge:** `convert_to_pdf(name header, bytes body) → PDF bytes | error`; `desktop.ts` sets
+  `window.waraqDesktop.convertToPdf` exactly as `convert.ts` expects. The command answers `NO_PACKS` until the packs
+  session wires LibreOffice/LibreDWG (then the UI's "conversion failed" becomes a real result).
+- **Scripts:** `pnpm desktop` (dev), `pnpm desktop:build` (NSIS installer), `pnpm desktop:smoke`
+  (`tools/dev/tauri-smoke.mjs`: debug build, starts the exe with `three.pdf` per theme + Arabic, `win-shot.ps1`
+  screenshots the window and checks the flat top edge and the drawn page). Debug builds read `WARAQ_UI=<theme>,<lang>`.
+- **Remains (next sessions):** installer polish (NSIS header/sidebar, Arabic texts, ≤ 0.3.3 size), updater
+  (`tauri-plugin-updater`, signing key — owner declined a code-signing certificate, so SmartScreen warning or MS Store),
+  MSIX / Microsoft Store, right-click "Open in Waraq" (registry in the installer), packs download on first use + the real
+  converter, drag-over highlight in the Tauri window (DOM drop events do not fire there), a CSP on the app page, dark
+  window background before the page loads (today paper-light for a frame), portfolio `.waraq` save path.
 
 ## Ideas from AuroraPDF (github.com/KoMAr38/aurora-pdf, looked at 20 Oct 2026)
 One-person Windows PDF reader (Python + PyMuPDF + WebView2, AGPL-3.0, 465 tests, also sold in the Microsoft Store).
