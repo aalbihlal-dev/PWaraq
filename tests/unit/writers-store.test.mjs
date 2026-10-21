@@ -70,3 +70,11 @@ test("a PDF's own subset with only a glyph-index cmap ((1,0), codes are glyph nu
   assert.equal(createFace(store.hb, f.getName(), f.getBuffer().asUint8Array().slice(), { source: 'pdf' }), null);
   assert.ok(createFace(store.hb, 'Tajawal', store.file('Tajawal-Regular.ttf'), { source: 'pdf' }), 'a font with a Unicode cmap is kept');
 });
+
+test('replacing a line of a dense Type 1 paragraph takes nothing from the line above (its descenders and a mark box reach into the removal band)', async () => {
+  const fs = await import('node:fs'), { editPage, pageObjects, BASELINE } = await import('../../src/lib/engine/editpage.ts'), { withStore } = await import('./store.mjs'), { store } = await import('./store.mjs');
+  const bytes = new Uint8Array(fs.readFileSync(new URL('./../fixtures/arabic/real/real-cma-circular-frutiger-type1.pdf', import.meta.url))), lines = pageObjects(new m.PDFDocument(bytes).loadPage(0)).lines, l = lines[6];
+  const edit = { kind: 'text', from: { x: l.x, y: l.y, w: l.w, h: l.h }, text: 'x', size: l.size, color: [...l.color], bold: l.bold, align: 'right', x: l.x, y: l.base - BASELINE * l.size, w: l.w, h: l.h };
+  const out = editPage(m, new m.PDFDocument(bytes), 0, [edit], [], () => withStore(), false, store), after = new Set(pageObjects(m.Document.openDocument(out.saveToBuffer('').asUint8Array().slice(), 'application/pdf').loadPage(0)).lines.map((x) => x.text));
+  assert.deepEqual(lines.filter((x) => x !== l && !after.has(x.text)).map((x) => x.text), [], 'every other line reads as before');
+});
