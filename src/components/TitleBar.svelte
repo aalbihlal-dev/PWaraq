@@ -3,15 +3,18 @@
   // mounted in the Tauri shell. The buttons stay at the top-right corner in Arabic too (where Windows puts them).
   import { t } from '../lib/i18n.svelte';
   import { icon } from '../lib/icons.js';
-  import { appWindow } from '../lib/desktop';
+  import { appWindow, setBorder } from '../lib/desktop';
+  import { theme } from '../lib/theme.svelte';
   let { flush = false }: { flush?: boolean } = $props(); // flush: same colour as the task bar under it (a document is open)
   const win = appWindow();
   let max = $state(false);
   const sync = async () => (max = await win.isMaximized());
   sync(); win.onResized(sync);
+  let el: HTMLDivElement;
+  $effect(() => { theme.name; flush; setBorder(getComputedStyle(el).backgroundColor); }); // frame follows the bar's colour
 </script>
 
-<div class="titlebar" class:flush data-tauri-drag-region>
+<div class="titlebar" class:flush data-tauri-drag-region bind:this={el}>
   <span class="win">
   <button class="btn icon" onclick={() => win.minimize()} title={t('minimize')} aria-label={t('minimize')}>{@html icon('minimize')}</button>
   <button class="btn icon" onclick={() => win.toggleMaximize()} title={t(max ? 'restore' : 'maximize')} aria-label={t(max ? 'restore' : 'maximize')}>{@html icon(max ? 'restore' : 'maximize')}</button>

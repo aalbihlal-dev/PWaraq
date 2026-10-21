@@ -61,4 +61,10 @@ button { cursor: pointer; }
 svg.icon { width: 18px; height: 18px; flex: none; }
 html, body { overflow: hidden; }
 #app { height: 100%; }
+/* thin scrollbars in Waraq colours (Chromium: Edge and the desktop WebView2; the standard properties elsewhere) */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: var(--canvas); }
+::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--muted) 40%, var(--canvas)); border-radius: 8px; border: 2px solid var(--canvas); }
+::-webkit-scrollbar-thumb:hover { background: var(--green); }
+@supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: var(--muted) var(--canvas); } }
 html[data-desktop] #app { display: grid; grid-template-rows: 40px minmax(0, 1fr); } /* desktop app: our title bar on top */

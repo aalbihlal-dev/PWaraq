@@ -54,6 +54,21 @@ fn convert_to_pdf(request: Request) -> Result<Response, String> {
     Err("NO_PACKS".into())
 }
 
+/// Colours the 1 px frame Windows 11 draws round a frameless window (else it is the accent colour, or the desktop
+/// showing through): the page sends its title bar colour, so the top edge is seamless. `color` is a COLORREF.
+#[tauri::command]
+fn set_border(window: tauri::WebviewWindow, color: u32) {
+    #[cfg(windows)]
+    {
+        use windows_sys::Win32::Graphics::Dwm::{DwmSetWindowAttribute, DWMWA_BORDER_COLOR};
+        if let Ok(hwnd) = window.hwnd() {
+            unsafe { DwmSetWindowAttribute(hwnd.0 as *mut core::ffi::c_void, DWMWA_BORDER_COLOR as u32, &color as *const u32 as *const core::ffi::c_void, 4) };
+        }
+    }
+    #[cfg(not(windows))]
+    let _ = (window, color);
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
@@ -84,17 +99,10 @@ pub fn run() {
                     ));
                 }
             }
-            let window = win.build()?;
-            #[cfg(windows)]
-            {
-                // no DWM border: Windows 11 draws a 1 px accent-coloured line round a frameless window otherwise
-                use windows_sys::Win32::Graphics::Dwm::{DwmSetWindowAttribute, DWMWA_BORDER_COLOR, DWMWA_COLOR_NONE};
-                let hwnd = window.hwnd()?.0 as *mut core::ffi::c_void;
-                unsafe { DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR as u32, &DWMWA_COLOR_NONE as *const u32 as *const core::ffi::c_void, 4) };
-            }
+            set_border(win.build()?, 0x00f8fbfa); // paper, until the page reports its title bar colour
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![launch_paths, read_file, write_file, convert_to_pdf])
+        .invoke_handler(tauri::generate_handler![launch_paths, read_file, write_file, convert_to_pdf, set_border])
         .run(tauri::generate_context!())
         .expect("error while running Waraq");
 }

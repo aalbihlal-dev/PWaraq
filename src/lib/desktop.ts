@@ -31,6 +31,11 @@ export async function saveAs(name: string, bytes: Uint8Array): Promise<string | 
   if (path) await writePath(path, bytes);
   return path;
 }
+/** The 1 px frame Windows draws round the window, in the title bar's colour, so the top edge shows no hairline. */
+export function setBorder(cssRgb: string) {
+  const [r, g, b] = cssRgb.match(/\d+/g)!.map(Number);
+  tauri!.core.invoke('set_border', { color: (b << 16) | (g << 8) | r }); // COLORREF is 0x00bbggrr
+}
 /** Files the user wants opened: the command line, a second launch (single instance), a file dropped on the window. */
 export function onOpenPaths(cb: (paths: string[]) => void) {
   tauri!.core.invoke('launch_paths').then((p: string[]) => p.length && cb(p));
