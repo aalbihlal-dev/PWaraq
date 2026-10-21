@@ -186,7 +186,7 @@ export function tocPages(o: { w: number; h: number; heading: string; rtl: boolea
       // a long title is written on 2 or 3 lines (smaller each time) inside its row; only beyond that is it cut with …
       let size = 13 * k, rows: string[] = [];
       const lay = (pt: number) => { size = pt * k; rows = wrap((t) => measure(regular, t, size), e.title, room - (measure(regular, num, size) + 12 * k)); };
-      lay(13); if (rows.length > 1) { lay(11); if (rows.length > 2) { lay(9); if (rows.length > 3) lay(7.5); } }
+      lay(13); if (rows.length > 1) { lay(11); if (rows.length > 2) { lay(9); if (rows.length > 3) lay(8.5); } } // never smaller than 8.5 pt: beyond three rows the end is cut with …
       if (rows.length > 3) rows = [...rows.slice(0, 2), fit(regular, rows.slice(2).join(' '), size, room - (measure(regular, num, size) + 12 * k))];
       const nw = measure(regular, num, size) + 12 * k, pitch = size * 1.15, last = rows.length - 1;
       rows.forEach((text, j) => lines.push({ text, x: o.rtl ? o.w - m : m, y: y + (j - last / 2) * pitch, size, color: INK, align: o.rtl ? 'right' : 'left' }));
