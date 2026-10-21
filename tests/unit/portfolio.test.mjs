@@ -40,3 +40,12 @@ test('portfolio cover: first page, not numbered but counted; contents and bookma
   assert.deepEqual(b.items[1].toc.entries.map((e) => e.number), [3]);
   assert.deepEqual(b.bookmarks.map((x) => x.at), [1, 2]);
 });
+
+test('portfolio build: the file gets the cover title (else the portfolio name) as its title, the names as author, the language of the interface', () => {
+  const p = newPortfolio('حافظة المقرر');
+  p.sections = [{ id: 's1', title: 'أ', fromFile: false, divider: false, note: '', items: [page('a')] }];
+  assert.deepEqual(build(p, { ...words, rtl: true }).meta, { title: 'حافظة المقرر', author: '', subject: '', lang: 'ar' });
+  p.options.cover = { ...p.options.cover, on: true, title: 'التقرير السنوي', subtitle: 'دراسة حالة', names: 'عبدالله\nسارة' };
+  assert.deepEqual(build(p, { ...words, rtl: true }).meta, { title: 'التقرير السنوي', author: 'عبدالله  ·  سارة', subject: 'دراسة حالة', lang: 'ar' });
+  assert.equal(build(p, words).meta.lang, 'en');
+});

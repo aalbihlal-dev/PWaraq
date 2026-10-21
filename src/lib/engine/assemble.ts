@@ -12,7 +12,10 @@ export type Item = { doc?: number; page?: number; rotate?: number; fit?: { w: nu
   paper?: Paper; cover?: Parameters<typeof coverPage>[0];
   divider?: Parameters<typeof dividerPage>[0]; toc?: Parameters<typeof tocPages>[0] };
 export type Build = { items: Item[]; bookmarks?: { title: string; at: number }[]; numbers?: boolean | number[]; numberStyle?: NumberStyle;
-  watermark?: Watermark & { pages?: number[] } };
+  watermark?: Watermark & { pages?: number[] };
+  meta?: Meta }; // document properties written into the new file: its title, author and subject, and the language it is in
+/** What a reader shows as the document's name (the tab / title bar, file properties) and what screen readers announce. */
+export type Meta = { title?: string; author?: string; subject?: string; lang?: 'ar' | 'en' };
 export type Source = { doc: MuPDF.Document; bytes: Uint8Array };
 
 export function assemble(m: typeof MuPDF, source: (id: number) => Source, b: Build, fonts?: () => Fonts): Uint8Array {
@@ -86,7 +89,27 @@ export function assemble(m: typeof MuPDF, source: (id: number) => Source, b: Bui
     for (const bm of b.bookmarks) outline.insert({ title: bm.title, uri: out.formatLinkURI(new m.LinkDestination(0, bm.at, 'Fit')), open: false });
   }
   if (writer || b.watermark?.text.trim()) out.subsetFonts(); // the bundled Tajawal weights are embedded whole (~120 KB each): keep only the letters used
+  if (b.meta) writeMeta(out, b.meta);
   return out.saveToBuffer('garbage=compact').asUint8Array().slice();
+}
+
+const xml = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+/** Title, author, subject (the file's Info, text strings: UTF-16 for Arabic), the same as an XMP packet (UTF-8), the document language, and
+ *  "show the title, not the file name" for viewers. Empty values are left out; with nothing at all the file gets no properties. */
+function writeMeta(out: MuPDF.PDFDocument, meta: Meta) {
+  const title = meta.title?.trim(), author = meta.author?.trim(), subject = meta.subject?.trim(), root = out.getTrailer().get('Root');
+  if (title) out.setMetaData('info:Title', title);
+  if (author) out.setMetaData('info:Author', author);
+  if (subject) out.setMetaData('info:Subject', subject);
+  if (title || author || subject) out.setMetaData('info:Creator', 'Waraq');
+  if (meta.lang) root.put('Lang', out.newString(meta.lang));
+  if (title) { const vp = out.newDictionary(); vp.put('DisplayDocTitle', true); root.put('ViewerPreferences', vp); }
+  if (!(title || author || subject)) return;
+  const alt = (tag: string, v: string, l = meta.lang ?? 'x-default') => `<dc:${tag}><rdf:Alt><rdf:li xml:lang="${l}">${xml(v)}</rdf:li></rdf:Alt></dc:${tag}>`;
+  const packet = `<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xmp="http://ns.adobe.com/xap/1.0/">`
+    + (title ? alt('title', title) : '') + (author ? `<dc:creator><rdf:Seq><rdf:li>${xml(author)}</rdf:li></rdf:Seq></dc:creator>` : '') + (subject ? alt('description', subject) : '')
+    + `<xmp:CreatorTool>Waraq</xmp:CreatorTool></rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="r"?>`;
+  root.put('Metadata', out.addStream(packet, { Type: 'Metadata', Subtype: 'XML' }));
 }
 
 // A photo or scan as a page: the page has the neighbouring pages' size (`fit`), the image fills it keeping its shape.

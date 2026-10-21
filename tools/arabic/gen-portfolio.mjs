@@ -64,7 +64,7 @@ push({ ...cover('split'), fit: { w: 420, h: 595 }, cover: { ...cover('split').co
 push({ ...cover('frame'), fit: { w: 842, h: 595 }, cover: { ...cover('frame').cover, w: 842, h: 595 } }, 'cover-frame-landscape', [arT.title]);
 const bookmarks = [{ title: arT.title, at: 0 }, { title: T.tashkeel, at: 1 }, { title: 'Chapter 1 — ' + T.pure, at: 2 }, { title: long150, at: 3 }, { title: 'الفصل ٣ ' + T.persian, at: 4 }];
 const doc0 = save(basePdf([{ w: 595, h: 842 }]));
-const out = run(doc0, { items: pi, bookmarks, numbers: true });
+const out = run(doc0, { items: pi, bookmarks, numbers: true, meta: { title: arT.title, author: arT.names.join('  ·  '), subject: arT.subtitle, lang: 'ar' } });
 writeOut('portfolio.pdf', out);
 manifest('portfolio', man);
 fs.writeFileSync(path.join(OUT, 'portfolio-bookmarks.json'), JSON.stringify(bookmarks.map((b) => b.title)));

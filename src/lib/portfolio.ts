@@ -128,5 +128,6 @@ export function build(p: Portfolio, words: { contents: string; section: string; 
   // numbers: every page but the cover (it still counts), or one section's pages
   const numbers = o.numbers === 'all' ? slots.filter((s) => s.kind !== 'cover').map((s) => s.index) : o.numbers === 'none' ? undefined : pageSlots.filter((s) => s.section.id === o.numbers).map((s) => s.index);
   const bookmarks = o.bookmarks ? [...(slots.find((x) => x.kind === 'toc') ? [{ title: words.contents, at: slots.find((x) => x.kind === 'toc')!.index }] : []), ...shown.map((s) => ({ title: s.title, at: target.get(s.id)! }))] : undefined;
-  return { items, numbers, numberStyle: { position: o.numberPos === 'left' ? 'bl' : o.numberPos === 'right' ? 'br' : 'bc', start: o.numbers === 'all' && c.on ? 2 : 1 }, bookmarks };
+  const meta = { title: c.title.trim() || p.name, author: names.join('  ·  '), subject: c.subtitle.trim(), lang: words.rtl ? 'ar' as const : 'en' as const }; // the file's own name in readers: the portfolio's title
+  return { items, meta, numbers, numberStyle: { position: o.numberPos === 'left' ? 'bl' : o.numberPos === 'right' ? 'br' : 'bc', start: o.numbers === 'all' && c.on ? 2 : 1 }, bookmarks };
 }
