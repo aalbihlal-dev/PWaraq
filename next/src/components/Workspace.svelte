@@ -14,6 +14,9 @@
   import Forms from './Forms.svelte';
   import Ocr from './Ocr.svelte';
   import Comment from './Comment.svelte';
+  import { setTask } from '../lib/crashlog';
+  import { rail } from '../lib/rail.svelte';
+  import { onDestroy } from 'svelte';
 
   let { pool, sizes, name, bytes, modified, password, onOpen, onClose, onSave, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; bytes: Uint8Array; modified: boolean; password?: string;
     onOpen: () => void; onClose: () => void; onSave: () => void; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
@@ -27,6 +30,7 @@
     else mode = (['edit', 'organize', 'sign', 'convert', 'protect', 'redact', 'forms', 'ocr', 'comment'].includes(next) ? next : 'view') as typeof mode;
   }
   // Edit: the page editor on the current page; saving puts the edited page in its place and opens the document again
+  $effect(() => setTask(mode, [name])); // for the crash log (the file name is replaced there)
   let editPage = $state(1);
   async function edited(r: Saved) {
     applying = true;
@@ -39,6 +43,8 @@
     if (mode === 'comment' && commented && comment) { applying = true; try { await onReplace(await comment.build()); } catch { alert(t('toolFailed')); return; } finally { applying = false; } }
     onSave();
   }
+  $effect(() => { rail.name = name; rail.modified = modified || organized || commented; });
+  onDestroy(() => { rail.name = ''; rail.modified = false; });
   let viewer = $state() as Viewer;
   let current = $state(1);
   let showThumbs = $state(true);
@@ -79,17 +85,15 @@
 <div class="ws">
   <header class="bar">
     <img src="/brand-mark.svg" alt="" width="28" height="28" />
-    <strong class="name" title={name}>{name}</strong>
     <nav class="tasks" aria-label="Tasks">
       {#each tasks as task}
         <button class="task" class:on={task === mode} disabled={applying} onclick={() => { if (task === 'edit' && mode !== 'edit') editPage = current; task_(task); }}>{t(task)}</button>
       {/each}
     </nav>
     <span class="end">
-      {#if modified || organized || commented}<span class="mod">{t('modified')}</span>{/if}
       <button class="btn" class:primary={modified} onclick={save} disabled={applying || (mode === 'edit' && editScope === 'page') || mode === 'sign'}>{@html icon('download')}{t('save')}</button>
-      <button class="btn" onclick={onOpen}>{@html icon('upload')}{t('openShort')}</button>
-      <button class="btn" onclick={onClose}>{@html icon('close')}{t('close')}</button>
+      <button class="btn" onclick={onOpen} title={t('openShort')} aria-label={t('openShort')}>{@html icon('upload')}<span class="lbl">{t('openShort')}</span></button>
+      <button class="btn" onclick={onClose} title={t('close')} aria-label={t('close')}>{@html icon('close')}<span class="lbl">{t('close')}</span></button>
       <ThemeButton />
       <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
     </span>
@@ -177,13 +181,12 @@
   .scope button { min-height: var(--control); padding: 0 var(--s-16); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--surface); font-weight: 600; color: var(--muted); }
   .scope button.on { background: var(--green-soft); border-color: var(--green); color: var(--ink); }
   .applying { position: absolute; inset: 0; z-index: 2; margin: 0; display: grid; place-items: center; background: var(--veil); font-size: var(--fs-16); font-weight: 600; }
-  .mod { color: var(--muted); font-size: var(--fs-12); white-space: nowrap; }
   .bar { display: flex; align-items: center; gap: var(--s-12); padding: var(--s-8) var(--s-16); background: var(--surface); border-bottom: 1px solid var(--line); min-width: 0; }
-  .name { max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-14); }
-  .tasks { display: flex; gap: var(--s-8); margin-inline: auto; overflow-x: auto; }
+  .tasks { display: flex; flex: 0 0.001 auto; gap: var(--s-8); margin-inline: auto; overflow-x: auto; }
   .task { min-height: var(--control); padding: 0 var(--s-12); border: 0; border-radius: var(--r-8); background: none; color: var(--muted); font-weight: 600; white-space: nowrap; }
   .task.on { background: var(--green-soft); color: var(--ink); box-shadow: inset 0 -2px 0 var(--green); }
   .task:disabled { opacity: .55; cursor: default; }
+  @media (max-width: 1200px) { .bar { gap: var(--s-8); } .task { padding: 0 var(--s-8); } .lbl { display: none; } } /* narrow windows: tighter task buttons, Open and Close as icons (still 36 px high, 8 px apart) */
   .end { display: flex; gap: var(--s-8); }
   .tools { display: flex; align-items: center; gap: var(--s-8); padding: var(--s-8) var(--s-16); background: var(--surface); border-bottom: 1px solid var(--line); }
   .sep { width: 1px; height: 24px; background: var(--line); }

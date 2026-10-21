@@ -144,3 +144,26 @@ test('edit: redact an area in the page editor — the heading under it is gone f
   expect(text).not.toContain('Old heading');
   expect(text).toContain('Keep this line');
 });
+
+test('page editor: zoom to 200 % and back to fit; the page stays whole and scrollable, text can still be placed', async ({ page }) => {
+  test.setTimeout(90_000);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'New portfolio' }).click();
+  await choose(page, () => page.getByRole('button', { name: 'Add a file as a section' }).first().click(), [fixture('three.pdf')]);
+  await page.locator('.cell').nth(1).dblclick();
+  await ready(page);
+  const fit = await scale(page), zoom = page.getByRole('combobox', { name: 'Zoom' });
+  await zoom.selectOption({ label: '200%' });
+  await expect.poll(() => scale(page)).toBeCloseTo(2, 1);
+  const stage = page.locator('.editor .stage');
+  expect(await stage.evaluate((el) => el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight)).toBe(true); // the page is bigger than the window: it scrolls
+  await stage.evaluate((el) => { el.scrollTo(0, 0); });
+  expect((await page.locator('.editor .sheet').boundingBox())!.x).toBeGreaterThanOrEqual(0); // not cut off at the start
+  await page.getByRole('button', { name: 'Add text' }).click();
+  const sheet = (await page.locator('.editor .sheet').boundingBox())!;
+  await page.mouse.click(sheet.x + 100, sheet.y + 100);
+  await page.keyboard.type('تكبير');
+  await expect(page.locator('.editor textarea').first()).toHaveValue('تكبير');
+  await zoom.selectOption({ label: 'Fit page' });
+  await expect.poll(() => scale(page)).toBeCloseTo(fit, 1);
+});

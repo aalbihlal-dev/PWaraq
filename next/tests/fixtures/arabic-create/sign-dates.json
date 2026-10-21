@@ -1,0 +1,74 @@
+[
+ {
+  "cal": "gregory",
+  "style": "numeric",
+  "lang": "ar",
+  "text": "21/10/2026"
+ },
+ {
+  "cal": "gregory",
+  "style": "numeric",
+  "lang": "en",
+  "text": "21/10/2026"
+ },
+ {
+  "cal": "gregory",
+  "style": "long",
+  "lang": "ar",
+  "text": "21 أكتوبر 2026"
+ },
+ {
+  "cal": "gregory",
+  "style": "long",
+  "lang": "en",
+  "text": "21 October 2026"
+ },
+ {
+  "cal": "gregory",
+  "style": "iso",
+  "lang": "ar",
+  "text": "2026-10-21"
+ },
+ {
+  "cal": "gregory",
+  "style": "iso",
+  "lang": "en",
+  "text": "2026-10-21"
+ },
+ {
+  "cal": "islamic-umalqura",
+  "style": "numeric",
+  "lang": "ar",
+  "text": "10/05/1448 هـ"
+ },
+ {
+  "cal": "islamic-umalqura",
+  "style": "numeric",
+  "lang": "en",
+  "text": "10/05/1448 AH"
+ },
+ {
+  "cal": "islamic-umalqura",
+  "style": "long",
+  "lang": "ar",
+  "text": "10 جمادى الأولى 1448 هـ"
+ },
+ {
+  "cal": "islamic-umalqura",
+  "style": "long",
+  "lang": "en",
+  "text": "10 Jumada I 1448 AH"
+ },
+ {
+  "cal": "islamic-umalqura",
+  "style": "iso",
+  "lang": "ar",
+  "text": "1448-05-10 هـ"
+ },
+ {
+  "cal": "islamic-umalqura",
+  "style": "iso",
+  "lang": "en",
+  "text": "1448-05-10 AH"
+ }
+]

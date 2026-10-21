@@ -1,0 +1,11 @@
+[
+ {
+  "writer": "sign-cert",
+  "file": "sign-cert.pdf",
+  "page": 0,
+  "label": "cert-appearance",
+  "expect": [
+   "عبدالله محمد الأحمد"
+  ]
+ }
+]

@@ -1,0 +1,20 @@
+{
+ "id": "receipt-80mm",
+ "type": "receipt",
+ "arrangement": "long narrow 80 mm",
+ "w": 227,
+ "h": 600,
+ "marks": [
+  {
+   "role": "pii",
+   "name": null,
+   "kind": "phone",
+   "multi": false,
+   "text": "011 234 5678",
+   "x": 77.75390625,
+   "y": 195.46875,
+   "w": 72,
+   "h": 11.25
+  }
+ ]
+}

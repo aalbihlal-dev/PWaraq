@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Waraq 1.0 for the Microsoft Store (MSIX, full-trust Win32 app). The three PLACEHOLDER values come from
+     Partner Center → the app's "Product identity" page; build.ps1 fills the version from package.json. -->
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+         xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+         xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+         xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+         IgnorableNamespaces="uap uap10 rescap">
+  <Identity Name="PLACEHOLDER.Publisher.Waraq" Publisher="CN=PLACEHOLDER-PUBLISHER-ID" Version="1.0.0.0" ProcessorArchitecture="x64" />
+  <Properties>
+    <DisplayName>Waraq</DisplayName>
+    <PublisherDisplayName>PLACEHOLDER Publisher</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <Description>Arabic and English PDF studio. View, edit, organize, sign, convert and protect PDF files on your own device.</Description>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+  <Resources>
+    <Resource Language="en-US" />
+    <Resource Language="ar" />
+  </Resources>
+  <Applications>
+    <Application Id="Waraq" Executable="waraq.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements DisplayName="Waraq" Description="Arabic and English PDF studio" BackgroundColor="#15775d"
+                          Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\Square71x71Logo.png" Square310x310Logo="Assets\Square310x310Logo.png" />
+        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <!-- PDF is offered in "Open with" (the Store never forces a default); .waraq is Waraq's own format -->
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="pdf">
+            <uap:SupportedFileTypes><uap:FileType>.pdf</uap:FileType></uap:SupportedFileTypes>
+            <uap:DisplayName>PDF document</uap:DisplayName>
+            <uap:Logo>Assets\Square44x44Logo.png</uap:Logo>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="waraq">
+            <uap:SupportedFileTypes><uap:FileType>.waraq</uap:FileType></uap:SupportedFileTypes>
+            <uap:DisplayName>Waraq portfolio</uap:DisplayName>
+            <uap:Logo>Assets\Square44x44Logo.png</uap:Logo>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

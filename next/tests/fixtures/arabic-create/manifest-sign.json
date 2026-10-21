@@ -1,0 +1,262 @@
+[
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 0,
+  "label": "name-0",
+  "expect": [
+   "عبدالله محمد الأحمد",
+   "21/10/2026"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 1,
+  "label": "name-1",
+  "expect": [
+   "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+   "21/10/2026"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 2,
+  "label": "name-2",
+  "expect": [
+   "محمد بن عبدالله Al-Ahmad 2026",
+   "21 أكتوبر 2026"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 3,
+  "label": "name-3",
+  "expect": [
+   "عبدالله محمد الأحمد الحربي الشمري الدوسري القحطاني",
+   "21 October 2026"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 4,
+  "label": "name-4",
+  "expect": [
+   "پژمان",
+   "2026-10-21"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 5,
+  "label": "name-5",
+  "expect": [
+   "ب",
+   "2026-10-21"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 6,
+  "label": "name-6",
+  "expect": [
+   "Abdullah Al-Ahmad",
+   "10/05/1448 هـ"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 7,
+  "label": "name-7",
+  "expect": [
+   "الدكتور/ عبدالله (المشرف)",
+   "10/05/1448 AH"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 8,
+  "label": "name-8",
+  "expect": [
+   "سارة ٢٠٢٦",
+   "10 جمادى الأولى 1448 هـ"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 9,
+  "label": "date-gregory-numeric-ar",
+  "expect": [
+   "عبدالله محمد",
+   "21/10/2026"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 10,
+  "label": "date-gregory-numeric-en",
+  "expect": [
+   "عبدالله محمد",
+   "21/10/2026"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 11,
+  "label": "date-gregory-long-ar",
+  "expect": [
+   "عبدالله محمد",
+   "21 أكتوبر 2026"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 12,
+  "label": "date-gregory-long-en",
+  "expect": [
+   "عبدالله محمد",
+   "21 October 2026"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 13,
+  "label": "date-gregory-iso-ar",
+  "expect": [
+   "عبدالله محمد",
+   "2026-10-21"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 14,
+  "label": "date-gregory-iso-en",
+  "expect": [
+   "عبدالله محمد",
+   "2026-10-21"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 15,
+  "label": "date-islamic-umalqura-numeric-ar",
+  "expect": [
+   "عبدالله محمد",
+   "10/05/1448 هـ"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 16,
+  "label": "date-islamic-umalqura-numeric-en",
+  "expect": [
+   "عبدالله محمد",
+   "10/05/1448 AH"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 17,
+  "label": "date-islamic-umalqura-long-ar",
+  "expect": [
+   "عبدالله محمد",
+   "10 جمادى الأولى 1448 هـ"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 18,
+  "label": "date-islamic-umalqura-long-en",
+  "expect": [
+   "عبدالله محمد",
+   "10 Jumada I 1448 AH"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 19,
+  "label": "date-islamic-umalqura-iso-ar",
+  "expect": [
+   "عبدالله محمد",
+   "1448-05-10 هـ"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 20,
+  "label": "date-islamic-umalqura-iso-en",
+  "expect": [
+   "عبدالله محمد",
+   "1448-05-10 AH"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 21,
+  "label": "rot90",
+  "expect": [
+   "عبدالله محمد الأحمد",
+   "21/10/2026"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 22,
+  "label": "rot180",
+  "expect": [
+   "عبدالله محمد الأحمد",
+   "21/10/2026"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 23,
+  "label": "rot270",
+  "expect": [
+   "عبدالله محمد الأحمد",
+   "21/10/2026"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 24,
+  "label": "crop-origin",
+  "expect": [
+   "عبدالله محمد الأحمد",
+   "21/10/2026"
+  ]
+ },
+ {
+  "writer": "sign",
+  "file": "sign.pdf",
+  "page": 25,
+  "label": "size-A5",
+  "expect": [
+   "عبدالله محمد الأحمد",
+   "21/10/2026"
+  ]
+ }
+]

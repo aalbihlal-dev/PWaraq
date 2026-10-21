@@ -1,0 +1,85 @@
+[
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF06450631062D0628062700200",
+  "da": "(/WqArabic 12 Tf 0.137 0.235 0.212 rg)",
+  "ap": "BT /WqO0 12 Tf 0.14 0.24 0.21 rg 1 0 0 1 302.27 34.6 Tm [<0105><016e><0171><0175><0180><01bf><01a8><0003><01b5><0170> -65 <0184><0199><0003><018c><01ae><0003><0",
+  "fonts": [
+   "WqO0:/Tajawal"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF0627064406410627062A06480",
+  "da": "(/WqArabic 12 Tf 0.137 0.235 0.212 rg)",
+  "ap": "BT /WqO0 12 Tf 0.14 0.24 0.21 rg 1 0 0 1 182.51 34.6 Tm [<0113><016e><01b6> -65 <0105><0003>] TJ ET\nBT /WqO0 12 Tf 0.14 0.24 0.21 rg 1 0 0 1 205.01 34.6 Tm [<00",
+  "fonts": [
+   "WqO0:/Tajawal"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF0631064206450020062706440",
+  "da": "(/WqArabic 12 Tf 0.137 0.235 0.212 rg)",
+  "ap": "BT /WqO0 12 Tf 0.14 0.24 0.21 rg 1 0 0 1 297.36 34.6 Tm [<010f><01b1><0003>] TJ ET\nBT /WqO0 12 Tf 0.14 0.24 0.21 rg 1 0 0 1 308.98 34.6 Tm [<0126><0129><0129><0",
+  "fonts": [
+   "WqO0:/Tajawal"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF0628065006330652064506500",
+  "da": "(/WqArabic 12 Tf 0.137 0.235 0.212 rg)",
+  "ap": "BT /WqO0 12 Tf 0.14 0.24 0.21 rg 1 0 0 1 358.9 34.6 Tm -0.12 Ts [ -238 <011f>] TJ 0 Ts [ 238 <01aa><01b7>] TJ -0.12 Ts [ -196 <011f>] TJ 0 Ts [ 196 <017d>] TJ 0",
+  "fonts": [
+   "WqO0:/Tajawal"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF0644062700200625064406470",
+  "da": "(/WqArabic 12 Tf 0.137 0.235 0.212 rg)",
+  "ap": "BT /WqO0 12 Tf 0.14 0.24 0.21 rg 1 0 0 1 332.7 34.6 Tm [<016b><01a8><01b8><0003><01aa><01b7><01b1><00fb> -65 <0184><0170><01bc><0003><0115><01ba><0003><00f2><01",
+  "fonts": [
+   "WqO0:/Tajawal"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF0627064406460635002000280",
+  "da": "(/WqArabic 12 Tf 0.137 0.235 0.212 rg)",
+  "ap": "BT /WqO0 12 Tf 0.14 0.24 0.21 rg 1 0 0 1 204.91 34.6 Tm [<00f4><00fb><0183><01b1><0003><016e><01ab><0003><0010><0003><0008>] TJ ET\nBT /WqO0 12 Tf 0.14 0.24 0.21",
+  "fonts": [
+   "WqO0:/Tajawal"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF067E069806480647063400200",
+  "da": "(/WqArabic 12 Tf 0.137 0.235 0.212 rg)",
+  "ap": "BT /WqO1 12 Tf 0.14 0.24 0.21 rg 1 0 0 1 372.95 34.6 Tm [<1035><1043><0001><07a8><0725><067a><06b0><0713> 244 <0001><06ec><064e><07a8><0725><0f30><0001><0777><0",
+  "fonts": [
+   "WqO0:/Tajawal",
+   "WqO1:/Amiri"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "(Hello world 123)",
+  "da": "(/Helv 12 Tf .13725491 .23529412 .21176471 rg)",
+  "ap": ".13725491 .23529412 .21176471 RG\n0 w\n60 272 475 50 re\nW\nn\nq\n1 0 -0 1 60 272 cm\nBT\n.13725491 .23529412 .21176471 rg\n0 54.800004 Td\n0 -14.400001 Td\n/Helv 12 Tf\n(H",
+  "fonts": [
+   "Helv:/Helvetica"
+  ]
+ },
+ {
+  "subtype": "/FreeText",
+  "contents": "<FEFF0628>",
+  "da": "(/WqArabic 12 Tf 0.137 0.235 0.212 rg)",
+  "ap": "BT /WqO0 12 Tf 0.14 0.24 0.21 rg 1 0 0 1 460.57 34.6 Tm [<00fc>] TJ ET\n",
+  "fonts": [
+   "WqO0:/Tajawal",
+   "WqO1:/Amiri"
+  ]
+ }
+]

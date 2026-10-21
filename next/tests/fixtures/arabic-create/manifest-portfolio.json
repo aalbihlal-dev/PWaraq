@@ -1,0 +1,355 @@
+[
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 0,
+  "label": "cover-classic",
+  "expect": [
+   "التقرير السنوي لمشروع التحول الرقمي وأثره على الاستقلال المالي للمؤسسات الصغيرة والمتوسطة",
+   "دراسة حالة: المملكة العربية السعودية ٢٠٢٦",
+   "عبدالله محمد الأحمد",
+   "سارة بنت خالد الدوسري",
+   "پژمان Al-Ahmad",
+   "إشراف: د. فاطمة الزهراء بن عبدالله"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 1,
+  "label": "cover-minimal",
+  "expect": [
+   "التقرير السنوي لمشروع التحول الرقمي وأثره على الاستقلال المالي للمؤسسات الصغيرة والمتوسطة",
+   "دراسة حالة: المملكة العربية السعودية ٢٠٢٦",
+   "عبدالله محمد الأحمد",
+   "سارة بنت خالد الدوسري",
+   "پژمان Al-Ahmad",
+   "إشراف: د. فاطمة الزهراء بن عبدالله"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 2,
+  "label": "cover-band",
+  "expect": [
+   "التقرير السنوي لمشروع التحول الرقمي وأثره على الاستقلال المالي للمؤسسات الصغيرة والمتوسطة",
+   "دراسة حالة: المملكة العربية السعودية ٢٠٢٦",
+   "عبدالله محمد الأحمد",
+   "سارة بنت خالد الدوسري",
+   "پژمان Al-Ahmad",
+   "إشراف: د. فاطمة الزهراء بن عبدالله"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 3,
+  "label": "cover-frame",
+  "expect": [
+   "التقرير السنوي لمشروع التحول الرقمي وأثره على الاستقلال المالي للمؤسسات الصغيرة والمتوسطة",
+   "دراسة حالة: المملكة العربية السعودية ٢٠٢٦",
+   "عبدالله محمد الأحمد",
+   "سارة بنت خالد الدوسري",
+   "پژمان Al-Ahmad",
+   "إشراف: د. فاطمة الزهراء بن عبدالله"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 4,
+  "label": "cover-side",
+  "expect": [
+   "التقرير السنوي لمشروع التحول الرقمي وأثره على الاستقلال المالي للمؤسسات الصغيرة والمتوسطة",
+   "دراسة حالة: المملكة العربية السعودية ٢٠٢٦",
+   "عبدالله محمد الأحمد",
+   "سارة بنت خالد الدوسري",
+   "پژمان Al-Ahmad",
+   "إشراف: د. فاطمة الزهراء بن عبدالله"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 5,
+  "label": "cover-split",
+  "expect": [
+   "التقرير السنوي لمشروع التحول الرقمي وأثره على الاستقلال المالي للمؤسسات الصغيرة والمتوسطة",
+   "دراسة حالة: المملكة العربية السعودية ٢٠٢٦",
+   "عبدالله محمد الأحمد",
+   "سارة بنت خالد الدوسري",
+   "پژمان Al-Ahmad",
+   "إشراف: د. فاطمة الزهراء بن عبدالله"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 6,
+  "label": "cover-geometric",
+  "expect": [
+   "التقرير السنوي لمشروع التحول الرقمي وأثره على الاستقلال المالي للمؤسسات الصغيرة والمتوسطة",
+   "دراسة حالة: المملكة العربية السعودية ٢٠٢٦",
+   "عبدالله محمد الأحمد",
+   "سارة بنت خالد الدوسري",
+   "پژمان Al-Ahmad",
+   "إشراف: د. فاطمة الزهراء بن عبدالله"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 7,
+  "label": "cover-editorial",
+  "expect": [
+   "التقرير السنوي لمشروع التحول الرقمي وأثره على الاستقلال المالي للمؤسسات الصغيرة والمتوسطة",
+   "دراسة حالة: المملكة العربية السعودية ٢٠٢٦",
+   "عبدالله محمد الأحمد",
+   "سارة بنت خالد الدوسري",
+   "پژمان Al-Ahmad",
+   "إشراف: د. فاطمة الزهراء بن عبدالله"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 8,
+  "label": "divider-classic",
+  "expect": [
+   "القسم ٣",
+   "الفصل الثالث: النتائج والمناقشة"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 9,
+  "label": "divider-minimal",
+  "expect": [
+   "القسم ٣",
+   "الفصل الثالث: النتائج والمناقشة"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 10,
+  "label": "divider-band",
+  "expect": [
+   "القسم ٣",
+   "الفصل الثالث: النتائج والمناقشة"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 11,
+  "label": "divider-frame",
+  "expect": [
+   "القسم ٣",
+   "الفصل الثالث: النتائج والمناقشة"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 12,
+  "label": "divider-side",
+  "expect": [
+   "القسم ٣",
+   "الفصل الثالث: النتائج والمناقشة"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 13,
+  "label": "divider-split",
+  "expect": [
+   "القسم ٣",
+   "الفصل الثالث: النتائج والمناقشة"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 14,
+  "label": "divider-geometric",
+  "expect": [
+   "القسم ٣",
+   "الفصل الثالث: النتائج والمناقشة"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 15,
+  "label": "divider-editorial",
+  "expect": [
+   "القسم ٣",
+   "الفصل الثالث: النتائج والمناقشة"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 16,
+  "label": "cover-long150ar",
+  "expect": [
+   "عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عرب"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 17,
+  "label": "cover-long200latin",
+  "expect": [
+   "A very long English title for the portfolio cover page A very long English title for the portfolio cover page A very long English title for the portfolio cover page A very long English title for the p"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 18,
+  "label": "cover-tashkeel-indic",
+  "expect": [
+   "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+   "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+   "لا إله إلا الله، لأن لإبراهيم لآلئ",
+   "النص (بين قوسين) و[أقواس] «اقتباس» 50% - ما هذا؟"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 19,
+  "label": "cover-onechar",
+  "expect": [
+   "ب"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 20,
+  "label": "cover-all-long",
+  "expect": [
+   "عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عرب"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 21,
+  "label": "divider-long150",
+  "expect": [
+   "عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عرب"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 22,
+  "label": "divider-long200latin",
+  "expect": [
+   "A very long English title for the portfolio cover page A very long English title for the portfolio cover page A very long English title for the portfolio cover page A very long English title for the p"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 23,
+  "label": "toc-rtl",
+  "expect": [
+   "القسم 1: مرحبا بالعالم، هذا ن",
+   "القسم 2: مرحبا بالعالم، هذا ن",
+   "القسم 3: مرحبا بالعالم، هذا ن",
+   "عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عرب",
+   "القسم 5: مرحبا بالعالم، هذا ن",
+   "A very long English title for the portfolio cover page A very long English title for the portfolio cover page A very long English title for the portfolio cover page A very long English title for the p",
+   "القسم 7: مرحبا بالعالم، هذا ن",
+   "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+   "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 بمبلغ 1,250.50 ريال",
+   "القسم 10: مرحبا بالعالم، هذا ن",
+   "القسم 11: مرحبا بالعالم، هذا ن",
+   "القسم 12: مرحبا بالعالم، هذا ن"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 24,
+  "label": "toc-ltr-arabic-titles",
+  "expect": [
+   "القسم 1: مرحبا بالعالم، هذا ن",
+   "القسم 2: مرحبا بالعالم، هذا ن",
+   "القسم 3: مرحبا بالعالم، هذا ن",
+   "عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عربي طويل جدا للاختبار يتضمن كلمات كثيرة عنوان عرب",
+   "القسم 5: مرحبا بالعالم، هذا ن",
+   "A very long English title for the portfolio cover page A very long English title for the portfolio cover page A very long English title for the portfolio cover page A very long English title for the p",
+   "القسم 7: مرحبا بالعالم، هذا ن",
+   "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+   "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 بمبلغ 1,250.50 ريال",
+   "القسم 10: مرحبا بالعالم، هذا ن",
+   "القسم 11: مرحبا بالعالم، هذا ن",
+   "القسم 12: مرحبا بالعالم، هذا ن"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 25,
+  "label": "paper-plain",
+  "expect": []
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 26,
+  "label": "paper-lined",
+  "expect": []
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 27,
+  "label": "paper-grid",
+  "expect": []
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 28,
+  "label": "paper-dotted",
+  "expect": []
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 29,
+  "label": "cover-band-A3",
+  "expect": [
+   "التقرير السنوي لمشروع التحول الرقمي وأثره على الاستقلال المالي للمؤسسات الصغيرة والمتوسطة"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 30,
+  "label": "cover-split-A5",
+  "expect": [
+   "التقرير السنوي لمشروع التحول الرقمي وأثره على الاستقلال المالي للمؤسسات الصغيرة والمتوسطة"
+  ]
+ },
+ {
+  "writer": "portfolio",
+  "file": "portfolio.pdf",
+  "page": 31,
+  "label": "cover-frame-landscape",
+  "expect": [
+   "التقرير السنوي لمشروع التحول الرقمي وأثره على الاستقلال المالي للمؤسسات الصغيرة والمتوسطة"
+  ]
+ }
+]

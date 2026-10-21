@@ -1,0 +1,65 @@
+[
+ {
+  "writer": "marks-num-bc",
+  "file": "marks-num-bc.pdf",
+  "page": 0,
+  "label": "num-bc-0",
+  "expect": [
+   "1 / 7"
+  ]
+ },
+ {
+  "writer": "marks-num-bc",
+  "file": "marks-num-bc.pdf",
+  "page": 1,
+  "label": "num-bc-1",
+  "expect": [
+   "2 / 7"
+  ]
+ },
+ {
+  "writer": "marks-num-bc",
+  "file": "marks-num-bc.pdf",
+  "page": 2,
+  "label": "num-bc-2",
+  "expect": [
+   "3 / 7"
+  ]
+ },
+ {
+  "writer": "marks-num-bc",
+  "file": "marks-num-bc.pdf",
+  "page": 3,
+  "label": "num-bc-3",
+  "expect": [
+   "4 / 7"
+  ]
+ },
+ {
+  "writer": "marks-num-bc",
+  "file": "marks-num-bc.pdf",
+  "page": 4,
+  "label": "num-bc-4",
+  "expect": [
+   "5 / 7"
+  ]
+ },
+ {
+  "writer": "marks-num-bc",
+  "file": "marks-num-bc.pdf",
+  "page": 5,
+  "label": "num-bc-5",
+  "expect": [
+   "6 / 7"
+  ]
+ },
+ {
+  "writer": "marks-num-bc",
+  "file": "marks-num-bc.pdf",
+  "page": 6,
+  "label": "num-bc-6",
+  "expect": [
+   "7 / 7"
+  ]
+ }
+]

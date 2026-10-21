@@ -35,20 +35,46 @@ export function manifest(p: Portfolio): string {
   }, null, 1);
 }
 
+/** 'invalid': not a Waraq portfolio (damaged, foreign, unsafe); 'newer': made by a newer Waraq. */
+export class PortfolioError extends Error {
+  kind: 'invalid' | 'newer';
+  constructor(kind: 'invalid' | 'newer') { super('portfolio ' + kind); this.kind = kind; } // (no parameter property: Node's test runner only strips types)
+}
+const SAFE_ID = /^[a-z0-9-]{1,64}$/;
+// a name inside the file: manifest.json, or one file under files/ — nothing with .. / \ : or control characters
+const SAFE_ENTRY = /^(manifest\.json|files\/(?!.*\.\.)(?!\.$)[^/\\:\u0000-\u001f]{1,200})$/;
+
+/** The manifest of a portfolio read from its entries, after checking the whole file (names, ids, version, shape). */
+export function parse(entries: Record<string, Uint8Array>): any {
+  const bad = () => { throw new PortfolioError('invalid'); };
+  if (Object.keys(entries).some((n) => !SAFE_ENTRY.test(n))) bad();
+  let m: any;
+  try { m = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(entries['manifest.json'])); } catch { bad(); }
+  if (m?.app !== 'waraq-portfolio') bad();
+  if (typeof m.version !== 'number') bad();
+  if (m.version > 1) throw new PortfolioError('newer');
+  const obj = (x: any) => x && typeof x === 'object' && !Array.isArray(x);
+  if (typeof m.id !== 'string' || !SAFE_ID.test(m.id) || !obj(m.files) || !Array.isArray(m.sections)) bad();
+  if (Object.keys(m.files).some((id) => !SAFE_ID.test(id) || !obj(m.files[id])) || m.sections.some((s: any) => !obj(s) || !Array.isArray(s.pages) || s.pages.some((pg: any) => !obj(pg)))) bad();
+  return m;
+}
+
+/** The sections a manifest describes, their pages pointing at the already opened `files` (a page of a missing file is left out). */
+export const sectionsOf = (m: any, files: Portfolio['files']): Section[] => m.sections.map(({ pages, ...s }: any) => ({ ...s, items: pages
+  .filter((pg: any) => pg.blank || files[pg.file])
+  .map(({ file, ...pg }: any) => ({ ...pg, id: uid(), doc: pg.blank ? -1 : files[file].doc })) }));
+
 /** Opens a saved portfolio (manifest + files) in the engine. */
 export async function load(pool: EnginePool, entries: Record<string, Uint8Array>): Promise<Portfolio> {
-  const m = JSON.parse(new TextDecoder().decode(entries['manifest.json']));
-  if (m.app !== 'waraq-portfolio') throw new Error('not a Waraq portfolio');
+  const m = parse(entries);
   await pool.reset();
   const files: Portfolio['files'] = {};
   for (const [id, f] of Object.entries<any>(m.files)) {
     const bytes = entries['files/' + id];
     if (bytes) files[id] = { ...f, doc: (await pool.add(bytes, f.mime)).id };
   }
-  const sections = m.sections.map(({ pages, ...s }: any) => ({ ...s, items: pages
-    .filter((pg: any) => pg.blank || files[pg.file])
-    .map(({ file, ...pg }: any) => ({ ...pg, id: uid(), doc: pg.blank ? -1 : files[file].doc })) }));
-  return { id: m.id, name: m.name, created: m.created, options: withDefaults(m.options), sections, files };
+  const sections = sectionsOf(m, files);
+  return { id: m.id, name: m.name, created: m.created, options: withDefaults(m.options ?? {}), sections, files };
 }
 
 /** Files the pages still use, for the portable copy. */
@@ -102,5 +128,6 @@ export function build(p: Portfolio, words: { contents: string; section: string; 
   // numbers: every page but the cover (it still counts), or one section's pages
   const numbers = o.numbers === 'all' ? slots.filter((s) => s.kind !== 'cover').map((s) => s.index) : o.numbers === 'none' ? undefined : pageSlots.filter((s) => s.section.id === o.numbers).map((s) => s.index);
   const bookmarks = o.bookmarks ? [...(slots.find((x) => x.kind === 'toc') ? [{ title: words.contents, at: slots.find((x) => x.kind === 'toc')!.index }] : []), ...shown.map((s) => ({ title: s.title, at: target.get(s.id)! }))] : undefined;
-  return { items, numbers, numberStyle: { position: o.numberPos === 'left' ? 'bl' : o.numberPos === 'right' ? 'br' : 'bc', start: o.numbers === 'all' && c.on ? 2 : 1 }, bookmarks };
+  const meta = { title: c.title.trim() || p.name, author: names.join('  ·  '), subject: c.subtitle.trim(), lang: words.rtl ? 'ar' as const : 'en' as const }; // the file's own name in readers: the portfolio's title
+  return { items, meta, numbers, numberStyle: { position: o.numberPos === 'left' ? 'bl' : o.numberPos === 'right' ? 'br' : 'bc', start: o.numbers === 'all' && c.on ? 2 : 1 }, bookmarks };
 }

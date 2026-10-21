@@ -1,0 +1,867 @@
+{
+ "type-letter-circular.pdf": {
+  "producer": "edge",
+  "type": "letter-circular",
+  "arrangement": [
+   "single-column",
+   "right-aligned",
+   "header-footer",
+   "logo",
+   "stamp"
+  ],
+  "size": "A4",
+  "fonts": [
+   "Traditional Arabic",
+   "Arial"
+  ],
+  "source": "digital",
+  "lines": [
+   "المؤسسة العامة للتدريب التقني والمهني",
+   "بسم الله الرحمن الرحيم",
+   "تعميم رقم (٤٢) لعام ١٤٤٨هـ",
+   "إلى: جميع مديري الإدارات والفروع",
+   "الموضوع: تحديث إجراءات اعتماد الطلبات الإلكترونية",
+   "السلام عليكم ورحمة الله وبركاته،",
+   "إشارة إلى التعميم السابق رقم (٣٧) بتاريخ 12/02/2026م، نفيدكم بأن النظام الإلكتروني الجديد سيُعتمد ابتداءً من يوم الأحد 01/06/2026م، ويُلغى العمل بالنماذج الورقية بعد هذا التاريخ.",
+   "نأمل التكرم بإحاطة جميع الموظفين بما ورد أعلاه، والتنسيق مع الإدارة العامة لتقنية المعلومات (هاتف 0112345678) لأي استفسار.",
+   "وتقبلوا فائق الاحترام والتقدير،",
+   "المدير العام",
+   "م. عبدالله بن سعد الحربي"
+  ]
+ },
+ "type-letter-circular-usletter.pdf": {
+  "producer": "edge",
+  "type": "letter-circular",
+  "arrangement": [
+   "single-column",
+   "justified",
+   "us-letter"
+  ],
+  "size": "Letter",
+  "fonts": [
+   "Simplified Arabic"
+  ],
+  "source": "digital",
+  "lines": [
+   "بسم الله الرحمن الرحيم",
+   "تعميم رقم (٤٢) لعام ١٤٤٨هـ",
+   "إلى: جميع مديري الإدارات والفروع",
+   "الموضوع: تحديث إجراءات اعتماد الطلبات الإلكترونية",
+   "السلام عليكم ورحمة الله وبركاته،",
+   "إشارة إلى التعميم السابق رقم (٣٧) بتاريخ 12/02/2026م، نفيدكم بأن النظام الإلكتروني الجديد سيُعتمد ابتداءً من يوم الأحد 01/06/2026م، ويُلغى العمل بالنماذج الورقية بعد هذا التاريخ.",
+   "نأمل التكرم بإحاطة جميع الموظفين بما ورد أعلاه، والتنسيق مع الإدارة العامة لتقنية المعلومات (هاتف 0112345678) لأي استفسار.",
+   "وتقبلوا فائق الاحترام والتقدير،",
+   "م. عبدالله بن سعد الحربي"
+  ]
+ },
+ "type-invoice.pdf": {
+  "producer": "edge",
+  "type": "invoice",
+  "arrangement": [
+   "table",
+   "merged-cells",
+   "mixed-digits",
+   "small-print"
+  ],
+  "size": "A4",
+  "fonts": [
+   "Tahoma",
+   "Arial"
+  ],
+  "source": "digital",
+  "lines": [
+   "فاتورة ضريبية — Tax Invoice",
+   "رقم الفاتورة: INV-2026-00981",
+   "التاريخ: ١٤٤٨/٠٣/٢١هـ الموافق 2026-09-14",
+   "الرقم الضريبي: 300012345600003",
+   "العميل: شركة النخبة للمقاولات (Elite Contracting Co.)",
+   "أعمال تمديدات كهربائية — الدور الأول",
+   "لوحة توزيع رئيسية 400A",
+   "كابل نحاس 4×16 مم²",
+   "الإجمالي قبل الضريبة: 24,375.00 ر.س",
+   "ضريبة القيمة المضافة 15%: 3,656.25 ر.س",
+   "الإجمالي المستحق: 28,031.25 ر.س"
+  ]
+ },
+ "type-receipt-long.pdf": {
+  "producer": "edge",
+  "type": "receipt",
+  "arrangement": [
+   "single-column",
+   "long-receipt",
+   "monospace",
+   "small-print"
+  ],
+  "size": "80mm x 200mm",
+  "fonts": [
+   "Courier New"
+  ],
+  "source": "digital",
+  "lines": [
+   "بقالة الحي — فرع الروضة",
+   "حليب طازج ١ لتر      6.50",
+   "خبز بلدي ×٣            4.50",
+   "ماء ٦٠٠ مل ×١٢        12.00",
+   "المجموع               23.00",
+   "نقداً                  25.00",
+   "الباقي                  2.00",
+   "شكراً لزيارتكم — Thank you — 2026/09/14 18:42"
+  ]
+ },
+ "type-contract-clauses.pdf": {
+  "producer": "edge",
+  "type": "contract",
+  "arrangement": [
+   "numbered-clauses",
+   "nested-list",
+   "justified",
+   "arabic-indic-numbering"
+  ],
+  "size": "A4",
+  "fonts": [
+   "Simplified Arabic",
+   "Times New Roman"
+  ],
+  "source": "digital",
+  "lines": [
+   "عقد تقديم خدمات استشارية",
+   "أُبرم هذا العقد في مدينة الرياض بتاريخ ١٤٤٨/٠٢/١٠هـ بين كلٍّ من: الطرف الأول: شركة الأفق للاستشارات، والطرف الثاني: مؤسسة البناء الحديث.",
+   "البند الأول: موضوع العقد — يلتزم الطرف الأول بتقديم خدمات الاستشارات الهندسية الموضحة في الملحق (أ).",
+   "البند الثاني: مدة العقد — اثنا عشر (١٢) شهراً تبدأ من تاريخ التوقيع، قابلة للتجديد باتفاق الطرفين كتابةً.",
+   "البند الثالث: قيمة العقد — مبلغ وقدره 240,000 ريال سعودي (مائتان وأربعون ألف ريال) تُسدد على أقساط شهرية.",
+   "البند الرابع: الالتزامات — يلتزم الطرف الثاني بما يلي:",
+   "أ. توفير البيانات اللازمة خلال خمسة أيام عمل من طلبها.",
+   "ب. سداد المستحقات خلال ٣٠ يوماً من تاريخ الفاتورة.",
+   "ج. إخطار الطرف الأول كتابةً بأي تغيير في نطاق العمل.",
+   "البند الخامس: تسوية النزاعات — تُحال أي خلافات إلى التحكيم وفق نظام التحكيم السعودي."
+  ]
+ },
+ "type-form-boxes.pdf": {
+  "producer": "edge",
+  "type": "form",
+  "arrangement": [
+   "table",
+   "boxes",
+   "checkboxes",
+   "dotted-lines"
+  ],
+  "size": "A4",
+  "fonts": [
+   "Arial"
+  ],
+  "source": "digital",
+  "lines": [
+   "نموذج طلب إجازة",
+   "الاسم الرباعي",
+   "الرقم الوظيفي",
+   "الإدارة",
+   "المسمى الوظيفي",
+   "نوع الإجازة: ☐ سنوية ☐ مرضية ☐ اضطرارية",
+   "عدد الأيام",
+   "من تاريخ: ____/____/______",
+   "إلى تاريخ: ____/____/______",
+   "ملاحظة: يُرفق التقرير الطبي في حالة الإجازة المرضية التي تزيد عن ثلاثة أيام."
+  ]
+ },
+ "type-financial-landscape.pdf": {
+  "producer": "edge",
+  "type": "financial-statement",
+  "arrangement": [
+   "table",
+   "landscape",
+   "figures",
+   "negative-brackets",
+   "western-digits"
+  ],
+  "size": "A4 landscape",
+  "fonts": [
+   "Calibri"
+  ],
+  "source": "digital",
+  "lines": [
+   "قائمة المركز المالي كما في 31 ديسمبر 2025م",
+   "النقد وما في حكمه",
+   "ذمم مدينة تجارية",
+   "المخزون",
+   "إجمالي الموجودات المتداولة",
+   "ممتلكات ومعدات",
+   "إجمالي الموجودات"
+  ]
+ },
+ "type-newspaper-3col.pdf": {
+  "producer": "edge",
+  "type": "newspaper",
+  "arrangement": [
+   "three-columns",
+   "big-headline",
+   "caption",
+   "photo",
+   "decorative-font"
+  ],
+  "size": "A4",
+  "fonts": [
+   "Sakkal Majalla",
+   "Arabic Typesetting"
+  ],
+  "source": "digital",
+  "lines": [
+   "افتتاح أكبر مركز للطاقة الشمسية في المنطقة الشرقية",
+   "المشروع ينتج ١٫٥ غيغاواط ويوفر ٣ آلاف وظيفة",
+   "الدمام — مراسل الصحيفة",
+   "افتتح أمس مشروع الطاقة الشمسية الجديد بحضور عدد من المسؤولين والمستثمرين، ويُعد المشروع الأكبر من نوعه في المنطقة بطاقة إنتاجية تصل إلى ١٫٥ غيغاواط، ما يكفي لتغذية نحو ٢٥٠ ألف منزل.",
+   "صورة: جانب من الألواح الشمسية في الموقع (تصوير: أحمد العلي)",
+   "وقال المدير التنفيذي للشركة المنفذة إن المرحلة الثانية ستبدأ في الربع الأول من عام 2027م، مشيراً إلى أن نسبة المحتوى المحلي بلغت 48%.",
+   "من جهته أكد رئيس الغرفة التجارية أن المشروع سيسهم في خفض تكلفة الكهرباء على المصانع، داعياً الشركات الناشئة إلى الاستفادة من الفرص المصاحبة."
+  ]
+ },
+ "type-magazine-2col.pdf": {
+  "producer": "edge",
+  "type": "magazine",
+  "arrangement": [
+   "two-columns",
+   "pull-quote",
+   "text-on-colour",
+   "photo"
+  ],
+  "size": "A4",
+  "fonts": [
+   "Dubai"
+  ],
+  "source": "digital",
+  "lines": [
+   "افتتاح أكبر مركز للطاقة الشمسية في المنطقة الشرقية",
+   "افتتح أمس مشروع الطاقة الشمسية الجديد بحضور عدد من المسؤولين والمستثمرين، ويُعد المشروع الأكبر من نوعه في المنطقة بطاقة إنتاجية تصل إلى ١٫٥ غيغاواط، ما يكفي لتغذية نحو ٢٥٠ ألف منزل.",
+   "«المشروع سيغيّر خريطة الطاقة في المنطقة خلال خمس سنوات»",
+   "وقال المدير التنفيذي للشركة المنفذة إن المرحلة الثانية ستبدأ في الربع الأول من عام 2027م، مشيراً إلى أن نسبة المحتوى المحلي بلغت 48%.",
+   "صورة: جانب من الألواح الشمسية في الموقع (تصوير: أحمد العلي)",
+   "من جهته أكد رئيس الغرفة التجارية أن المشروع سيسهم في خفض تكلفة الكهرباء على المصانع، داعياً الشركات الناشئة إلى الاستفادة من الفرص المصاحبة."
+  ]
+ },
+ "type-book-a5.pdf": {
+  "producer": "edge",
+  "type": "book",
+  "arrangement": [
+   "single-column",
+   "a5",
+   "header-footer",
+   "footnotes",
+   "page-number",
+   "latin-references"
+  ],
+  "size": "A5",
+  "fonts": [
+   "Amiri",
+   "Times New Roman"
+  ],
+  "source": "digital",
+  "lines": [
+   "الفصل الثالث — مناهج البحث",
+   "يُقصد بالمنهج الوصفي ذلك الأسلوب الذي يعتمد على دراسة الظاهرة كما توجد في الواقع، ويهتم بوصفها وصفاً دقيقاً ويعبّر عنها تعبيراً كيفياً أو كمياً¹.",
+   "وقد أشار (Creswell, 2014) إلى أن تصميم البحث يجب أن ينسجم مع طبيعة السؤال البحثي، وهو ما أكدته دراسات لاحقة².",
+   "قَالَ الشَّاعِرُ: وَمَا نَيْلُ الْمَطَالِبِ بِالتَّمَنِّي * وَلَكِنْ تُؤْخَذُ الدُّنْيَا غِلَابَا، وَمَا اسْتَعْصَى عَلَى قَوْمٍ مَنَالٌ * إِذَا الإِقْدَامُ كَانَ لَهُمْ رِكَابَا.",
+   "¹ عبيدات، ذوقان وآخرون (2016). البحث العلمي: مفهومه وأدواته وأساليبه. عمّان: دار الفكر، ص 219.",
+   "² Creswell, J. W. (2014). Research Design: Qualitative, Quantitative, and Mixed Methods Approaches. 4th ed. SAGE."
+  ]
+ },
+ "type-academic-paper.pdf": {
+  "producer": "edge",
+  "type": "academic-paper",
+  "arrangement": [
+   "two-columns",
+   "bilingual-abstract",
+   "latin-references",
+   "header-footer"
+  ],
+  "size": "A4",
+  "fonts": [
+   "Times New Roman"
+  ],
+  "source": "digital",
+  "lines": [
+   "أثر التعلم النشط في تحصيل طلاب المرحلة الثانوية في مادة الفيزياء",
+   "سارة بنت محمد القحطاني¹، Omar H. Al-Zahrani²",
+   "الملخص: هدفت الدراسة إلى قياس أثر استراتيجيات التعلم النشط في تحصيل طلاب الصف الثاني الثانوي، وتكونت العينة من 120 طالباً، وأظهرت النتائج فروقاً دالة إحصائياً عند مستوى (α = 0.05) لصالح المجموعة التجريبية.",
+   "Abstract: This study measured the effect of active-learning strategies on the achievement of 120 secondary-school students. Results showed statistically significant differences (α = 0.05) in favour of the experimental group.",
+   "يُقصد بالمنهج الوصفي ذلك الأسلوب الذي يعتمد على دراسة الظاهرة كما توجد في الواقع، ويهتم بوصفها وصفاً دقيقاً ويعبّر عنها تعبيراً كيفياً أو كمياً¹.",
+   "[1] Prince, M. (2004). Does active learning work? A review of the research. Journal of Engineering Education, 93(3), 223–231.",
+   "[2] الزهراني، عمر (2022). استراتيجيات التدريس الحديثة. الرياض: مكتبة الرشد."
+  ]
+ },
+ "type-slides-16x9.pdf": {
+  "producer": "edge",
+  "type": "slides",
+  "arrangement": [
+   "landscape",
+   "big-title",
+   "bullets",
+   "text-on-colour"
+  ],
+  "size": "16:9",
+  "fonts": [
+   "Segoe UI"
+  ],
+  "source": "digital",
+  "lines": [
+   "خطة التحول الرقمي 2026–2028",
+   "رقمنة ٩٠٪ من الخدمات بنهاية 2027",
+   "تدريب 1,200 موظف على الأدوات الجديدة",
+   "خفض زمن إنجاز المعاملة من 7 أيام إلى يومين",
+   "مؤشر رضا المستفيدين ≥ 85%"
+  ]
+ },
+ "type-certificate.pdf": {
+  "producer": "edge",
+  "type": "certificate",
+  "arrangement": [
+   "landscape",
+   "centred",
+   "display-text",
+   "decorative-font",
+   "logo",
+   "stamp"
+  ],
+  "size": "A4 landscape",
+  "fonts": [
+   "Andalus",
+   "Aldhabi"
+  ],
+  "source": "digital",
+  "lines": [
+   "شهادة شكر وتقدير",
+   "تتقدم إدارة المدرسة بالشكر والتقدير للطالب",
+   "محمد بن خالد العتيبي",
+   "لتميزه في مسابقة القرآن الكريم للعام الدراسي ١٤٤٧/١٤٤٨هـ"
+  ]
+ },
+ "type-poster-display.pdf": {
+  "producer": "edge",
+  "type": "poster",
+  "arrangement": [
+   "display-text",
+   "text-on-colour",
+   "centred",
+   "huge"
+  ],
+  "size": "A4",
+  "fonts": [
+   "Noto Kufi Arabic",
+   "Cairo"
+  ],
+  "source": "digital",
+  "lines": [
+   "ملتقى الابتكار",
+   "الثلاثاء ١٢ ربيع الأول — قاعة المؤتمرات الكبرى",
+   "الدخول مجاني — التسجيل عبر الموقع innovate.example.sa"
+  ]
+ },
+ "type-menu-prices.pdf": {
+  "producer": "edge",
+  "type": "menu",
+  "arrangement": [
+   "two-column-table",
+   "leaders",
+   "arabic-indic-prices"
+  ],
+  "size": "A5",
+  "fonts": [
+   "Dubai"
+  ],
+  "source": "digital",
+  "lines": [
+   "قائمة الطعام",
+   "كبسة لحم",
+   "مندي دجاج",
+   "سلطة فتوش",
+   "عصير برتقال طازج",
+   "قهوة عربية (دلة)",
+   "الأسعار شاملة ضريبة القيمة المضافة 15%"
+  ]
+ },
+ "type-timetable.pdf": {
+  "producer": "edge",
+  "type": "timetable",
+  "arrangement": [
+   "table",
+   "merged-cells",
+   "rotated-header",
+   "rtl-column-order"
+  ],
+  "size": "A4 landscape",
+  "fonts": [
+   "Tahoma"
+  ],
+  "source": "digital",
+  "lines": [
+   "الجدول الدراسي — الفصل الأول",
+   "الأحد",
+   "الاثنين",
+   "الثلاثاء",
+   "الأربعاء",
+   "الخميس",
+   "٨:٠٠–٨:٤٥",
+   "٨:٥٠–٩:٣٥",
+   "٩:٤٠–١٠:٢٥",
+   "١٠:٤٥–١١:٣٠",
+   "رياضيات",
+   "لغة عربية",
+   "فيزياء",
+   "English",
+   "حاسب",
+   "تربية إسلامية",
+   "كيمياء",
+   "تاريخ",
+   "نشاط مشترك"
+  ]
+ },
+ "type-technical-cad.pdf": {
+  "producer": "edge",
+  "type": "technical-drawing",
+  "arrangement": [
+   "title-block",
+   "rotated-text",
+   "small-print",
+   "latin-dimensions",
+   "landscape"
+  ],
+  "size": "A4 landscape",
+  "fonts": [
+   "Arial"
+  ],
+  "source": "digital",
+  "lines": [
+   "مخطط الدور الأرضي — مشروع فيلا سكنية",
+   "غرفة نوم رئيسية 4.20×5.00",
+   "صالة 6.00×7.50",
+   "مطبخ 3.60×4.00",
+   "حمام",
+   "مدخل",
+   "موقف سيارة 3.00×6.00",
+   "اسم المشروع",
+   "فيلا سكنية — حي النرجس",
+   "المالك",
+   "عبدالرحمن الشهري",
+   "المقياس",
+   "1:100",
+   "رقم اللوحة",
+   "A-101",
+   "التاريخ",
+   "2026-03-05",
+   "المراجعة",
+   "Rev. C"
+  ]
+ },
+ "type-bilingual-en-page.pdf": {
+  "producer": "edge",
+  "type": "bilingual",
+  "arrangement": [
+   "ltr-page",
+   "arabic-inside-ltr",
+   "single-column"
+  ],
+  "size": "A4",
+  "fonts": [
+   "Calibri"
+  ],
+  "source": "digital",
+  "lines": [
+   "Service Level Agreement — اتفاقية مستوى الخدمة",
+   "This agreement is made between the Provider and the Customer. The Arabic text below is the binding version in case of conflict.",
+   "تُعد النسخة العربية هي المرجع في حال وجود تعارض بين النصين، ويُعمل بها أمام الجهات الرسمية.",
+   "يبدأ الدوام الساعة 7:30 صباحاً في مبنى Building C، الطابق ٣، مكتب رقم 312."
+  ]
+ },
+ "type-bilingual-ar-page.pdf": {
+  "producer": "edge",
+  "type": "bilingual",
+  "arrangement": [
+   "rtl-page",
+   "english-inside-rtl",
+   "left-aligned-ltr-box"
+  ],
+  "size": "A4",
+  "fonts": [
+   "Calibri"
+  ],
+  "source": "digital",
+  "lines": [
+   "الشروط والأحكام — Terms and Conditions",
+   "تسري هذه الشروط على جميع المستخدمين، ويُعد استخدام الخدمة قبولاً بها.",
+   "By using the service you agree to these terms. Last updated: 14 September 2026.",
+   "يبدأ الدوام الساعة 7:30 صباحاً في مبنى Building C، الطابق ٣، مكتب رقم 312.",
+   "تُعد النسخة العربية هي المرجع في حال وجود تعارض بين النصين، ويُعمل بها أمام الجهات الرسمية."
+  ]
+ },
+ "type-poetry-tashkeel.pdf": {
+  "producer": "edge",
+  "type": "poetry",
+  "arrangement": [
+   "two-hemistich-columns",
+   "full-tashkeel",
+   "centred"
+  ],
+  "size": "A4",
+  "fonts": [
+   "Amiri",
+   "Scheherazade New",
+   "Traditional Arabic"
+  ],
+  "source": "digital",
+  "lines": [
+   "مُعَلَّقَةُ امْرِئِ الْقَيْسِ",
+   "قِفَا نَبْكِ مِنْ ذِكْرَى حَبِيبٍ وَمَنْزِلِ",
+   "بِسِقْطِ اللِّوَى بَيْنَ الدَّخُولِ فَحَوْمَلِ",
+   "فَتُوضِحَ فَالمِقْرَاةِ لَمْ يَعْفُ رَسْمُهَا",
+   "لِمَا نَسَجَتْهَا مِنْ جَنُوبٍ وَشَمْأَلِ",
+   "تَرَى بَعَرَ الآرَامِ فِي عَرَصَاتِهَا",
+   "وَقِيعَانِهَا كَأَنَّهُ حَبُّ فُلْفُلِ",
+   "امرؤ القيس — من المعلقة",
+   "قَالَ الشَّاعِرُ: وَمَا نَيْلُ الْمَطَالِبِ بِالتَّمَنِّي * وَلَكِنْ تُؤْخَذُ الدُّنْيَا غِلَابَا، وَمَا اسْتَعْصَى عَلَى قَوْمٍ مَنَالٌ * إِذَا الإِقْدَامُ كَانَ لَهُمْ رِكَابَا."
+  ]
+ },
+ "type-watermark-stamp.pdf": {
+  "producer": "edge",
+  "type": "stamped",
+  "arrangement": [
+   "watermark-behind",
+   "logo-behind",
+   "stamp-over",
+   "single-column"
+  ],
+  "size": "A4",
+  "fonts": [
+   "Arial"
+  ],
+  "source": "digital",
+  "lines": [
+   "نسخة غير رسمية — للاطلاع فقط",
+   "يُمنع تداول هذه النسخة خارج الجهة، وتُعد النسخة المختومة بالختم الرسمي هي المعتمدة.",
+   "إشارة إلى التعميم السابق رقم (٣٧) بتاريخ 12/02/2026م، نفيدكم بأن النظام الإلكتروني الجديد سيُعتمد ابتداءً من يوم الأحد 01/06/2026م، ويُلغى العمل بالنماذج الورقية بعد هذا التاريخ.",
+   "نأمل التكرم بإحاطة جميع الموظفين بما ورد أعلاه، والتنسيق مع الإدارة العامة لتقنية المعلومات (هاتف 0112345678) لأي استفسار."
+  ]
+ },
+ "type-textboxes-rotated.pdf": {
+  "producer": "edge",
+  "type": "text-boxes",
+  "arrangement": [
+   "text-boxes",
+   "rotated-90",
+   "centred",
+   "left-aligned-ltr-box"
+  ],
+  "size": "A4",
+  "fonts": [
+   "Segoe UI"
+  ],
+  "source": "digital",
+  "lines": [
+   "صندوق نص أول في أعلى الصفحة، محاذاة لليمين.",
+   "نص دائر بزاوية ٩٠ درجة على الهامش",
+   "Left-aligned English box inside an Arabic page: see Appendix B.",
+   "نص في المنتصف — centred",
+   "إشارة إلى التعميم السابق رقم (٣٧) بتاريخ 12/02/2026م، نفيدكم بأن النظام الإلكتروني الجديد سيُعتمد ابتداءً من يوم الأحد 01/06/2026م، ويُلغى العمل بالنماذج الورقية بعد هذا التاريخ."
+  ]
+ },
+ "type-mixed-fonts-line.pdf": {
+  "producer": "edge",
+  "type": "mixed-fonts",
+  "arrangement": [
+   "mixed-fonts-per-line",
+   "single-column"
+  ],
+  "size": "A4",
+  "fonts": [
+   "Traditional Arabic",
+   "Arial",
+   "Times New Roman"
+  ],
+  "source": "digital",
+  "lines": [
+   "فاتورة ضريبية — Tax Invoice",
+   "يبدأ الدوام الساعة 7:30 صباحاً في مبنى Building C، الطابق ٣، مكتب رقم 312.",
+   "المبلغ الإجمالي 28,031.25 ر.س شامل الضريبة 15%",
+   "إشارة إلى التعميم السابق رقم (٣٧) بتاريخ 12/02/2026م، نفيدكم بأن النظام الإلكتروني الجديد سيُعتمد ابتداءً من يوم الأحد 01/06/2026م، ويُلغى العمل بالنماذج الورقية بعد هذا التاريخ."
+  ]
+ },
+ "type-cadlike-rotated90.pdf": {
+  "producer": "waraq",
+  "type": "technical-drawing",
+  "arrangement": [
+   "rotated-page-90",
+   "visual-order",
+   "presentation-forms"
+  ],
+  "size": "A4 rotated",
+  "fonts": [
+   "Tajawal"
+  ],
+  "source": "digital",
+  "lines": []
+ },
+ "scans/flatbed-150.pdf": {
+  "producer": "scan",
+  "from": "type-letter-circular.pdf",
+  "type": "letter-circular",
+  "arrangement": [
+   "single-column",
+   "right-aligned",
+   "header-footer",
+   "logo",
+   "stamp"
+  ],
+  "source": "flatbed",
+  "dpi": 150,
+  "lines": []
+ },
+ "scans/flatbed-200.pdf": {
+  "producer": "scan",
+  "from": "type-contract-clauses.pdf",
+  "type": "contract",
+  "arrangement": [
+   "numbered-clauses",
+   "nested-list",
+   "justified",
+   "arabic-indic-numbering"
+  ],
+  "source": "flatbed",
+  "dpi": 200,
+  "lines": []
+ },
+ "scans/flatbed-300.pdf": {
+  "producer": "scan",
+  "from": "type-invoice.pdf",
+  "type": "invoice",
+  "arrangement": [
+   "table",
+   "merged-cells",
+   "mixed-digits",
+   "small-print"
+  ],
+  "source": "flatbed",
+  "dpi": 300,
+  "lines": []
+ },
+ "scans/phone-photo.pdf": {
+  "producer": "scan",
+  "from": "type-form-boxes.pdf",
+  "type": "form",
+  "arrangement": [
+   "table",
+   "boxes",
+   "checkboxes",
+   "dotted-lines"
+  ],
+  "source": "phone-photo",
+  "dpi": 200,
+  "lines": []
+ },
+ "scans/book-spine-curve.pdf": {
+  "producer": "scan",
+  "from": "type-book-a5.pdf",
+  "type": "book",
+  "arrangement": [
+   "single-column",
+   "a5",
+   "header-footer",
+   "footnotes",
+   "page-number",
+   "latin-references"
+  ],
+  "source": "book-curved",
+  "dpi": 200,
+  "lines": []
+ },
+ "scans/skew-2deg.pdf": {
+  "producer": "scan",
+  "from": "type-newspaper-3col.pdf",
+  "type": "newspaper",
+  "arrangement": [
+   "three-columns",
+   "big-headline",
+   "caption",
+   "photo",
+   "decorative-font"
+  ],
+  "source": "skewed",
+  "dpi": 200,
+  "skew": 2,
+  "lines": []
+ },
+ "scans/skew-5deg.pdf": {
+  "producer": "scan",
+  "from": "type-financial-landscape.pdf",
+  "type": "financial-statement",
+  "arrangement": [
+   "table",
+   "landscape",
+   "figures",
+   "negative-brackets",
+   "western-digits"
+  ],
+  "source": "skewed",
+  "dpi": 150,
+  "skew": -5,
+  "lines": []
+ },
+ "scans/faded-low-contrast.pdf": {
+  "producer": "scan",
+  "from": "type-letter-circular-usletter.pdf",
+  "type": "letter-circular",
+  "arrangement": [
+   "single-column",
+   "justified",
+   "us-letter"
+  ],
+  "source": "faded",
+  "dpi": 200,
+  "lines": []
+ },
+ "scans/photocopy-of-photocopy.pdf": {
+  "producer": "scan",
+  "from": "type-contract-clauses.pdf",
+  "type": "contract",
+  "arrangement": [
+   "numbered-clauses",
+   "nested-list",
+   "justified",
+   "arabic-indic-numbering"
+  ],
+  "source": "photocopy-x2",
+  "dpi": 200,
+  "lines": []
+ },
+ "scans/onebit-bw.pdf": {
+  "producer": "scan",
+  "from": "type-menu-prices.pdf",
+  "type": "menu",
+  "arrangement": [
+   "two-column-table",
+   "leaders",
+   "arabic-indic-prices"
+  ],
+  "source": "1-bit",
+  "dpi": 300,
+  "lines": []
+ },
+ "scans/stamps-handwriting.pdf": {
+  "producer": "scan",
+  "from": "type-watermark-stamp.pdf",
+  "type": "stamped",
+  "arrangement": [
+   "watermark-behind",
+   "logo-behind",
+   "stamp-over",
+   "single-column"
+  ],
+  "source": "marked-up",
+  "dpi": 200,
+  "lines": []
+ },
+ "scans/bleed-through.pdf": {
+  "producer": "scan",
+  "from": "type-poetry-tashkeel.pdf",
+  "type": "poetry",
+  "arrangement": [
+   "two-hemistich-columns",
+   "full-tashkeel",
+   "centred"
+  ],
+  "source": "bleed-through",
+  "dpi": 200,
+  "lines": []
+ },
+ "scans/jpeg-artefacts.pdf": {
+  "producer": "scan",
+  "from": "type-timetable.pdf",
+  "type": "timetable",
+  "arrangement": [
+   "table",
+   "merged-cells",
+   "rotated-header",
+   "rtl-column-order"
+  ],
+  "source": "jpeg",
+  "dpi": 150,
+  "lines": []
+ },
+ "scans/sideways-sheet.pdf": {
+  "producer": "scan",
+  "from": "type-magazine-2col.pdf",
+  "type": "magazine",
+  "arrangement": [
+   "two-columns",
+   "pull-quote",
+   "text-on-colour",
+   "photo"
+  ],
+  "source": "turned-90",
+  "dpi": 200,
+  "lines": []
+ },
+ "scans/colour-scan-tinted-paper.pdf": {
+  "producer": "scan",
+  "from": "type-certificate.pdf",
+  "type": "certificate",
+  "arrangement": [
+   "landscape",
+   "centred",
+   "display-text",
+   "decorative-font",
+   "logo",
+   "stamp"
+  ],
+  "source": "colour-scan",
+  "dpi": 150,
+  "lines": []
+ },
+ "scans/mixed-text-scan-text.pdf": {
+  "producer": "scan",
+  "from": "type-letter-circular.pdf",
+  "type": "letter-circular",
+  "arrangement": [
+   "single-column",
+   "right-aligned",
+   "header-footer",
+   "logo",
+   "stamp"
+  ],
+  "source": "mixed-pages",
+  "dpi": 200,
+  "pages": [
+   "text",
+   "scan",
+   "text"
+  ],
+  "lines": []
+ },
+ "scans/hybrid-ocr-layer-right.pdf": {
+  "producer": "scan",
+  "from": "type-letter-circular.pdf",
+  "type": "letter-circular",
+  "arrangement": [
+   "single-column",
+   "right-aligned",
+   "header-footer",
+   "logo",
+   "stamp"
+  ],
+  "source": "hybrid-ocr-layer",
+  "dpi": 200,
+  "layer": "right",
+  "lines": []
+ },
+ "scans/hybrid-ocr-layer-wrong.pdf": {
+  "producer": "scan",
+  "from": "type-academic-paper.pdf",
+  "type": "academic-paper",
+  "arrangement": [
+   "two-columns",
+   "bilingual-abstract",
+   "latin-references",
+   "header-footer"
+  ],
+  "source": "hybrid-ocr-layer",
+  "dpi": 200,
+  "layer": "wrong (every 6th word damaged)",
+  "lines": []
+ }
+}

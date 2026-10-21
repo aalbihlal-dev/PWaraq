@@ -12,6 +12,7 @@
   import PageEditor, { type Saved } from './PageEditor.svelte';
   import CropPanel from './CropPanel.svelte';
   import { zip } from '../lib/zip';
+  import { addUnique } from '../lib/names';
 
   let { pool, sizes, name, changed = $bindable(false) }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; changed?: boolean } = $props();
 
@@ -65,7 +66,7 @@
     busy = true;
     try {
       const chosen = items().filter((it) => selected.has(it.id)), first = items().indexOf(chosen[0]) + 1;
-      const bytes = await pool.build({ items: toItems(chosen) });
+      const bytes = await pool.keep(await pool.build({ items: toItems(chosen) }));
       await saveFile(bytes, name.replace(/\.pdf$/i, '') + ` (${t('pages')} ${first}-${first + chosen.length - 1}).pdf`);
     } finally { busy = false; }
   }
@@ -86,7 +87,7 @@
       const base = name.replace(/\.pdf$/i, ''), files: Record<string, Uint8Array> = {};
       let at = 1;
       for (const [n, part] of parts.entries()) {
-        files[`${base} (${n + 1}) ${t('pages')} ${at}-${at + part.length - 1}.pdf`] = await pool.build({ items: toItems(part) });
+        addUnique(files, `${base} (${n + 1}) ${t('pages')} ${at}-${at + part.length - 1}.pdf`, await pool.keep(await pool.build({ items: toItems(part) })));
         at += part.length;
       }
       await saveFile(zip(files), `${base} (${t('split')}).zip`, 'application/zip');

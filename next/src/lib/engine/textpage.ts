@@ -3,8 +3,12 @@
 // each glyph carries its original letters, so copying and searching give normal Arabic.
 // shortcut: no HarfBuzz here yet (a replaced line in the page editor uses it, ownfont.ts) — no harakat or Persian letters on these pages.
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
+import { runs as bidiRuns } from './bidi.ts';
+import { writer as storeWriter, getFace, scriptOf, shapeRun, type Store } from './fontstore.ts';
 
-export type Fonts = { regular: MuPDF.Font; bold: MuPDF.Font };
+/** Tajawal for the pages Waraq writes. With `store` (the font service: HarfBuzz, the bundled families, a subsetter) text is shaped
+ *  and written through it; without it the old presentation-form writer is used (tests that bring no font service). */
+export type Fonts = { regular: MuPDF.Font; bold: MuPDF.Font; store?: Store };
 export type Line = { text: string; x: number; y: number; size: number; bold?: boolean; color?: number[]; align?: 'left' | 'right' | 'center'; max?: number;
   parts?: { text: string; x: number }[]; tz?: number }; // parts: the line's words, each at its own x (from the left), as one piece of text; tz: horizontal scale
 export type TextPage = { w: number; h: number; lines: Line[]; rules?: number[][]; links?: { rect: number[]; to: number }[];
@@ -23,8 +27,6 @@ const AR = new Map<number, [number, number]>();
 }
 const LAM_ALEF: Record<number, number> = { 0x622: 0xfef5, 0x623: 0xfef7, 0x625: 0xfef9, 0x627: 0xfefb };
 const isMark = (c: number) => (c >= 0x64b && c <= 0x65f) || c === 0x670;
-const isArabic = (c: number) => (c >= 0x600 && c <= 0x6ff) || (c >= 0xfb50 && c <= 0xfeff);
-const isLtr = (c: number) => /[A-Za-z0-9À-ɏ٠-٩]/.test(String.fromCodePoint(c));
 const joinsNext = (c?: number) => c === 0x640 || (c !== undefined && AR.get(c)?.[1] === 4);
 const MIRROR: Record<string, string> = { '(': ')', ')': '(', '[': ']', ']': '[', '{': '}', '}': '{', '<': '>', '>': '<', '«': '»', '»': '«' };
 
@@ -43,26 +45,11 @@ function join(cs: number[]): Glyph[] {
   return out;
 }
 
-/** Text in reading order -> its direction runs (right-to-left ones still in reading order), left to right as they appear on the page. */
+/** Text in reading order -> its direction runs (right-to-left ones still in reading order), left to right as they appear
+ *  on the page: the Unicode bidirectional algorithm (bidi.ts) — numbers keep their digit order, brackets and punctuation
+ *  between two directions take the paragraph's, a line's direction comes from its first letter. */
 export function runs(text: string): { rtl: boolean; cs: number[] }[] {
-  const cs = [...text].map((ch) => ch.codePointAt(0)!);
-  const firstStrong = cs.find((c) => isArabic(c) || isLtr(c));
-  const rtl = firstStrong !== undefined && isArabic(firstStrong);
-  // runs: in a right-to-left line, left-to-right words (Latin, numbers) keep their order; elsewhere the reverse
-  const strong = rtl ? isLtr : (c: number) => isArabic(c) && !isMark(c);
-  const runs: { rtl: boolean; cs: number[] }[] = [];
-  for (let i = 0; i < cs.length;) {
-    if (strong(cs[i])) {
-      let j = i + 1, end = i + 1;
-      for (; j < cs.length && !(rtl ? isArabic(cs[j]) : isLtr(cs[j])); j++) if (strong(cs[j]) || isMark(cs[j])) end = j + 1;
-      runs.push({ rtl: !rtl, cs: cs.slice(i, end) }); i = end;
-    } else {
-      let j = i + 1;
-      while (j < cs.length && !strong(cs[j])) j++;
-      runs.push({ rtl, cs: cs.slice(i, j) }); i = j;
-    }
-  }
-  return rtl ? runs.reverse() : runs;
+  return bidiRuns([...text].map((ch) => ch.codePointAt(0)!)).map(({ rtl, cs }) => ({ rtl, cs }));
 }
 
 /** Text in reading order -> glyphs left to right, as they appear on the page. */
@@ -78,6 +65,15 @@ export function measure(font: MuPDF.Font, text: string, size: number) {
   return visual(text).reduce((w, g) => w + font.advanceGlyph(font.encodeCharacter(g.code)) * size, 0);
 }
 
+/** The width of a line in `fonts` (regular or bold) as it will be written: shaped through the font service when there is one, else
+ *  from the glyph advances. Wrapping and fitting use this, so what is measured is what is drawn. */
+export function widthOf(fonts: Fonts, bold = false): (text: string, size: number) => number {
+  const store = fonts.store;
+  if (!store) return (text, size) => measure(bold ? fonts.bold : fonts.regular, text, size);
+  const cache = new Map<string, import('./fontstore.ts').Face | null>();
+  return (text, size) => bidiRuns([...text].map((c) => c.codePointAt(0)!)).reduce((w, run) => w + shapeRun(store.hb, getFace(store, { name: 'Tajawal', bold }, scriptOf(run.cs), run.cs, cache).face, run, size).width, 0);
+}
+
 /** Lines of `text` (its own line breaks kept) that fit `width` (as `measure` measures them), broken between words. */
 export function wrap(measure: (text: string) => number, text: string, width: number) {
   return text.split('\n').flatMap((para) => {
@@ -86,6 +82,11 @@ export function wrap(measure: (text: string) => number, text: string, width: num
     for (const word of para.split(' ')) {
       const next = line ? line + ' ' + word : word;
       if (line && measure(next) > width) { out.push(line); line = word; } else line = next;
+      if (measure(line) > width && !line.includes(' ')) { // one word longer than the line: broken between letters
+        let chunk = '';
+        for (const ch of [...line]) { if (chunk && measure(chunk + ch) > width) { out.push(chunk); chunk = ch; } else chunk += ch; }
+        line = chunk;
+      }
     }
     return [...out, line];
   });
@@ -95,11 +96,16 @@ export function wrap(measure: (text: string) => number, text: string, width: num
  *  `finish` gives each font a map from glyph back to the letters it was drawn for, so text copies as written.
  *  `draw` gives only the drawing commands (for text added onto an existing page, with `fonts` as its font resources). */
 export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts) {
-  const faces = [fonts.regular, fonts.bold].map((font) => ({ font, ref: out.addFont(font), used: new Map<number, number[]>() }));
+  // with the font service every line goes through its writer (HarfBuzz: harakat, Persian and Urdu letters, subset faces, one map entry
+  // per glyph); the old writer below stays for lines made of words at their own x (the OCR layer) and for callers without a store
+  const sw = fonts.store ? storeWriter(m, fonts.store, out) : null, resources: Record<string, MuPDF.PDFObject> = sw ? sw.fonts : {};
+  const made: ({ font: MuPDF.Font; ref: MuPDF.PDFObject; used: Map<number, number[]> } | undefined)[] = [];
+  const faceOf = (i: number) => made[i] ??= (() => { const font = i ? fonts.bold : fonts.regular, ref = out.addFont(font); resources['WqT' + i] = ref; return { font, ref, used: new Map<number, number[]>() }; })();
   const n = (v: number) => +v.toFixed(2);
-  const resources = { WqT0: faces[0].ref, WqT1: faces[1].ref };
   return {
     fonts: resources,
+    /** The width `draw` gives a line (regular or bold). */
+    width: (text: string, size: number, bold = false) => widthOf(fonts, bold)(text, size),
     /** `under`: drawing commands and their resources put below the page's own (a background photo). */
     add(p: TextPage, under?: { ops: string; res: Record<string, Record<string, MuPDF.PDFObject>> }): MuPDF.PDFObject {
       return out.addPage([0, 0, p.w, p.h], 0, { ...under?.res, Font: resources }, (under?.ops ?? '') + this.draw(p));
@@ -111,7 +117,14 @@ export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts
       for (const r of p.rules ?? []) ops += `${r.slice(4, 7).map(n).join(' ')} rg ${n(r[0])} ${n(p.h - r[1] - r[3])} ${n(r[2])} ${n(r[3])} re f
 `;
       for (const l of p.lines) {
-        const face = faces[l.bold ? 1 : 0], font = face.font;
+        if (sw && !l.parts) { // a line through the font service; a long one shrinks to its width
+          const line = (size: number) => ({ text: l.text, x: l.x, y: l.y, size, color: l.color ?? INK, align: l.align ?? 'left' as const, bold: l.bold, hint: { name: 'Tajawal' } });
+          let size = l.size; const width = sw.measure(line(size));
+          if (l.max && width > l.max) size *= l.max / width;
+          ops += sw.draw(line(size), p.h);
+          continue;
+        }
+        const face = faceOf(l.bold ? 1 : 0), font = face.font;
         const gids = (text: string) => visual(text).map((g) => {
           const gid = font.encodeCharacter(g.code);
           face.used.set(gid, g.uni.length > 1 ? [...g.uni].reverse() : g.uni); // a joined pair is read back right to left
@@ -143,7 +156,7 @@ export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts
       }
       return ops;
     },
-    finish() { for (const f of faces) f.ref.put('ToUnicode', out.addStream(toUnicode(f.used), {})); },
+    finish() { sw?.finish(); for (const f of made) if (f) f.ref.put('ToUnicode', out.addStream(toUnicode(f.used), {})); },
   };
 }
 
@@ -169,18 +182,25 @@ export { dividerPage } from './designs.ts';
 export function tocPerPage(w: number, h: number) { const k = Math.min(w, h) / 595; return Math.max(1, Math.floor((h - 150 * k - 64 * k) / (30 * k))); }
 
 /** Table of contents pages: each entry its title, a dotted leader and its page number, the whole row a link. */
-export function tocPages(o: { w: number; h: number; heading: string; rtl: boolean; entries: { title: string; number: number; to: number }[] }, regular: MuPDF.Font): TextPage[] {
+export function tocPages(o: { w: number; h: number; heading: string; rtl: boolean; entries: { title: string; number: number; to: number }[] }, regular: MuPDF.Font | ((text: string, size: number) => number)): TextPage[] {
+  const mw = typeof regular === 'function' ? regular : (text: string, size: number) => measure(regular, text, size);
   const k = Math.min(o.w, o.h) / 595, m = 64 * k, per = tocPerPage(o.w, o.h), pages: TextPage[] = [];
   for (let start = 0; start < Math.max(1, o.entries.length); start += per) {
     const lines: Line[] = [{ text: o.heading, x: o.rtl ? o.w - m : m, y: 100 * k, size: 28 * k, bold: true, color: INK, align: o.rtl ? 'right' : 'left' }];
     const rules = [[m, 120 * k, o.w - 2 * m, 1 * k, ...LINE]], links: TextPage['links'] = [];
     o.entries.slice(start, start + per).forEach((e, i) => {
-      const y = 150 * k + 30 * k * (i + 1) - 10 * k, size = 13 * k, num = String(e.number), nw = measure(regular, num, size) + 12 * k;
-      const room = o.w - 2 * m - nw - 24 * k, title = fit(regular, e.title, size, room), tw = measure(regular, title, size);
-      const dots = Math.max(0, Math.floor((o.w - 2 * m - nw - tw - 16 * k) / measure(regular, '. ', size)));
-      lines.push({ text: title, x: o.rtl ? o.w - m : m, y, size, color: INK, align: o.rtl ? 'right' : 'left' });
-      lines.push({ text: '. '.repeat(dots).trim(), x: o.rtl ? m + nw : o.w - m - nw, y, size, color: LINE.map((c) => c * 0.8), align: o.rtl ? 'left' : 'right', max: o.w - 2 * m - nw - tw - 16 * k });
-      lines.push({ text: num, x: o.rtl ? m : o.w - m, y, size, color: GREEN, align: o.rtl ? 'left' : 'right' });
+      const y = 150 * k + 30 * k * (i + 1) - 10 * k, num = String(e.number), room = o.w - 2 * m - 24 * k;
+      // a long title is written on 2 or 3 lines (smaller each time) inside its row; only beyond that is it cut with …
+      let size = 13 * k, rows: string[] = [];
+      const lay = (pt: number) => { size = pt * k; rows = wrap((t) => mw( t, size), e.title, room - (mw( num, size) + 12 * k)); };
+      lay(13); if (rows.length > 1) { lay(11); if (rows.length > 2) { lay(9); if (rows.length > 3) lay(8.5); } } // never smaller than 8.5 pt: beyond three rows the end is cut with …
+      if (rows.length > 3) rows = [...rows.slice(0, 2), fit(mw, rows.slice(2).join(' '), size, room - (mw( num, size) + 12 * k))];
+      const nw = mw( num, size) + 12 * k, pitch = size * 1.15, last = rows.length - 1;
+      rows.forEach((text, j) => lines.push({ text, x: o.rtl ? o.w - m : m, y: y + (j - last / 2) * pitch, size, color: INK, align: o.rtl ? 'right' : 'left' }));
+      const tw = mw( rows[last], size), yl = y + (last / 2) * pitch;
+      const dots = Math.max(0, Math.floor((o.w - 2 * m - nw - tw - 16 * k) / mw( '. ', size)));
+      lines.push({ text: '. '.repeat(dots).trim(), x: o.rtl ? m + nw : o.w - m - nw, y: yl, size, color: LINE.map((c) => c * 0.8), align: o.rtl ? 'left' : 'right', max: o.w - 2 * m - nw - tw - 16 * k });
+      lines.push({ text: num, x: o.rtl ? m : o.w - m, y: yl, size, color: GREEN, align: o.rtl ? 'left' : 'right' });
       links.push({ rect: [m, y - 20 * k, o.w - m, y + 8 * k], to: e.to });
     });
     pages.push({ w: o.w, h: o.h, lines, rules, links });
@@ -189,9 +209,9 @@ export function tocPages(o: { w: number; h: number; heading: string; rtl: boolea
 }
 
 // shorten a title with … until it fits
-function fit(font: MuPDF.Font, text: string, size: number, room: number) {
-  if (measure(font, text, size) <= room) return text;
+function fit(width: (text: string, size: number) => number, text: string, size: number, room: number) {
+  if (width(text, size) <= room) return text;
   let t = [...text];
-  while (t.length > 1 && measure(font, t.join('') + '…', size) > room) t.pop();
+  while (t.length > 1 && width(t.join('') + '…', size) > room) t.pop();
   return t.join('').trimEnd() + '…';
 }

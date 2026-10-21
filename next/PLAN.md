@@ -17,7 +17,7 @@ Not pushed: everything after the Portfolio/404 commit. Public repo history rewri
 | C | **Support — website page DONE 20 Oct** (`waraq/dist/support.html`, footer links, issue template in PWaraq; ZIP waits for the owner's yes, OTHER-AGENT-TO-DO step 8). Left: the app's Help/⋯ "Report a problem" item opening `/support#v=…` (with dark modes, same menu). **Earlier text:** (owner, 20 Oct): one page on the website, `pwaraq.com/support` (EN+AR), holds everything; for now it links to GitHub issues only (the owner gives the rest — email, form — later). The app's quiet Help/⋯ item "Report a problem" just opens that page (with version, Windows/browser and language as URL hash so the page can prefill the issue link; nothing sent automatically). Website footer links to it too.** | Page live-ready in the website ZIP; app item opens it EN+AR; audit green. | GitHub issue template OK? Later: email/form. |
 | D | **Quality pass — DONE 20 Oct** (report `Archive-2026-10-12/reviews/WARAQ-1.0-QUALITY-PASS-2026-10-20.md`: built app opens a file in 0.3 s, 10 tasks fit at 1366 px EN+AR, only a 16 px slider to fix; the publishing agent's independent test is still open). **Original:** **Quality pass** — publishing agent's preview test (steps 3–5), fix every finding; full EN+AR click-through at 1366×768; `pnpm check`, unit, e2e, audit all green on a fresh checkout. | Zero open findings; screenshots in Archive. | Look at the screenshots. |
 | E | **Push to GitHub** — subtree pull into PWaraq, scan for private data, `git push --force-with-lease` once (history rewrite), README updated. | Repo shows tshi-dev as author on every commit, licence AGPL-3.0, security policy present. | Say "push". |
-| F | **Phase 4a — desktop (Tauri)** — **seamless top edge (owner, 20 Oct): no Windows title bar; the window top is the same paper colour as the app background, one smooth surface with the task bar, our own minimise/maximise/close buttons in Waraq colours, draggable, no border line or colour step, rounded corners and shadow as Windows 11 draws them**, installer, updater, file associations, right-click "Open in Waraq", packs download on first use, offline. | Installed on this PC, every task works from a double-clicked PDF; installer ≤ 0.3.3's size. | Test the installer. |
+| F | **Phase 4a — desktop (Tauri)** — **first slice built 21 Oct (see "Phase 4a — desktop shell" below; compiled + smoke-tested)** — **seamless top edge (owner, 20 Oct): no Windows title bar; the window top is the same paper colour as the app background, one smooth surface with the task bar, our own minimise/maximise/close buttons in Waraq colours, draggable, no border line or colour step, rounded corners and shadow as Windows 11 draws them**, installer, updater, file associations, right-click "Open in Waraq", packs download on first use, offline. | Installed on this PC, every task works from a double-clicked PDF; installer ≤ 0.3.3's size. | Test the installer. |
 | G | **Phase 4b — website** — product page + `/app` (Waraq 1.0 web), Report a problem in the footer, download card for the 1.0 desktop app; 0.3.3 stays live until G is approved. | Website ZIP ready for the publishing agent; beta online only when A–F are done. | Yes to go live. |
 | H | **Switch 0.3.3 users** — 0.3.3 updater points at 1.0; 0.3.x folder kept for fixes only. | Update tested from an installed 0.3.3. | Yes to publish. |
 
@@ -466,6 +466,83 @@ the browser build cannot run them and says so ("This works in the Waraq desktop 
   contents, watermark): ~470 KB → ~90 KB on a three-page test, text unchanged. Other exports are not subsetted, so
   fonts of the user's own PDFs stay whole and editable.
 
+## Phase 4a, second slice — installer, updater, add-on packs, Store package (step F, 21 Oct 2026; NOT released)
+Release gate stands: everything below is built and tested locally only; `release/` holds the installer, `.sig` and MSIX
+(git-ignored), `release/README.txt` the size + SHA-256, `release/TEST-REPORT.md` the test tables.
+- **Installer** (`pnpm desktop:build` → `release/Waraq_<v>_x64-setup.exe`, 27.8 MB vs 147 MB for 0.3.3): NSIS, per-user,
+  no admin, English/Arabic by the Windows language (the language dialog had to go: it blocks the passive update
+  install), Waraq header/sidebar art from 0.3.3, Start-menu shortcut, desktop shortcut optional (tick on the finish
+  page; silent installs make it), uninstall entry, WebView2 bootstrapper when missing, `/S` (+ `/D=dir`) silent.
+  `src-tauri/installer/hooks.nsh`: `.pdf` is *offered* (`OpenWithProgids` + ProgId `Waraq.PDF`, default handler
+  untouched), `.waraq` owned (Tauri file association, ProgId `Waraq.Portfolio`), right-click "Open in Waraq" on both
+  (`SystemFileAssociations\.<ext>\shell\OpenInWaraq`), all HKCU, removed on uninstall. The version comes from
+  `package.json` (`tauri.conf.json` → `"version": "../package.json"`). Test: `tools/dev/installer-test.ps1` (29 checks:
+  silent install into `%LOCALAPPDATA%\WaraqInstallTest`, keys, ShellExecute of a PDF with the verb → window, second
+  file → same window, silent uninstall leaves nothing). No 0.3.3 is installed on this PC, so the full test ran.
+- **Updater** (`src-tauri/src/update.rs`, `src/lib/update.svelte.ts`): `tauri-plugin-updater` against
+  `https://www.pwaraq.com/downloads-1.0/manifest.json` (URL only — nothing uploaded; `tools/dev/update-manifest.mjs`
+  prints the manifest with the `.sig` and the installer's SHA-256). Minisign key pair in `../Backups/keys-private/`
+  (private key + password file + README: keep offline, back up; public key in `tauri.conf.json`). Check once a day at
+  start and on "Check for updates" (start screen row with the version); a found update downloads in the background
+  (signature by the plugin, SHA-256 against the manifest by us) and waits for the click "Restart to update" — never
+  silent. Rollback: the installer hook keeps every installed version's setup in `%APPDATA%\com.waraq.app\updates\`;
+  a start writes `boot`, the page's `app_started` clears it and writes `last-good`; if `boot` is still there at the next
+  start and this version never became `last-good`, the last good version's installer runs silently (`/S /R`), the
+  failed version is `skip`ped and the start screen says "Version X did not start, so Waraq went back to Y". The
+  previous installer stays until the new version has started once (then one older copy is kept). Test:
+  `tools/dev/updater-test.mjs` (two signed builds 0.0.1 → 0.0.2 under identity `com.waraq.test`, local manifest server,
+  CDP-driven click, relaunch, simulated failed start → rollback, skip). Store builds (marker file `store-build`) never check.
+- **Add-on packs** (`src-tauri/src/packs.rs`, `convert.rs`, `src/lib/packs.svelte.ts`, `PackPrompt.svelte`): the first
+  Office/CAD conversion asks "Download the Office & CAD add-on (137 MB)?" (EN/AR, Download / Not now); after the click
+  the shell fetches `https://www.pwaraq.com/packs/manifest.json`, accepts only the pack whose SHA-256 is pinned in
+  `src-tauri/packs.json` (the 0.3.3 office pack), downloads the 16 MB pieces 4 at a time (each piece checked, the whole
+  checked), unpacks zstd+tar into `%APPDATA%\com.waraq.app\engines\office\` (progress events, Cancel), then
+  `convert_to_pdf` runs LibreOffice / LibreDWG headless on a temp copy (macros off, no window, 3 min per program,
+  cancel, temp folder removed) and returns the PDF. The OCR pack is not needed (web OCR files are bundled). Fixtures:
+  `tests/fixtures/office/` (made by `make-office.mjs`: Word with real Arabic, Excel, PowerPoint, DXF via ezdxf, DWG via
+  LibreDWG). Tests: `tests/unit/convert.test.mjs` (all five through the pack, Arabic stays text, ~13 s each),
+  `cargo test` (Rust converter on the DXF), `tests/e2e/packs.spec.ts` (prompt, progress, Not now), `tools/dev/packs-test.mjs`
+  (the real download + conversions in the built app).
+- **Microsoft Store:** `packaging/msix/` (manifest with PLACEHOLDER identity, assets, `build.ps1` → `release/Waraq_<v>.msix`
+  with MakeAppx from the Windows SDK 10.0.26100.0 found on this PC, README with what the Store needs). Prepared only.
+- **Remains:** owner decisions (Store account, privacy page, code signing stays declined → SmartScreen note), the
+  real manifest + installer on pwaraq.com after the release gate, a hand test of the add-on download on a slow line,
+  the items of the first-slice list below that are still open (drag-over highlight, CSP, overlay scrollbars…).
+
+## Phase 4a — desktop shell with Tauri 2 (step F, 21 Oct 2026, first slice)
+Built in `src-tauri/` (Rust, ~110 lines) + `src/lib/desktop.ts` + `TitleBar.svelte`; the web build is untouched
+(`desktop.ts` does nothing when `window.__TAURI__` is missing; `tests/e2e/desktop.spec.ts` checks both). **Compiled and
+smoke-tested 21 Oct** (Rust installed via winget with the owner's yes): `three.pdf` from the command line is drawn in all
+four themes and in Arabic, the top edge is one flat colour from the window edge into the task bar (checked pixel by pixel),
+a second launch hands its file to the running window. Screenshots: `Archive-2026-10-12/screenshots/desktop-tauri/`.
+- **Decided:** Tauri 2 with the global API (`withGlobalTauri`, no npm `@tauri-apps/api`), identifier `com.waraq.app`,
+  icon from `../Designs/Logo` (`pnpm tauri icon`). Frameless window (`decorations: false, shadow: true`); the page draws a
+  40 px bar in the paper colour (surface colour once a document is open, so bar and task bar are one flat surface),
+  draggable, double-click maximises, our own minimise / maximise / close (36 px, Waraq hover colours). The buttons stay
+  top-right in Arabic too (the corner Windows uses; Edge, VS Code do the same). The 1 px DWM border Windows 11 draws
+  round a frameless window (accent-coloured when "show accent colour on borders" is on) is switched off
+  (`DWMWA_BORDER_COLOR = none`), so only the shadow and the rounded corners remain.
+- **Files:** native Open/Save dialogs (`tauri-plugin-dialog`), bytes read/written by our own Rust commands (`read_file`,
+  `write_file` via a temp file + rename; text arguments ride percent-encoded in headers). "Save" writes straight back to
+  the opened path, "Save as" when there is none or writing fails; every other export goes through the Save-as window.
+  Recent files keep the path. A file on the command line (double-click, file association `.pdf` / `.waraq` in the NSIS
+  bundle), a second launch (`tauri-plugin-single-instance` → `open-paths` event) or a file dropped on the window
+  (`tauri://drag-drop`) opens in the running window. Window size/position remembered (`tauri-plugin-window-state`).
+- **Converter bridge:** `convert_to_pdf(name header, bytes body) → PDF bytes | error`; `desktop.ts` sets
+  `window.waraqDesktop.convertToPdf` exactly as `convert.ts` expects. The command answers `NO_PACKS` until the packs
+  session wires LibreOffice/LibreDWG (then the UI's "conversion failed" becomes a real result).
+- **Scripts:** `pnpm desktop` (dev), `pnpm desktop:build` (NSIS installer), `pnpm desktop:smoke`
+  (`tools/dev/tauri-smoke.mjs`: debug build, starts the exe with `three.pdf` per theme + Arabic, `win-shot.ps1`
+  screenshots the window and checks the flat top edge and the drawn page). Debug builds read `WARAQ_UI=<theme>,<lang>`.
+- **Remains (next sessions):** installer polish (NSIS header/sidebar, Arabic texts, ≤ 0.3.3 size), updater
+  (`tauri-plugin-updater`, signing key — owner declined a code-signing certificate, so SmartScreen warning or MS Store),
+  MSIX / Microsoft Store, right-click "Open in Waraq" (registry in the installer), packs download on first use + the real
+  converter, drag-over highlight in the Tauri window (DOM drop events do not fire there), a CSP on the app page, dark
+  window background before the page loads (today paper-light for a frame), portfolio `.waraq` save path, overlay
+  scrollbars (WebView2 shows classic ones; the Edge flag `msOverlayScrollbarWinStyle` did nothing), native Open/Save
+  dialogs and Save-to-path not yet clicked through by hand (code path only), bundle identifier `com.waraq.app` warns on
+  macOS (`.app` suffix) — harmless on Windows, rename before any Mac build.
+
 ## Ideas from AuroraPDF (github.com/KoMAr38/aurora-pdf, looked at 20 Oct 2026)
 One-person Windows PDF reader (Python + PyMuPDF + WebView2, AGPL-3.0, 465 tests, also sold in the Microsoft Store).
 No Arabic, no Portfolio, no CAD, no browser version — but it has things Waraq 1.0 lacks. Worth taking (AGPL = we may
@@ -474,8 +551,10 @@ read and adapt its code with credit in THIRD-PARTY):
    recolour/delete) so other readers show and edit them — missing in 1.0; add as a task "Comment" (Phase 3.5, before desktop).
 2. **Translation test**: one test reads the code, fails on a missing/unused key or placeholder mismatch between EN and AR.
 3. **Redaction reach**: also remove comments, form fields, links and tagged-structure text under the box — check ours.
+   **Done 21 Oct 2026:** redact() also removes comments/highlights/notes, form fields (value too, also the parent's), links under a mark and Alt/ActualText of tagged structure on redacted pages; unit test with a fixture (raw-stream search).
 4. **Protection follows copies**: split/extract/compress keep the password and permissions; without the owner password only
    "save as copy" with the same limits.
+   **Done 21 Oct 2026:** Extract, Split, Compress keep algorithm, password and permissions (`sealLike` in tools.ts); unlock/protect refuse a file with limits without its owner password (NEED_OWNER, EN+AR); Protect screen offers only "save a copy with the same limits". Not yet: Save after Organize/Comment (App.svelte reopens plain bytes).
 5. **Certificate signatures** (digital ID, verify signatures in the file, append-only save so earlier signatures stay valid,
    sign into an existing empty signature field) — add to the Sign task later (pyHanko equivalent in JS: pdf-lib + WebCrypto).
 6. **Undo = snapshot per change, roll back on failure**; big snapshots to an encrypted temp file (desktop).
@@ -483,4 +562,80 @@ read and adapt its code with credit in THIRD-PARTY):
 8. **Microsoft Store (MSIX)** as a second distribution channel in Phase 4 — the Store signs the package, so no SmartScreen
    warnings and automatic updates without our own code-signing certificate (which the owner declined).
 9. **Never overwrite**: exports get "(2)"; removed signatures/IDs go to a folder, not deleted.
+   **Done 21 Oct 2026:** `uniqueName` / `addUnique` in src/lib/names.ts used for ZIP entries (split, page images); the desktop wrapper can use it for file paths. (Removed-signature folder: not yet.)
 10. **CSP** on the app page so text from a PDF can never run as HTML; the Windows title bar painted in the theme colours.
+
+## Certificate signatures (Sign task, 21 Oct 2026) — decision before code
+Standards-based digital signatures next to the drawn set (AuroraPDF idea 5). Checked first: the engine build has no
+signing API, but `saveToBuffer('incremental')` appends an update that keeps every earlier byte, encrypts new strings
+and streams with the file's own key, and leaves a /Sig /Contents string unencrypted (tested, plain and AES-256).
+- **No new dependency.** pkijs/asn1js (~150 kB gzip) would still not open legacy .pfx files; node-forge is big. So
+  `src/lib/engine/der.ts` (DER read/write, ~80 lines) + WebCrypto do everything: X.509 self-signed certificate, CMS
+  SignedData (SHA-256, RSA PKCS#1 v1.5 2048 or ECDSA P-256, ESS signing-certificate-v2 → PAdES-B-B, SubFilter
+  ETSI.CAdES.detached), PKCS#12 import (PBES2/AES, and the legacy pbeWithSHAAnd3-KeyTripleDES / RC2-40 with a small DES
+  and RC2 in `src/lib/engine/pfx.ts`), RFC 3161 request/response. Pure modules, Node-testable (`tests/unit/certsign`).
+- **Signing** (`src/lib/engine/signcert.ts`, worker op `sigprepare`): the engine adds the field widget (or fills the
+  clicked empty /Sig field), an appearance built with `editPage` on a blank page (the same signature set: picture, name,
+  date → Arabic shaped as everywhere else), the /Sig dict with a zero /Contents placeholder and a ByteRange placeholder,
+  then saves incrementally; the main thread hashes the two ranges, builds the CMS with the unlocked key and writes the
+  hex in place. Other placed sets are drawn into the pages first, so the signature covers them. Protected files stay
+  protected (the update is encrypted by the engine with the open password). Counter-signing = another increment.
+- **Digital IDs** (`src/lib/ids.ts`): IndexedDB store `ids` (db v3): certificate DER in the clear, the PKCS#8 key
+  AES-GCM-encrypted with a key from the person's passphrase (PBKDF2-SHA-256, 600 000 rounds, random salt). The
+  passphrase is typed when signing and kept only in memory for the sitting; a .pfx password is never kept. Remove = delete.
+- **Verify** (worker op `siglist` + `verifyCms`): every /Sig with a V: ByteRange hash, CMS signature, certificate
+  dates, self-signed → "not in a trusted list" (Waraq has no trust store: it checks the maths, not who the signer is),
+  whole file covered or only an earlier revision; "changed after signing" when the last signature does not reach the
+  end. Shown in the Sign panel ("Signatures in this file") and as a badge in its toolbar.
+- **Timestamp**: off by default; only to a URL the person types, with the note that a hash is sent, never the document.
+- Not done: Acrobat not tested on this PC (OpenSSL cross-check instead); the warning before Save in App.svelte (owned by
+  another session; `willBreakSignatures()` in `src/lib/engine/pades.ts` is ready for a two-line hook).
+
+**Built (21 Oct 2026):** as decided above. Sign task: toolbar badge ("1 signature · Valid / Changed after signing /
+Invalid"), "Signatures in this file" panel (signer, time, page, verdict, self-signed note, reason/location, timestamp),
+"Digital ID (certificate)" section (new ID: name, email, RSA 2048 or P-256, 1–10 years, passphrase; import .pfx/.p12;
+passphrase typed once per sitting; reason, location; timestamp URL off by default), a warning bar when a drawn set would
+invalidate existing signatures. Checks: `tests/unit/certsign.test.mjs` (7: sign+verify, one byte changed, appended
+change, counter-sign, protected file, existing field, .pfx modern/legacy/EC, OpenSSL both ways),
+`tests/e2e/certsign.spec.ts` (2, EN+AR), ID form in the audit. Screenshots:
+`../Archive-2026-10-12/screenshots/waraq-1.0-preview/certsign/`. Still to do: the Save hook in App.svelte (see
+side-session note certsign-notes.md), a badge outside the Sign task, verifying the timestamp server's own signature.
+
+## .waraq robustness (owner asked 21 Oct 2026: "is .waraq not failing, even with the website?") — to build after the desktop slice
+Round trip is tested (portfolio.spec). Gaps found by reading `openPortfolioFile` (App.svelte) / `portfolio.ts`:
+1. a damaged or foreign `.waraq` shows "not a PDF" → say "not a valid Waraq portfolio" (EN+AR);
+2. no `app === 'waraq-portfolio'` / `version` check → "made with a newer Waraq" instead of opening blindly;
+3. entry names and `manifest.id` unvalidated → reject names with `..`, `/`, `\`, drive letters, absolute paths, and ids that are not `[a-z0-9-]`; cap entry count and total unzipped size (zip-bomb); needed BEFORE the desktop app writes them to disk;
+**Done 21 Oct 2026 (Sonnet session):** `parse()` in portfolio.ts (manifest/version/id/entry-name checks), `unzip` limits + checksum, messages `portfolioInvalid`/`portfolioNewer`; tests waraq-file.test.mjs + waraq-file.spec.ts (the .waraq double-click on desktop is not run yet).
+4. tests: corrupt zip, wrong manifest, newer version, path-traversal entry, 200 MB portfolio, Arabic names; desktop: double-click a `.waraq` (file association is in tauri.conf.json, never run yet).
+
+## Recovery plan (owner, 21 Oct 2026: "we also need a recovery plan")
+**A. Never lose a person's work (build with Phase 4a/b; one Sonnet session after the desktop slice)**
+1. **Safe save:** write to a temp file next to the target, verify it opens with MuPDF (page count, text spot-check), then replace; keep the previous version as `name.bak.pdf` (one generation) until the next successful save; never overwrite in place (desktop: write-then-rename; web: download only).
+2. **Autosave drafts:** every edit session keeps a draft of the changed document (pages, annotations, portfolio state) in the app's local storage (OPFS / app data folder) every 30 s and on each undo step; on the next start, if the last session did not close cleanly, the start screen offers "Restore your unsaved work from <time>" (EN+AR) — keep 5 drafts, delete after 30 days or when saved.
+3. **Crash and freeze guard:** a worker/engine crash restarts the pool and keeps the document bytes and undo stack (today `pool.reset()` loses nothing on disk but not the in-memory edits); show "Waraq recovered — nothing was lost" instead of a blank page; a hung job gets a Cancel button.
+4. **Undo everywhere:** Undo after Close (0.3.x had it), after Save, and after "Discard changes" for 10 minutes (draft kept).
+5. **Portfolio:** autosaved to its folder in app storage on every change (today on demand); `.waraq` export is the portable backup; "Restore previous version" lists the last 5 saved states.
+6. **Damaged files:** opening a broken PDF tries MuPDF repair, then offers "Open what could be read" with the page count; wrong password and truncated files get plain messages (EN+AR).
+7. **Crash log and report (owner, 21 Oct):** every crash is saved automatically on the device — JS errors and unhandled rejections (window.onerror, `unhandledrejection`), engine/worker failures, and in the desktop app Rust panics and a hard exit (a "clean exit" marker file: if it is missing at the next start, the last run crashed). Each entry: time, Waraq version, Windows/browser, language, theme, the task open, the job that failed, the stack trace and the last 50 log lines — **never document content, file names or pages** (file names replaced by "file.pdf"). Kept in `crash-log/` (app data folder / browser storage), last 20, 30 days. On the next start: "Waraq closed unexpectedly. Your work was restored. Send a report?" with **Preview** (the exact text, EN+AR), then three buttons: Send by email (mailto support@pwaraq.com prefilled, the log attached on desktop), Report on GitHub (prefilled issue, trimmed to fit), or Don't send; plus a tick "Always ask" (never "always send" without the owner's later decision — nothing leaves the device without a click, as the support page promises). Settings → "Open crash log folder" and "Copy report". Later (owner decides): private form endpoint so reports need no mail app.
+   **Part A items 1-6 built 21 Oct 2026 (Sonnet session):** safe save (src-tauri/src/safe.rs + desktop.ts, page-count check via worker `verify`), drafts (drafts.ts, session.ts: Web Lock unclean-exit check), engine crash/hang guard (pool.ts `recover`, Notice.svelte), Undo close (10 min, start screen), damaged-PDF repair (`repair` op), portfolio versions (last 5, menu in Portfolio). Not built: Undo after Save / after Discard.
+   **Item 7 (crash log and report) built 21 Oct 2026 (Sonnet session):** crashreport.ts (clean text, preview, mail/GitHub links), crashlog.ts (entries, 20/30 days, console + errors), CrashReport.svelte dialog, Rust panic hook + `open_external`; start-screen buttons Copy crash report / Open crash log folder. Desktop email: mailto cannot attach, so the log file is shown in Explorer to attach by hand.
+8. **Tests:** kill the engine mid-edit, kill the app mid-save (the target is either the old file or the new, never half), restore a draft, a broken PDF, 5-draft rotation.
+
+**B. Never lose the project (owner decisions needed at 3 and 4)**
+1. **Source:** GitHub (tshi-dev/PWaraq) is the main copy; **offline backups (owner, 21 Oct): `PDF Open Source\Backups\<date>\` with a verified `git bundle` per repo (waraq-next, PWaraq, waraq) + SHA256SUMS + README; first set made 21 Oct 2026; new dated set monthly and before big changes. Same disk as the project, so a disk failure would take both — copy the newest folder to a USB stick now and then.**
+2. **Website:** every Cloudflare Pages deployment is kept; rollback = "Rollback to this deployment" in the dashboard; before each upload the publishing agent notes the current deployment id in OTHER-AGENT-TO-DO Results. Keep the last 3 website ZIPs in `waraq/publish`.
+3. **Releases:** keep every installer + SHA-256 + manifest per version (`release-full/`, later GitHub Releases) so a bad update can be pulled and the old version pinned; the updater never removes the previous version until the new one starts.
+4. **Secrets and accounts:** the owner keeps recovery codes for Cloudflare, GitHub (2FA) and the domain registrar in a password manager; write a one-page "if I lose access" list (account, recovery method, where the code is — no secrets in the repo).
+5. **Update safety:** the updater downloads, verifies SHA-256, installs beside the old version and rolls back on a failed start.
+
+**Support email — set up 21 Oct 2026 (owner's yes, done in his Chrome):** Cloudflare Email Routing for pwaraq.com: 3 MX (route1-3.mx.cloudflare.net), DKIM `cf2024-1._domainkey`, SPF `v=spf1 include:_spf.mx.cloudflare.net ~all`; rule `support@pwaraq.com` → `pdfwaraq@gmail.com` (verified, Active). Catch-all left as it was. Not yet tested with a real email; not yet shown on the website — add the address to `/support` when the owner says so (then mail + the private-form idea become possible).
+
+## Arabic quality program (owner, 21 Oct 2026: "edit Arabic PDF has major issues throughout the software — take your time, run all the sessions you need")
+Arabic is the product's most important promise; it blocks the release. Order: (1) **audits** (read-only, evidence): A = editing existing Arabic text (corpus of 30–50 PDFs from many producers/fonts; Waraq vs reference rendering vs MuPDF/pdf.js/Edge-PDFium), B = every place Waraq creates Arabic (page editor, comments/FreeText appearance streams, forms, sign, watermark, numbers, portfolio, metadata, bookmarks); reports in Archive-2026-10-12\reviews\ARABIC-{EDIT,CREATE}-AUDIT-2026-10-21.md; (2) **fix work packages** taken from the reports (likely: one shared font service — fallback chain Noto Naskh/Tajawal/Amiri…, real subsetting, ToUnicode, embedded appearance fonts for annotations; shaping/bidi fixes; fidelity); (3) **Arabic regression suite** from the corpus runs in CI-style (`pnpm test:arabic`) and must be green before any release clearance; (4) the converter font (0.3.x pack path) is part of it. No release clearance asked until (3) is green.
+
+## Stress-test pipeline with (almost) no tokens (owner, 21 Oct 2026) — `pnpm stress`
+Scripts do everything; an AI only reads a one-page summary. Orchestrator (~300 lines) over the existing checkers (tools/arabic/*, tools/ocr-accuracy.mjs, tests/unit): (1) generate/fetch corpus (Arabic PDFs × fonts × producers; scans with blur/tilt/shadow/fade; public OCR sets by fetch script only), (2) run the real engine on edit/write/OCR cases, (3) numeric judges (exact Unicode, joining/tofu, position/fidelity, size, image diff vs reference in MuPDF + pdf.js + Edge), (4) compare with `tests/stress/baseline.json` and report ONLY regressions in `stress-report.md` (+ exit code; thresholds: 0 major, OCR placement >= 95 %), (5) optional Haiku triage of failing cases only. Runs nightly/idle via Windows Task Scheduler (`tools/stress/schedule.ps1`, owner's PC), no tokens while running. Doubles as the Arabic regression gate for the release.
+
+## iPhone and iPad (owner, 21 Oct 2026) — LATER, only when every other version (web, Windows, Store) is stable
+Not started. Notes for then: the web app already runs the same engine in the browser, so a first step is an installable PWA for iPad/iPhone Safari (touch UI: bigger targets, pinch zoom, a compact bottom task bar instead of the 10-button row, Files-app open/save through the file picker/share sheet, no right-click, memory limits of iOS Safari for big drawings and OCR — measure); a native app is a second step (Tauri 2 mobile/iOS or a thin WKWebView shell; needs a Mac + Apple developer account, App Store review, no Office/CAD pack there, no Surya). Decide after the Windows release and real users' feedback.

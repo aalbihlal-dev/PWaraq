@@ -2,23 +2,27 @@
 // first out), so drawing again at another zoom or drawing a zoom tile does not re-read the PDF.
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 import { assemble } from './assemble';
-import { compress, protect, unlock } from './tools';
+import { compress, protect, unlock, guardOf, sealLikeSource } from './tools';
 import { editPage, pageObjects, type Edit, type Own } from './editpage';
 import { findSpots, signPdf } from './sign';
+import { listSignatures, prepareSignature } from './signcert';
 import { findMatches, redact } from './redact';
 import { fillForm, listFields } from './forms';
 import { addTextLayer } from './ocr';
 import { applyAnnots, listAnnots } from './annots';
 import type { Fonts } from './textpage';
-import { BUNDLED_FILES, fontAt, pick } from './ownfont';
+import { BUNDLED_FILES, fontAt, lineWidth, pick } from './ownfont';
+import { makeSubsetter } from './fontstore';
+import subsetWasm from 'harfbuzzjs/dist/harfbuzz-subset.wasm?url';
 
 // HarfBuzz and the bundled Arabic fonts, for a replaced line written in its own font (or the closest bundled one)
 let own: Own | null = null;
+const systemFonts = new Map<string, Uint8Array>(); // fonts of this PC the main thread read (desktop), by family name
 async function loadOwn() {
   if (own) return own;
-  const [hb, ...files] = await Promise.all([import('harfbuzzjs'), ...BUNDLED_FILES.map(async (f) => new Uint8Array(await (await fetch(new URL('/fonts/' + f, location.origin))).arrayBuffer()))]);
+  const [hb, sub, ...files] = await Promise.all([import('harfbuzzjs'), fetch(subsetWasm).then((r) => r.arrayBuffer()).catch(() => null), ...BUNDLED_FILES.map(async (f) => new Uint8Array(await (await fetch(new URL('/fonts/' + f, location.origin))).arrayBuffer()))]);
   const bytes = new Map<string, Uint8Array>(BUNDLED_FILES.map((f, i) => [f, files[i]]));
-  return (own = { hb, file: (f) => bytes.get(f)! });
+  return (own = { hb, file: (f) => bytes.get(f)!, subset: sub ? makeSubsetter(sub) : undefined, system: systemFonts });
 }
 
 // The engine (11 MB WebAssembly) loads after this worker is already listening: a message that arrives while it
@@ -35,7 +39,7 @@ async function loadFonts() {
   if (fonts) return;
   const get = async (f: string) => new Uint8Array(await (await fetch(new URL('/fonts/' + f, location.origin))).arrayBuffer());
   const [regular, bold] = await Promise.all([get('Tajawal-Regular.ttf'), get('Tajawal-Bold.ttf')]);
-  fonts = { regular: new mupdf.Font('Tajawal', regular), bold: new mupdf.Font('Tajawal-Bold', bold) };
+  fonts = { regular: new mupdf.Font('Tajawal', regular), bold: new mupdf.Font('Tajawal-Bold', bold), store: await loadOwn() }; // the font service shapes and subsets every line
 }
 
 type Req = { id: number; op: string; doc?: number; [k: string]: any };
@@ -88,8 +92,26 @@ const ops: Record<string, (r: Req) => any> = {
       const p = doc.loadPage(i), [x0, y0, x1, y1] = p.getBounds();
       sizes.push({ w: x1 - x0, h: y1 - y0 }); p.destroy();
     }
-    return { sizes };
+    return { sizes, repaired: !!doc.asPDF()?.wasRepaired() };
   },
+  // does the file in `bytes` open, with its first and last page readable? (Save checks what it is about to write) The page count, or an error.
+  verify(r) {
+    const d = mupdf.Document.openDocument(r.bytes, 'application/pdf');
+    try {
+      if (d.needsPassword() && !(r.password && d.authenticatePassword(r.password))) throw new Error('PASSWORD');
+      const n = d.countPages();
+      for (const i of n > 1 ? [0, n - 1] : [0]) { const p = d.loadPage(i); try { p.toDisplayList().destroy(); } finally { p.destroy(); } }
+      return n;
+    } finally { d.destroy(); }
+  },
+  // a damaged PDF: what MuPDF could read, written out as a clean file
+  repair(r) {
+    const d = mupdf.Document.openDocument(r.bytes, 'application/pdf'), pdf = d.asPDF();
+    try { if (!pdf || !d.countPages()) throw new Error('nothing readable'); return pdf.saveToBuffer('garbage=compact').asUint8Array().slice(); } finally { d.destroy(); }
+  },
+  // for the recovery tests: this worker dies with an error nobody catches / is stuck for `ms`
+  crash() { setTimeout(() => { throw new Error('test crash'); }); return new Promise(() => {}); }, // never answers: the job is in the engine when it dies
+  wait(r) { for (const end = Date.now() + r.ms; Date.now() < end;); return true; },
   // whole page at `scale` device pixels per point, or one region of it (x, y, w, h in those pixels)
   async render(r) {
     const l = list(r.page, r.doc), m = mupdf.Matrix.scale(r.scale, r.scale);
@@ -117,12 +139,15 @@ const ops: Record<string, (r: Req) => any> = {
   },
   // a new PDF from pages of the open sources (Organize, Portfolio)
   async build(r) {
-    if (r.build.watermark || r.build.items.some((it: any) => it.divider || it.toc || it.cover || (it.blank && it.paper))) await loadFonts();
+    if (r.build.watermark || r.build.numberStyle?.digits === 'arab' || r.build.items.some((it: any) => it.divider || it.toc || it.cover || (it.blank && it.paper))) await loadFonts();
     return assemble(mupdf, source, r.build, () => fonts!);
   },
   // whole-file tools (Convert, Protect)
-  compress(r) { return compress(mupdf, r.bytes, r.level); },
-  protect(r) { return protect(mupdf, r.bytes, r.password, r.print, r.copy); },
+  compress(r) { return compress(mupdf, r.bytes, r.level, r.current); },
+  protect(r) { return protect(mupdf, r.bytes, r.password, r.print, r.copy, r.current); },
+  // protection of the open document, and a new copy `bytes` of it protected the same way (Extract, Split, Save as copy)
+  guard(r) { const g = guardOf(mupdf, r.bytes, r.current); return g && { restricted: g.restricted, owner: g.owner }; },
+  seal(r) { return sealLikeSource(mupdf, r.bytes, r.src, r.current); },
   unlock(r) { return unlock(mupdf, r.bytes, r.password); },
   // redaction: boxes of phone numbers / e-mails / a word on a page, and the file with the marked areas removed
   redactfind(r) { const p = source(r.doc).doc.loadPage(r.page); try { return findMatches(p, r.kind, r.query); } finally { p.destroy(); } },
@@ -132,7 +157,7 @@ const ops: Record<string, (r: Req) => any> = {
   async fillform(r) { await loadFonts(); return fillForm(mupdf, r.bytes, r.answers, r.flatten, fonts!); },
   // comments: the comments of the file in `bytes`, the file with changes written, and the text between two points (snaps to real text)
   annotlist(r) { return listAnnots(mupdf, r.bytes); },
-  annotapply(r) { return applyAnnots(mupdf, r.bytes, r.remove, r.add); },
+  async annotapply(r) { await loadFonts(); return applyAnnots(mupdf, r.bytes, r.remove, r.add, fonts!); }, // Tajawal for text boxes in Arabic
   hilite(r) {
     const p = source(r.doc).doc.loadPage(r.page), st = p.toStructuredText('preserve-whitespace');
     try { return st.highlight(r.a, r.b).map((q) => [...q]); } finally { st.destroy(); p.destroy(); }
@@ -144,7 +169,10 @@ const ops: Record<string, (r: Req) => any> = {
   // page editor: which font a replaced line will be written in, and the letters its own font lacks
   async fontcheck(r) {
     const o = await loadOwn(), p = source(r.doc).doc.loadPage(r.page);
-    try { const { font, using, missing } = pick(o.hb, fontAt(p, r.from), r.text, r.bold, o.file); return { font, using, missing }; } finally { p.destroy(); }
+    try { const f = fontAt(p, r.from), { font, using, missing, reason, source } = pick(o.hb, f, r.text, r.bold, o.file, o); return { font, using, missing, reason, source, width: r.size ? lineWidth(mupdf, o, f, r.text, r.size, r.bold) : 0 }; } finally { p.destroy(); }
+  },
+  // page editor (desktop): a font file of this PC, read by the main thread, for lines whose own font is a subset
+  addfont(r) { systemFonts.set(r.name, new Uint8Array(r.bytes)); return true; 
   },
   // page editor: the page with `edits` applied — a one-page PDF, or with `scale` the editor's background (what the edits
   // take away already gone) as a picture
@@ -168,7 +196,10 @@ const ops: Record<string, (r: Req) => any> = {
     finally { d.destroy(); }
   },
   // signing mode: the file in `bytes` with the signature sets drawn on its pages
-  async sign(r) { await loadFonts(); return signPdf(mupdf, r.bytes, r.pages, r.photos, () => fonts!); },
+  async sign(r) { await loadFonts(); return signPdf(mupdf, r.bytes, r.pages, r.photos, () => fonts!, r.password ?? ''); },
+  // certificate signatures: the file with a signature field, appearance and /Sig placeholder appended; the signatures a file holds
+  async sigprepare(r) { await loadFonts(); return prepareSignature(mupdf, r.bytes, r.password ?? '', r.plan, r.photos, () => fonts!); },
+  siglist(r) { return listSignatures(mupdf, r.bytes, r.password ?? ''); },
 };
 
 self.onmessage = async ({ data }: MessageEvent<Req>) => {

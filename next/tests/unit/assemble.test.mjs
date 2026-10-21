@@ -57,3 +57,25 @@ test('divider and contents pages: real Arabic text, rows link to their page, num
   assert.match(text(4), /^\s*2\s*$/);
   for (let i = 0; i < 2; i++) fs.writeFileSync(new URL(`../../test-results/textpage-${i}.png`, import.meta.url), out.loadPage(i).toPixmap(m.Matrix.scale(1, 1), m.ColorSpace.DeviceRGB, false).asPNG());
 });
+
+// ---- document properties: the file's title, author, subject and language (Arabic as UTF-16 text strings, plus an XMP packet)
+const lonePage = () => { const d = new m.PDFDocument(); d.insertPage(-1, d.addPage([0, 0, 200, 200], 0, {}, '')); return d.saveToBuffer('').asUint8Array().slice(); };
+test('meta: an Arabic title, author and subject survive save and reopen, with language, "show the title" and an XMP packet', () => {
+  const src = lonePage(), doc = m.Document.openDocument(src, 'application/pdf');
+  const meta = { title: 'التقرير السنوي ٢٠٢٦ — Annual Report', author: 'عبدالله محمد · سارة', subject: 'دراسة حالة <A & B>', lang: 'ar' };
+  const out = assemble(m, () => ({ doc, bytes: src }), { items: [{ doc: 0, page: 0 }], meta });
+  const back = m.Document.openDocument(out, 'application/pdf'), pdf = back.asPDF(), root = pdf.getTrailer().get('Root');
+  assert.equal(back.getMetaData('info:Title'), meta.title); assert.equal(back.getMetaData('info:Author'), meta.author); assert.equal(back.getMetaData('info:Subject'), meta.subject);
+  assert.match(pdf.getTrailer().get('Info').get('Title').toString(), /^<FEFF/); // a UTF-16 text string: any reader decodes it
+  assert.equal(root.get('Lang').asString(), 'ar'); assert.equal(root.get('ViewerPreferences', 'DisplayDocTitle').asBoolean(), true);
+  const xmp = new TextDecoder().decode(root.get('Metadata').readStream().asUint8Array());
+  assert.ok(xmp.includes(meta.title) && xmp.includes(meta.author) && xmp.includes('دراسة حالة &lt;A &amp; B&gt;') && xmp.includes('xml:lang="ar"'));
+});
+
+test('meta: a file built without it has no properties at all, and an empty title writes none', () => {
+  const src = lonePage(), doc = m.Document.openDocument(src, 'application/pdf');
+  for (const meta of [undefined, { title: '  ', lang: 'en' }]) {
+    const pdf = m.Document.openDocument(assemble(m, () => ({ doc, bytes: src }), { items: [{ doc: 0, page: 0 }], meta }), 'application/pdf').asPDF();
+    assert.ok(pdf.getTrailer().get('Info').isNull() && pdf.getTrailer().get('Root').get('Metadata').isNull() && pdf.getTrailer().get('Root').get('ViewerPreferences').isNull());
+  }
+});

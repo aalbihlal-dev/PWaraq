@@ -42,10 +42,10 @@
 </nav>
 
 <style>
-  .thumbs { height: 100%; overflow-y: auto; padding: var(--s-12); display: grid; gap: var(--s-12); align-content: start; border-inline-end: 1px solid var(--line); background: var(--surface); }
+  .thumbs { height: 100%; overflow-y: auto; overflow-x: hidden; padding: var(--s-12); display: grid; gap: var(--s-12); align-content: start; border-inline-end: 1px solid var(--line); background: var(--surface); }
   .thumb { display: grid; gap: var(--s-4); justify-items: center; padding: var(--s-8); border: 2px solid transparent; border-radius: var(--r-8); background: none; color: var(--muted); }
   .thumb:hover { background: var(--green-soft); }
   .thumb.on { border-color: var(--green); color: var(--ink); }
-  .thumb canvas { width: 120px; height: auto; background: #fff; box-shadow: var(--shadow); }
+  .thumb canvas { width: 120px; max-width: 100%; height: auto; background: #fff; box-shadow: var(--shadow); }
   .thumb span { font-size: var(--fs-12); }
 </style>

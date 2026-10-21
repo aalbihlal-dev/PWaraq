@@ -1,0 +1,245 @@
+[
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 0,
+  "label": "freetext-stack",
+  "consumer": "annotation",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 0,
+  "label": "freetext-stack",
+  "consumer": "annotation",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 0,
+  "label": "freetext-stack",
+  "consumer": "annotation",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 0,
+  "label": "freetext-stack",
+  "consumer": "annotation",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 0,
+  "label": "freetext-stack",
+  "consumer": "annotation",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 0,
+  "label": "freetext-stack",
+  "consumer": "annotation",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 0,
+  "label": "freetext-stack",
+  "consumer": "annotation",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 0,
+  "label": "freetext-stack",
+  "consumer": "annotation",
+  "text": "Hello world 123",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 0,
+  "label": "freetext-stack",
+  "consumer": "annotation",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 1,
+  "label": "freetext-long",
+  "consumer": "annotation",
+  "text": "هذا نص طويل جدا يجب أن ينتقل إلى عدة أسط",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 1,
+  "label": "freetext-long",
+  "consumer": "annotation",
+  "text": "استقلاليةاستقلاليةاستقلاليةاستقلاليةاستق",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 1,
+  "label": "freetext-long",
+  "consumer": "annotation",
+  "text": "هذا نص طويل جدا يجب أن ينتقل إلى عدة أسط",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 1,
+  "label": "freetext-long",
+  "consumer": "annotation",
+  "text": "ب",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 2,
+  "label": "freetext-colours",
+  "consumer": "annotation",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 2,
+  "label": "freetext-colours",
+  "consumer": "annotation",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 2,
+  "label": "freetext-colours",
+  "consumer": "annotation",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 5,
+  "label": "rot90",
+  "consumer": "annotation",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 5,
+  "label": "rot90",
+  "consumer": "annotation",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 6,
+  "label": "rot180",
+  "consumer": "annotation",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 6,
+  "label": "rot180",
+  "consumer": "annotation",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 7,
+  "label": "rot270",
+  "consumer": "annotation",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 7,
+  "label": "rot270",
+  "consumer": "annotation",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 8,
+  "label": "crop-origin",
+  "consumer": "annotation",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 8,
+  "label": "crop-origin",
+  "consumer": "annotation",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 9,
+  "label": "crop-origin-rot90",
+  "consumer": "annotation",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 10,
+  "label": "size-A3",
+  "consumer": "annotation",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ },
+ {
+  "writer": "comment",
+  "file": "comment.pdf",
+  "page": 11,
+  "label": "size-square300",
+  "consumer": "annotation",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "exact"
+ }
+]

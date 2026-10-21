@@ -2,7 +2,7 @@
 // re-arranged) and Portfolio (many files in sections). Pure: the MuPDF module and the sources are passed in, so the
 // same code runs in the engine worker and in the Node self-check (tests/unit/assemble.test.mjs).
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
-import { pageWriter, tocPages, type Fonts, type TextPage } from './textpage.ts';
+import { pageWriter, tocPages, widthOf, type Fonts, type TextPage } from './textpage.ts';
 import { dividerPage, coverPage, paperPage, type Paper } from './designs.ts';
 import { crop, pageNumbers, watermark, type NumberStyle, type Watermark } from './tools.ts';
 
@@ -12,12 +12,16 @@ export type Item = { doc?: number; page?: number; rotate?: number; fit?: { w: nu
   paper?: Paper; cover?: Parameters<typeof coverPage>[0];
   divider?: Parameters<typeof dividerPage>[0]; toc?: Parameters<typeof tocPages>[0] };
 export type Build = { items: Item[]; bookmarks?: { title: string; at: number }[]; numbers?: boolean | number[]; numberStyle?: NumberStyle;
-  watermark?: Watermark & { pages?: number[] } };
+  watermark?: Watermark & { pages?: number[] };
+  meta?: Meta }; // document properties written into the new file: its title, author and subject, and the language it is in
+/** What a reader shows as the document's name (the tab / title bar, file properties) and what screen readers announce. */
+export type Meta = { title?: string; author?: string; subject?: string; lang?: 'ar' | 'en' };
 export type Source = { doc: MuPDF.Document; bytes: Uint8Array };
 
 export function assemble(m: typeof MuPDF, source: (id: number) => Source, b: Build, fonts?: () => Fonts): Uint8Array {
   const out = new m.PDFDocument(), images = new Map<number, MuPDF.PDFObject>();
-  const page = (it: Item): TextPage | undefined => it.cover ? coverPage(it.cover) : it.divider ? dividerPage(it.divider) : it.toc ? tocPages(it.toc, fonts!().regular)[0]
+  const measuring = (t: string, size: number, bold: boolean) => widthOf(fonts!(), bold)(t, size); // long titles on cover and section pages wrap by it
+  const page = (it: Item): TextPage | undefined => it.cover ? coverPage({ ...it.cover, measure: measuring }) : it.divider ? dividerPage({ ...it.divider, measure: measuring }) : it.toc ? tocPages(it.toc, widthOf(fonts!()))[0]
     : it.blank && it.paper && it.paper !== 'plain' ? paperPage(it.fit!.w, it.fit!.h, it.paper) : undefined;
   const made = b.items.map(page), writer = made.some(Boolean) ? pageWriter(m, out, fonts!()) : null;
   // a background photo (cover): scaled to fill its box, cropped to it; then the see-through colour over it
@@ -78,14 +82,34 @@ export function assemble(m: typeof MuPDF, source: (id: number) => Source, b: Bui
   });
   // numbers: on every page (`true`) or on some pages only, counting from 1 within them (one section)
   const numbered = b.numbers === true ? b.items.map((_, i) => i) : Array.isArray(b.numbers) ? b.numbers : [];
-  if (numbered.length) pageNumbers(m, out, numbered, b.numberStyle);
+  if (numbered.length) pageNumbers(m, out, numbered, b.numberStyle, fonts?.());
   if (b.watermark?.text.trim()) watermark(m, out, fonts!(), b.watermark.pages ?? b.items.map((_, i) => i), b.watermark);
   if (b.bookmarks?.length) {
     const outline = out.outlineIterator();
     for (const bm of b.bookmarks) outline.insert({ title: bm.title, uri: out.formatLinkURI(new m.LinkDestination(0, bm.at, 'Fit')), open: false });
   }
   if (writer || b.watermark?.text.trim()) out.subsetFonts(); // the bundled Tajawal weights are embedded whole (~120 KB each): keep only the letters used
+  if (b.meta) writeMeta(out, b.meta);
   return out.saveToBuffer('garbage=compact').asUint8Array().slice();
+}
+
+const xml = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+/** Title, author, subject (the file's Info, text strings: UTF-16 for Arabic), the same as an XMP packet (UTF-8), the document language, and
+ *  "show the title, not the file name" for viewers. Empty values are left out; with nothing at all the file gets no properties. */
+function writeMeta(out: MuPDF.PDFDocument, meta: Meta) {
+  const title = meta.title?.trim(), author = meta.author?.trim(), subject = meta.subject?.trim(), root = out.getTrailer().get('Root');
+  if (title) out.setMetaData('info:Title', title);
+  if (author) out.setMetaData('info:Author', author);
+  if (subject) out.setMetaData('info:Subject', subject);
+  if (title || author || subject) out.setMetaData('info:Creator', 'Waraq');
+  if (meta.lang) root.put('Lang', out.newString(meta.lang));
+  if (title) { const vp = out.newDictionary(); vp.put('DisplayDocTitle', true); root.put('ViewerPreferences', vp); }
+  if (!(title || author || subject)) return;
+  const alt = (tag: string, v: string, l = meta.lang ?? 'x-default') => `<dc:${tag}><rdf:Alt><rdf:li xml:lang="${l}">${xml(v)}</rdf:li></rdf:Alt></dc:${tag}>`;
+  const packet = `<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xmp="http://ns.adobe.com/xap/1.0/">`
+    + (title ? alt('title', title) : '') + (author ? `<dc:creator><rdf:Seq><rdf:li>${xml(author)}</rdf:li></rdf:Seq></dc:creator>` : '') + (subject ? alt('description', subject) : '')
+    + `<xmp:CreatorTool>Waraq</xmp:CreatorTool></rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="r"?>`;
+  root.put('Metadata', out.addStream(packet, { Type: 'Metadata', Subtype: 'XML' }));
 }
 
 // A photo or scan as a page: the page has the neighbouring pages' size (`fit`), the image fills it keeping its shape.

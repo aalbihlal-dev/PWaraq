@@ -1,0 +1,20 @@
+{
+ "id": "cad-a3-title-block",
+ "type": "CAD-like drawing",
+ "arrangement": "A3 landscape, vector lines, title block",
+ "w": 1191,
+ "h": 842,
+ "marks": [
+  {
+   "role": "sign",
+   "name": "sig1",
+   "kind": null,
+   "multi": false,
+   "text": "",
+   "x": 938.82421875,
+   "y": 664.9921875,
+   "w": 169.9921875,
+   "h": 21.99609375
+  }
+ ]
+}

@@ -1,0 +1,65 @@
+[
+ {
+  "writer": "marks-wm1",
+  "file": "marks-wm1.pdf",
+  "page": 0,
+  "label": "wm1-0",
+  "expect": [
+   "مسودة — Draft 2026"
+  ]
+ },
+ {
+  "writer": "marks-wm1",
+  "file": "marks-wm1.pdf",
+  "page": 1,
+  "label": "wm1-1",
+  "expect": [
+   "مسودة — Draft 2026"
+  ]
+ },
+ {
+  "writer": "marks-wm1",
+  "file": "marks-wm1.pdf",
+  "page": 2,
+  "label": "wm1-2",
+  "expect": [
+   "مسودة — Draft 2026"
+  ]
+ },
+ {
+  "writer": "marks-wm1",
+  "file": "marks-wm1.pdf",
+  "page": 3,
+  "label": "wm1-3",
+  "expect": [
+   "مسودة — Draft 2026"
+  ]
+ },
+ {
+  "writer": "marks-wm1",
+  "file": "marks-wm1.pdf",
+  "page": 4,
+  "label": "wm1-4",
+  "expect": [
+   "مسودة — Draft 2026"
+  ]
+ },
+ {
+  "writer": "marks-wm1",
+  "file": "marks-wm1.pdf",
+  "page": 5,
+  "label": "wm1-5",
+  "expect": [
+   "مسودة — Draft 2026"
+  ]
+ },
+ {
+  "writer": "marks-wm1",
+  "file": "marks-wm1.pdf",
+  "page": 6,
+  "label": "wm1-6",
+  "expect": [
+   "مسودة — Draft 2026"
+  ]
+ }
+]

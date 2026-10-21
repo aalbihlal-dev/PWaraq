@@ -1,0 +1,31 @@
+{
+ "id": "contract-a4",
+ "type": "contract",
+ "arrangement": "numbered clauses + two signature cells",
+ "w": 595,
+ "h": 842,
+ "marks": [
+  {
+   "role": "sign",
+   "name": "sigA",
+   "kind": null,
+   "multi": false,
+   "text": "",
+   "x": 309.29296875,
+   "y": 509.98828125,
+   "w": 198.03515625,
+   "h": 30
+  },
+  {
+   "role": "sign",
+   "name": "sigB",
+   "kind": null,
+   "multi": false,
+   "text": "",
+   "x": 54.75,
+   "y": 509.98828125,
+   "w": 207.1171875,
+   "h": 30
+  }
+ ]
+}

@@ -1,0 +1,650 @@
+[
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "mupdf",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "mupdf",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "mupdf",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "mupdf",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "mupdf",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "mupdf",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "mupdf",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "mupdf",
+  "text": "مرحبا",
+  "status": "exact"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "mupdf",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "mupdf",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "mupdf",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "mupdf",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "mupdf",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "mupdf",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "mupdf",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "mupdf",
+  "text": "مرحبا",
+  "status": "exact"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "mupdf",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "mupdf",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "mupdf",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "mupdf",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "mupdf",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "mupdf",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "mupdf",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "mupdf",
+  "text": "مرحبا",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfium",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfium",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfium",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfium",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfium",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfium",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfium",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfium",
+  "text": "مرحبا",
+  "status": "exact"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfium",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfium",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfium",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfium",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfium",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfium",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfium",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfium",
+  "text": "مرحبا",
+  "status": "exact"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfium",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfium",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfium",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfium",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfium",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfium",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfium",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfium",
+  "text": "مرحبا",
+  "status": "exact"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfjs",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfjs",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfjs",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfjs",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfjs",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfjs",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfjs",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 0,
+  "label": "ocr-0",
+  "consumer": "pdfjs",
+  "text": "مرحبا",
+  "status": "exact"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfjs",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfjs",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfjs",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfjs",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfjs",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfjs",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfjs",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 1,
+  "label": "ocr-1",
+  "consumer": "pdfjs",
+  "text": "مرحبا",
+  "status": "exact"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfjs",
+  "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfjs",
+  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfjs",
+  "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfjs",
+  "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfjs",
+  "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfjs",
+  "text": "النص (بين قوسين) و[أقواس] «اقتباس» 50% -",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfjs",
+  "text": "پژوهش چگونه گفتگو گچ",
+  "status": "wrong"
+ },
+ {
+  "writer": "ocr",
+  "file": "ocr-visible.pdf",
+  "page": 2,
+  "label": "ocr-2",
+  "consumer": "pdfjs",
+  "text": "مرحبا",
+  "status": "wrong"
+ }
+]

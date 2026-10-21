@@ -4,6 +4,8 @@
 @font-face { font-family: Tajawal; src: url('/fonts/Tajawal-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
 @font-face { font-family: Tajawal; src: url('/fonts/Tajawal-Medium.ttf') format('truetype'); font-weight: 500 600; font-display: swap; }
 @font-face { font-family: Tajawal; src: url('/fonts/Tajawal-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+@font-face { font-family: Amiri; src: url('/fonts/Amiri-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: Amiri; src: url('/fonts/Amiri-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
 
 :root {
   /* Waraq colours (same palette as 0.3.x): paper, Waraq green, soft mint */
@@ -61,3 +63,10 @@ button { cursor: pointer; }
 svg.icon { width: 18px; height: 18px; flex: none; }
 html, body { overflow: hidden; }
 #app { height: 100%; }
+/* thin scrollbars in Waraq colours (Chromium: Edge and the desktop WebView2; the standard properties elsewhere) */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: var(--canvas); }
+::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--muted) 40%, var(--canvas)); border-radius: 8px; border: 2px solid var(--canvas); }
+::-webkit-scrollbar-thumb:hover { background: var(--green); }
+@supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: var(--muted) var(--canvas); } }
+#app:has(> .rail) { display: grid; grid-template-rows: auto minmax(0, 1fr); } /* the title rail on top (desktop: with the window buttons) */

@@ -1,0 +1,218 @@
+[
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "mupdf",
+  "text": "لا",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "mupdf",
+  "text": "لأ",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "mupdf",
+  "text": "لإ",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "mupdf",
+  "text": "لآ",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "mupdf",
+  "text": "لا شيء",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "mupdf",
+  "text": "ولا",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "mupdf",
+  "text": "الله",
+  "status": "reversed"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "mupdf",
+  "text": "ألا",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfium",
+  "text": "لا",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfium",
+  "text": "لأ",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfium",
+  "text": "لإ",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfium",
+  "text": "لآ",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfium",
+  "text": "لا شيء",
+  "status": "wrong"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfium",
+  "text": "ولا",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfium",
+  "text": "الله",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfium",
+  "text": "ألا",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfjs",
+  "text": "لا",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfjs",
+  "text": "لأ",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfjs",
+  "text": "لإ",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfjs",
+  "text": "لآ",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfjs",
+  "text": "لا شيء",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfjs",
+  "text": "ولا",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfjs",
+  "text": "الله",
+  "status": "exact"
+ },
+ {
+  "writer": "lam",
+  "file": "lam.pdf",
+  "page": 0,
+  "label": "lone-lam-alef",
+  "consumer": "pdfjs",
+  "text": "ألا",
+  "status": "exact"
+ }
+]

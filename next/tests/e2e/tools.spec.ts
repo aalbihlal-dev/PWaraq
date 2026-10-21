@@ -67,6 +67,7 @@ test('protect: a protected copy asks for its password when opened; unlock remove
   await page.getByRole('button', { name: 'Protect' }).click();
   await page.getByLabel('Password (at least 4 characters)').fill('سر-1234');
   await page.getByLabel('Password again').fill('سر-1234');
+  await page.getByLabel('Allow copying text').check(); // nothing withheld, so the password can be removed again
   const locked = await saved(page, () => page.getByRole('button', { name: 'Save a protected copy' }).click());
   expect(pdf(locked.bytes).needsPassword()).toBe(true);
   const lockedFile = info.outputPath('locked.pdf');
@@ -86,6 +87,29 @@ test('protect: a protected copy asks for its password when opened; unlock remove
   await expect(page.locator('.page').first()).toBeVisible();
   const free = await saved(page, () => page.getByRole('button', { name: 'Save' }).first().click());
   expect(pdf(free.bytes).needsPassword()).toBe(false);
+});
+
+test('protect: a file with limits keeps them in copies; without the owner password it cannot be unlocked', async ({ page }, info) => {
+  await open(page, fixture('three.pdf'));
+  await page.getByRole('button', { name: 'Protect' }).click();
+  await page.getByLabel('Password (at least 4 characters)').fill('limit-1234');
+  await page.getByLabel('Password again').fill('limit-1234'); // copying stays off
+  const locked = await saved(page, () => page.getByRole('button', { name: 'Save a protected copy' }).click());
+  const lockedFile = info.outputPath('limited.pdf');
+  fs.writeFileSync(lockedFile, locked.bytes);
+  await page.getByRole('button', { name: 'Close' }).click();
+  await page.locator('input[type=file]').first().setInputFiles(lockedFile);
+  await page.locator('#pdfpw').fill('limit-1234');
+  await page.locator('.lock').getByRole('button', { name: 'Open' }).click();
+  await expect(page.locator('.page')).toHaveCount(3);
+  await page.getByRole('button', { name: 'Protect' }).click();
+  await expect(page.getByRole('heading', { name: 'This file has limits' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Remove the password' })).toHaveCount(0);
+  const copy = await saved(page, () => page.getByRole('button', { name: 'Save a copy with the same limits' }).click());
+  const d = pdf(copy.bytes);
+  expect(d.needsPassword()).toBe(true);
+  expect(d.authenticatePassword('limit-1234')).toBeGreaterThan(0);
+  expect(d.hasPermission('copy')).toBe(false);
 });
 
 test('office and cad: the web version says "desktop only"; with the desktop bridge a Word file converts and opens', async ({ page }, info) => {

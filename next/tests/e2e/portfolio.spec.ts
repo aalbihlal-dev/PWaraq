@@ -15,13 +15,13 @@ test('portfolio: sections from files, contents with titles, divider page, photo,
   const rows = page.locator('.toc li');
   await expect(rows).toHaveCount(2);
   await expect(rows.nth(0)).toHaveClass(/auto/);
-  await rows.nth(0).locator('input').fill('Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ Ø§Ù„Ø£ÙˆÙ„');
+  await rows.nth(0).locator('textarea').fill('Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ Ø§Ù„Ø£ÙˆÙ„');
   await expect(rows.nth(0)).not.toHaveClass(/auto/);
   await expect(page.locator('.sec .title').first()).toHaveValue('Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ Ø§Ù„Ø£ÙˆÙ„');
 
   // a divider page for section 1, written on directly
   await page.locator('.sec').first().getByRole('button', { name: 'Divider page' }).click();
-  await page.locator('.paper input').fill('Ù…Ù‚Ø¯Ù…Ø© Ø§Ù„Ù…Ù‚Ø±Ø±');
+  await page.locator('.paper textarea.note').fill('Ù…Ù‚Ø¯Ù…Ø© Ø§Ù„Ù…Ù‚Ø±Ø±');
   // a photo into section 2
   await choose(page, () => page.locator('.sec').nth(1).getByRole('button', { name: 'Add pages or photos' }).click(), [fixture('photo.png')]);
   await expect(page.locator('.cell')).toHaveCount(5);
@@ -49,7 +49,7 @@ test('portfolio: sections from files, contents with titles, divider page, photo,
   await page.locator('.recent .card', { hasText: 'Portfolio' }).first().click();
   await expect(page.locator('.sec')).toHaveCount(2);
   await expect(page.locator('.sec .title').first()).toHaveValue('Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ Ø§Ù„Ø£ÙˆÙ„');
-  await expect(page.locator('.paper input')).toHaveValue('Ù…Ù‚Ø¯Ù…Ø© Ø§Ù„Ù…Ù‚Ø±Ø±');
+  await expect(page.locator('.paper textarea.note')).toHaveValue('Ù…Ù‚Ø¯Ù…Ø© Ø§Ù„Ù…Ù‚Ø±Ø±');
 
   // and the portable copy opens from the start screen too
   await page.getByRole('button', { name: 'Close' }).click();
