@@ -508,8 +508,10 @@ read and adapt its code with credit in THIRD-PARTY):
    recolour/delete) so other readers show and edit them — missing in 1.0; add as a task "Comment" (Phase 3.5, before desktop).
 2. **Translation test**: one test reads the code, fails on a missing/unused key or placeholder mismatch between EN and AR.
 3. **Redaction reach**: also remove comments, form fields, links and tagged-structure text under the box — check ours.
+   **Done 21 Oct 2026:** redact() also removes comments/highlights/notes, form fields (value too, also the parent's), links under a mark and Alt/ActualText of tagged structure on redacted pages; unit test with a fixture (raw-stream search).
 4. **Protection follows copies**: split/extract/compress keep the password and permissions; without the owner password only
    "save as copy" with the same limits.
+   **Done 21 Oct 2026:** Extract, Split, Compress keep algorithm, password and permissions (`sealLike` in tools.ts); unlock/protect refuse a file with limits without its owner password (NEED_OWNER, EN+AR); Protect screen offers only "save a copy with the same limits". Not yet: Save after Organize/Comment (App.svelte reopens plain bytes).
 5. **Certificate signatures** (digital ID, verify signatures in the file, append-only save so earlier signatures stay valid,
    sign into an existing empty signature field) — add to the Sign task later (pyHanko equivalent in JS: pdf-lib + WebCrypto).
 6. **Undo = snapshot per change, roll back on failure**; big snapshots to an encrypted temp file (desktop).
@@ -517,4 +519,12 @@ read and adapt its code with credit in THIRD-PARTY):
 8. **Microsoft Store (MSIX)** as a second distribution channel in Phase 4 — the Store signs the package, so no SmartScreen
    warnings and automatic updates without our own code-signing certificate (which the owner declined).
 9. **Never overwrite**: exports get "(2)"; removed signatures/IDs go to a folder, not deleted.
+   **Done 21 Oct 2026:** `uniqueName` / `addUnique` in src/lib/names.ts used for ZIP entries (split, page images); the desktop wrapper can use it for file paths. (Removed-signature folder: not yet.)
 10. **CSP** on the app page so text from a PDF can never run as HTML; the Windows title bar painted in the theme colours.
+
+## .waraq robustness (owner asked 21 Oct 2026: "is .waraq not failing, even with the website?") — to build after the desktop slice
+Round trip is tested (portfolio.spec). Gaps found by reading `openPortfolioFile` (App.svelte) / `portfolio.ts`:
+1. a damaged or foreign `.waraq` shows "not a PDF" → say "not a valid Waraq portfolio" (EN+AR);
+2. no `app === 'waraq-portfolio'` / `version` check → "made with a newer Waraq" instead of opening blindly;
+3. entry names and `manifest.id` unvalidated → reject names with `..`, `/`, `\`, drive letters, absolute paths, and ids that are not `[a-z0-9-]`; cap entry count and total unzipped size (zip-bomb); needed BEFORE the desktop app writes them to disk;
+4. tests: corrupt zip, wrong manifest, newer version, path-traversal entry, 200 MB portfolio, Arabic names; desktop: double-click a `.waraq` (file association is in tauri.conf.json, never run yet).
