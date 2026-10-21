@@ -34,6 +34,7 @@ export type Own = Store;
  *  ligatures in Arabic; the spaces MuPDF invents before harakat and inside words are dropped, and the pieces MuPDF
  *  makes of one line (a font change, a number) are joined when they share a baseline. Size, colour and font come from
  *  the line's first Arabic letter (else its first letter), not from a leader dot or a digit in another font. */
+const fontKey = (name: string) => name.replace(/^[A-Z]{6}\+/, '').replace(/[-,_ ]?(Regular|Bold|Italic|Medium|Light|Black|Heavy|MT|PSMT)+$/i, '').toLowerCase().replace(/[^a-z]/g, '');
 const SPACE_GAP = 0.12; // of the size: a narrower gap is letter spacing (Noto Naskh in Edge), not a word break
 export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[] } {
   type Ch = { c: number; x0: number; x1: number; y: number; size: number; font: MuPDF.Font; color: number[] };
@@ -63,6 +64,13 @@ export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[
     } else merged.push(r);
   }
   const lines: PageLine[] = [], pageDir = merged.filter((r) => r.chars.some((ch) => isRtl(ch.c))).length * 2 > merged.length ? 'rtl' : 'ltr';
+  // fonts whose ToUnicode stores a ligature's letters reversed on purpose (Waraq's own `Waraq-UCS` maps): MuPDF's reversal
+  // then gives the reading order already, so their clusters are not put back
+  const reversedFonts = new Set<string>();
+  try {
+    const dict = (page as MuPDF.PDFPage).getObject?.()?.get('Resources', 'Font');
+    if (dict?.isDictionary()) dict.forEach((f: MuPDF.PDFObject) => { const tu = f.get('ToUnicode'); if (tu?.isStream?.()) { const b = tu.readStream(), map = b.asString(); b.destroy(); if (map.includes('/Waraq-UCS')) reversedFonts.add(fontKey(String(f.get('BaseFont').asName?.() ?? ''))); } });
+  } catch { /* a page without a font dictionary */ }
   for (const r of merged) {
     // the letters of one glyph (a ligature's): MuPDF gives all but one of them a zero-width box at the glyph's edge and
     // lists them in reverse — each goes to the full-width glyph that ends or starts where it stands, order put back;
@@ -73,17 +81,23 @@ export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[
     // a ligature's host is a letter that joins to the next one (ح م ل ب…) or the alef of the Allah word; a letter that
     // never joins forward (ا د ذ ر ز و ء ة ى) cannot carry one — a boxless letter next to it stands on its own
     const NO_JOIN = new Set([0x627, 0x623, 0x625, 0x622, 0x62f, 0x630, 0x631, 0x632, 0x648, 0x624, 0x621, 0x629, 0x649, 0x671]);
-    const ligates = (host: number, z: number) => (host === 0x627 && (z === 0x644 || z === 0x647)) || (isRtl(host) && !NO_JOIN.has(host) && isRtl(z));
+    // the pair as it reads: the boxed letter is the map's first letter — the pair's first for Word/Edge maps, its second for
+    // Waraq's reversed maps — and a ligature's first letter must join forward (or be the alef of the Allah word)
+    // 'Tajawal-Regular' in the program, 'Tajawal' in the dictionary; a subset tag (ABCDEF+) marks another producer's font, never Waraq's
+    const reversed = (f: Ch) => { const n = f.font.getName(); if (/^[A-Z]{6}\+/.test(n)) return false; const k = fontKey(n); return [...reversedFonts].some((r) => k.startsWith(r) || r.startsWith(k)); };
+    const ligates = (f: Ch, z: Ch) => { const [a, b] = reversed(f) ? [z.c, f.c] : [f.c, z.c]; return (isRtl(a) && !NO_JOIN.has(a) && isRtl(b)) || (a === 0x627 && (b === 0x644 || b === 0x647)); };
     for (const z of zero) {
-      const host = [full.find((f) => Math.abs(f.x1 - z.x0) < 0.06), full.find((f) => Math.abs(f.x0 - z.x0) < 0.06)].find((f) => f && ligates(f.c, z.c));
+      const atEnd = full.find((f) => Math.abs(f.x1 - z.x0) < 0.06), atStart = full.find((f) => Math.abs(f.x0 - z.x0) < 0.06);
+      const host = atEnd && ligates(atEnd, z) ? atEnd : atStart && ligates(atStart, z) ? atStart : undefined;
       if (host) members.set(host, [z, ...(members.get(host) ?? [])]); else loose.push(z);
     }
     for (const mk of marks) {
       const mid = (mk.x0 + mk.x1) / 2, host = loose.find((z) => Math.abs(z.x0 - mid) < 0.06) ?? full.find((f) => mid >= f.x0 - 0.01 && mid <= f.x1 + 0.01) ?? [...full, ...loose].sort((a, b) => Math.abs((a.x0 + a.x1) / 2 - mid) - Math.abs((b.x0 + b.x1) / 2 - mid))[0];
       if (host) tail.set(host, [...(tail.get(host) ?? []), mk]);
     }
-    const clusters: Ch[][] = [...[...full, ...loose].map((f) => [f, ...(members.get(f) ?? []), ...(tail.get(f) ?? [])]), ...spaces.map((sp) => [sp])]
-      .sort((a, b) => a[0].x0 - b[0].x0 || r.chars.indexOf(a[0]) - r.chars.indexOf(b[0]));
+    const stored = (f: Ch) => { const cl = [f, ...(members.get(f) ?? [])]; return reversed(f) && cl.length > 1 ? cl.reverse() : cl; };
+    const clusters: Ch[][] = [...[...full, ...loose].map((f) => [...stored(f), ...(tail.get(f) ?? [])]), ...spaces.map((sp) => [sp])]
+      .sort((a, b) => Math.min(...a.map((ch) => ch.x0)) - Math.min(...b.map((ch) => ch.x0)) || r.chars.indexOf(a[0]) - r.chars.indexOf(b[0])); // by the glyph's left edge (a cluster may start with a boxless letter)
     // a space MuPDF invented where letters merely stand apart: its box is the gap; a word break is wider
     const kept = clusters.filter((cl, k) => {
       if (cl[0].c > 0x20) return true;

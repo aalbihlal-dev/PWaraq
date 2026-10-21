@@ -171,7 +171,7 @@ export function writer(m: typeof MuPDF, store: Store, out: MuPDF.PDFDocument) {
     /** ToUnicode for every glyph used; the font programs cut down to the glyphs used when a subsetter is at hand. */
     finish() {
       for (const [face, e] of faces) {
-        e.ref.put('ToUnicode', out.addStream(toUnicode(e.used), {}));
+        e.ref.put('ToUnicode', out.addStream(toUnicode(e.used), {})); // Waraq-UCS: a joined pair stored reversed (see textpage.ts toUnicode)
         if (store.subset && face.source !== 'pdf') {
           const cut = store.subset(face.bytes, e.used.keys());
           if (cut?.length) { const fd = e.ref.get('DescendantFonts')?.get(0)?.get('FontDescriptor'); const ff = fd?.get('FontFile2'); if (ff?.isStream?.()) fd.put('FontFile2', out.addStream(cut, { Length1: cut.length })); }
