@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { m, T, OUT, basePdf, save, writeOut, outline } from './lib.mjs';
 import { applyAnnots } from '../../src/lib/engine/annots.ts';
+import { fonts } from './lib.mjs';
 
 const specs = [];
 const A4 = { w: 595, h: 842 };
@@ -29,7 +30,7 @@ add('size-square300', { w: 300, h: 300 }, [{ kind: 'text', color: '#233c36', not
 const base = basePdf(specs.map((s) => s.pageSpec)); // page i <- specs[i]
 let bytes = save(base);
 const adds = specs.flatMap((s, i) => s.items.map((it, n) => ({ id: `n${i}_${n}`, page: i, ...it })));
-bytes = applyAnnots(m, bytes, [], adds);
+bytes = applyAnnots(m, bytes, [], adds, fonts());
 writeOut('comment.pdf', bytes);
 const man = specs.map((s, i) => ({ writer: 'comment', file: 'comment.pdf', page: i, label: s.label, expect: s.items.filter((x) => x.kind !== 'highlight' && x.kind !== 'note').map((x) => x.note), notes: s.items.filter((x) => x.kind === 'note' || x.kind === 'highlight').map((x) => x.note) }));
 fs.writeFileSync(path.join(OUT, 'manifest-comment.json'), JSON.stringify(man, null, 1));
