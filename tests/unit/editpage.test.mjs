@@ -136,3 +136,28 @@ test('letters the subset lacks: the full bundled font is used and the missing le
   const helv = pick(hb, fontAt(src().loadPage(0), pageObjects(src().loadPage(0)).lines[0]), 'عنوان', true, file);
   assert.equal(helv.using, 'Noto Sans Arabic Bold');
 });
+
+// --- what the editor shows for a clicked line, on files from real producers (tests/fixtures/arabic) ---
+const corpus = (f) => pageObjects(new m.PDFDocument(read('arabic/' + f)).loadPage(0)).lines.map((l) => l.text);
+test('lifted text is the reading order: Edge and Word lines come back as typed (lam-alef, Allah ligature, commas, numbers, brackets)', () => {
+  const edge = corpus('edge-arial.pdf');
+  for (const want of ['بسم الله الرحمن الرحيم', 'سعادة مدير عام الشؤون الإدارية المحترم', 'السلام عليكم ورحمة الله وبركاته،', 'العميل: شركة الأفق للتجارة (Horizon Trading LLC)',
+    'المبلغ الإجمالي: ٤٬٥٠٠٫٧٥ ر.س — Total: SAR 4,500.75', 'الآلاء والأمل لا يلتقيان إلا بالإخلاص', 'تقرير الأداء السنوي ٢٠٢٦']) assert.ok(edge.includes(want), want + ' | got: ' + edge.join(' | ').slice(0, 300));
+  const word = corpus('word-arial.pdf');
+  for (const want of ['بسم الله الرحمن الرحيم', 'السلام عليكم ورحمة الله وبركاته،', 'تاريخ الاستحقاق: ٣٠ يونيو ٢٠٢٦', 'الآلاء والأمل لا يلتقيان إلا بالإخلاص']) assert.ok(word.includes(want), want);
+  assert.ok(!word.some((t) => t.includes('هللا') || t.includes('اإل')), 'no reversed ligatures');
+});
+test('lifted text: no spaces inside words (Noto Naskh in Edge) and none around harakat; LibreOffice lines read in order', () => {
+  const noto = corpus('edge-noto-naskh-arabic.pdf');
+  assert.ok(noto.includes('بسم الله الرحمن الرحيم') && noto.includes('السلام عليكم ورحمة الله وبركاته،'), noto.slice(0, 3).join(' | '));
+  const lo = corpus('libreoffice-traditional-arabic.pdf');
+  assert.ok(lo.includes('سعادة مدير عام الشؤون الإدارية المحترم') && lo.includes('الآلاء والأمل لا يلتقيان إلا بالإخلاص'), lo.slice(0, 3).join(' | '));
+  const amiri = corpus('edge-amiri.pdf');
+  assert.ok(amiri.some((t) => /[ً-ْ]/.test(t) && t.includes('غ')), 'the harakat line is offered'); // its spaces follow MuPDF (known limit)
+});
+test('a line in several fonts is one line; table cells stay apart', () => {
+  const lo = corpus('libreoffice-traditional-arabic-oneline.pdf');
+  assert.equal(lo.length, 1, lo.join(' | '));
+  const rows = corpus('edge-arial.pdf');
+  assert.ok(rows.includes('البند') && rows.includes('الكمية') && rows.includes('السعر'), 'cells apart');
+});

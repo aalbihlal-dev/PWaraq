@@ -117,8 +117,8 @@ export function guessDirection(visual: number[], fallback: 'ltr' | 'rtl' = 'ltr'
   let left: string | null = null, right: string | null = null, any = false;
   for (const c of visual) { const k = strong(c); if (k) { left ??= k; right = k; if (k === 'R') any = true; } }
   if (right === 'R') return 'rtl';
-  if (left === 'L' && right === 'L') return 'ltr';
-  return any ? 'rtl' : fallback;
+  if (!any) return fallback; // Latin only: the page's direction (a price in an Arabic table reads right to left)
+  return left === 'L' && right === 'L' ? 'ltr' : 'rtl';
 }
 /** Characters as found left to right on a page (`visual`) → reading order. More than one reading order can show
  *  the same line (bidi is not invertible), so candidates are made two ways — by iteration (resolve the levels of a

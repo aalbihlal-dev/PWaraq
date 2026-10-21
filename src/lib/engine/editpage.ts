@@ -7,6 +7,7 @@ import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 import { measure, pageWriter, wrap, type Fonts, type Line } from './textpage.ts';
 import { fontAt, fontName, pick, shape, shapedWriter, type Harfbuzz } from './ownfont.ts';
 import { stamp } from './assemble.ts';
+import { logicalOrder, guessDirection, isMark, isRtl } from './bidi.ts';
 
 export type Box = { x: number; y: number; w: number; h: number };
 export type Align = 'left' | 'center' | 'right';
@@ -26,24 +27,85 @@ export const LEADING = 1.3, BASELINE = 1.0;
 export type PageLine = Box & { text: string; size: number; bold: boolean; color: number[]; rtl: boolean; base: number; font: string }; // base: baseline y
 /** What a replaced line is written with: HarfBuzz and the bundled fonts' bytes by file name (ownfont.ts BUNDLED). */
 export type Own = { hb: Harfbuzz; file: (name: string) => Uint8Array };
-/** Lines of text (only the ones that run left to right on the page as seen, which the editor can replace) and photos. */
+/** Lines of text (only the ones that run left to right on the page as seen, which the editor can replace) and photos.
+ *  The text of a line is rebuilt from where its glyphs stand (left to right) and turned back into reading order by
+ *  the bidi algorithm (bidi.ts `logicalOrder`), because MuPDF's own reading order misplaces punctuation, numbers and
+ *  ligatures in Arabic; the spaces MuPDF invents before harakat and inside words are dropped, and the pieces MuPDF
+ *  makes of one line (a font change, a number) are joined when they share a baseline. Size, colour and font come from
+ *  the line's first Arabic letter (else its first letter), not from a leader dot or a digit in another font. */
+const SPACE_GAP = 0.12; // of the size: a narrower gap is letter spacing (Noto Naskh in Edge), not a word break
 export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[] } {
-  const lines: PageLine[] = [], images: Box[] = [], st = page.toStructuredText('preserve-images,preserve-whitespace');
-  let line: PageLine | null = null, flat = false;
+  type Ch = { c: number; x0: number; x1: number; y: number; size: number; font: MuPDF.Font; color: number[] };
+  type Raw = { box: Box; base: number; chars: Ch[] };
+  const raws: Raw[] = [], images: Box[] = [], st = page.toStructuredText('preserve-images,preserve-whitespace');
+  let cur: Raw | null = null, flat = false;
   st.walk({
     onImageBlock(b) { images.push(box(b)); },
-    beginLine(b, _wmode, dir) { flat = Math.abs(dir[1]) < 0.01 && dir[0] > 0; line = { ...box(b), text: '', size: 0, bold: false, color: [0, 0, 0], rtl: false, base: b[3], font: '' }; },
-    onChar(c, origin, font, size, _q, color) {
-      if (!line) return;
-      if (!line.text.trim()) Object.assign(line, { size, base: origin[1], bold: /bold|black|heavy/i.test(font.getName()), color: rgb(color), font: fontName(font) });
-      line.text += c;
+    beginLine(b, _wmode, dir) { flat = Math.abs(dir[1]) < 0.01 && dir[0] > 0; cur = { box: box(b), base: b[3], chars: [] }; },
+    onChar(c, origin, font, size, q, color) {
+      if (!cur || !flat) return;
+      const xs = [q[0], q[2], q[4], q[6]];
+      cur.chars.push({ c: c.codePointAt(0)!, x0: Math.min(...xs), x1: Math.max(...xs), y: origin[1], size, font, color });
     },
-    endLine() {
-      if (line && flat && line.text.trim()) lines.push({ ...line, text: line.text.normalize('NFKC').trim(), rtl: /[֐-ࣿ]/.test(line.text) });
-      line = null;
-    },
+    endLine() { if (cur && flat && cur.chars.some((ch) => ch.c > 0x20)) raws.push(cur); cur = null; },
   });
   st.destroy();
+  // pieces of one line: same baseline (within a third of the size), no big gap between them
+  raws.sort((a, b) => a.base - b.base || a.box.x - b.box.x);
+  const merged: Raw[] = [];
+  for (const r of raws) {
+    const size = r.chars.find((ch) => ch.c > 0x20)?.size ?? 10, last = merged[merged.length - 1];
+    if (last && Math.abs(last.base - r.base) < size * 0.34 && (r.box.x - (last.box.x + last.box.w) < size * 0.5 && last.box.x - (r.box.x + r.box.w) < size * 0.5)) {
+      last.chars.push(...r.chars);
+      const x0 = Math.min(last.box.x, r.box.x), y0 = Math.min(last.box.y, r.box.y), x1 = Math.max(last.box.x + last.box.w, r.box.x + r.box.w), y1 = Math.max(last.box.y + last.box.h, r.box.y + r.box.h);
+      last.box = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+    } else merged.push(r);
+  }
+  const lines: PageLine[] = [], pageDir = merged.filter((r) => r.chars.some((ch) => isRtl(ch.c))).length * 2 > merged.length ? 'rtl' : 'ltr';
+  for (const r of merged) {
+    // the letters of one glyph (a ligature's): MuPDF gives all but one of them a zero-width box at the glyph's edge and
+    // lists them in reverse — each goes to the full-width glyph that ends or starts where it stands, order put back;
+    // a combining mark goes after the letter whose box holds it (marks have their own, higher, box)
+    const full = r.chars.filter((ch) => ch.x1 - ch.x0 >= 0.05 && ch.c > 0x20 && !isMark(ch.c)), spaces = r.chars.filter((ch) => ch.c <= 0x20 && ch.x1 - ch.x0 >= 0.05);
+    const zero = r.chars.filter((ch) => ch.x1 - ch.x0 < 0.05 && ch.c > 0x20 && !isMark(ch.c)), marks = r.chars.filter((ch) => isMark(ch.c));
+    const members = new Map<Ch, Ch[]>(), tail = new Map<Ch, Ch[]>(), loose: Ch[] = []; // loose: a letter MuPDF gave no box (it stands at its own x)
+    // a ligature's host is a letter that joins to the next one (ح م ل ب…) or the alef of the Allah word; a letter that
+    // never joins forward (ا د ذ ر ز و ء ة ى) cannot carry one — a boxless letter next to it stands on its own
+    const NO_JOIN = new Set([0x627, 0x623, 0x625, 0x622, 0x62f, 0x630, 0x631, 0x632, 0x648, 0x624, 0x621, 0x629, 0x649, 0x671]);
+    const ligates = (host: number, z: number) => (host === 0x627 && (z === 0x644 || z === 0x647)) || (isRtl(host) && !NO_JOIN.has(host) && isRtl(z));
+    for (const z of zero) {
+      const host = [full.find((f) => Math.abs(f.x1 - z.x0) < 0.06), full.find((f) => Math.abs(f.x0 - z.x0) < 0.06)].find((f) => f && ligates(f.c, z.c));
+      if (host) members.set(host, [z, ...(members.get(host) ?? [])]); else loose.push(z);
+    }
+    for (const mk of marks) {
+      const mid = (mk.x0 + mk.x1) / 2, host = loose.find((z) => Math.abs(z.x0 - mid) < 0.06) ?? full.find((f) => mid >= f.x0 - 0.01 && mid <= f.x1 + 0.01) ?? [...full, ...loose].sort((a, b) => Math.abs((a.x0 + a.x1) / 2 - mid) - Math.abs((b.x0 + b.x1) / 2 - mid))[0];
+      if (host) tail.set(host, [...(tail.get(host) ?? []), mk]);
+    }
+    const clusters: Ch[][] = [...[...full, ...loose].map((f) => [f, ...(members.get(f) ?? []), ...(tail.get(f) ?? [])]), ...spaces.map((sp) => [sp])]
+      .sort((a, b) => a[0].x0 - b[0].x0 || r.chars.indexOf(a[0]) - r.chars.indexOf(b[0]));
+    // a space MuPDF invented where letters merely stand apart: its box is the gap; a word break is wider
+    const kept = clusters.filter((cl, k) => {
+      if (cl[0].c > 0x20) return true;
+      const prev = clusters[k - 1], next = clusters[k + 1];
+      if (!prev || !next || prev[0].c <= 0x20) return false;
+      // the gap between the neighbours' glyphs decides; on an italic font the boxes lean into each other, so the space's own box does
+      const gap = prev[0].font.isItalic() ? cl[0].x1 - cl[0].x0 : next[0].x0 - Math.max(...prev.map((ch) => ch.x1));
+      return gap > prev[0].size * SPACE_GAP;
+    });
+    let cs: number[];
+    if (zero.length > full.length * 0.4) {
+      // boxes MuPDF could not place (harakat lines in some fonts: the letters' advances went to invented spaces): its
+      // own reading order as it is — shortcut: spaces inside marked words stay, fix when MuPDF gives mark boxes
+      cs = r.chars.map((ch) => ch.c);
+    } else {
+      const atoms = kept.map((cl) => cl[0].c), { order } = logicalOrder(atoms, guessDirection(atoms, pageDir));
+      cs = order.flatMap((k) => kept[k].map((ch) => ch.c));
+    }
+    const text = cs.map((c) => String.fromCodePoint(c)).join('').normalize('NFKC').replace(/\s+/g, ' ').trim();
+    if (!text) continue;
+    const letters = r.chars.filter((ch) => ch.c > 0x20), lead = letters.find((ch) => isRtl(ch.c)) ?? letters[0];
+    lines.push({ ...r.box, text, size: lead.size, base: lead.y, bold: lead.font.isBold() || /bold|black|heavy/i.test(lead.font.getName()), color: rgb(lead.color), font: fontName(lead.font), rtl: /[\u0590-\u08ff]/.test(text) });
+  }
   return { lines, images };
 }
 const box = (b: MuPDF.Rect): Box => ({ x: b[0], y: b[1], w: b[2] - b[0], h: b[3] - b[1] });
