@@ -83,7 +83,7 @@ try {
   const good2 = await until(() => marker('last-good') === '0.0.2' && !marker('boot'), 30_000);
   check('0.0.2 reached the page: last-good = 0.0.2, boot marker cleared', !!good2, `last-good=${marker('last-good')}`);
   check('0.0.2 installer kept, 0.0.1 installer kept for rollback', fs.existsSync(path.join(updates, 'waraq-0.0.2.exe')) && fs.existsSync(path.join(updates, 'waraq-0.0.1.exe')));
-  if (relaunched) spawnSync('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(root, 'tools/dev/win-shot.ps1'), String(relaunched), path.join(shots, 'updated-0.0.2.png'), '#ffffff'], { stdio: 'ignore' });
+  if (relaunched) spawnSync('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(root, 'tools/dev/win-shot.ps1'), String(relaunched), path.join(shots, 'updated-0.0.2.png'), '#fafbf8', '-Start'], { stdio: 'ignore' });
   kill(); await sleep(1500);
 
   // 4. a start of 0.0.2 that never reached the page: boot marker left, last-good still 0.0.1
@@ -95,8 +95,8 @@ try {
   check('0.0.1 is last-good again, rollback note consumed', !!good1, `last-good=${marker('last-good')} skip=${marker('skip')}`);
   check('0.0.2 marked as skipped', marker('skip') === '0.0.2');
   if (back) {
-    const s = spawnSync('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(root, 'tools/dev/win-shot.ps1'), String(back), path.join(shots, 'rolled-back-0.0.1.png'), '#ffffff'], { encoding: 'utf8' });
-    check('rolled-back window captured', fs.existsSync(path.join(shots, 'rolled-back-0.0.1.png')), s.stdout.trim());
+    const s = spawnSync('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(root, 'tools/dev/win-shot.ps1'), String(back), path.join(shots, 'rolled-back-0.0.1.png'), '#fafbf8', '-Start'], { encoding: 'utf8' }); // start screen: the light paper colour
+    check('rolled-back window captured, flat paper top edge, page drawn', s.stdout.trim().startsWith('OK'), s.stdout.trim());
   }
   kill(); await sleep(1500);
 
