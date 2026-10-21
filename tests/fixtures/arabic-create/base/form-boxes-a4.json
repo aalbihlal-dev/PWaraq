@@ -1,0 +1,97 @@
+{
+ "id": "form-boxes-a4",
+ "type": "form with boxes",
+ "arrangement": "boxed fields, checkboxes",
+ "w": 595,
+ "h": 842,
+ "marks": [
+  {
+   "role": "field",
+   "name": "f0",
+   "kind": null,
+   "multi": false,
+   "text": "",
+   "x": 39.75,
+   "y": 91.60546875,
+   "w": 417.01171875,
+   "h": 25.9921875
+  },
+  {
+   "role": "field",
+   "name": "f1",
+   "kind": null,
+   "multi": false,
+   "text": "",
+   "x": 39.75,
+   "y": 129.59765625,
+   "w": 417.01171875,
+   "h": 25.9921875
+  },
+  {
+   "role": "field",
+   "name": "f2",
+   "kind": null,
+   "multi": false,
+   "text": "",
+   "x": 39.75,
+   "y": 167.58984375,
+   "w": 417.01171875,
+   "h": 25.9921875
+  },
+  {
+   "role": "field",
+   "name": "f3",
+   "kind": null,
+   "multi": false,
+   "text": "",
+   "x": 39.75,
+   "y": 205.58203125,
+   "w": 417.01171875,
+   "h": 25.9921875
+  },
+  {
+   "role": "field",
+   "name": "f4",
+   "kind": null,
+   "multi": false,
+   "text": "",
+   "x": 39.75,
+   "y": 243.57421875,
+   "w": 417.01171875,
+   "h": 25.9921875
+  },
+  {
+   "role": "field",
+   "name": "notes",
+   "kind": null,
+   "multi": true,
+   "text": "",
+   "x": 39.75,
+   "y": 307.81640625,
+   "w": 515.00390625,
+   "h": 109.9921875
+  },
+  {
+   "role": "checkbox",
+   "name": "c1",
+   "kind": null,
+   "multi": false,
+   "text": "",
+   "x": 540.76171875,
+   "y": 435.5390625,
+   "w": 13.9921875,
+   "h": 13.9921875
+  },
+  {
+   "role": "sign",
+   "name": "sig1",
+   "kind": null,
+   "multi": false,
+   "text": "",
+   "x": 340.55859375,
+   "y": 465.52734375,
+   "w": 169.9921875,
+   "h": 21.99609375
+  }
+ ]
+}

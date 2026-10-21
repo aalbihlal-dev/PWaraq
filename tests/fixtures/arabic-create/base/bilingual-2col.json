@@ -1,0 +1,20 @@
+{
+ "id": "bilingual-2col",
+ "type": "bilingual",
+ "arrangement": "2 columns EN | AR",
+ "w": 595,
+ "h": 842,
+ "marks": [
+  {
+   "role": "pii",
+   "name": null,
+   "kind": "email",
+   "multi": false,
+   "text": "info@example.org",
+   "x": 83.75390625,
+   "y": 131.2734375,
+   "w": 89.40234375,
+   "h": 12
+  }
+ ]
+}

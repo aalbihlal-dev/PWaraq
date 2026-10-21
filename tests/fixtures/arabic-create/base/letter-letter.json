@@ -1,0 +1,31 @@
+{
+ "id": "letter-letter",
+ "type": "letter",
+ "arrangement": "US Letter, 1 column",
+ "w": 612,
+ "h": 792,
+ "marks": [
+  {
+   "role": "sign",
+   "name": "sig1",
+   "kind": null,
+   "multi": false,
+   "text": "",
+   "x": 277.171875,
+   "y": 212.33203125,
+   "w": 169.9921875,
+   "h": 21.99609375
+  },
+  {
+   "role": "sign",
+   "name": "date1",
+   "kind": null,
+   "multi": false,
+   "text": "",
+   "x": 306.85546875,
+   "y": 249.71484375,
+   "w": 169.9921875,
+   "h": 21.99609375
+  }
+ ]
+}

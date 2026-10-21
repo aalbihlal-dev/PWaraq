@@ -1,0 +1,31 @@
+{
+ "id": "invoice-a4",
+ "type": "invoice",
+ "arrangement": "table, bilingual numbers",
+ "w": 595,
+ "h": 842,
+ "marks": [
+  {
+   "role": "pii",
+   "name": null,
+   "kind": "phone",
+   "multi": false,
+   "text": "+966 55 123 4567",
+   "x": 300.65625,
+   "y": 80.98828125,
+   "w": 87.69140625,
+   "h": 15
+  },
+  {
+   "role": "sign",
+   "name": "sig1",
+   "kind": null,
+   "multi": false,
+   "text": "",
+   "x": 324.55078125,
+   "y": 507.71484375,
+   "w": 169.9921875,
+   "h": 21.99609375
+  }
+ ]
+}

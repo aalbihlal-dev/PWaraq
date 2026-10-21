@@ -1,0 +1,53 @@
+{
+ "id": "letter-a4",
+ "type": "letter",
+ "arrangement": "1 column, portrait",
+ "w": 595,
+ "h": 842,
+ "marks": [
+  {
+   "role": "date",
+   "name": null,
+   "kind": null,
+   "multi": false,
+   "text": "٢٠٢٦/١٠/٢١",
+   "x": 449.56640625,
+   "y": 112.74609375,
+   "w": 59.49609375,
+   "h": 21
+  },
+  {
+   "role": "pii",
+   "name": null,
+   "kind": "phone",
+   "multi": false,
+   "text": "٠٥٥٥ ١٢٣ ٤٥٦",
+   "x": 407.9296875,
+   "y": 349.3125,
+   "w": 71.49609375,
+   "h": 21
+  },
+  {
+   "role": "pii",
+   "name": null,
+   "kind": "email",
+   "multi": false,
+   "text": "info@example.org",
+   "x": 267,
+   "y": 349.3125,
+   "w": 103.359375,
+   "h": 21
+  },
+  {
+   "role": "sign",
+   "name": "sig1",
+   "kind": null,
+   "multi": false,
+   "text": "",
+   "x": 334.8515625,
+   "y": 461.953125,
+   "w": 169.9921875,
+   "h": 21.99609375
+  }
+ ]
+}
