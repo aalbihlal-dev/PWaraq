@@ -522,6 +522,32 @@ read and adapt its code with credit in THIRD-PARTY):
    **Done 21 Oct 2026:** `uniqueName` / `addUnique` in src/lib/names.ts used for ZIP entries (split, page images); the desktop wrapper can use it for file paths. (Removed-signature folder: not yet.)
 10. **CSP** on the app page so text from a PDF can never run as HTML; the Windows title bar painted in the theme colours.
 
+## Certificate signatures (Sign task, 21 Oct 2026) — decision before code
+Standards-based digital signatures next to the drawn set (AuroraPDF idea 5). Checked first: the engine build has no
+signing API, but `saveToBuffer('incremental')` appends an update that keeps every earlier byte, encrypts new strings
+and streams with the file's own key, and leaves a /Sig /Contents string unencrypted (tested, plain and AES-256).
+- **No new dependency.** pkijs/asn1js (~150 kB gzip) would still not open legacy .pfx files; node-forge is big. So
+  `src/lib/engine/der.ts` (DER read/write, ~80 lines) + WebCrypto do everything: X.509 self-signed certificate, CMS
+  SignedData (SHA-256, RSA PKCS#1 v1.5 2048 or ECDSA P-256, ESS signing-certificate-v2 → PAdES-B-B, SubFilter
+  ETSI.CAdES.detached), PKCS#12 import (PBES2/AES, and the legacy pbeWithSHAAnd3-KeyTripleDES / RC2-40 with a small DES
+  and RC2 in `src/lib/engine/pfx.ts`), RFC 3161 request/response. Pure modules, Node-testable (`tests/unit/certsign`).
+- **Signing** (`src/lib/engine/signcert.ts`, worker op `sigprepare`): the engine adds the field widget (or fills the
+  clicked empty /Sig field), an appearance built with `editPage` on a blank page (the same signature set: picture, name,
+  date → Arabic shaped as everywhere else), the /Sig dict with a zero /Contents placeholder and a ByteRange placeholder,
+  then saves incrementally; the main thread hashes the two ranges, builds the CMS with the unlocked key and writes the
+  hex in place. Other placed sets are drawn into the pages first, so the signature covers them. Protected files stay
+  protected (the update is encrypted by the engine with the open password). Counter-signing = another increment.
+- **Digital IDs** (`src/lib/ids.ts`): IndexedDB store `ids` (db v3): certificate DER in the clear, the PKCS#8 key
+  AES-GCM-encrypted with a key from the person's passphrase (PBKDF2-SHA-256, 600 000 rounds, random salt). The
+  passphrase is typed when signing and kept only in memory for the sitting; a .pfx password is never kept. Remove = delete.
+- **Verify** (worker op `siglist` + `verifyCms`): every /Sig with a V: ByteRange hash, CMS signature, certificate
+  dates, self-signed → "not in a trusted list" (Waraq has no trust store: it checks the maths, not who the signer is),
+  whole file covered or only an earlier revision; "changed after signing" when the last signature does not reach the
+  end. Shown in the Sign panel ("Signatures in this file") and as a badge in its toolbar.
+- **Timestamp**: off by default; only to a URL the person types, with the note that a hash is sent, never the document.
+- Not done: Acrobat not tested on this PC (OpenSSL cross-check instead); the warning before Save in App.svelte (owned by
+  another session; `willBreakSignatures()` in `src/lib/engine/signcert.ts` is ready for a two-line hook).
+
 ## .waraq robustness (owner asked 21 Oct 2026: "is .waraq not failing, even with the website?") — to build after the desktop slice
 Round trip is tested (portfolio.spec). Gaps found by reading `openPortfolioFile` (App.svelte) / `portfolio.ts`:
 1. a damaged or foreign `.waraq` shows "not a PDF" → say "not a valid Waraq portfolio" (EN+AR);
@@ -540,6 +566,7 @@ Round trip is tested (portfolio.spec). Gaps found by reading `openPortfolioFile`
 6. **Damaged files:** opening a broken PDF tries MuPDF repair, then offers "Open what could be read" with the page count; wrong password and truncated files get plain messages (EN+AR).
 7. **Crash log and report (owner, 21 Oct):** every crash is saved automatically on the device — JS errors and unhandled rejections (window.onerror, `unhandledrejection`), engine/worker failures, and in the desktop app Rust panics and a hard exit (a "clean exit" marker file: if it is missing at the next start, the last run crashed). Each entry: time, Waraq version, Windows/browser, language, theme, the task open, the job that failed, the stack trace and the last 50 log lines — **never document content, file names or pages** (file names replaced by "file.pdf"). Kept in `crash-log/` (app data folder / browser storage), last 20, 30 days. On the next start: "Waraq closed unexpectedly. Your work was restored. Send a report?" with **Preview** (the exact text, EN+AR), then three buttons: Send by email (mailto support@pwaraq.com prefilled, the log attached on desktop), Report on GitHub (prefilled issue, trimmed to fit), or Don't send; plus a tick "Always ask" (never "always send" without the owner's later decision — nothing leaves the device without a click, as the support page promises). Settings → "Open crash log folder" and "Copy report". Later (owner decides): private form endpoint so reports need no mail app.
    **Part A items 1-6 built 21 Oct 2026 (Sonnet session):** safe save (src-tauri/src/safe.rs + desktop.ts, page-count check via worker `verify`), drafts (drafts.ts, session.ts: Web Lock unclean-exit check), engine crash/hang guard (pool.ts `recover`, Notice.svelte), Undo close (10 min, start screen), damaged-PDF repair (`repair` op), portfolio versions (last 5, menu in Portfolio). Not built: Undo after Save / after Discard.
+   **Item 7 (crash log and report) built 21 Oct 2026 (Sonnet session):** crashreport.ts (clean text, preview, mail/GitHub links), crashlog.ts (entries, 20/30 days, console + errors), CrashReport.svelte dialog, Rust panic hook + `open_external`; start-screen buttons Copy crash report / Open crash log folder. Desktop email: mailto cannot attach, so the log file is shown in Explorer to attach by hand.
 8. **Tests:** kill the engine mid-edit, kill the app mid-save (the target is either the old file or the new, never half), restore a draft, a broken PDF, 5-draft rotation.
 
 **B. Never lose the project (owner decisions needed at 3 and 4)**

@@ -14,6 +14,7 @@
   import Forms from './Forms.svelte';
   import Ocr from './Ocr.svelte';
   import Comment from './Comment.svelte';
+  import { setTask } from '../lib/crashlog';
 
   let { pool, sizes, name, bytes, modified, password, onOpen, onClose, onSave, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; bytes: Uint8Array; modified: boolean; password?: string;
     onOpen: () => void; onClose: () => void; onSave: () => void; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
@@ -27,6 +28,7 @@
     else mode = (['edit', 'organize', 'sign', 'convert', 'protect', 'redact', 'forms', 'ocr', 'comment'].includes(next) ? next : 'view') as typeof mode;
   }
   // Edit: the page editor on the current page; saving puts the edited page in its place and opens the document again
+  $effect(() => setTask(mode, [name])); // for the crash log (the file name is replaced there)
   let editPage = $state(1);
   async function edited(r: Saved) {
     applying = true;

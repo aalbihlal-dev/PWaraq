@@ -157,12 +157,12 @@ pub fn run() {
                 .min_inner_size(720.0, 480.0)
                 .decorations(false) // the page draws the top bar in its own paper colour
                 .shadow(true); // Windows 11 keeps the rounded corners and shadow
-            // debug builds: WARAQ_UI=<theme>,<lang> preselects theme and language (screenshots, smoke test)
+            // debug builds: WARAQ_UI=<theme>,<lang> preselects theme and language and keeps the crash dialog away (the smoke test kills the app, which is an unclean exit)
             if cfg!(debug_assertions) {
                 if let Ok(ui) = std::env::var("WARAQ_UI") {
                     let (theme, lang) = ui.split_once(',').unwrap_or((ui.as_str(), "en"));
                     win = win.initialization_script(&format!(
-                        "try{{localStorage.setItem('waraq-theme',{});localStorage.setItem('waraq-lang',{})}}catch{{}}",
+                        "try{{localStorage.setItem('waraq-theme',{});localStorage.setItem('waraq-lang',{});localStorage.setItem('waraq-crash-ask','no')}}catch{{}}",
                         serde_json::to_string(theme).unwrap(),
                         serde_json::to_string(lang).unwrap()
                     ));

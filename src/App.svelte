@@ -13,6 +13,9 @@
   import { startSession } from './lib/session';
   import { uid } from './lib/pages';
   import Notice from './components/Notice.svelte';
+  import CrashReport from './components/CrashReport.svelte';
+  import * as crash from './lib/crashlog';
+  import type { Entry } from './lib/crashreport';
   import type { Health } from './lib/engine/pool';
   import { CONVERTIBLE_ACCEPT, isConvertible, toPdf } from './lib/convert';
   import { isDesktop, onOpenPaths, readPath, writePath, saveAs, baseName } from './lib/desktop';
@@ -20,6 +23,8 @@
   import Workspace from './components/Workspace.svelte';
   import Portfolio from './components/Portfolio.svelte';
 
+  const previous = crash.previousRun(); // what the run before this one was doing, read before this run starts overwriting it
+  crash.install();
   const pool = new EnginePool();
   let doc = $state<{ name: string; sizes: { w: number; h: number }[]; bytes: Uint8Array; modified: boolean; password?: string; path?: string } | null>(null);
   let openedPath: string | undefined; // desktop: the file on disk behind `doc`, so Save writes straight back
@@ -31,9 +36,12 @@
   const refresh = async () => (recent = await recentList());
   // recovery: engine health, drafts of unsaved work, the last closed document
   let health = $state<Health | null>(null), notice = $state(''), drafts = $state<Draft[]>([]), closed = $state<{ name: string; bytes: Uint8Array; modified: boolean; path?: string } | null>(null);
+  let restoredWork = $state(false); // the person chose Restore: only then "your work was restored" is true
+  let report = $state<Entry[]>([]), crashes = $state(0), copied = $state(false);
+  async function copyReport() { if (await crash.copyReport()) { copied = true; setTimeout(() => (copied = false), 3000); } }
   let draftId = uid(), kept: Uint8Array | null = null, closeTimer: ReturnType<typeof setTimeout>;
   pool.onHealth = (h) => {
-    if (h.kind === 'recovered') { notice = t('recovered'); setTimeout(() => (notice = ''), 8000); health = null; } else health = h.kind === 'slow' ? h : null;
+    if (h.kind === 'recovered') { crash.record('worker', h.why, h.op); notice = t('recovered'); setTimeout(() => (notice = ''), 8000); health = null; } else health = h.kind === 'slow' ? h : null;
   };
   if (navigator.webdriver) (globalThis as { waraqPool?: EnginePool }).waraqPool = pool; // lets the tests crash the engine on purpose
   async function keepDraft() {
@@ -48,11 +56,16 @@
     if (!bytes) return;
     openedPath = undefined;
     await openFile(new File([bytes as Uint8Array<ArrayBuffer>], d.name));
-    if (doc) { doc.modified = true; draftId = d.id; kept = doc.bytes; } // it carries on as the same draft; Save removes it
+    if (doc) { doc.modified = true; draftId = d.id; kept = doc.bytes; restoredWork = true; } // it carries on as the same draft; Save removes it
   }
   onMount(() => {
     refresh();
-    startSession().then(async (unclean) => { if (unclean) drafts = (await listDrafts()).slice(0, 1); });
+    startSession().then(async (unclean) => {
+      if (unclean) { drafts = (await listDrafts()).slice(0, 1); await crash.record('unclean', 'The previous run ended without a clean exit', undefined, previous); }
+      const unseen = (await crash.entries()).filter((e) => !e.seen && (e.kind === 'panic' || e.kind === 'unclean'));
+      if (unseen.length && crash.askFirst()) report = unseen; else crash.markSeen(unseen);
+      crashes = (await crash.entries()).length;
+    });
     const every = setInterval(keepDraft, EVERY);
     if (isDesktop) onOpenPaths(async ([p]) => openFile(await readPath(p), undefined, p));
     return () => clearInterval(every);
@@ -174,7 +187,7 @@
       clearTimeout(closeTimer); closeTimer = setTimeout(() => (closed = null), 10 * 60_000);
       await keepDraft();
     }
-    doc = null; portfolio = null; refresh();
+    doc = null; portfolio = null; crash.setTask(''); refresh();
   }
   async function undoClose() {
     const c = closed;
@@ -202,6 +215,9 @@
   const when = (at: number) => new Intl.RelativeTimeFormat(i18n.lang, { numeric: 'auto' }).format(Math.round((at - Date.now()) / 86_400_000), 'day');
 </script>
 
+{#if report.length && !drafts.length}
+  <CrashReport entry={report[0]} restored={restoredWork} onclose={() => { crash.markSeen(report); report = []; }} />
+{/if}
 <Notice message={notice} slow={health?.kind === 'slow'} oncancel={() => pool.cancelAll()} />
 {#if isDesktop}<TitleBar flush={!!(doc || portfolio)} />{/if}
 <input bind:this={picker} type="file" accept="application/pdf,.pdf,.waraq,{CONVERTIBLE_ACCEPT}" hidden onchange={(e) => { openFile(e.currentTarget.files?.[0]); e.currentTarget.value = ''; }} />
@@ -269,6 +285,12 @@
       {:else}<p class="muted">{t('noRecent')}</p>{/if}
     </section>
     <p class="muted small privacy">{@html icon('shield')}{t('privacy')}</p>
+    {#if crashes}
+      <p class="crashrow">
+        <button class="btn" onclick={copyReport}>{copied ? t('crashCopied') : t('copyCrash')}</button>
+        {#if isDesktop}<button class="btn" onclick={() => crash.openFolder()}>{t('openCrashFolder')}</button>{/if}
+      </p>
+    {/if}
   </div>
 {/if}
 
@@ -300,6 +322,7 @@
   .lock label { display: inline-flex; align-items: center; gap: var(--s-8); }
   .lock span { display: flex; gap: var(--s-8); }
   .lock input { min-height: var(--control); padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); }
+  .crashrow { display: flex; gap: var(--s-8); margin: 0; }
   .banner { display: grid; gap: var(--s-8); justify-items: center; padding: var(--s-16); border: 1px solid var(--green); border-radius: var(--r-12); background: var(--green-soft); text-align: center; max-width: 520px; }
   .banner p { margin: 0; }
   .banner span { display: flex; gap: var(--s-8); }

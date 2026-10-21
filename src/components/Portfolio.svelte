@@ -11,6 +11,7 @@
   import { addFiles, uid, seen, toItems, type Group, type GridItem } from '../lib/pages';
   import { build, plan, manifest, used, fileTitle, sectionsOf, withDefaults, type Portfolio, type Section } from '../lib/portfolio';
   import * as vault from '../lib/vault';
+  import { setTask } from '../lib/crashlog';
   import { pickFiles, saveFile, writePortfolio, readPortfolio, readPortfolioFile, remember } from '../lib/store';
   import { DESIGNS, PAPERS, COLOURS, type Paper } from '../lib/engine/designs';
   import { turned } from '../lib/pages';
@@ -23,6 +24,7 @@
   let p = $state(portfolio);
   const selected = new SvelteSet<string>();
   let size = $state(140), busy = $state(''), savedAt = $state(0);
+  $effect(() => setTask('portfolio', [p.name, ...Object.values(p.files).map((f) => f.name)])); // for the crash log (names are replaced there)
   const layout = $derived(plan(p));
   const groups = $derived<Group[]>(p.sections.map((s) => ({ id: s.id, items: s.items, hidden: s.collapsed, locked: s.locked })));
 

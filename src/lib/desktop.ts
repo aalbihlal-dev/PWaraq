@@ -46,6 +46,8 @@ export const vaultList = (dir: string): Promise<{ name: string; size: number; at
 export const vaultRemove = (path: string): Promise<void> => tauri!.core.invoke('vault_remove', { path });
 /** Shows a vault folder (or selects one file) in Explorer; its full path. */
 export const vaultReveal = (path: string, select = false): Promise<string> => tauri!.core.invoke('vault_reveal', { path, select });
+/** Opens a crash-report link (mail program or GitHub) in the system; the desktop program accepts only those two targets. */
+export const openExternal = (url: string): Promise<void> => tauri!.core.invoke('open_external', { url });
 /** The 1 px frame Windows draws round the window, in the title bar's colour, so the top edge shows no hairline. */
 export function setBorder(cssRgb: string) {
   const [r, g, b] = cssRgb.match(/\d+/g)!.map(Number);
