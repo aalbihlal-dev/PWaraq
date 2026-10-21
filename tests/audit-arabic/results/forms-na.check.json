@@ -4,134 +4,44 @@
   "file": "forms-na.pdf",
   "page": 0,
   "label": "filled",
-  "consumer": "mupdf",
+  "consumer": "field-value",
   "text": "عبدالله محمد الأحمد",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "forms",
   "file": "forms-na.pdf",
   "page": 0,
   "label": "filled",
-  "consumer": "mupdf",
+  "consumer": "field-value",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "forms",
   "file": "forms-na.pdf",
   "page": 0,
   "label": "filled",
-  "consumer": "mupdf",
+  "consumer": "field-value",
   "text": "هذا نص طويل جدا يجب أن ينتقل إلى عدة أسط",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "forms",
   "file": "forms-na.pdf",
   "page": 0,
   "label": "filled",
-  "consumer": "mupdf",
+  "consumer": "field-value",
   "text": "مسقط",
-  "status": "wrong"
+  "status": "exact"
  },
  {
   "writer": "forms",
   "file": "forms-na.pdf",
   "page": 0,
   "label": "filled",
-  "consumer": "mupdf",
+  "consumer": "field-value",
   "text": "الثاني",
-  "status": "wrong"
- },
- {
-  "writer": "forms",
-  "file": "forms-na.pdf",
-  "page": 0,
-  "label": "filled",
-  "consumer": "pdfium",
-  "text": "عبدالله محمد الأحمد",
-  "status": "wrong"
- },
- {
-  "writer": "forms",
-  "file": "forms-na.pdf",
-  "page": 0,
-  "label": "filled",
-  "consumer": "pdfium",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "forms",
-  "file": "forms-na.pdf",
-  "page": 0,
-  "label": "filled",
-  "consumer": "pdfium",
-  "text": "هذا نص طويل جدا يجب أن ينتقل إلى عدة أسط",
-  "status": "wrong"
- },
- {
-  "writer": "forms",
-  "file": "forms-na.pdf",
-  "page": 0,
-  "label": "filled",
-  "consumer": "pdfium",
-  "text": "مسقط",
-  "status": "wrong"
- },
- {
-  "writer": "forms",
-  "file": "forms-na.pdf",
-  "page": 0,
-  "label": "filled",
-  "consumer": "pdfium",
-  "text": "الثاني",
-  "status": "wrong"
- },
- {
-  "writer": "forms",
-  "file": "forms-na.pdf",
-  "page": 0,
-  "label": "filled",
-  "consumer": "pdfjs",
-  "text": "عبدالله محمد الأحمد",
-  "status": "wrong"
- },
- {
-  "writer": "forms",
-  "file": "forms-na.pdf",
-  "page": 0,
-  "label": "filled",
-  "consumer": "pdfjs",
-  "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
- },
- {
-  "writer": "forms",
-  "file": "forms-na.pdf",
-  "page": 0,
-  "label": "filled",
-  "consumer": "pdfjs",
-  "text": "هذا نص طويل جدا يجب أن ينتقل إلى عدة أسط",
-  "status": "wrong"
- },
- {
-  "writer": "forms",
-  "file": "forms-na.pdf",
-  "page": 0,
-  "label": "filled",
-  "consumer": "pdfjs",
-  "text": "مسقط",
-  "status": "wrong"
- },
- {
-  "writer": "forms",
-  "file": "forms-na.pdf",
-  "page": 0,
-  "label": "filled",
-  "consumer": "pdfjs",
-  "text": "الثاني",
-  "status": "wrong"
+  "status": "exact"
  }
 ]

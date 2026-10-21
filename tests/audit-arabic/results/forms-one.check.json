@@ -4,26 +4,8 @@
   "file": "forms-one.pdf",
   "page": 0,
   "label": "one-answer",
-  "consumer": "mupdf",
+  "consumer": "field-value",
   "text": "عبدالله محمد الأحمد",
-  "status": "wrong"
- },
- {
-  "writer": "forms-one",
-  "file": "forms-one.pdf",
-  "page": 0,
-  "label": "one-answer",
-  "consumer": "pdfium",
-  "text": "عبدالله محمد الأحمد",
-  "status": "wrong"
- },
- {
-  "writer": "forms-one",
-  "file": "forms-one.pdf",
-  "page": 0,
-  "label": "one-answer",
-  "consumer": "pdfjs",
-  "text": "عبدالله محمد الأحمد",
-  "status": "wrong"
+  "status": "exact"
  }
 ]

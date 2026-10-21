@@ -21,6 +21,14 @@ if (man[0]?.writer === 'comment' || man[0]?.writer === 'proto-comment') {
     for (const e of p.expect) out.push({ writer: p.writer, file: p.file, page: p.page, label: p.label, consumer: 'annotation', text: e.slice(0, 40), status: contents.includes(e) ? 'exact' : 'wrong' }); }
   fs.writeFileSync(path.join(res, `${name}.check.json`), JSON.stringify(out, null, 1)); console.log(name, 'annotation contents', out.filter((o) => o.status === 'exact').length, 'of', out.length); process.exit(0);
 }
+// fillable forms are annotations too: no reader's page text includes a field's value, so the value stored in the field is checked here and the
+// drawing of it by the flattened variants (forms-flat), which put it on the page as text
+if (/^(proto-)?forms(-na|-one)?\.pdf$/.test(man[0]?.file ?? '')) {
+  const doc = m.Document.openDocument(new Uint8Array(fs.readFileSync(path.join(OUT, man[0].file))), 'application/pdf');
+  for (const p of man) { const pg = doc.loadPage(p.page), vals = pg.getWidgets().map((x) => String(x.getValue?.() ?? '')); pg.destroy();
+    for (const e of p.expect) out.push({ writer: p.writer, file: p.file, page: p.page, label: p.label, consumer: 'field-value', text: e.slice(0, 40), status: vals.some((v) => v.replace(/\s+/g, ' ').trim() === e.replace(/\s+/g, ' ').trim() || v.includes(e)) ? 'exact' : 'wrong' }); }
+  fs.writeFileSync(path.join(res, `${name}.check.json`), JSON.stringify(out, null, 1)); console.log(name, 'field values', out.filter((o) => o.status === 'exact').length, 'of', out.length); process.exit(0);
+}
 for (const c of consumers) {
   const pages = JSON.parse(fs.readFileSync(path.join(res, `${name}.${c}.json`), 'utf8'));
   for (const p of man) {
