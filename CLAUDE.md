@@ -5,6 +5,7 @@ Full context: `../HANDOVER-NEXT-CHAT.md` (status, rules, folder map) and `PLAN.m
 the parts you need.
 
 ## Rules
+- **Release gate (owner, 21 Oct 2026): NOTHING goes live on GitHub or pwaraq.com until it is tested properly (full unit + e2e + audit green, EN+AR, a manual look at screenshots) AND the owner has given the clearance in chat for that specific release.** A past "you can push" does not cover later work. Prepare, test, stage; then ask.
 - Never publish/upload/push/buy without the owner's yes. Public repo `../PWaraq` (github.com/tshi-dev/PWaraq): update
   only when asked — `git -C ../PWaraq subtree pull --prefix=next ../waraq-next master`, scan, `git push`.
 - Commit inside THIS repo only: `git -C "<waraq-next path>" commit` — the repo-local author is the owner (tshi-dev);
