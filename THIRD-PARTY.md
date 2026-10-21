@@ -10,6 +10,11 @@ each under its own licence.
 | [Svelte](https://svelte.dev) | Interface | MIT |
 | [Vite](https://vitejs.dev) | Build tool | MIT |
 | [Tajawal](https://fonts.google.com/specimen/Tajawal) | Interface and written pages font | SIL OFL 1.1 |
+| [Amiri](https://github.com/aliftype/amiri), [Noto Naskh Arabic and Noto Sans Arabic](https://fonts.google.com/noto) | Arabic fallback fonts for edited and written text, and converted Office documents | SIL OFL 1.1 (licence texts in `next/public/fonts/`) |
+| [harfbuzzjs](https://github.com/harfbuzz/harfbuzzjs) (HarfBuzz) | Arabic text shaping (joining, vowel marks) in written text | MIT |
+| [Tesseract.js](https://github.com/naptha/tesseract.js) 6, Arabic and English trained data | OCR (scanned pages to searchable text) | Apache-2.0 |
+| [Tauri](https://tauri.app) 2 | Windows desktop shell | Apache-2.0 / MIT |
+| [Surya OCR](https://github.com/datalab-to/surya) (measured only, not shipped) | Quality comparison for OCR | GPL-3.0 |
 
 ## Waraq 0.3 (`app/`)
 Website libraries (notices also in `app/dist/vendor/THIRD-PARTY.html`):
