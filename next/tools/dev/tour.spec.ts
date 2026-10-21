@@ -72,7 +72,7 @@ test('tour', async ({ page }) => {
   await page.locator('.cell').nth(1).dblclick();
   const ready = () => expect(page.locator('.editor .sheet .hit').first()).toBeAttached({ timeout: 30_000 });
   await ready();
-  await page.locator('.editor .tools .btn').nth(1).click(); // Add text
+  await page.locator('.editor .tools .btn').nth(1).click(); // Add text (Redact is nth(3), Cancel nth(7))
   let sheet = (await page.locator('.editor .sheet').boundingBox())!, s = sheet.width / 595;
   await page.mouse.click(sheet.x + 520 * s, sheet.y + 600 * s);
   await page.keyboard.type('ملاحظة: راجع هذا الدرس قبل الاختبار');

@@ -16,7 +16,9 @@ export type Edit =
   // a new photo (photos[photo]) filling the box
   | ({ kind: 'photo'; photo: number } & Box)
   // existing photo number `index` (pageObjects order): moved / resized to the box, replaced by photos[photo], or removed
-  | ({ kind: 'image'; index: number; from: Box; photo?: number; removed?: boolean } & Box);
+  | ({ kind: 'image'; index: number; from: Box; photo?: number; removed?: boolean } & Box)
+  // redaction: text, photo pixels and lines under the box removed from the page for good, a black box in their place
+  | ({ kind: 'redact' } & Box);
 
 /** Text box layout shared with the editor screen: first baseline `BASELINE`·size below the box top, lines `LEADING`·size apart. */
 export const LEADING = 1.3, BASELINE = 1.0;
@@ -94,6 +96,8 @@ export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number,
   };
   redact(redactImages, 1, 1); // remove images there, keep text and lines
   redact(redactText, 0, 0); // remove text there, keep images and lines
+  const hide = edits.filter((e) => e.kind === 'redact');
+  if (hide.length) { for (const b of hide) page.createAnnotation('Redact').setRect([b.x, b.y, b.x + b.w, b.y + b.h]); page.applyRedactions(true, 2, 1, 0); } // before new text and photos, which stay
 
   if (!lift) {
     for (const e of edits) if (e.kind === 'photo') { const img = new m.Image(photos[e.photo]); place(out.addImage(img), upright(img, e)); }

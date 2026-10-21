@@ -139,26 +139,26 @@
   .grid { height: 100%; overflow: auto; padding: var(--s-24); background: var(--canvas); outline: none; }
   .cells { display: flex; flex-wrap: wrap; gap: var(--s-24); align-items: flex-end; padding-block: var(--s-8) var(--s-24); }
   .cell { position: relative; display: grid; justify-items: center; gap: var(--s-8); padding: var(--s-8); border: 2px solid transparent; border-radius: var(--r-12); cursor: grab; }
-  .cell:hover { background: #ffffff99; }
+  .cell:hover { background: color-mix(in srgb, var(--surface) 60%, transparent); }
   .cell.sel { border-color: var(--green); background: var(--green-soft); }
   .sheet { position: relative; background: #fff; box-shadow: var(--shadow); overflow: hidden; }
   .sheet canvas { position: absolute; left: 50%; top: 50%; background: #fff; }
   .num { font-size: var(--fs-14); color: var(--muted); font-variant-numeric: tabular-nums; }
   .cell.sel .num { color: var(--ink); font-weight: 600; }
   /* the page's own bar: a dark pill on the card's bottom edge (below the page, so a click on the page selects it) */
-  .acts { position: absolute; z-index: 2; bottom: -18px; left: 50%; transform: translateX(-50%); display: none; align-items: center; gap: var(--s-8); padding: var(--s-8); border-radius: 22px; background: var(--ink); box-shadow: 0 6px 18px #233c3640; }
+  .acts { position: absolute; z-index: 2; bottom: -18px; left: 50%; transform: translateX(-50%); display: none; align-items: center; gap: var(--s-8); padding: var(--s-8); border-radius: 22px; background: var(--ink); box-shadow: var(--shadow); }
   .cell:hover .acts, .cell:focus-within .acts { display: flex; }
-  .act { flex: none; width: var(--control); height: var(--control); display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: #fff; }
-  .act:hover { background: #ffffff26; }
+  .act { flex: none; width: var(--control); height: var(--control); display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: var(--paper); }
+  .act:hover { background: color-mix(in srgb, var(--paper) 15%, transparent); }
   .act.danger:hover { background: var(--danger); }
-  .acts .bar { width: 1px; height: 20px; background: #ffffff40; }
+  .acts .bar { width: 1px; height: 20px; background: color-mix(in srgb, var(--paper) 25%, transparent); }
   .cells.locked .cell { cursor: default; }
   /* writing paper on blank pages, as in the built page */
   .sheet.paper-lined { background: repeating-linear-gradient(#fff 0 calc(100% / 34 - 1px), #e0e7de calc(100% / 34 - 1px) calc(100% / 34)); }
   .sheet.paper-grid { background: linear-gradient(90deg, #e0e7de 1px, transparent 1px) 0 0 / calc(100% / 42) calc(100% / 59.4), linear-gradient(#e0e7de 1px, #fff 1px) 0 0 / calc(100% / 42) calc(100% / 59.4); }
   .sheet.paper-dotted { background: radial-gradient(circle, #c9d2c7 1px, #fff 1.2px) 0 0 / calc(100% / 42) calc(100% / 59.4); }
   .sheet[class*='paper-'] canvas { display: none; }
-  .ins { position: absolute; top: 40%; inset-inline-end: calc(-1 * var(--s-24) / 2 - 18px); z-index: 1; width: var(--control); height: var(--control); display: none; place-items: center; border: 0; border-radius: 50%; background: var(--green); color: #fff; box-shadow: var(--shadow); }
+  .ins { position: absolute; top: 40%; inset-inline-end: calc(-1 * var(--s-24) / 2 - 18px); z-index: 1; width: var(--control); height: var(--control); display: none; place-items: center; border: 0; border-radius: 50%; background: var(--green); color: var(--on-green); box-shadow: var(--shadow); }
   .cell:hover .ins { display: grid; }
   .cell.before::before, .cell.after::after, .empty.before::before { content: ''; position: absolute; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: var(--green); }
   .cell.before::before, .empty.before::before { inset-inline-start: calc(-1 * var(--s-24) / 2 - 2px); }

@@ -4,10 +4,12 @@
   import { EnginePool } from './lib/engine/pool';
   import { setDocument } from './lib/engine/page-cache';
   import { i18n, t, toggleLanguage } from './lib/i18n.svelte';
+  import ThemeButton from './components/ThemeButton.svelte';
   import { icon } from './lib/icons.js';
   import { recentList, remember, forget, reopen, pickFiles, saveFile, readPortfolio, writePortfolio, type Recent } from './lib/store';
   import { newPortfolio, load, type Portfolio as PortfolioData } from './lib/portfolio';
   import { unzip } from './lib/zip';
+  import { CONVERTIBLE_ACCEPT, isConvertible, toPdf } from './lib/convert';
   import Workspace from './components/Workspace.svelte';
   import Portfolio from './components/Portfolio.svelte';
 
@@ -46,6 +48,11 @@
     if (!file) return;
     busy = true; error = '';
     try {
+      if (isConvertible(file.name)) { // Word, Excel, PowerPoint, DWG, DXF: converted first (desktop app only)
+        try { await show(await toPdf(file), file.name.replace(/\.[^.]+$/, '') + '.pdf', true); }
+        catch (e) { error = (e as Error)?.message === 'DESKTOP_ONLY' ? t('officeDesktopOnly') : t('officeFailed'); }
+        busy = false; return;
+      }
       const bytes = new Uint8Array(await file.arrayBuffer());
       if (/\.waraq$/i.test(file.name)) await openPortfolioFile(bytes);
       else {
@@ -93,7 +100,7 @@
   }
 
   async function pick() {
-    const [first] = await pickFiles({ accept: { 'application/pdf': ['.pdf'], 'application/zip': ['.waraq'] }, fallback: () => picker.click() });
+    const [first] = await pickFiles({ accept: { 'application/pdf': ['.pdf'], 'application/zip': ['.waraq'], 'application/octet-stream': CONVERTIBLE_ACCEPT.split(',') }, fallback: () => picker.click() });
     if (first) openFile(first.file, first.handle);
   }
   async function drop(e: DragEvent) {
@@ -112,7 +119,7 @@
   const when = (at: number) => new Intl.RelativeTimeFormat(i18n.lang, { numeric: 'auto' }).format(Math.round((at - Date.now()) / 86_400_000), 'day');
 </script>
 
-<input bind:this={picker} type="file" accept="application/pdf,.pdf,.waraq" hidden onchange={(e) => { openFile(e.currentTarget.files?.[0]); e.currentTarget.value = ''; }} />
+<input bind:this={picker} type="file" accept="application/pdf,.pdf,.waraq,{CONVERTIBLE_ACCEPT}" hidden onchange={(e) => { openFile(e.currentTarget.files?.[0]); e.currentTarget.value = ''; }} />
 
 {#if doc}
   <Workspace {pool} sizes={doc.sizes} name={doc.name} bytes={doc.bytes} modified={doc.modified} password={doc.password} onOpen={pick} onClose={close} onSave={save}
@@ -122,7 +129,7 @@
 {:else}
   <div class="start" class:over role="region" aria-label={t('appName')}
     ondragover={(e) => { e.preventDefault(); over = true; }} ondragleave={() => (over = false)} ondrop={drop}>
-    <button class="btn icon lang" onclick={toggleLanguage} aria-label={t('language')} title={t('language')}>{@html icon('language')}</button>
+    <span class="lang"><ThemeButton /><button class="btn icon" onclick={toggleLanguage} aria-label={t('language')} title={t('language')}>{@html icon('language')}</button></span>
     <div class="hero">
       <img src="/brand-mark.svg" alt="" width="72" height="72" />
       <h1>{t('appName')}</h1>
@@ -168,7 +175,7 @@
 <style>
   .start { position: relative; height: 100%; overflow-y: auto; display: grid; align-content: start; justify-items: center; gap: var(--s-32); padding: var(--s-48) var(--s-24) var(--s-24); }
   .start.over { background: var(--green-soft); outline: 2px dashed var(--green); outline-offset: -16px; }
-  .lang { position: absolute; top: var(--s-16); inset-inline-end: var(--s-16); }
+  .lang { display: flex; gap: var(--s-8); position: absolute; top: var(--s-16); inset-inline-end: var(--s-16); }
   .hero { display: grid; justify-items: center; gap: var(--s-12); text-align: center; }
   h1 { margin: 0; font-size: var(--fs-40); line-height: 1.2; }
   .tag { margin: 0 0 var(--s-8); color: var(--muted); font-size: var(--fs-18); max-width: 36ch; }

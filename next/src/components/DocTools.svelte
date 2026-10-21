@@ -7,6 +7,7 @@
   import { i18n, t } from '../lib/i18n.svelte';
   import { icon } from '../lib/icons.js';
   import { saveFile } from '../lib/store';
+  import { CONVERTIBLE_ACCEPT, desktop, toPdf } from '../lib/convert';
   import { zip } from '../lib/zip';
 
   let { pool, kind, sizes, name, bytes, password, onReplace }: { pool: EnginePool; kind: 'stamp' | 'convert' | 'protect';
@@ -58,6 +59,15 @@
     if (sizes.length === 1) await saveFile(Object.values(files)[0], `${base}.png`, 'image/png');
     else await saveFile(zip(files), `${base} (${t('images')}).zip`, 'application/zip');
   });
+
+  const canOffice = !!desktop();
+  const office = (e: Event & { currentTarget: HTMLInputElement }) => {
+    const file = e.currentTarget.files?.[0]; e.currentTarget.value = '';
+    if (file) run(t('officeConverting'), async () => {
+      try { await saveFile(await toPdf(file), file.name.replace(/\.[^.]+$/, '') + '.pdf'); }
+      catch { error = t('officeFailed'); }
+    });
+  };
 
   // Protect
   let pw = $state(''), pw2 = $state(''), print = $state(true), copy = $state(false);
@@ -116,6 +126,10 @@
       <label class="field"><span>{t('resolution')}</span>
         <select bind:value={dpi}><option value={96}>96 dpi</option><option value={150}>150 dpi</option><option value={300}>300 dpi</option></select></label>
       <button class="btn" onclick={images} disabled={!!busy}>{@html icon('png')}{t('imagesSave')}</button>
+      <h2>{t('officeTitle')}</h2>
+      <p class="help">{canOffice ? t('officeHelp') : t('officeDesktopOnly')}</p>
+      <label class="btn" class:disabled={!canOffice || !!busy}>{@html icon('upload')}{t('officeChoose')}
+        <input type="file" accept={CONVERTIBLE_ACCEPT} hidden disabled={!canOffice || !!busy} onchange={office} /></label>
     {:else}
       <h2>{t('protectTitle')}</h2>
       <p class="help">{t('protectHelp')}</p>
@@ -151,11 +165,12 @@
   .help { margin: 0; color: var(--muted); }
   .field { display: grid; gap: var(--s-8); font-weight: 600; }
   .field input:not([type='range']), .field select { min-height: var(--control); padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); font-weight: 400; }
-  .field input[type='range'] { accent-color: var(--green); }
+  .field input[type='range'] { accent-color: var(--green); min-height: var(--control); }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-12); align-items: end; }
   .switch, .choice { display: flex; align-items: center; gap: var(--s-8); min-height: var(--control); font-weight: 600; }
   .switch input, .choice input { flex: none; width: 20px; height: 20px; accent-color: var(--green); }
   .grow { flex: 1; }
+  label.btn { cursor: pointer; } label.btn.disabled { opacity: 0.5; cursor: not-allowed; }
   .state { margin: 0; color: var(--muted); font-size: var(--fs-12); min-height: 18px; }
   .error { margin: 0; color: var(--danger); }
   @media (max-width: 900px) { .tools { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .side { border-inline-start: 0; border-top: 1px solid var(--line); } }

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import * as m from '../../engine/mupdf-wasm/dist/mupdf.js';
 import { assemble } from '../../src/lib/engine/assemble';
 import { unzip } from '../../src/lib/zip';
-import { open, saved, fixture } from './helpers';
+import { open, saved, choose, fixture } from './helpers';
 
 const pdf = (b: Uint8Array) => m.Document.openDocument(b, 'application/pdf');
 
@@ -86,4 +86,28 @@ test('protect: a protected copy asks for its password when opened; unlock remove
   await expect(page.locator('.page').first()).toBeVisible();
   const free = await saved(page, () => page.getByRole('button', { name: 'Save' }).first().click());
   expect(pdf(free.bytes).needsPassword()).toBe(false);
+});
+
+test('office and cad: the web version says "desktop only"; with the desktop bridge a Word file converts and opens', async ({ page }, info) => {
+  const docx = info.outputPath('report.docx');
+  fs.writeFileSync(docx, 'not really word');
+  await open(page, fixture('three.pdf'));
+  await page.getByRole('button', { name: 'Convert' }).click();
+  await expect(page.getByText('This works in the Waraq desktop app.')).toBeVisible();
+  await expect(page.locator('label.btn.disabled input[type=file]')).toBeDisabled();
+
+  await page.goto('/'); // opening a Word file from the start screen says the same
+  await page.locator('input[type=file]').first().setInputFiles(docx);
+  await expect(page.getByRole('alert')).toContainText('desktop app');
+
+  // the desktop app (Tauri) provides window.waraqDesktop; here a stand-in returns a known PDF
+  const three = [...fs.readFileSync(fixture('three.pdf'))];
+  await page.addInitScript((b) => { (globalThis as any).waraqDesktop = { convertToPdf: async () => new Uint8Array(b) }; }, three);
+  await page.goto('/');
+  await page.locator('input[type=file]').first().setInputFiles(docx);
+  await expect(page.locator('.page')).toHaveCount(3, { timeout: 30_000 });
+  await page.getByRole('button', { name: 'Convert' }).click();
+  const out = await saved(page, () => choose(page, () => page.getByText('Choose a file and save as PDF').click(), [docx]));
+  expect(out.name).toBe('report.pdf');
+  expect(pdf(out.bytes).countPages()).toBe(3);
 });

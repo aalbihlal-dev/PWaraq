@@ -20,7 +20,7 @@
   // what the editor holds: the engine's edits plus an id; `orig` = the state it was lifted with (unchanged ones are dropped)
   type Obj = Edit & { id: string; orig?: string; line?: number; removed?: boolean; aligned?: boolean };
   let doc = $state(-1), size = $state({ w: 595, h: 842 }), found = $state<{ lines: PageLine[]; images: Box[] }>({ lines: [], images: [] });
-  let objs = $state<Obj[]>([]), selected = $state<string | null>(null), tool = $state<'select' | 'text'>('select'), busy = $state(t('openingPage'));
+  let objs = $state<Obj[]>([]), selected = $state<string | null>(null), tool = $state<'select' | 'text' | 'redact'>('select'), busy = $state(t('openingPage'));
   const sel = $derived(objs.find((o) => o.id === selected));
   // a replaced line: the font it will be written in (its own, or the closest bundled one and the letters that were missing)
   let fontInfo = $state<{ font: string; using: string | null; missing: string[] } | null>(null);
@@ -57,7 +57,8 @@
   // background: the page with what the edits take away already gone (the rest is drawn on top while editing)
   let canvas = $state<HTMLCanvasElement>(), clean = $state(''); // clean: the untouched page, for pictures of photos being moved
   const lifted = $derived(JSON.stringify(objs.flatMap((o): Edit[] => o.kind === 'image' ? [{ kind: 'image', index: o.index, from: o.from, ...o.from }]
-    : o.kind === 'text' && o.from ? [{ kind: 'text', from: o.from, text: '', size: 1, color: [0, 0, 0], bold: false, align: 'left', ...o.from }] : [])));
+    : o.kind === 'text' && o.from ? [{ kind: 'text', from: o.from, text: '', size: 1, color: [0, 0, 0], bold: false, align: 'left', ...o.from }]
+    : o.kind === 'redact' && o.w > 2 && o.h > 2 ? [{ kind: 'redact', x: o.x, y: o.y, w: o.w, h: o.h }] : [])));
   $effect(() => {
     if (doc < 0 || !s || !canvas) return;
     const edits = JSON.parse(lifted) as Edit[], scale = s * Math.min(devicePixelRatio || 1, 2), c = canvas;
@@ -113,6 +114,7 @@
   // a click on the page: places a new text box (Add text), or lets go of the selection
   function pageDown(e: PointerEvent) {
     if (e.target !== e.currentTarget && !(e.target as HTMLElement).matches('canvas')) return;
+    if (tool === 'redact') { markArea(e); return; }
     if (tool !== 'text') { select(null); return; }
     // the box grows from the click towards the end of the line: rightwards in English, leftwards in Arabic
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect(), x = (e.clientX - r.left) / s, y = (e.clientY - r.top) / s, rtl = i18n.lang === 'ar';
@@ -120,6 +122,24 @@
     const o: Obj = { id: uid(), kind: 'text', text: '', size: 16, color: COLOURS[1][1], bold: false, align: rtl ? 'right' : 'left', x: rtl ? Math.max(0, x - w) : x, y: y - 8, w, h: 16 * LEADING };
     e.preventDefault();
     change(() => objs.push(o)); select(o.id); tool = 'select'; focusText(o.id);
+  }
+  // Redact: drag a box over what should go; it stays selected (move it, resize it, Delete takes it away)
+  function markArea(e: PointerEvent) {
+    e.preventDefault();
+    const el = e.currentTarget as HTMLElement, r = el.getBoundingClientRect(), x0 = (e.clientX - r.left) / s, y0 = (e.clientY - r.top) / s, before = snap();
+    const o: Obj = { id: uid(), kind: 'redact', x: x0, y: y0, w: 0, h: 0 };
+    objs.push(o); select(o.id);
+    const box = objs[objs.length - 1];
+    el.setPointerCapture(e.pointerId);
+    const move = (ev: PointerEvent) => {
+      const x = (ev.clientX - r.left) / s, y = (ev.clientY - r.top) / s;
+      Object.assign(box, { x: Math.min(x0, x), y: Math.min(y0, y), w: Math.abs(x - x0), h: Math.abs(y - y0) });
+    };
+    const up = () => {
+      el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
+      if (box.w < 4 || box.h < 4) { objs = objs.filter((x) => x.id !== o.id); selected = null; } else record(before);
+    };
+    el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
   }
   // an existing line of text: a text box in its place, with its text, size, colour and weight; the box reaches the page
   // margin so a longer text stays on one line instead of wrapping onto the line below
@@ -148,6 +168,7 @@
       moved ||= Math.abs(dx) + Math.abs(dy) > 0.5;
       if (mode === 'move') { o.x = Math.min(size.w - 16, Math.max(16 - start.w, start.x + dx)); o.y = Math.min(size.h - 16, Math.max(-start.h + 16, start.y + dy)); }
       else if (o.kind === 'text') o.w = Math.max(24, start.w + dx);
+      else if (o.kind === 'redact') { o.w = Math.max(4, start.w + dx); o.h = Math.max(4, start.h + dy); }
       else { o.w = Math.max(12, start.w + dx); o.h = (o.w * start.h) / start.w; }
     };
     const up = () => { el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up); if (moved) record(before); };
@@ -238,6 +259,7 @@
     <button class="btn" class:on={tool === 'select'} aria-pressed={tool === 'select'} onclick={() => (tool = 'select')}>{@html icon('move')}{t('selectTool')}</button>
     <button class="btn" class:on={tool === 'text'} aria-pressed={tool === 'text'} onclick={() => { tool = 'text'; select(null); }} disabled={doc < 0}>{@html icon('text')}{t('addText')}</button>
     <button class="btn" onclick={() => choosePhoto(false)} disabled={doc < 0}>{@html icon('images')}{t('addPhoto')}</button>
+    <button class="btn" class:on={tool === 'redact'} aria-pressed={tool === 'redact'} onclick={() => { tool = 'redact'; select(null); }} disabled={doc < 0}>{@html icon('redact')}{t('redactArea')}</button>
     <span class="sep"></span>
     <button class="btn icon" onclick={undo} disabled={!canUndo} title={t('undo')} aria-label={t('undo')}>{@html icon('undo')}</button>
     <button class="btn icon" onclick={redo} disabled={!canRedo} title={t('redo')} aria-label={t('redo')}><span class="flip">{@html icon('undo')}</span></button>
@@ -252,7 +274,7 @@
       {#if busy}<p class="busy" role="status">{busy}</p>{/if}
       {#if s}
         <!-- svelte-ignore a11y_no_static_element_interactions (the page itself: a click places text or lets go of the selection) -->
-        <div class="sheet" class:placing={tool === 'text'} dir="ltr" style="width:{size.w * s}px;height:{size.h * s}px" onpointerdown={pageDown}>
+        <div class="sheet" class:placing={tool !== 'select'} dir="ltr" style="width:{size.w * s}px;height:{size.h * s}px" onpointerdown={pageDown}>
           <canvas bind:this={canvas} style="width:{size.w * s}px;height:{size.h * s}px"></canvas>
           {#if tool === 'select' && doc >= 0}
             {#each found.images as b, i}{#if !liftedImage(i)}
@@ -274,9 +296,9 @@
                 </div>
               {:else}
                 <!-- svelte-ignore a11y_no_static_element_interactions (moved with the pointer; Delete and the options panel work from the keyboard) -->
-                <div class="obj pic" class:on={o.id === selected} data-obj={o.id} style="left:{o.x * s}px;top:{o.y * s}px;width:{o.w * s}px;height:{o.h * s}px;{picture(o)}"
+                <div class="obj pic" class:redact={o.kind === 'redact'} class:on={o.id === selected} data-obj={o.id} style="left:{o.x * s}px;top:{o.y * s}px;width:{o.w * s}px;height:{o.h * s}px;{picture(o)}"
                   onpointerdown={(e) => drag(e, o, 'move')}>
-                  {#if o.photo != null}<img src={urls[o.photo]} alt="" draggable="false" />{/if}
+                  {#if o.kind !== 'redact' && o.photo != null}<img src={urls[o.photo]} alt="" draggable="false" />{/if}
                   {#if o.id === selected}<div class="corner" title={t('resizeHandle')} onpointerdown={(e) => drag(e, o, 'size')}></div>{/if}
                 </div>
               {/if}
@@ -324,7 +346,7 @@
         <button class="btn" onclick={remove}>{@html icon('delete')}{t('delete')}</button>
       {:else}
         <h2>{t('editPage')}</h2>
-        <p class="help">{tool === 'text' ? t('placeText') : t('editorHelp')}</p>
+        <p class="help">{tool === 'text' ? t('placeText') : tool === 'redact' ? t('placeRedact') : t('editorHelp')}</p>
         <p class="note">{@html icon('info')}<span>{t('fontNote')}</span></p>
       {/if}
     </aside>
@@ -348,6 +370,7 @@
   .hit:hover, .hit:focus-visible { border-color: var(--green); background: var(--select-tint); }
   .hit.line { cursor: text; }
   .obj { position: absolute; }
+  .obj.redact { border: 2px dashed var(--danger); }
   .obj.on { outline: 2px dashed var(--green); outline-offset: 2px; }
   .text textarea { display: block; width: 100%; min-height: 1em; padding: 0; margin: 0; border: 0; background: transparent; resize: none; overflow: hidden; white-space: pre-wrap; font-family: Tajawal, sans-serif; field-sizing: content; outline: none; }
   .text:not(.on):hover { outline: 1px solid var(--green); }

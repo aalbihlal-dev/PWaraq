@@ -60,3 +60,9 @@ test('protect and unlock: needs the password, opens with it, unlock removes it, 
   assert.equal(free.countPages(), 3);
   assert.throws(() => protect(m, three, 'a,b'), /BAD_PASSWORD/);
 });
+
+test('font subsetting: a watermark embeds only the letters used, text stays real Arabic', () => {
+  const out = assemble(m, () => src, { items: [{ doc: 1, page: 0 }], watermark: { text: 'مسودة DRAFT' } }, () => fonts);
+  assert.ok(out.length < 150_000, 'both Tajawal weights are no longer embedded whole: ' + out.length);
+  assert.match(open(out).loadPage(0).toStructuredText().asText(), /مسودة/);
+});

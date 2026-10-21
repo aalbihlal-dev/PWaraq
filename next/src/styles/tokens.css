@@ -9,7 +9,7 @@
   /* Waraq colours (same palette as 0.3.x): paper, Waraq green, soft mint */
   --green: #15775d; --green-deep: #0f5a46; --green-soft: #eaf3eb; --ink: #233c36; --muted: #56695f;
   --paper: #fafbf8; --surface: #ffffff; --canvas: #eef1eb; --line: #e0e7de; --focus: #15775d; --danger: #a34438;
-  --veil: #fafbf8cc; --select-tint: #15775d14; /* "working…" cover over a screen; hover on something on a page */
+  --on-green: #ffffff; --page: #ffffff; --veil: #fafbf8cc; --select-tint: #15775d14; /* "working…" cover over a screen; hover on something on a page */
   --fs-12: 12px; --fs-14: 14px; --fs-16: 16px; --fs-18: 18px; --fs-20: 20px; --fs-24: 24px; --fs-32: 32px; --fs-40: 40px;
   --s-4: 4px; --s-8: 8px; --s-12: 12px; --s-16: 16px; --s-24: 24px; --s-32: 32px; --s-48: 48px;
   --r-8: 8px; --r-12: 12px; --r-16: 16px;
@@ -19,7 +19,27 @@
   color-scheme: light;
 }
 :root[dir='rtl'] { --font: Tajawal, 'Segoe UI', system-ui, sans-serif; }
-/* The Waraq look is the default everywhere; a dark theme can come later as an explicit choice, not from Windows. */
+/* Light is the default. Dim and Dark are chosen by hand (never from Windows) and set data-theme on <html>.
+   --page stays white in every theme: PDF pages are shown as printed. */
+/* Dim and Dark: calm forest-sage greens, low saturation, no pure black. */
+:root[data-theme='dim'] {
+  --green: #5fa98d; --green-deep: #7dbda4; --green-soft: #2c423a; --ink: #e3eae5; --muted: #a8b9b0;
+  --paper: #22302b; --surface: #2b3b35; --canvas: #1c2823; --line: #3c4d46; --focus: #7dbda4; --danger: #e8806f;
+  --on-green: #12201b; --veil: #22302bcc; --select-tint: #5fa98d26;
+  --shadow: 0 5px 20px #0c14115c, 0 1px 2px #0c141140; color-scheme: dark;
+}
+:root[data-theme='graphite'] { /* neutral charcoal, cool lean, soft teal-blue accent */
+  --green: #6aa6b8; --green-deep: #8bbfce; --green-soft: #2b3b42; --ink: #e6e8ea; --muted: #a7adb4;
+  --paper: #1f2226; --surface: #2a2d32; --canvas: #181a1d; --line: #3b4047; --focus: #8bbfce; --danger: #e8806f;
+  --on-green: #101417; --veil: #1f2226cc; --select-tint: #6aa6b826;
+  --shadow: 0 5px 20px #0a0c0f80, 0 1px 2px #0a0c0f59; color-scheme: dark;
+}
+:root[data-theme='dark'] {
+  --green: #5fa98d; --green-deep: #7dbda4; --green-soft: #22342d; --ink: #e8eee9; --muted: #9fb2a8;
+  --paper: #17211d; --surface: #1e2b26; --canvas: #121a17; --line: #2b3a34; --focus: #7dbda4; --danger: #e8806f;
+  --on-green: #101a16; --veil: #17211dcc; --select-tint: #5fa98d26;
+  --shadow: 0 5px 20px #0a100d80, 0 1px 2px #0a100d59; color-scheme: dark;
+}
 
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--paper); color: var(--ink); font: 400 var(--fs-14)/1.5 var(--font); }
@@ -33,7 +53,7 @@ button { cursor: pointer; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-8); min-height: var(--control);
   padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--surface); font-weight: 600; }
 .btn:hover { background: var(--green-soft); border-color: var(--green); }
-.btn.primary { background: var(--green); border-color: var(--green); color: #fff; }
+.btn.primary { background: var(--green); border-color: var(--green); color: var(--on-green); }
 .btn.primary:hover { background: var(--green-deep); }
 .btn.icon { width: var(--control); padding: 0; border-color: transparent; background: transparent; color: var(--muted); }
 .btn.icon:hover { background: var(--green-soft); color: var(--ink); }

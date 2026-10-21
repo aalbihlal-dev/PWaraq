@@ -4,3 +4,6 @@ public/_test/
 dist/
 test-results/
 playwright-report/
+public/ocr/
+.venv-surya/
+tests/fixtures/ocr/real/

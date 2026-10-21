@@ -62,3 +62,50 @@ fs.writeFileSync(here('photo.png'), pix.asPNG());
   for (let x = 100; x <= 260; x++) ink(x, 120);
   fs.writeFileSync(here('signature-photo.png'), p.asPNG());
 }
+
+// private.pdf: a page with a phone number (Latin and Arabic digits), an e-mail and a secret word; title and author set
+{
+  const out = new m.PDFDocument(), w = pageWriter(m, out, fonts);
+  out.insertPage(-1, w.add({ w: 595, h: 842, lines: [
+    { text: 'Call Sami on +966 50 123 4567 today', x: 72, y: 100, size: 16 },
+    { text: 'Mail sami@example.com for details', x: 72, y: 140, size: 16 },
+    { text: 'اتصل على ٠٥٠١٢٣٤٥٦٧ الآن', x: 523, y: 180, size: 16, align: 'right' },
+    { text: 'The secret plan stays here', x: 72, y: 220, size: 16 },
+  ] }));
+  w.finish();
+  out.setMetaData('info:Title', 'Private title'); out.setMetaData('info:Author', 'Abdullah');
+  fs.writeFileSync(here('private.pdf'), out.saveToBuffer('compress').asUint8Array());
+}
+
+// form.pdf: a fillable form — text "name" and "city" (city read only), checkbox "agree", radio group "size" (small / large),
+// combo box "country" (Egypt / Saudi Arabia / Oman)
+{
+  const doc = new m.PDFDocument(), helv = doc.addSimpleFont(new m.Font('Helvetica'));
+  const page = doc.addPage([0, 0, 595, 842], 0, { Font: { F1: helv } }, 'BT /F1 18 Tf 72 780 Td (Registration form) Tj ET');
+  doc.insertPage(-1, page);
+  const stream = (w, h) => doc.addStream('', { Type: 'XObject', Subtype: 'Form', BBox: [0, 0, w, h] });
+  const str = (s) => doc.newString(s);
+  const p = doc.findPage(0), widgets = [];
+  const widget = (extra, rect) => { const o = doc.addObject({ Type: 'Annot', Subtype: 'Widget', F: 4, Rect: rect, P: p, ...extra }); widgets.push(o); return o; };
+  const fields = [];
+  fields.push(widget({ FT: 'Tx', T: str('name'), DA: str('/Helv 12 Tf 0 g') }, [72, 700, 300, 722]));
+  fields.push(widget({ FT: 'Tx', T: str('city'), Ff: 1, V: str('Cairo'), DA: str('/Helv 12 Tf 0 g') }, [72, 660, 300, 682]));
+  fields.push(widget({ FT: 'Btn', T: str('agree'), V: 'Off', AS: 'Off', AP: { N: { Yes: stream(16, 16), Off: stream(16, 16) } } }, [72, 620, 88, 636]));
+  const kids = [widget({ AS: 'Off', AP: { N: { small: stream(16, 16), Off: stream(16, 16) } } }, [72, 580, 88, 596]), widget({ AS: 'Off', AP: { N: { large: stream(16, 16), Off: stream(16, 16) } } }, [120, 580, 136, 596])];
+  const group = doc.addObject({ FT: 'Btn', Ff: 32768, T: str('size'), V: 'Off', Kids: kids });
+  kids.forEach((k) => k.put('Parent', group)); fields.push(group);
+  fields.push(widget({ FT: 'Ch', Ff: 131072, T: str('country'), Opt: [str('Egypt'), str('Saudi Arabia'), str('Oman')], DA: str('/Helv 12 Tf 0 g') }, [72, 540, 300, 562]));
+  p.put('Annots', widgets);
+  doc.getTrailer().get('Root').put('AcroForm', doc.addObject({ Fields: fields, DA: str('/Helv 12 Tf 0 g'), DR: { Font: { Helv: helv } } }));
+  fs.writeFileSync(here('form.pdf'), doc.saveToBuffer('compress').asUint8Array());
+}
+
+// scan.pdf: one page that is only a picture (no text): "Invoice number 4821" and an Arabic line, drawn large and rasterised
+{
+  const text = new m.PDFDocument(), w = pageWriter(m, text, fonts);
+  text.insertPage(-1, w.add({ w: 595, h: 400, lines: [{ text: 'Invoice number 4821', x: 60, y: 110, size: 34 }, { text: 'مرحبا بكم في هذا الكتاب', x: 535, y: 260, size: 44, align: 'right' }] }));
+  w.finish();
+  const png = text.loadPage(0).toPixmap(m.Matrix.scale(3, 3), m.ColorSpace.DeviceGray, false).asPNG();
+  const photo = { doc: m.Document.openDocument(png, 'image/png'), bytes: png };
+  fs.writeFileSync(here('scan.pdf'), assemble(m, () => photo, { items: [{ doc: 1, page: 0, fit: { w: 595, h: 400 } }] }));
+}

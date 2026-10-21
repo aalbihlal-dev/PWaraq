@@ -5,7 +5,8 @@
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
 
 export type Fonts = { regular: MuPDF.Font; bold: MuPDF.Font };
-export type Line = { text: string; x: number; y: number; size: number; bold?: boolean; color?: number[]; align?: 'left' | 'right' | 'center'; max?: number };
+export type Line = { text: string; x: number; y: number; size: number; bold?: boolean; color?: number[]; align?: 'left' | 'right' | 'center'; max?: number;
+  parts?: { text: string; x: number }[]; tz?: number }; // parts: the line's words, each at its own x (from the left), as one piece of text; tz: horizontal scale
 export type TextPage = { w: number; h: number; lines: Line[]; rules?: number[][]; links?: { rect: number[]; to: number }[];
   images?: { doc: number; x: number; y: number; w: number; h: number; align?: 'left' | 'center' | 'right' }[]; // logos: source ids, box from the top
   polys?: { pts: number[][]; color: number[] }[]; // filled shapes (corner triangles), points from the top
@@ -111,15 +112,33 @@ export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts
 `;
       for (const l of p.lines) {
         const face = faces[l.bold ? 1 : 0], font = face.font;
-        let size = l.size, width = measure(font, l.text, size);
-        if (l.max && width > l.max) { size *= l.max / width; width = l.max; } // a long title shrinks to fit
-        const x = l.align === 'right' ? l.x - width : l.align === 'center' ? l.x - width / 2 : l.x;
-        const gids = visual(l.text).map((g) => {
+        const gids = (text: string) => visual(text).map((g) => {
           const gid = font.encodeCharacter(g.code);
           face.used.set(gid, g.uni.length > 1 ? [...g.uni].reverse() : g.uni); // a joined pair is read back right to left
           return gid.toString(16).padStart(4, '0');
-        });
-        ops += `BT /WqT${l.bold ? 1 : 0} ${n(size)} Tf ${(l.color ?? INK).map(n).join(' ')} rg 1 0 0 1 ${n(x)} ${n(p.h - l.y)} Tm <${gids.join('')}> Tj ET
+        }).join('');
+        const tz = l.tz ?? 1;
+        const head = (size: number, x: number) => `BT /WqT${l.bold ? 1 : 0} ${n(size)} Tf ${tz === 1 ? '' : `${n(tz * 100)} Tz `}${(l.color ?? INK).map(n).join(' ')} rg 1 0 0 1 ${n(x)} ${n(p.h - l.y)} Tm `;
+        if (l.parts) {
+          // one text object for the whole line (so MuPDF reads a right-to-left line back in reading order), each part
+          // moved to its own x with TJ (thousandths of the size, positive = back, before Tz); a space glyph between parts
+          const space = font.encodeCharacter(32), spaceW = font.advanceGlyph(space) * l.size * tz, sp = space.toString(16).padStart(4, '0');
+          face.used.set(space, [32]);
+          let pen = l.parts[0].x, arr = '';
+          for (const [i, part] of l.parts.entries()) {
+            if (i) { arr += ` ${n(((pen - part.x) * 1000) / (l.size * tz))} `; pen = part.x; }
+            const last = i === l.parts.length - 1;
+            arr += `<${gids(part.text)}${last ? '' : sp}>`;
+            pen += measure(font, part.text, l.size) * tz + (last ? 0 : spaceW);
+          }
+          ops += `${head(l.size, l.parts[0].x)}[${arr}] TJ ET
+`;
+          continue;
+        }
+        let size = l.size, width = measure(font, l.text, size);
+        if (l.max && width > l.max) { size *= l.max / width; width = l.max; } // a long title shrinks to fit
+        const x = l.align === 'right' ? l.x - width : l.align === 'center' ? l.x - width / 2 : l.x;
+        ops += `${head(size, x)}<${gids(l.text)}> Tj ET
 `;
       }
       return ops;

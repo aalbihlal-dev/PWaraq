@@ -2,6 +2,7 @@
   // The document workspace: one task bar on top, thumbnails on the left, the page in the middle.
   import type { EnginePool } from '../lib/engine/pool';
   import { t, toggleLanguage, type Key } from '../lib/i18n.svelte';
+  import ThemeButton from './ThemeButton.svelte';
   import { icon } from '../lib/icons.js';
   import Viewer from './Viewer.svelte';
   import Thumbnails from './Thumbnails.svelte';
@@ -9,16 +10,21 @@
   import PageEditor, { type Saved } from './PageEditor.svelte';
   import Sign from './Sign.svelte';
   import DocTools from './DocTools.svelte';
+  import Redact from './Redact.svelte';
+  import Forms from './Forms.svelte';
+  import Ocr from './Ocr.svelte';
+  import Comment from './Comment.svelte';
 
   let { pool, sizes, name, bytes, modified, password, onOpen, onClose, onSave, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; bytes: Uint8Array; modified: boolean; password?: string;
     onOpen: () => void; onClose: () => void; onSave: () => void; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
-  let mode = $state<'view' | 'organize' | 'edit' | 'sign' | 'convert' | 'protect'>('view'), editScope = $state<'page' | 'document'>('page'), organize = $state<Organize>(), organized = $state(false), applying = $state(false);
+  let mode = $state<'view' | 'organize' | 'edit' | 'sign' | 'convert' | 'protect' | 'redact' | 'forms' | 'ocr' | 'comment'>('view'), editScope = $state<'page' | 'document'>('page'), organize = $state<Organize>(), organized = $state(false), comment = $state<Comment>(), commented = $state(false), applying = $state(false);
   // leaving Organize applies its changes: the document is rebuilt and opened again in View
   async function task_(next: Key) {
     if (next === mode) return;
     if (next === 'organize' && mode === 'view') { mode = 'organize'; return; }
     if (mode === 'organize' && organized && organize) { applying = true; try { await onReplace(await organize.build()); } catch { alert(t('toolFailed')); } finally { applying = false; } }
-    else mode = (['edit', 'organize', 'sign', 'convert', 'protect'].includes(next) ? next : 'view') as typeof mode;
+    else if (mode === 'comment' && commented && comment) { applying = true; try { await onReplace(await comment.build()); } catch { alert(t('toolFailed')); } finally { applying = false; } }
+    else mode = (['edit', 'organize', 'sign', 'convert', 'protect', 'redact', 'forms', 'ocr', 'comment'].includes(next) ? next : 'view') as typeof mode;
   }
   // Edit: the page editor on the current page; saving puts the edited page in its place and opens the document again
   let editPage = $state(1);
@@ -30,6 +36,7 @@
   async function save() {
     if ((mode === 'edit' && editScope === 'page') || mode === 'sign') return; // the editor / signing mode saves its page first (Save page)
     if (mode === 'organize' && organized && organize) { applying = true; try { await onReplace(await organize.build()); } catch { alert(t('toolFailed')); return; } finally { applying = false; } }
+    if (mode === 'comment' && commented && comment) { applying = true; try { await onReplace(await comment.build()); } catch { alert(t('toolFailed')); return; } finally { applying = false; } }
     onSave();
   }
   let viewer = $state() as Viewer;
@@ -37,7 +44,7 @@
   let showThumbs = $state(true);
   let pageInput = $state('1');
   $effect(() => { pageInput = String(current); });
-  const tasks: Key[] = ['view', 'organize', 'edit', 'convert', 'sign', 'protect', 'ocr'];
+  const tasks: Key[] = ['view', 'organize', 'edit', 'convert', 'sign', 'protect', 'redact', 'forms', 'ocr', 'comment'];
 
   // Find: every page is searched in the background (heavy pages take seconds); matches appear as they come in.
   let findOpen = $state(false), query = $state(''), hits = $state<{ page: number; rects: number[][] }[]>([]), active = $state(0), searching = $state(false);
@@ -75,15 +82,15 @@
     <strong class="name" title={name}>{name}</strong>
     <nav class="tasks" aria-label="Tasks">
       {#each tasks as task}
-        {@const live = task !== 'ocr'}
-        <button class="task" class:on={task === mode} disabled={!live || applying} title={live ? '' : t('soon')} onclick={() => { if (task === 'edit' && mode !== 'edit') editPage = current; task_(task); }}>{t(task)}</button>
+        <button class="task" class:on={task === mode} disabled={applying} onclick={() => { if (task === 'edit' && mode !== 'edit') editPage = current; task_(task); }}>{t(task)}</button>
       {/each}
     </nav>
     <span class="end">
-      {#if modified || organized}<span class="mod">{t('modified')}</span>{/if}
+      {#if modified || organized || commented}<span class="mod">{t('modified')}</span>{/if}
       <button class="btn" class:primary={modified} onclick={save} disabled={applying || (mode === 'edit' && editScope === 'page') || mode === 'sign'}>{@html icon('download')}{t('save')}</button>
       <button class="btn" onclick={onOpen}>{@html icon('upload')}{t('openShort')}</button>
       <button class="btn" onclick={onClose}>{@html icon('close')}{t('close')}</button>
+      <ThemeButton />
       <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
     </span>
   </header>
@@ -101,6 +108,26 @@
     {:else}
     <PageEditor {pool} base={{ doc: 0, page: editPage - 1 }} label="{t('page')} {editPage} {t('of')} {sizes.length}" onSave={edited} onCancel={() => (mode = 'view')} />
     {/if}
+  </div>
+  {:else if mode === 'redact'}
+  <div class="orgwrap">
+    {#if applying}<p class="applying" role="status">{t('applying')}</p>{/if}
+    <Redact {pool} {sizes} {bytes} {onReplace} />
+  </div>
+  {:else if mode === 'forms'}
+  <div class="orgwrap">
+    {#if applying}<p class="applying" role="status">{t('applying')}</p>{/if}
+    <Forms {pool} {sizes} {bytes} {onReplace} />
+  </div>
+  {:else if mode === 'ocr'}
+  <div class="orgwrap">
+    {#if applying}<p class="applying" role="status">{t('applying')}</p>{/if}
+    <Ocr {pool} {sizes} {bytes} {onReplace} />
+  </div>
+  {:else if mode === 'comment'}
+  <div class="orgwrap">
+    {#if applying}<p class="applying" role="status">{t('applying')}</p>{/if}
+    <Comment bind:this={comment} bind:changed={commented} {pool} {sizes} {bytes} />
   </div>
   {:else if mode === 'sign'}
   <div class="orgwrap">
