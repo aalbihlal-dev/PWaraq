@@ -4,7 +4,7 @@
 // Coordinates are points on the page as seen (MuPDF page space: top-left origin, the page's own turn applied).
 // New text boxes are written in Tajawal; a replaced line keeps its own font (ownfont.ts, HarfBuzz).
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
-import { measure, pageWriter, wrap, type Fonts, type Line } from './textpage.ts';
+import { pageWriter, widthOf, wrap, type Fonts, type Line } from './textpage.ts';
 import { fontAt, fontName } from './ownfont.ts';
 import { writer, type Store } from './fontstore.ts';
 import { stamp } from './assemble.ts';
@@ -182,7 +182,7 @@ export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number,
       let ops = '';
       for (const e of texts) {
         const hint = hints.get(e), f = hint ? null : fonts!();
-        const width = hint ? (t: string) => shaped!.measure({ text: t, x: 0, y: 0, size: e.size, color: e.color, align: 'left', bold: e.bold, hint }) : (t: string) => measure(e.bold ? f!.bold : f!.regular, t, e.size);
+        const width = hint ? (t: string) => shaped!.measure({ text: t, x: 0, y: 0, size: e.size, color: e.color, align: 'left', bold: e.bold, hint }) : (t: string) => widthOf(f!, e.bold)(t, e.size);
         (e.fit || hint ? [e.text.replace(/\s*\n\s*/g, ' ')] : wrap(width, e.text, e.w)).forEach((text, i) => { // a replaced line, or fit: one line, squeezed into the box when wider
           const l = { text, size: e.size, color: e.color, align: e.align, y: e.y + (BASELINE + i * LEADING) * e.size, x: e.align === 'right' ? e.x + e.w : e.align === 'center' ? e.x + e.w / 2 : e.x };
           // a replaced line is written in its own font (or the closest face) run by run; "bold" thickens a face without a bold cut

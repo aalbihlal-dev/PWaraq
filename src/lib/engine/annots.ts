@@ -2,7 +2,7 @@
 // self-check (tests/unit/annots.test.mjs) runs the same code as the engine worker. Acrobat and other readers show and edit
 // what is written here. Coordinates are points from the top left of the page (MuPDF's own page space).
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
-import { measure, pageWriter, wrap, type Fonts } from './textpage.ts';
+import { pageWriter, widthOf, wrap, type Fonts } from './textpage.ts';
 import { pageBox } from './tools.ts';
 
 export type Kind = 'highlight' | 'underline' | 'strike' | 'ink' | 'square' | 'circle' | 'line' | 'arrow' | 'text' | 'note';
@@ -82,7 +82,7 @@ const NOT_LATIN = /[^\u0000-\u00ff]/, RTL = /[\u0590-\u08ff]/;
  *  page's /Rotate so it reads upright), and its /DA names that embedded font so a reader that redraws the box keeps the Arabic. */
 function drawText(page: MuPDF.PDFPage, x: MuPDF.PDFAnnotation, a: Annot, rgb: number[], ar: Arabic) {
   const [sw, sh] = [a.rect[2] - a.rect[0], a.rect[3] - a.rect[1]], rot = pageBox(page.getObject()).rot, size = 12, rtl = RTL.test(a.note);
-  const rows = wrap((t) => measure(ar.fonts.regular, t, size), a.note, sw - 8);
+  const rows = wrap((t) => widthOf(ar.fonts)(t, size), a.note, sw - 8);
   const lines = rows.map((text, i) => ({ text, size, color: rgb, x: rtl ? sw - 4 : 4, align: rtl ? 'right' as const : 'left' as const, y: 4 + size * (0.95 + i * 1.2) }));
   const turn = ({ 90: [0, 1, -1, 0, 0, 0], 180: [-1, 0, 0, -1, 0, 0], 270: [0, -1, 1, 0, 0, 0] } as Record<number, number[]>)[rot];
   const ap = ar.doc.addStream(ar.writer.draw({ w: sw, h: sh, lines }), { Type: 'XObject', Subtype: 'Form', BBox: [0, 0, sw, sh], ...(turn ? { Matrix: turn } : {}), Resources: { Font: ar.writer.fonts } });

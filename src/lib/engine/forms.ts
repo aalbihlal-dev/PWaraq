@@ -1,7 +1,7 @@
 // PDF form fields on top of MuPDF: list them (text, checkbox, radio, choice) and fill them in. Pure (MuPDF passed in) so the
 // Node self-check (tests/unit/forms.test.mjs) runs the same code as the engine worker.
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
-import { measure, pageWriter, wrap, type Fonts } from './textpage.ts';
+import { pageWriter, widthOf, wrap, type Fonts } from './textpage.ts';
 
 export type Field = {
   id: string; page: number; name: string; label: string; readOnly: boolean;
@@ -75,7 +75,7 @@ export function fillForm(m: typeof MuPDF, bytes: Uint8Array, answers: Answers, f
       const list = choice && !w.isComboBox(), rows = list ? w.getOptions() : null;
       if (LATIN_ONLY.test(answer) && !(rows && rows.some((t) => !LATIN_ONLY.test(t)))) continue;
       const rot = turnOf(w), sw = rot % 180 ? rect[n].h : rect[n].w;
-      pictures.push({ w, n, rot, list: !!list, multi, chosen: answer, rows: rows ?? (multi ? answer.split('\n').flatMap((para) => wrap((t) => measure(fonts!.regular, t, Math.min(12, (rot % 180 ? rect[n].w : rect[n].h) * 0.62)), para, sw - 6)) : [answer]) });
+      pictures.push({ w, n, rot, list: !!list, multi, chosen: answer, rows: rows ?? (multi ? answer.split('\n').flatMap((para) => wrap((t) => widthOf(fonts!)(t, Math.min(12, (rot % 180 ? rect[n].w : rect[n].h) * 0.62)), para, sw - 6)) : [answer]) });
     }
     page.update(); // MuPDF builds the appearances of the changed fields now; Waraq's pictures go over them
     for (const x of pictures) {
