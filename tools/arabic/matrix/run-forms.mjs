@@ -8,7 +8,7 @@ import { fillForm, listFields } from '../../../src/lib/engine/forms.ts';
 import { subjects, render, diff, expand, inside, truth, Rows, r1 } from './mx.mjs';
 
 const F = fonts(), rows = new Rows('forms'), only = process.argv[2] ?? 'form-boxes';
-function withFields(bytes, boxes) {
+function withFields(bytes, boxes, mkR = true) {
   const d = new m.PDFDocument(bytes), page = d.findPage(0), { box, rot, seenH } = pageBox(page), mat = seenMatrix(box, rot);
   const ap = (x, y) => [mat[0] * x + mat[2] * y + mat[4], mat[1] * x + mat[3] * y + mat[5]];
   const fields = d.newArray(), annots = page.get('Annots').isArray() ? page.get('Annots') : d.newArray();
@@ -17,7 +17,7 @@ function withFields(bytes, boxes) {
     w.put('Type', d.newName('Annot')); w.put('Subtype', d.newName('Widget')); w.put('F', 4); w.put('P', page); w.put('FT', d.newName('Tx'));
     w.put('Rect', [Math.min(p[0][0], p[1][0]), Math.min(p[0][1], p[1][1]), Math.max(p[0][0], p[1][0]), Math.max(p[0][1], p[1][1])].map((v) => +v.toFixed(2)));
     w.put('T', d.newString(b.name)); w.put('DA', d.newString('/Helv 12 Tf 0 g')); if (b.multi) w.put('Ff', 4096);
-    if (rot) { const mk = d.newDictionary(); mk.put('R', rot); w.put('MK', mk); }
+    if (rot && mkR) { const mk = d.newDictionary(); mk.put('R', rot); w.put('MK', mk); }
     fields.push(w); annots.push(w);
   });
   page.put('Annots', annots);
@@ -29,7 +29,7 @@ function withFields(bytes, boxes) {
 }
 for (const s of subjects((s) => s.id.includes(only))) {
   const boxes = truth(s, 'field'); if (!boxes?.length) { continue; }
-  let formBytes; try { formBytes = withFields(s.bytes(), boxes); } catch (e) { rows.add('forms', 'build fields', s, false, 'error', String(e.message).slice(0, 80)); continue; }
+  let formBytes; try { formBytes = withFields(s.bytes(), boxes, !!s.v.stored || s.source !== 'variant'); /* a sheet viewed sideways has sideways fields (no /MK /R); a page stored turned and shown upright has /MK /R = its turn */ } catch (e) { rows.add('forms', 'build fields', s, false, 'error', String(e.message).slice(0, 80)); continue; }
   const base = render(formBytes, 1.5), fields = listFields(m, formBytes);
   if (fields.length !== boxes.length) { rows.add('forms', 'fields listed', s, false, `${fields.length}/${boxes.length}`, 'field count'); continue; }
   const idOf = (name) => fields.find((f) => f.name === name).id, boxOf = (name) => boxes.find((b) => b.name === name);
