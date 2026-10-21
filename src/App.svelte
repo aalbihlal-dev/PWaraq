@@ -292,7 +292,7 @@
       <div class="updaterow">
         {#if update.rolledBack}<p class="muted small" role="status">{t('updateRolledBack').replace('{failed}', update.rolledBack.failed).replace('{back}', update.rolledBack.back)}</p>{/if}
         <p class="crashrow">
-          <span class="muted small">{t('appName')} {version}</span>
+          <span class="muted small">{t('appName')} <bdi dir="ltr">{version}</bdi></span>
           {#if update.status === 'ready'}<button class="btn primary" onclick={restart}>{t('updateRestart')} · {update.version}</button>
           {:else if update.status === 'downloading'}<span class="muted small" role="status">{t('updateDownloading')} {update.version}{update.total ? ` · ${Math.round((update.done / update.total) * 100)}%` : '…'}</span>
           {:else if update.status === 'checking'}<span class="muted small" role="status">{t('updateChecking')}</span>
