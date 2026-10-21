@@ -32,12 +32,21 @@ function similarity(a, b) { // shared letters / letters of the longer one
   return shared / Math.max(na, nb, 1);
 }
 const TRUTH = TEXTS.map((t) => ({ kind: t.kind, text: t.cells ? t.cells.join(' ') : t.text, cells: t.cells }));
-function kindOf(line) {
+// files made by make-corpus-types.mjs / make-scans.mjs carry their own paragraphs (the truth) and tags in tags.json
+const TAGS = fs.existsSync(path.join(FIX, 'tags.json')) ? JSON.parse(fs.readFileSync(path.join(FIX, 'tags.json'), 'utf8')) : {};
+function kindOf(line, truth = TRUTH) {
   let best = null, score = 0;
-  for (const t of TRUTH) {
+  for (const t of truth) {
     // a table cell on its own, or the whole row
     const cands = t.cells ? [t.text, ...t.cells] : [t.text];
-    for (const c of cands) { const s = similarity(line, c) * Math.min(1, letters(line).length / Math.max(1, letters(c).length)); if (s > score) { score = s; best = { ...t, truth: c }; } }
+    for (const c of cands) {
+      const s = similarity(line, c) * Math.min(1, letters(line).length / Math.max(1, letters(c).length));
+      if (s > score) { score = s; best = { ...t, truth: c }; }
+      if (truth !== TRUTH && letters(line).length >= 10 && letters(line).length < letters(c).length * 0.9) { // a fragment of the paragraph
+        const ha = hist(line), hc = hist(c); let shared = 0; for (const k of Object.keys(ha)) shared += Math.min(ha[k], hc[k] ?? 0);
+        const cont = shared / letters(line).length; if (cont >= 0.95 && cont > score) { score = cont; best = { ...t, truth: c, fragment: true }; }
+      }
+    }
   }
   return score >= 0.8 ? best : null;
 }
@@ -92,7 +101,8 @@ function crop(page, box, scale, pad) { // the line box as a PNG, rendering only 
 // --all: every file in its own process (the WASM heap does not shrink), partial results merged at the end
 if (process.argv.includes('--all')) {
   const { spawnSync } = await import('node:child_process');
-  const all = fs.readdirSync(FIX).filter((f) => f.endsWith('.pdf')).concat(fs.readdirSync(path.join(FIX, 'real')).filter((f) => f.endsWith('.pdf')).map((f) => 'real/' + f));
+  const sub = (d) => (fs.existsSync(path.join(FIX, d)) ? fs.readdirSync(path.join(FIX, d)).filter((f) => f.endsWith('.pdf')).map((f) => d + '/' + f) : []);
+  const all = fs.readdirSync(FIX).filter((f) => f.endsWith('.pdf')).concat(sub('real'), sub('scans'));
   fs.mkdirSync(path.join(OUT, 'parts'), { recursive: true });
   for (const f of all) {
     const part = path.join(OUT, 'parts', path.basename(f, '.pdf') + '.json');
@@ -108,7 +118,8 @@ if (process.argv.includes('--all')) {
   console.log(`\n${rs.length} edits in ${merged.files.length} files, ${rs.filter((r) => r.error).length} errors, text read back exactly (MuPDF): ${rs.filter((r) => r.extract?.mupdfLineOk).length}, own font kept: ${rs.filter((r) => r.font && !r.font.using).length}`);
   process.exit(0);
 }
-const results = [], files = fs.readdirSync(FIX).filter((f) => f.endsWith('.pdf')).concat(fs.existsSync(path.join(FIX, 'real')) ? fs.readdirSync(path.join(FIX, 'real')).filter((f) => f.endsWith('.pdf')).map((f) => 'real/' + f) : [])
+const sub = (d) => (fs.existsSync(path.join(FIX, d)) ? fs.readdirSync(path.join(FIX, d)).filter((f) => f.endsWith('.pdf')).map((f) => d + '/' + f) : []);
+const results = [], files = fs.readdirSync(FIX).filter((f) => f.endsWith('.pdf')).concat(sub('real'), sub('scans'))
   .filter((f) => !ONLY || f === ONLY || (!MERGE && f.includes(ONLY)));
 const fileSummaries = [];
 for (const f of files) {
@@ -117,17 +128,20 @@ for (const f of files) {
   const objs = pageObjects(page), stAll = page.toStructuredText('preserve-whitespace');
   let allLines = 0; stAll.walk({ beginLine() { allLines++; } }); stAll.destroy();
   const summary = { file: f, pageW: +pw.toFixed(1), pageH: +ph.toFixed(1), bytes: bytes.length, linesOnPage: allLines, linesSelectable: objs.lines.length, fonts: fontsOf(page), lift: [] };
-  const seen = new Set(), picked = [];
+  const seen = new Set(), picked = [], ownTruth = TAGS[f]?.lines?.length ? TAGS[f].lines.map((text, i) => ({ kind: 'doc' + i, text })) : null;
+  summary.tags = TAGS[f] ? { type: TAGS[f].type, arrangement: TAGS[f].arrangement, source: TAGS[f].source, dpi: TAGS[f].dpi } : undefined;
   for (const [i, l] of objs.lines.entries()) {
-    const k = kindOf(l.text);
+    const k = ownTruth ? kindOf(l.text, ownTruth) : kindOf(l.text);
     if (!k) continue;
-    summary.lift.push({ line: i, kind: k.kind, shown: l.text, truth: k.truth, diff: liftDiff(l.text, k.truth), font: l.font, size: +l.size.toFixed(1), rtl: l.rtl });
+    const diff = k.fragment ? [/هللا|اإل|األ|اآل|امل[^ ]/.test(l.text) && 'lamalef', / [ً-ٰٟ]/.test(l.text) && 'mark-space'].filter(Boolean) : liftDiff(l.text, k.truth);
+    summary.lift.push({ line: i, kind: k.kind, shown: l.text, truth: k.truth, fragment: !!k.fragment, diff, font: l.font, size: +l.size.toFixed(1), rtl: l.rtl });
     const key = k.kind + (k.cells ? ':' + k.truth : '');
     if (seen.has(k.kind) || (KINDS.length && !KINDS.includes(k.kind))) continue;
     seen.add(k.kind); picked.push({ i, l, k, key });
   }
-  // real documents (no known paragraphs): the first six Arabic lines
-  if (!picked.length && f.startsWith('real/')) objs.lines.filter((l) => l.rtl && l.text.length > 8).slice(0, 6).forEach((l) => picked.push({ i: objs.lines.indexOf(l), l, k: { kind: 'real', truth: l.text }, key: 'real' }));
+  if (ownTruth) picked.splice(6); // typed documents: the first six matched paragraphs
+  // real documents and scans with a text layer (no known paragraphs): the first six Arabic lines
+  if (!picked.length && (f.startsWith('real/') || f.startsWith('scans/'))) objs.lines.filter((l) => l.rtl && l.text.length > 8).slice(0, 6).forEach((l) => picked.push({ i: objs.lines.indexOf(l), l, k: { kind: 'real', truth: l.text }, key: 'real' }));
   fileSummaries.push(summary);
   console.log(`${f}: ${objs.lines.length}/${allLines} lines selectable, ${picked.length} kinds; lift problems: ${summary.lift.filter((x) => x.diff.length).length}/${summary.lift.length}`);
 

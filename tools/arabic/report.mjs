@@ -88,6 +88,26 @@ const reasons = {};
 for (const g of graded) for (const w of g.why) { const k = w.replace(/^(major|minor): /, '$1 — ').replace(/ ?(→|\(|: |- letters).*$/, '').replace(/-?\d+(\.\d+)? ?(pt|kB)?/g, 'N').trim(); reasons[k] = (reasons[k] ?? 0) + 1; }
 const summary = `${graded.length} edits in ${files.length} files: **${n.major} major**, ${n.minor} minor, ${n.OK} OK (${Math.round((n.OK / graded.length) * 100)} % pass).\n\n`
   + `Most frequent findings (one edit can have several):\n\n` + Object.entries(reasons).sort((a, b) => b[1] - a[1]).map(([k, v]) => `- ${v} × ${k}`).join('\n') + '\n';
-fs.writeFileSync(path.join(OUT, 'table.md'), summary + '\n' + md);
+// slices by the corpus tags (type, arrangement, source): files made by make-corpus-types.mjs and make-scans.mjs
+const TAGS = fs.existsSync(path.join(ROOT, 'tests/fixtures/arabic/tags.json')) ? JSON.parse(fs.readFileSync(path.join(ROOT, 'tests/fixtures/arabic/tags.json'), 'utf8')) : {};
+const slice = (title, keyOf) => {
+  const rows = new Map();
+  for (const info of data.files) {
+    const t = TAGS[info.file]; if (!t) continue;
+    for (const key of [keyOf(t)].flat().filter(Boolean)) {
+      const r = rows.get(key) ?? { files: 0, noText: 0, lines: 0, liftWrong: 0, edits: 0, major: 0, minor: 0, OK: 0 };
+      r.files++; if (!info.linesSelectable) r.noText++;
+      r.lines += info.lift.length; r.liftWrong += info.lift.filter((l) => l.diff.length).length;
+      for (const g of byFile.get(info.file) ?? []) { r.edits++; r[g.grade]++; }
+      rows.set(key, r);
+    }
+  }
+  if (!rows.size) return '';
+  return `\n### ${title}\n\n| ${title} | Files | No text layer | Lines shown wrongly | Edits | Major | Minor | OK |\n|---|---|---|---|---|---|---|---|\n`
+    + [...rows].sort((a, b) => b[1].major - a[1].major || b[1].edits - a[1].edits).map(([k, r]) => `| ${k} | ${r.files} | ${r.noText || ''} | ${r.lines ? r.liftWrong + '/' + r.lines : '-'} | ${r.edits} | ${r.major} | ${r.minor} | ${r.OK} |`).join('\n') + '\n';
+};
+const slices = slice('Document type', (t) => t.type) + slice('Arrangement', (t) => t.arrangement) + slice('Source', (t) => (t.source === 'digital' ? 'digital (' + t.producer + ')' : t.source + (t.dpi ? ' ' + t.dpi + ' dpi' : '')));
+fs.writeFileSync(path.join(OUT, 'slices.md'), slices);
+fs.writeFileSync(path.join(OUT, 'table.md'), summary + '\n' + md + slices);
 fs.writeFileSync(path.join(OUT, 'graded.json'), JSON.stringify(graded.map((g) => ({ id: g.r.id, grade: g.grade, why: g.why })), null, 1));
 console.log(summary);
