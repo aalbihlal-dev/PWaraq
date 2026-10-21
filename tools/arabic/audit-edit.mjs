@@ -198,7 +198,9 @@ for (const f of files) {
         r.fidelity = { dEdge: +edge.toFixed(2), dBase: +(newLine.base - l.base).toFixed(2), dSize: +(newLine.size - l.size).toFixed(2), dH: +(newLine.h - l.h).toFixed(2), sameColor: l.color.every((c, j) => Math.abs(c - newLine.color[j]) < 0.02), boldKept: l.bold === newLine.bold, fontKept: fontName({ getName: () => newLine.font }) === l.font, fontAfter: newLine.font, overflowsPage: newLine.x < 0 || newLine.x + newLine.w > pw + 0.5, wrapped: cand.length > 1 || o2.lines.some((x) => x !== newLine && x.base > l.base + l.size * 0.6 && x.base < l.base + l.size * 2 && !objs.lines.some((y) => Math.abs(y.base - x.base) < 0.5 && norm(y.text) === norm(x.text))) };
       }
       // (d) side effects
-      const others = objs.lines.filter((x) => x !== l);
+      // a piece MuPDF split off the edited row (a last letter with a zero-width box: same baseline, narrower than half the size, inside the new box) is part of the line that was replaced
+      const piece = (x) => x.w < l.size * 0.5 && Math.abs(x.base - l.base) < l.size * 0.34 && x.x >= edit.x - 1 && x.x <= edit.x + edit.w;
+      const others = objs.lines.filter((x) => x !== l && !piece(x));
       const kept = others.filter((x) => o2.lines.some((y) => norm(y.text) === norm(x.text) && near(x, y, 0.6)));
       const gone = others.filter((x) => !o2.lines.some((y) => norm(y.text) === norm(x.text)));
       r.side = { othersBefore: others.length, othersKept: kept.length, othersGone: gone.length, othersMoved: others.length - kept.length - gone.length, goneSample: gone.slice(0, 2).map((x) => x.text.slice(0, 40)), imagesBefore: objs.images.length, imagesAfter: o2.images.length, fontsAfter: fontsOf(p2), growth: saved.length - bytes.length };
