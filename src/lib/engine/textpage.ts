@@ -3,6 +3,7 @@
 // each glyph carries its original letters, so copying and searching give normal Arabic.
 // shortcut: no HarfBuzz here yet (a replaced line in the page editor uses it, ownfont.ts) — no harakat or Persian letters on these pages.
 import type * as MuPDF from '../../../engine/mupdf-wasm/dist/mupdf.js';
+import { runs as bidiRuns } from './bidi.ts';
 
 export type Fonts = { regular: MuPDF.Font; bold: MuPDF.Font };
 export type Line = { text: string; x: number; y: number; size: number; bold?: boolean; color?: number[]; align?: 'left' | 'right' | 'center'; max?: number;
@@ -23,10 +24,6 @@ const AR = new Map<number, [number, number]>();
 }
 const LAM_ALEF: Record<number, number> = { 0x622: 0xfef5, 0x623: 0xfef7, 0x625: 0xfef9, 0x627: 0xfefb };
 const isMark = (c: number) => (c >= 0x64b && c <= 0x65f) || c === 0x670;
-// Arabic-Indic digits and the Arabic thousands and decimal separators are numbers: they keep their order inside a line
-const isDigit = (c: number) => (c >= 0x660 && c <= 0x669) || (c >= 0x6f0 && c <= 0x6f9) || c === 0x66b || c === 0x66c;
-const isArabic = (c: number) => ((c >= 0x600 && c <= 0x6ff) || (c >= 0xfb50 && c <= 0xfeff)) && !isDigit(c);
-const isLtr = (c: number) => isDigit(c) || /[A-Za-z0-9À-ɏ]/.test(String.fromCodePoint(c));
 const joinsNext = (c?: number) => c === 0x640 || (c !== undefined && AR.get(c)?.[1] === 4);
 const MIRROR: Record<string, string> = { '(': ')', ')': '(', '[': ']', ']': '[', '{': '}', '}': '{', '<': '>', '>': '<', '«': '»', '»': '«' };
 
@@ -45,26 +42,11 @@ function join(cs: number[]): Glyph[] {
   return out;
 }
 
-/** Text in reading order -> its direction runs (right-to-left ones still in reading order), left to right as they appear on the page. */
+/** Text in reading order -> its direction runs (right-to-left ones still in reading order), left to right as they appear
+ *  on the page: the Unicode bidirectional algorithm (bidi.ts) — numbers keep their digit order, brackets and punctuation
+ *  between two directions take the paragraph's, a line's direction comes from its first letter. */
 export function runs(text: string): { rtl: boolean; cs: number[] }[] {
-  const cs = [...text].map((ch) => ch.codePointAt(0)!);
-  const firstStrong = cs.find((c) => (isArabic(c) && !isMark(c)) || (isLtr(c) && !isDigit(c) && !(c >= 0x30 && c <= 0x39))); // the paragraph's direction comes from the first letter, never from a digit
-  const rtl = firstStrong !== undefined && isArabic(firstStrong);
-  // runs: in a right-to-left line, left-to-right words (Latin, numbers) keep their order; elsewhere the reverse
-  const strong = rtl ? isLtr : (c: number) => isArabic(c) && !isMark(c);
-  const runs: { rtl: boolean; cs: number[] }[] = [];
-  for (let i = 0; i < cs.length;) {
-    if (strong(cs[i])) {
-      let j = i + 1, end = i + 1;
-      for (; j < cs.length && !(rtl ? isArabic(cs[j]) : isLtr(cs[j])); j++) if (strong(cs[j]) || isMark(cs[j])) end = j + 1;
-      runs.push({ rtl: !rtl, cs: cs.slice(i, end) }); i = end;
-    } else {
-      let j = i + 1;
-      while (j < cs.length && !strong(cs[j])) j++;
-      runs.push({ rtl, cs: cs.slice(i, j) }); i = j;
-    }
-  }
-  return rtl ? runs.reverse() : runs;
+  return bidiRuns([...text].map((ch) => ch.codePointAt(0)!)).map(({ rtl, cs }) => ({ rtl, cs }));
 }
 
 /** Text in reading order -> glyphs left to right, as they appear on the page. */

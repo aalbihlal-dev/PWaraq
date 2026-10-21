@@ -24,3 +24,29 @@ test('Arabic-Indic and Persian digits come out in order from visual(): letters o
   assert.equal(text('٠١٢٣٤٥٦٧٨٩'), '٠١٢٣٤٥٦٧٨٩');
   assert.ok(text('رقم ۱۲۳').startsWith('۱۲۳')); // visual order left to right: the number first, in order, then the word
 });
+
+// --- UAX #9 (bidi.ts): brackets, mixed lines, and the way back from a page's visual order (the page editor) ---
+import { shown, logical, levels } from '../../src/lib/engine/bidi.ts';
+const cp = (s) => [...s].map((c) => c.codePointAt(0));
+const str = (cs) => String.fromCodePoint(...cs);
+
+test('brackets and punctuation between two directions take the paragraph direction; a bracket pair stays a pair', () => {
+  assert.deepEqual(show('البند 3 (Section A) قبل'), ['R:) قبل', 'L:Section A', 'R:(', 'L:3', 'R:البند']);
+  assert.deepEqual(show('انظر ملف PDF.'), ['R:.', 'L:PDF', 'R:انظر ملف']); // the full stop ends the Arabic line at the left
+  assert.deepEqual(show('This agreement (اتفاقية) is binding.'), ['L:This agreement (', 'R:اتفاقية', 'L:) is binding.']);
+  assert.deepEqual(show('قبل ٢٠٢٦/٠٦/٣٠؛ انظر'), ['R:؛ انظر', 'L:٢٠٢٦/٠٦/٣٠', 'R:قبل']); // a date with slashes is one number
+});
+
+test('what a page shows comes back as reading order: numbers, Latin words, brackets, harakat', () => {
+  for (const t of ['السلام عليكم ورحمة الله وبركاته،', 'العميل: شركة الأفق (Horizon Trading LLC)', 'تاريخ الاستحقاق: ٣٠ يونيو ٢٠٢٦',
+    'مُراجَعة البند 3 (Section A) قبل ٢٠٢٦/٠٦/٣٠؛ انظر ملف PDF.', 'استخدم برنامج Waraq (الإصدار 1.0) لتحرير ملفات PDF بسهولة؛ راجع «الدليل» ص. 12-14.',
+    'نفيدكم بأن اللجنة اعتمدت التقرير النهائي للمشروع بتاريخ 15/03/2026، ونأمل التكرم بالاطلاع والإفادة.', 'المبلغ الإجمالي: ٤٬٥٠٠٫٧٥ ر.س — Total: SAR 4,500.75',
+    'رقم الفاتورة: INV-2026-00981', '10/05/1448 هـ', 'إِنَّ اللُّغَةَ العَرَبِيَّةَ لُغَةٌ غَنِيَّةٌ', 'The Arabic text (النص العربي) below is binding.']) {
+    assert.equal(str(logical(shown(cp(t)))), t);
+  }
+});
+
+test('levels: a Latin word inside Arabic sits one level up, its digits with it', () => {
+  assert.deepEqual(levels(cp('مبنى Building C')), [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
+  assert.deepEqual(levels(cp('abc ١٢٣')), [0, 0, 0, 0, 2, 2, 2]); // Arabic-Indic digits in a Latin line keep their order
+});
