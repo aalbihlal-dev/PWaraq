@@ -4,7 +4,7 @@
   import { i18n, t } from '../lib/i18n.svelte';
   import { icon } from '../lib/icons.js';
   import { saveFile } from '../lib/store';
-  let { pool, bytes, name, password, disabled, primary, saveOff, canShrink, onSave, onSaveAs }: { pool: EnginePool; bytes: Uint8Array; name: string; password?: string; disabled: boolean; primary: boolean; saveOff: boolean; canShrink: boolean;
+  let { pool, bytes, name, password, compact = false, disabled, primary, saveOff, canShrink, onSave, onSaveAs }: { pool: EnginePool; compact?: boolean; bytes: Uint8Array; name: string; password?: string; disabled: boolean; primary: boolean; saveOff: boolean; canShrink: boolean;
     onSave: () => void; onSaveAs: () => void } = $props();
   let open = $state(false), dialog = $state(false), level = $state<'recommended' | 'small'>('recommended'), busy = $state(false), note = $state('');
   const mb = (n: number) => (n / 1048576).toLocaleString(i18n.lang, { maximumFractionDigits: 1 }) + ' MB';
@@ -21,7 +21,7 @@
 
 <span class="wrap" onfocusout={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) open = false; }} onkeydown={(e) => { if (e.key === 'Escape') { open = false; dialog = false; } }} role="presentation">
   <span class="split">
-    <button class="btn" class:primary onclick={onSave} disabled={disabled || saveOff}>{@html icon('download')}{t('save')}</button>
+    <button class="btn" class:primary onclick={onSave} disabled={disabled || saveOff}>{@html icon('download')}{#if compact}<span class="sr">{t('save')}</span>{:else}{t('save')}{/if}</button>
     <button class="btn icon caret" class:primary aria-expanded={open} aria-haspopup="menu" title={t('saveOptions')} aria-label={t('saveOptions')} onclick={() => (open = !open)} disabled={disabled}>▾</button>
   </span>
   {#if open}

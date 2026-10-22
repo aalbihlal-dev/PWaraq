@@ -5,6 +5,7 @@
   import { onMount, tick } from 'svelte';
   import type { EnginePool } from '../lib/engine/pool';
   import { t } from '../lib/i18n.svelte';
+  import { pinch } from '../lib/touch';
   import { cached, remember } from '../lib/engine/page-cache';
 
   let { pool, sizes, current = $bindable(1) }: { pool: EnginePool; sizes: { w: number; h: number }[]; current?: number } = $props();
@@ -150,6 +151,9 @@
   export function goTo(n: number) { const el = pages[n - 1]?.el; if (el) scroller.scrollTop += el.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 16; }
   export const zoomLabel = () => Math.round(scale * 100) + '%';
 
+  // two fingers zoom the page around the middle between them (redrawn sharp when they lift); the browser's own zoom is cancelled
+  let scale0 = 1, frame = 0;
+  const pinched = { start: () => (scale0 = scale), change: (ratio: number, x: number, y: number) => { cancelAnimationFrame(frame); frame = requestAnimationFrame(() => zoomTo(scale0 * ratio, x, y)); } };
   function onWheel(e: WheelEvent) {
     if (!(e.ctrlKey || e.metaKey)) return;
     e.preventDefault();
@@ -188,7 +192,7 @@
   });
 </script>
 
-<div class="scroller" bind:this={scroller} onwheel={onWheel} onpointerdown={onDown} onpointermove={onMove}
+<div class="scroller" use:pinch={pinched} style:touch-action={typeof zoom === 'number' ? 'pan-x pan-y' : 'pan-y'} bind:this={scroller} onwheel={onWheel} onpointerdown={onDown} onpointermove={onMove}
   onpointerup={() => (drag = null)} onscroll={() => schedule(120)} class:grab={space} role="document" aria-label={t('pages')}>
   {#each sizes as size, n}
     <div class="page" data-n={n} bind:this={pages[n].el} style:width="{px(size.w * scale)}px" style:height="{px(size.h * scale)}px"

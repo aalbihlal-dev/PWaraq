@@ -7,10 +7,11 @@
   import type { EnginePool } from '../lib/engine/pool';
   import { t } from '../lib/i18n.svelte';
   import { icon } from '../lib/icons.js';
+  import { pinch } from '../lib/touch';
   import { move, edit, seen, turned, type Group, type GridItem } from '../lib/pages';
 
-  let { pool, groups, selected, size = 160, number, onchange, oninsert, onfiles, onopen, header, lead }: {
-    pool: EnginePool; groups: Group[]; selected: SvelteSet<string>; size?: number;
+  let { pool, groups, selected, size = $bindable(160), min = 96, number, onchange, oninsert, onfiles, onopen, header, lead }: {
+    pool: EnginePool; groups: Group[]; selected: SvelteSet<string>; size?: number; min?: number;
     number: (it: GridItem, flat: number) => string; onchange: (next: Group[]) => void;
     oninsert: (group: string, index: number) => void; onfiles?: (files: File[], group: string, index: number) => void;
     onopen?: (it: GridItem) => void; // double-click or "Edit page": the page editor
@@ -20,7 +21,8 @@
   let el: HTMLDivElement;
   const flat = $derived(groups.flatMap((g) => g.items));
   const indexOf = $derived(new Map(flat.map((it, i) => [it.id, i])));
-  let anchor = '';
+  let anchor = '', size0 = 0;
+  const pinched = { start: () => (size0 = size), change: (ratio: number) => { size = Math.round(Math.min(280, Math.max(min, size0 * ratio))); } }; // two fingers change the card size, like the slider
 
   function pick(e: MouseEvent, it: GridItem) {
     if (e.shiftKey && anchor && indexOf.has(anchor)) {
@@ -101,7 +103,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex (the grid takes keys: Delete, Ctrl+A, Escape) -->
-<div class="grid" bind:this={el} tabindex="0" role="listbox" aria-multiselectable="true" aria-label={t('pages')} onkeydown={keys}
+<div class="grid" use:pinch={pinched} bind:this={el} tabindex="0" role="listbox" aria-multiselectable="true" aria-label={t('pages')} onkeydown={keys}
   ondragover={(e) => e.preventDefault()} ondrop={dropped} ondragleave={(e) => { if (!el.contains(e.relatedTarget as Node)) drop = null; }}>
   {#each groups as g, gi (g.id)}
     {#if header}{@render header(g, gi)}{/if}
@@ -136,7 +138,7 @@
 </div>
 
 <style>
-  .grid { height: 100%; overflow: auto; padding: var(--s-24); background: var(--canvas); outline: none; }
+  .grid { height: 100%; overflow: auto; touch-action: pan-y; padding: var(--s-24); background: var(--canvas); outline: none; }
   .cells { display: flex; flex-wrap: wrap; gap: var(--s-24); align-items: flex-end; padding-block: var(--s-8) var(--s-24); }
   .cell { position: relative; display: grid; justify-items: center; gap: var(--s-8); padding: var(--s-8); border: 2px solid transparent; border-radius: var(--r-12); cursor: grab; }
   .cell:hover { background: color-mix(in srgb, var(--surface) 60%, transparent); }
@@ -164,4 +166,7 @@
   .cell.before::before, .empty.before::before { inset-inline-start: calc(-1 * var(--s-24) / 2 - 2px); }
   .cell.after::after { inset-inline-end: calc(-1 * var(--s-24) / 2 - 2px); }
   .empty { position: relative; display: grid; place-items: center; min-width: 240px; min-height: 120px; padding: var(--s-16); border: 2px dashed var(--line); border-radius: var(--r-12); color: var(--muted); }
+  @media (max-width: 820px) { .grid { overflow-x: hidden; } }
+  @media (max-width: 600px) { .grid { padding: var(--s-12); } .cells { gap: var(--s-12); } }
+  @media (pointer: coarse) { .cell.sel .acts { display: flex; } .cell.sel .ins { display: grid; } } /* no hover on a touch screen: the selected page shows its bar */
 </style>

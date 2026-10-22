@@ -6,6 +6,8 @@
   import type { EnginePool } from '../lib/engine/pool';
   import { t } from '../lib/i18n.svelte';
   import { icon } from '../lib/icons.js';
+  import Sheet from './Sheet.svelte';
+  import { view } from '../lib/device.svelte';
   import { uid, edit, turned, toItems, addFiles, seen, type Group, type GridItem } from '../lib/pages';
   import { pickFiles, saveFile } from '../lib/store';
   import PageGrid from './PageGrid.svelte';
@@ -19,7 +21,7 @@
   // svelte-ignore state_referenced_locally (one Organize per opened document)
   let groups = $state<Group[]>([{ id: 'doc', items: sizes.map((s, page) => ({ id: uid(), doc: 0, page, rotate: 0, w: s.w, h: s.h })) }]);
   const selected = new SvelteSet<string>();
-  let size = $state(160), busy = $state(false);
+  let size = $state(160), busy = $state(false), sheetOpen = $state(false);
   let past: Group[][] = [], future: Group[][] = [];
   let canUndo = $state(false), canRedo = $state(false);
   function change(next: Group[]) {
@@ -122,7 +124,7 @@
   <PageEditor {pool} base={editBase(editing)} label="{t('page')} {items().findIndex((x) => x.id === editing!.id) + 1}" onSave={edited} onCancel={() => (editing = null)} />
 {:else}
 <div class="org">
-  <div class="tools" role="toolbar" aria-label={t('organize')}>
+  {#snippet toolButtons()}
     <button class="btn" onclick={() => insert()} disabled={busy}>{@html icon('plus')}{t('insertFile')}</button>
     <button class="btn" onclick={blank} disabled={busy}>{@html icon('blank')}{t('blankPage')}</button>
     <span class="sep"></span>
@@ -138,9 +140,14 @@
     <button class="btn icon" onclick={redo} disabled={!canRedo} title={t('redo')} aria-label={t('redo')}><span class="flip">{@html icon('undo')}</span></button>
     <span class="count num" aria-live="polite">{selected.size ? `${selected.size} ${t('selected')}` : `${items().length} ${t('pagesCount')}`}</span>
     <label class="zoom"><span class="sr">{t('thumbSize')}</span>{@html icon('zoom')}<input type="range" min="96" max="280" step="8" bind:value={size} aria-label={t('thumbSize')} /></label>
+  {/snippet}
+  {#if !view.narrow}
+  <div class="tools" role="toolbar" aria-label={t('organize')}>
+    {@render toolButtons()}
   </div>
+  {/if}
   <div class="main" class:withpanel={!!panel}>
-    <PageGrid {pool} {groups} {selected} {size} number={(_, n) => String(n + 1)} onchange={change} oninsert={(_, i) => insert(i)}
+    <PageGrid {pool} {groups} {selected} bind:size min={view.phone ? 64 : 96} number={(_, n) => String(n + 1)} onchange={change} oninsert={(_, i) => insert(i)}
       onfiles={(files, _, i) => insertFiles(files, i)} onopen={(it) => (editing = it)} />
     {#if panel === 'crop' && cropTarget}
       {#key cropTarget.id}<CropPanel {pool} item={cropTarget} count={selected.size || 1} onApply={cropped} onClose={() => (panel = null)} />{/key}
@@ -156,6 +163,17 @@
       </aside>
     {/if}
   </div>
+  {#if view.narrow}
+  <Sheet label={t('organize')} bind:open={sheetOpen}>
+    {#snippet bar()}
+      <button class="btn" onclick={() => insert()} disabled={busy}>{@html icon('plus')}{t('addFileShort')}</button>
+      <button class="btn icon" onclick={remove} disabled={!selected.size} title={t('delete')} aria-label={t('delete')}>{@html icon('delete')}</button>
+      <button class="btn icon" onclick={undo} disabled={!canUndo} title={t('undo')} aria-label={t('undo')}>{@html icon('undo')}</button>
+      <span class="count num" aria-live="polite">{selected.size ? `${selected.size} ${t('selected')}` : `${items().length} ${t('pagesCount')}`}</span>
+    {/snippet}
+    <div class="tools sheettools" role="toolbar" aria-label={t('organize')}>{@render toolButtons()}</div>
+  </Sheet>
+  {/if}
 </div>
 {/if}
 
@@ -177,4 +195,12 @@
   .count { margin-inline-start: auto; color: var(--muted); }
   .zoom { display: flex; align-items: center; gap: var(--s-8); color: var(--muted); }
   .zoom input { width: 120px; min-height: var(--control); accent-color: var(--green); }
+  .sheettools { padding: 0; border: 0; background: none; }
+  @media (max-width: 820px) {
+    .org { grid-template-rows: 1fr; }
+    .main { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+    .main.withpanel { grid-template-columns: 1fr; }
+    .main.withpanel > :global(aside) { position: fixed; z-index: 31; inset-inline: 0; bottom: calc(64px + env(safe-area-inset-bottom, 0px)); width: auto; max-height: 60dvh; border-top: 1px solid var(--line); border-inline-start: 0; box-shadow: 0 -8px 24px rgb(0 0 0 / .16); }
+    .count { margin-inline-start: 0; }
+  }
 </style>

@@ -19,6 +19,8 @@
   import SaveMenu from './SaveMenu.svelte';
   import HelpMenu from './HelpMenu.svelte';
   import { isDesktop } from '../lib/desktop';
+  import { view } from '../lib/device.svelte';
+  import MoreMenu from './MoreMenu.svelte';
 
   let { pool, sizes, name, bytes, modified, password, onOpen, onClose, onSave, onSaveAs, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; bytes: Uint8Array; modified: boolean; password?: string;
     onOpen: () => void; onClose: () => void; onSave: () => void; onSaveAs: () => void; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
@@ -52,7 +54,7 @@
   $effect(() => { pageInput = String(current); });
   const tasks: Key[] = ['view', 'organize', 'edit', 'convert', 'sign', 'protect', 'redact', 'forms', 'ocr', 'comment'];
   // narrow windows: the four rarest tasks go under "More ▾" (the desktop app needs room for its window buttons)
-  let width = $state(1366), moreOpen = $state(false);
+  let width = $state(1366), moreOpen = $state(false), taskOpen = $state(false);
   const compact = $derived(width < (isDesktop ? 1360 : 1240)), shown = $derived(compact ? tasks.slice(0, 6) : tasks), hidden = $derived(compact ? tasks.slice(6) : []);
   const pending = $derived(organized || commented);
 
@@ -91,6 +93,19 @@
     <img src="/brand-mark.svg" alt="" width="28" height="28" />
     <FileName {name} fill={false} />
     {#if modified || pending}<span class="mod" title={t('modified')}><span class="dot"></span><span class="sr">{t('modified')}</span></span>{/if}
+    {#if view.phone}
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+    <nav class="tasks phone" aria-label="Tasks" onfocusout={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) taskOpen = false; }} onkeydown={(e) => { if (e.key === 'Escape') taskOpen = false; }}>
+      <button class="task on" aria-expanded={taskOpen} aria-haspopup="menu" disabled={applying} onclick={() => (taskOpen = !taskOpen)}>{t(mode)} ▾</button>
+      {#if taskOpen}
+        <div class="moremenu" role="menu">
+          {#each tasks as task}
+            <button class="task" class:on={task === mode} role="menuitem" disabled={applying} onclick={() => { taskOpen = false; if (task === 'edit' && mode !== 'edit') editPage = current; task_(task); }}>{t(task)}</button>
+          {/each}
+        </div>
+      {/if}
+    </nav>
+    {:else}
     <nav class="tasks" aria-label="Tasks">
       {#each shown as task}
         <button class="task" class:on={task === mode} disabled={applying} onclick={() => { if (task === 'edit' && mode !== 'edit') editPage = current; task_(task); }}>{t(task)}</button>
@@ -108,7 +123,20 @@
         </span>
       {/if}
     </nav>
+    {/if}
     <span class="grow" data-tauri-drag-region></span>
+    {#if view.phone}
+    <span class="end">
+      <SaveMenu {pool} {bytes} {name} {password} compact disabled={applying} primary={modified} saveOff={(mode === 'edit' && editScope === 'page') || mode === 'sign'} canShrink={!pending && mode !== 'sign' && !(mode === 'edit' && editScope === 'page')}
+        onSave={() => save()} onSaveAs={() => save(true)} />
+      <MoreMenu>
+        <button class="btn" onclick={onOpen}>{@html icon('upload')}{t('openShort')}</button>
+        <button class="btn" onclick={onClose}>{@html icon('close')}{t('close')}</button>
+        <ThemeButton />
+        <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
+      </MoreMenu>
+    </span>
+    {:else}
     <span class="end">
       <SaveMenu {pool} {bytes} {name} {password} disabled={applying} primary={modified} saveOff={(mode === 'edit' && editScope === 'page') || mode === 'sign'} canShrink={!pending && mode !== 'sign' && !(mode === 'edit' && editScope === 'page')}
         onSave={() => save()} onSaveAs={() => save(true)} />
@@ -118,6 +146,7 @@
       <HelpMenu />
       <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
     </span>
+    {/if}
   </header>
   {#if mode === 'edit' || mode === 'convert' || mode === 'protect'}
   <div class="orgwrap" class:scoped={mode === 'edit'}>
@@ -226,5 +255,8 @@
   .body { display: grid; grid-template-columns: 168px 1fr; min-height: 0; }
   .body.nothumbs { grid-template-columns: 1fr; }
   main { min-width: 0; min-height: 0; }
-  @media (max-width: 720px) { .tasks { display: none; } .body { grid-template-columns: 1fr; } .body :global(.thumbs) { display: none; } }
+  @media (max-width: 720px) { .body { grid-template-columns: 1fr; } .body :global(.thumbs) { display: none; } }
+  @media (max-width: 600px) { .bar { gap: var(--s-8); padding-inline: var(--s-12); } .bar > img { flex: none; } .tools { flex-wrap: wrap; gap: var(--s-8); padding-inline: var(--s-12); } .find { margin-inline-start: 0; } .find input { width: 140px; } }
+  .tasks.phone { position: relative; margin-inline-start: 0; }
+  .tasks.phone > .task { background: var(--green-soft); }
 </style>

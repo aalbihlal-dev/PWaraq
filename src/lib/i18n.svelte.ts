@@ -44,6 +44,7 @@ const strings = {
   chooseFile: ['Choose the file', 'اختر الملف'],
   // organize
   save: ['Save', 'حفظ'],
+  showOptions: ['Show options', 'إظهار الخيارات'], hideOptions: ['Hide options', 'إخفاء الخيارات'], addFileShort: ['Add file', 'إضافة ملف'], tasksMenu: ['Tasks', 'المهام'],
   saveAsItem: ['Save as…', 'حفظ باسم…'], saveOptions: ['More ways to save', 'خيارات حفظ أخرى'], moreTasks: ['More', 'المزيد'],
   insertFile: ['Insert file', 'إدراج ملف'],
   blankPage: ['Blank page', 'صفحة فارغة'],
