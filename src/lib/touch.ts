@@ -16,3 +16,16 @@ export function pinch(node: HTMLElement, o: { start?: () => void; change: (ratio
     for (const g of ['gesturestart', 'gesturechange', 'gestureend']) node.removeEventListener(g, block);
   } };
 }
+
+// Ctrl + mouse wheel (and a trackpad pinch, which browsers send as Ctrl + wheel) over an element zooms that element, not the page.
+// A listener of its own: Svelte's onwheel is passive, so it could not stop the browser's page zoom. `zoom(factor, x, y)`: > 1 is in.
+export function ctrlWheel(node: HTMLElement, zoom: (factor: number, x: number, y: number) => void) {
+  let fn = zoom;
+  const wheel = (e: WheelEvent) => {
+    if (!(e.ctrlKey || e.metaKey)) return;
+    e.preventDefault();
+    fn(Math.exp(-(e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY) * 0.0022), e.clientX, e.clientY);
+  };
+  node.addEventListener('wheel', wheel, { passive: false });
+  return { update(z: typeof zoom) { fn = z; }, destroy() { node.removeEventListener('wheel', wheel); } };
+}

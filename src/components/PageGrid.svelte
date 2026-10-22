@@ -7,7 +7,7 @@
   import type { EnginePool } from '../lib/engine/pool';
   import { t } from '../lib/i18n.svelte';
   import { icon } from '../lib/icons.js';
-  import { pinch } from '../lib/touch';
+  import { pinch, ctrlWheel } from '../lib/touch';
   import { move, edit, seen, turned, type Group, type GridItem } from '../lib/pages';
 
   let { pool, groups, selected, size = $bindable(160), min = 96, number, onchange, oninsert, onfiles, onopen, header, lead }: {
@@ -103,7 +103,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex (the grid takes keys: Delete, Ctrl+A, Escape) -->
-<div class="grid" use:pinch={pinched} bind:this={el} tabindex="0" role="listbox" aria-multiselectable="true" aria-label={t('pages')} onkeydown={keys}
+<div class="grid" use:pinch={pinched} use:ctrlWheel={(f) => { size = Math.round(Math.min(280, Math.max(min, size * f))); }} bind:this={el} tabindex="0" role="listbox" aria-multiselectable="true" aria-label={t('pages')} onkeydown={keys}
   ondragover={(e) => e.preventDefault()} ondrop={dropped} ondragleave={(e) => { if (!el.contains(e.relatedTarget as Node)) drop = null; }}>
   {#each groups as g, gi (g.id)}
     {#if header}{@render header(g, gi)}{/if}

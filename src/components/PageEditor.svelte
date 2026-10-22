@@ -16,6 +16,7 @@
   import { isDesktop, readPath } from '../lib/desktop';
   import { WINDOWS_FONTS } from '../lib/engine/fontstore';
   import { uid } from '../lib/pages';
+  import { ctrlWheel } from '../lib/touch';
 
   let { pool, base, label, onSave, onCancel }: { pool: EnginePool; base: Item; label: string; onSave: (r: Saved) => void | Promise<void>; onCancel: () => void } = $props();
 
@@ -76,6 +77,15 @@
   let zoom = $state(0);
   const fit = $derived(sw && sh ? Math.max(0.2, Math.min((sw - 48) / size.w, (sh - 48) / size.h)) : 0);
   const s = $derived(fit && zoom ? zoom : fit);
+  // Ctrl + wheel steps through the zoom list; zooming out stops at "fit". A trackpad's stream of small events is slowed to one step per 120 ms
+  const ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3];
+  let wheelAt = 0;
+  const wheelZoom = (f: number) => {
+    if (performance.now() - wheelAt < 120) return;
+    wheelAt = performance.now();
+    const out = ZOOMS.findLast((z) => z < s - 0.001);
+    zoom = f > 1 ? ZOOMS.find((z) => z > s + 0.001) ?? ZOOMS[ZOOMS.length - 1] : out === undefined || out < fit ? 0 : out;
+  };
 
   // background: the page with what the edits take away already gone (the rest is drawn on top while editing)
   let canvas = $state<HTMLCanvasElement>(), clean = $state(''); // clean: the untouched page, for pictures of photos being moved
@@ -288,7 +298,7 @@
     <button class="btn icon" onclick={redo} disabled={!canRedo} title={t('redo')} aria-label={t('redo')}><span class="flip">{@html icon('undo')}</span></button>
     <button class="btn icon" onclick={remove} disabled={!sel} title={t('delete')} aria-label={t('delete')}>{@html icon('delete')}</button>
     <label class="zoomer"><span class="sr">{t('zoom')}</span><select bind:value={zoom} aria-label={t('zoom')}>
-      <option value={0}>{t('zoomFit')}</option>{#each [0.5, 0.75, 1, 1.25, 1.5, 2, 3] as z}<option value={z}>{Math.round(z * 100)}%</option>{/each}
+      <option value={0}>{t('zoomFit')}</option>{#each ZOOMS as z}<option value={z}>{Math.round(z * 100)}%</option>{/each}
     </select></label>
     <span class="where num">{label}</span>
     <button class="btn" onclick={onCancel} disabled={!!busy && doc >= 0}>{@html icon('close')}{t('cancel')}</button>
@@ -296,7 +306,7 @@
   </div>
 
   <div class="body">
-    <div class="stage" bind:clientWidth={sw} bind:clientHeight={sh}>
+    <div class="stage" bind:clientWidth={sw} bind:clientHeight={sh} use:ctrlWheel={wheelZoom}>
       {#if busy}<p class="busy" role="status">{busy}</p>{/if}
       {#if s}
         <!-- svelte-ignore a11y_no_static_element_interactions (the page itself: a click places text or lets go of the selection) -->
