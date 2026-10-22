@@ -4,7 +4,7 @@
 import type { Line, Word } from './engine/ocr';
 import { shrink, turn, type Gray } from './ocr-clean.ts';
 
-const base = '/ocr';
+const base = (import.meta.env?.BASE_URL ?? '/') + 'ocr'; // the website serves the app under /app/ (Node tests have no import.meta.env)
 let loading: Promise<any> | null = null;
 function load(): Promise<any> {
   return (loading ??= new Promise((resolve, reject) => {

@@ -20,7 +20,7 @@ let own: Own | null = null;
 const systemFonts = new Map<string, Uint8Array>(); // fonts of this PC the main thread read (desktop), by family name
 async function loadOwn() {
   if (own) return own;
-  const [hb, sub, ...files] = await Promise.all([import('harfbuzzjs'), fetch(subsetWasm).then((r) => r.arrayBuffer()).catch(() => null), ...BUNDLED_FILES.map(async (f) => new Uint8Array(await (await fetch(new URL('/fonts/' + f, location.origin))).arrayBuffer()))]);
+  const [hb, sub, ...files] = await Promise.all([import('harfbuzzjs'), fetch(subsetWasm).then((r) => r.arrayBuffer()).catch(() => null), ...BUNDLED_FILES.map(async (f) => new Uint8Array(await (await fetch(new URL(import.meta.env.BASE_URL + 'fonts/' + f, location.origin))).arrayBuffer()))]);
   const bytes = new Map<string, Uint8Array>(BUNDLED_FILES.map((f, i) => [f, files[i]]));
   return (own = { hb, file: (f) => bytes.get(f)!, subset: sub ? makeSubsetter(sub) : undefined, system: systemFonts });
 }
@@ -37,7 +37,7 @@ const engine = import('../../../engine/mupdf-wasm/dist/mupdf.js').then((m) => {
 let fonts: Fonts | null = null;
 async function loadFonts() {
   if (fonts) return;
-  const get = async (f: string) => new Uint8Array(await (await fetch(new URL('/fonts/' + f, location.origin))).arrayBuffer());
+  const get = async (f: string) => new Uint8Array(await (await fetch(new URL(import.meta.env.BASE_URL + 'fonts/' + f, location.origin))).arrayBuffer());
   const [regular, bold] = await Promise.all([get('Tajawal-Regular.ttf'), get('Tajawal-Bold.ttf')]);
   fonts = { regular: new mupdf.Font('Tajawal', regular), bold: new mupdf.Font('Tajawal-Bold', bold), store: await loadOwn() }; // the font service shapes and subsets every line
 }
