@@ -183,7 +183,7 @@ const ops: Record<string, (r: Req) => any> = {
     if (!pdf) throw new Error('not a PDF: ' + r.doc);
     const out = editPage(mupdf, pdf, r.page, r.edits, r.photos ?? [], () => fonts!, r.scale != null, o);
     try {
-      if (r.scale == null) return out.saveToBuffer('garbage=compact').asUint8Array().slice();
+      if (r.scale == null) return out.saveToBuffer('garbage=compact,compress').asUint8Array().slice();
       const p = out.loadPage(0), pix = p.toPixmap(mupdf.Matrix.scale(r.scale, r.scale), mupdf.ColorSpace.DeviceRGB, false);
       p.destroy();
       return bitmap(pix);
