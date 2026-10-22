@@ -31,7 +31,7 @@
   let doc = $state<{ name: string; sizes: { w: number; h: number }[]; bytes: Uint8Array; modified: boolean; password?: string; path?: string } | null>(null);
   let openedPath: string | undefined; // desktop: the file on disk behind `doc`, so Save writes straight back
   let portfolio = $state<PortfolioData | null>(null);
-  let busy = $state(false), error = $state(''), over = $state(false), recent = $state<Recent[]>([]);
+  let busy = $state(false), error = $state(''), over = $state(false), recent = $state<Recent[]>([]), again = $state(false);
   let picker: HTMLInputElement;
 
   $effect(() => { document.documentElement.lang = i18n.lang; document.documentElement.dir = i18n.lang === 'ar' ? 'rtl' : 'ltr'; });
@@ -89,7 +89,7 @@
   async function openReadable() {
     const d = damaged;
     if (!d) return;
-    busy = true; error = ''; damaged = null;
+    busy = true; error = ''; again = false; damaged = null;
     try {
       openedPath = undefined; // the repaired copy is a new file: "Save" asks where
       await show(await pool.tool<Uint8Array>('repair', { bytes: d.bytes }), d.name.replace(/(\.pdf)?$/i, '') + ' (repaired).pdf', true, undefined, true);
@@ -159,7 +159,7 @@
   }
 
   async function openRecent(r: Recent) {
-    busy = true; error = '';
+    busy = true; error = ''; again = false;
     try {
       if (r.kind === 'portfolio') {
         const entries = await readPortfolio(r.key.slice(10));
@@ -170,7 +170,7 @@
         if (!file) throw new Error('gone');
         busy = false; return openFile(file, r.handle, r.path);
       }
-    } catch { error = t('missing'); }
+    } catch { error = t(r.kind === 'pdf' && !r.handle ? 'chooseAgain' : 'missing'); again = r.kind === 'pdf'; } // the browser keeps no handle for a file chosen through the plain file chooser
     busy = false;
   }
 
@@ -266,7 +266,7 @@
       {#if closed}
         <button class="btn" onclick={undoClose}>{@html icon('undo')}{t('undoClose').replace('{name}', closed.name)}</button>
       {/if}
-      {#if error}<p class="error" role="alert">{error}</p>{/if}
+      {#if error}<p class="error" role="alert">{error}</p>{#if again}<button class="btn" onclick={pick}>{t('chooseFile')}</button>{/if}{/if}
     </div>
     <section class="recent" aria-labelledby="recent-h">
       <h2 id="recent-h">{t('recent')}</h2>

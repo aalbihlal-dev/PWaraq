@@ -91,3 +91,16 @@ test('replacing the document while the viewer is still reading page text raises 
   await page.waitForTimeout(4000);
   expect(errors).toEqual([]);
 });
+
+test('recent: a file chosen through the file chooser asks to be chosen again (EN and AR), and the button opens the chooser', async ({ page }) => {
+  for (const [lang, msg, btn] of [['en', 'Choose this file again to reopen it.', 'Choose the file'], ['ar', 'اختر هذا الملف مرة أخرى لإعادة فتحه.', 'اختر الملف']]) {
+    await page.addInitScript((l) => localStorage.setItem('waraq-lang', l), lang);
+    await open(page, small);
+    await page.getByRole('button', { name: lang === 'en' ? 'Close' : 'إغلاق' }).first().click();
+    await page.locator('.recent .card').first().click();
+    await expect(page.getByRole('alert')).toHaveText(msg);
+    const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.getByRole('button', { name: btn }).click()]);
+    await chooser.setFiles(small);
+    await expect(page.locator('.page').first()).toBeVisible();
+  }
+});

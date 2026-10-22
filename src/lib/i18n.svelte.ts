@@ -38,6 +38,8 @@ const strings = {
   portfolioName: ['Portfolio name', 'اسم الحافظة'],
   untitled: ['My course', 'مقرري'],
   missing: ['This file is no longer where it was. Open it again.', 'لم يعد هذا الملف في مكانه. افتحه من جديد.'],
+  chooseAgain: ['Choose this file again to reopen it.', 'اختر هذا الملف مرة أخرى لإعادة فتحه.'],
+  chooseFile: ['Choose the file', 'اختر الملف'],
   // organize
   save: ['Save', 'حفظ'],
   saveAsItem: ['Save as…', 'حفظ باسم…'], saveOptions: ['More ways to save', 'خيارات حفظ أخرى'], moreTasks: ['More', 'المزيد'],
