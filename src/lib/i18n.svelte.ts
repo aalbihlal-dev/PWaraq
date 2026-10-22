@@ -250,7 +250,8 @@ const strings = {
   photoTop: ['Across the top', 'في الأعلى'], photoFull: ['Whole page', 'الصفحة كاملة'],
   dragSection: ['Drag to move the section', 'اسحب لنقل القسم'],
   // phase 3: redact, forms, OCR
-  redactArea: ['Redact', 'تعتيم'], placeRedact: ['Drag over what should be removed for good. Saving the page removes it from the file.', 'اسحب فوق ما يجب إزالته نهائيًا. حفظ الصفحة يزيله من الملف.'],
+  redactArea: ['Redact', 'تعتيم'], coverFill: ['Fill', 'التعبئة'], coverBlack: ['Black', 'أسود'], coverWhite: ['White', 'أبيض'],
+  coverWhiteHelp: ['What is under the box is removed for good and the box is white: write new text over it (for drawings and scans).', 'يُزال ما تحت المربع نهائيًا ويصبح المربع أبيض: اكتب نصًا جديدًا فوقه (للمخططات والمستندات الممسوحة).'], placeRedact: ['Drag over what should be removed for good. Saving the page removes it from the file.', 'اسحب فوق ما يجب إزالته نهائيًا. حفظ الصفحة يزيله من الملف.'],
   redact: ['Redact', 'تعتيم'], forms: ['Forms', 'نماذج'],
   redactHelp: ['Drag on a page to mark an area, or find text below. Applying removes what is under the marks from the file for good — it is not just covered.', 'اسحب على الصفحة لتحديد منطقة، أو ابحث عن نص أدناه. التطبيق يزيل ما تحت العلامات من الملف نهائيًا — لا يكتفي بتغطيته.'],
   findToMark: ['Find and mark', 'ابحث وعلّم'],

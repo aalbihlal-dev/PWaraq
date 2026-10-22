@@ -171,3 +171,18 @@ test('lines Waraq wrote itself lift as typed: pageWriter (reversed pairs in its 
   const b = pageObjects(arabicDoc().loadPage(0)).lines.map((l) => l.text); // shapedWriter → fontstore writer
   assert.ok(b.includes('السلام عليكم'), 'font service: ' + b.join(' | '));
 });
+
+test('a cover box: black removes what is under it and stays black; white removes it, stays white, and new text on it shows (also in the editor background)', () => {
+  const old = pageObjects(src().loadPage(0)).lines[0], box = { x: old.x - 2, y: old.y - 2, w: old.w + 4, h: old.h + 4 };
+  const at = (page) => { const pm = page.toPixmap(m.Matrix.identity, m.ColorSpace.DeviceGray, false), px = pm.getPixels(), w = pm.getWidth(); return px[Math.round(box.y + 2) * w + Math.round(box.x + 2)]; };
+  const black = apply([{ kind: 'redact', ...box }]);
+  assert.doesNotMatch(black.toStructuredText().asText(), /Old heading/);
+  assert.ok(at(black) < 40, 'the black box is black');
+  const write = { kind: 'text', text: 'New title', x: box.x, y: box.y, w: 300, h: box.h, size: 20, color: [0, 0, 0], bold: false, align: 'left' };
+  const white = apply([{ kind: 'redact', white: true, ...box }, write]), text = white.toStructuredText().asText();
+  assert.doesNotMatch(text, /Old heading/);
+  assert.match(text, /New title/);
+  assert.match(text, /Keep this line/);
+  assert.ok(at(white) > 240, 'the white box is white');
+  assert.ok(at(apply([{ kind: 'redact', white: true, ...box }], src(), true)) > 240, 'the editor background shows it white too');
+});
