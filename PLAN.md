@@ -838,3 +838,5 @@ Go live as "1.0 beta" when ALL of these hold (then ask the owner for the final g
 5. The website preview (step 9) checked; the site states the known limits honestly (scanned-book OCR, readers that reorder mixed Arabic/Latin on copy).
 6. Backup bundle of all repos made the same day; GitHub synced with the release commit.
 Then: owner's go → Production upload of the 1.0 site, the Windows installer on the downloads page, 0.3.3 kept as "classic"; auto-switch of 0.3.3 users later.
+
+**Owner decision, 22 Oct 2026 09:05 local:** the 29 editing cases (1.12 % of 2,584, causes in Archive-2026-10-12/reviews/ARABIC-EDIT-REMAINING-2026-10-22.md) are ACCEPTED as the documented 1.0 beta residue; GitHub push of the release commit approved ("okay do").
