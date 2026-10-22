@@ -1,12 +1,12 @@
 {
-  "version": "1.0.0-dev",
-  "notes": "",
-  "pub_date": "2026-10-22T12:58:51.033Z",
+  "version": "1.0.0-beta.2",
+  "notes": "Waraq 1.0 beta 2: white cover box in Edit, Ctrl+wheel zoom, edited drawings stay small, Edit fixes.",
+  "pub_date": "2026-10-22T18:21:29.386Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUd2NrcUVpMEdjZ0ZNcDZwN1JzeWVtdHlhYmRZd0ZwdVpZZ1p2NVNWbTFnKzRWMVJCRWdOOWNQNFcwZGpWTnBja2RnTkZNMlVEZFJEalhkRUJiZnlhLzRkelF6eU9kUEFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkyNjczODEwCWZpbGU6V2FyYXFfMS4wLjAtZGV2X3g2NC1zZXR1cC5leGUJdmVyc2lvbjoxLjAuMC1kZXYKNHlzaFdSMC9SZUNTcEppOTVrdVJRN2ZXN0gyZG1MUFFrVnZvQkcyZ0ZaTTl1MXB1cGdyS3oxQk9UK3loSjZxd2NBSzNqR1dJQnFkU2gzY3h4NGpzRHc9PQo=",
-      "url": "https://www.pwaraq.com/downloads-1.0/Waraq_1.0.0-dev_x64-setup.exe",
-      "sha256": "b42971385608824fb18f89063814a31636428ab29d6fa2b1dfaf70dbf11d7ef3"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUd2NrcUVpMEdjZ0hsOHg2V0RrckdUZllwa2ZFUDVLQWMrcjJEcytBM1pCcFV2VkxmTVIyOE82aXF3ZllpWmJVOVgxem1xWlh6dmxXaUY0UVdBcnpBOHpuMzdxY0R5TEEwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkyNjkzMjEzCWZpbGU6V2FyYXFfMS4wLjAtYmV0YS4yX3g2NC1zZXR1cC5leGUJdmVyc2lvbjoxLjAuMC1iZXRhLjIKSXQyMXllM3BPMmk0VDVTUzlickExOEE0eUVHazFhOUtrRFFKMU15OTVjeFBMM21aWlBseVBnSXQwbTc1eTJkdlRkNkI2TGFjYm5uMkZ3S1c4c0hRQ0E9PQo=",
+      "url": "https://github.com/tshi-dev/PWaraq/releases/download/v1.0.0-beta.2/Waraq_1.0.0-beta.2_x64-setup.exe",
+      "sha256": "eeb74a21f0bad526412fd12e692fd514acd643de52759d847da3f92b5bd53fd7"
     }
   }
 }
