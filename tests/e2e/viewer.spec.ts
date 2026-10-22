@@ -70,3 +70,24 @@ test('heavy CAD drawing: first page drawn with solid lines, zoom tile sharpens',
   await page.keyboard.up('Control');
   await expect(page.locator('canvas.tile:not([hidden])').first()).toBeAttached({ timeout: 30_000 });
 });
+
+// Smoke for the race (the page text still being read when the viewer is replaced). Could not force the null in this harness: passes with and without the guard.
+test('replacing the document while the viewer is still reading page text raises no error', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  // make the engine slow to read page text, so the viewer is replaced while it still waits for the text
+  await page.addInitScript(() => {
+    const post = Worker.prototype.postMessage as (...x: unknown[]) => void;
+    Worker.prototype.postMessage = function (this: Worker, ...a: unknown[]) {
+      if ((a[0] as { op?: string })?.op === 'text') setTimeout(() => post.apply(this, a), 1500); else post.apply(this, a);
+    } as typeof Worker.prototype.postMessage;
+  });
+  await open(page, path.join(import.meta.dirname, '..', 'fixtures', 'three.pdf'));
+  await page.getByRole('button', { name: 'Organize' }).click();
+  await page.locator('.cell').nth(1).click();
+  await page.keyboard.press('Delete');
+  await page.getByRole('button', { name: 'View' }).click(); // the changes are applied: a new viewer replaces the old one
+  await expect(page.locator('.page')).toHaveCount(2);
+  await page.waitForTimeout(4000);
+  expect(errors).toEqual([]);
+});

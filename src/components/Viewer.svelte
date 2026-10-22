@@ -79,6 +79,7 @@
     p.textLoaded = true;
     let lines: { x: number; y: number; w: number; h: number; text: string; rtl: boolean }[];
     try { lines = await pool.run({ op: 'text', page: n, priority: 3, key: 'text' + n, args: {} }); } catch { p.textLoaded = false; return; }
+    if (!p.text) return; // the viewer was replaced (another file opened) while the engine was reading
     const frag = document.createDocumentFragment();
     for (const l of lines) {
       const span = document.createElement('span'), size = l.h * 0.85;
