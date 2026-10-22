@@ -41,3 +41,14 @@ test('a left-to-right line is filled left to right', () => {
   assert.deepEqual(words.map((x) => x.text), ['Invoice', 'number', '4821']);
   assert.ok(words[1].x0 >= 170 - 1 && words[1].x1 <= 300 + 1);
 });
+
+test('words the model found before the first and after the last word Tesseract saw sit next to it at the width of letters, not squeezed', () => {
+  // right-to-left: Tesseract saw only "بكم" (x 300..360) of "٣٧١ مرحبا بكم جميعا" — a number before it, two words after it
+  const out = alignBlocks([{ text: '٣٧١ مرحبا بكم جميعا', x0: 100, y0: 90, x1: 600, y1: 140 }], [{ confidence: 50, words: [w('بكم', 300, 360)] }]);
+  const words = out[0].words;
+  assert.deepEqual(words.map((x) => x.text), ['٣٧١', 'مرحبا', 'بكم', 'جميعا']);
+  assert.deepEqual([words[2].x0, words[2].x1], [300, 360]); // the matched word keeps its box
+  assert.ok(words[1].x0 >= 360 - 1 && words[1].x1 - words[1].x0 >= 10, 'مرحبا sits to the right of بكم, a real width');
+  assert.ok(words[0].x0 >= words[1].x1 - 1, '٣٧١ sits to the right of مرحبا');
+  assert.ok(words[3].x1 <= 300 + 1 && words[3].x1 - words[3].x0 >= 10, 'جميعا sits to the left of بكم, a real width');
+});

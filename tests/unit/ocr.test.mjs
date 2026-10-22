@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import * as m from '../../engine/mupdf-wasm/dist/mupdf.js';
 import { addTextLayer, layerWords, stripInvisible } from '../../src/lib/engine/ocr.ts';
 import { unturn, countRules, unevenness } from '../../src/lib/ocr-clean.ts';
+import { plausible, upright } from '../../src/lib/ocr.ts';
 
 const scan = fs.readFileSync(new URL('../fixtures/scan.pdf', import.meta.url));
 const font = (f) => new m.Font(f, fs.readFileSync(new URL('../../public/fonts/' + f + '.ttf', import.meta.url)));
@@ -93,4 +94,19 @@ test('clean-up helpers: ruled lines are counted, thick bands and short strokes a
   assert.deepEqual(countRules({ w, h, px: text }), { across: 0, down: 0 });
   const flat = { w, h, px: new Uint8Array(w * h).fill(240) }, shaded = { w, h, px: new Uint8Array(w * h).map((_, i) => 255 - Math.floor((i % w) / 4)) };
   assert.ok(unevenness(flat) < 30); assert.ok(unevenness(shaded) > 30);
+});
+
+test('plausible words: Arabic with the article and the commonest short words count, rubbish does not', () => {
+  const lines = [{ words: ['القراءة', 'في', 'المكتبة', 'xqzv', 'والكتب', 'the', 'كتاب'].map((text) => ({ text, x0: 0, x1: 1, y0: 0, y1: 1 })) }];
+  assert.equal(plausible(lines), 5); // القراءة في المكتبة والكتب the
+});
+
+test('upright: the sheet belongs to the first of the best pair of neighbouring orientations, and only a clear win turns it', async () => {
+  // a grey picture whose corner pixel marks how it was turned (1 at the top left when untouched); the fake reader reads the page
+  // well at the right way up and one turn on from it (as Tesseract does), badly elsewhere
+  const g = { w: 8, h: 6, px: new Uint8Array(48) }; for (const i of [0, 1, 8, 9]) g.px[i] = 255; // 2 x 2: it survives the half-size copy
+  const orientation = (x) => { const i = x.px.indexOf(255), cx = i % x.w, cy = Math.floor(i / x.w); return cx < x.w / 2 ? (cy < x.h / 2 ? 0 : 3) : (cy < x.h / 2 ? 1 : 2); };
+  const reader = (needs, words = 20) => async (x) => { const n = [needs, (needs + 1) % 4].includes(orientation(x)) ? words : 1; return [{ confidence: 90, words: Array.from({ length: n }, () => ({ text: 'القراءة', x0: 0, x1: 1, y0: 0, y1: 1 })) }]; };
+  for (const needs of [0, 1, 2, 3]) assert.equal((await upright(reader(needs), g, 100)).quarter, needs, 'a sheet that needs ' + needs);
+  assert.equal((await upright(reader(2, 2), g, 100)).quarter, 0); // a sparse page (a couple of words) is never turned
 });

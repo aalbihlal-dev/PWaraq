@@ -2,7 +2,7 @@
 // (copied into public/ocr by tools/get-ocr.mjs) are all local, nothing is fetched from the internet. The pure parts
 // (linesOf, mergePasses) are shared with tools/ocr-accuracy.mjs, which measures the same pipeline in Node.
 import type { Line, Word } from './engine/ocr';
-import { shrink, turn, sideways, type Gray } from './ocr-clean.ts';
+import { shrink, turn, type Gray } from './ocr-clean.ts';
 
 const base = '/ocr';
 let loading: Promise<any> | null = null;
@@ -58,15 +58,27 @@ export async function readPage(engines: PageEngine[], g: Gray, dpi: number, rule
   return lines;
 }
 
-/** The picture the right way up. The ink profile says whether the lines run across or up and down (Tesseract reads a
- *  sideways page by turning it itself, so its confidence cannot tell 0° from 90°); a quick read of a small copy at the
- *  two remaining orientations (the sum of line confidence x words) tells right way up from upside down. */
+/** How many words of a reading look like words: Arabic words with the article (ال, وال, بال, لل…) and the commonest short
+ *  Arabic and English words. Printed text read the right way up has plenty; read sideways or upside down it has hardly any,
+ *  which Tesseract's own confidence does not show (it is as sure of rubbish as of words). */
+export function plausible(lines: Line[]): number {
+  const common = new Set(['في', 'من', 'على', 'إلى', 'الى', 'عن', 'أن', 'ان', 'إن', 'لا', 'ما', 'هذا', 'هذه', 'ذلك', 'التي', 'الذي', 'كان', 'كل', 'بعد', 'قد', 'ثم', 'أو', 'او', 'مع', 'the', 'and', 'of', 'to', 'in', 'for', 'is', 'on', 'that', 'with']);
+  let n = 0;
+  for (const l of lines) for (const w of l.words) { const t = w.text.normalize('NFC').replace(/[ً-ْـ]/g, '').replace(/[^\p{L}]/gu, '').toLowerCase(); if (common.has(t) || /^(?:وال|بال|كال|فال|لل|ال)\p{L}{2,}$/u.test(t)) n++; }
+  return n;
+}
+
+/** The picture the right way up: a quick read of a half-size copy at each of the four orientations, counting plausible words.
+ *  Tesseract reads a page turned a quarter one way about as well as upright (the other way, and upside down, it does not),
+ *  so the counts come as two neighbouring orientations high; the page belongs to the first of the best such pair (ties: the
+ *  one with more words of its own). A turn is kept only when that pair has at least 6 words and clearly more (a half
+ *  again, +2) than the page as it is; an upright, sparse or tabular page is left alone. */
 export async function upright(read: (g: Gray, dpi: number) => Promise<Line[]>, g: Gray, dpi: number): Promise<{ gray: Gray; quarter: number }> {
-  const small = shrink(g, 2), pair = sideways(small) ? [1, 3] : [0, 2], scores: number[] = [];
-  for (const q of pair) scores.push((await read(q ? turn(small, q) : small, dpi / 2)).reduce((s, l) => s + (l.confidence ?? 0) * l.words.length, 0));
-  // upside down needs a clear win: a vocalised book page reads badly either way and would flip on noise
-  const q = scores[1] > (pair[0] ? 1.2 : 2) * scores[0] ? pair[1] : pair[0];
-  return q ? { gray: turn(g, q), quarter: q } : { gray: g, quarter: 0 };
+  const small = shrink(g, 2), hits: number[] = [];
+  for (let q = 0; q < 4; q++) hits.push(plausible(await read(q ? turn(small, q) : small, dpi / 2)));
+  const pair = (q: number) => hits[q] + hits[(q + 1) % 4];
+  const best = [0, 1, 2, 3].reduce((b, q) => (pair(q) > pair(b) || (pair(q) === pair(b) && hits[q] > hits[b]) ? q : b), 0);
+  return best && pair(best) >= 6 && pair(best) >= 1.4 * pair(0) + 2 ? { gray: turn(g, best), quarter: best } : { gray: g, quarter: 0 };
 }
 
 function toCanvas(g: Gray): HTMLCanvasElement {

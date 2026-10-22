@@ -71,14 +71,6 @@ export function turn(g: Gray, quarter: number): Gray {
   return { w: W, h: H, px: out };
 }
 
-/** True when the text lines run up and down (a sheet scanned sideways): the ink piles up in columns, not rows. */
-export function sideways(g: Gray): boolean {
-  const rows = new Float64Array(g.h), cols = new Float64Array(g.w);
-  for (let y = 0; y < g.h; y++) for (let x = 0; x < g.w; x++) if (g.px[y * g.w + x] < 128) { rows[y]++; cols[x]++; }
-  const sharp = (p: Float64Array) => { let s = 0, n = 0; for (const v of p) { s += v * v; n += v; } return n ? s / n : 0; }; // mean ink per inked line
-  return sharp(cols) > 2 * sharp(rows); // a sparse title page reaches 1.5 the right way up
-}
-
 /** The picture k times larger (bilinear). */
 export function enlarge(g: Gray, k: number): Gray {
   const w = Math.round(g.w * k), h = Math.round(g.h * k), px = new Uint8Array(w * h);

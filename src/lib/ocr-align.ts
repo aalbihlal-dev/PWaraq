@@ -74,21 +74,37 @@ export function alignBlocks(blocks: Block[], lines: Line[]): Line[] {
 }
 
 /** The words of one line in reading order, each with a box: a matched word its Tesseract box, the others share the stretch
- *  between their neighbours (or the line's edge) by the number of letters. Right to left for an Arabic line. */
+ *  between their neighbours by the number of letters. A run of words before the first (or after the last) matched word, which
+ *  Tesseract did not see, is set next to its neighbour at the width letters have on this line, outside the line's box if need
+ *  be. Right to left for an Arabic line. */
 function fill(items: { text: string; box?: Word }[], line: { x0: number; x1: number; y0: number; y1: number }, rtl: boolean): Word[] {
-  const res: Word[] = new Array(items.length), minW = 3;
-  let from = rtl ? line.x1 : line.x0; // the pen: where the next free stretch starts, in reading direction
+  const res: Word[] = new Array(items.length), minW = 3, dir = rtl ? -1 : 1;
+  const anchored = items.filter((x) => x.box), chars = (t: string) => t.length + 0.5;
+  const natural = anchored.length ? anchored.reduce((s, x) => s + (x.box!.x1 - x.box!.x0), 0) / anchored.reduce((s, x) => s + chars(x.text), 0) : (line.x1 - line.x0) / Math.max(1, items.reduce((s, x) => s + chars(x.text), 0));
+  const put = (q: number, from: number, wdt: number, y: { y0: number; y1: number }) => { const a = rtl ? from - wdt : from, b = rtl ? from : from + wdt; res[q] = { text: items[q].text, x0: a, x1: b, y0: y.y0, y1: y.y1 }; };
+  const first = items.findIndex((x) => x.box), last = items.length - 1 - [...items].reverse().findIndex((x) => x.box);
   for (let a = 0; a < items.length;) {
-    if (items[a].box) { const b = items[a].box!; res[a] = { text: items[a].text, x0: b.x0, x1: b.x1, y0: b.y0, y1: b.y1 }; from = rtl ? b.x0 : b.x1; a++; continue; }
+    if (items[a].box) { const b = items[a].box!; res[a] = { text: items[a].text, x0: b.x0, x1: b.x1, y0: b.y0, y1: b.y1 }; a++; continue; }
     let z = a; while (z < items.length && !items[z].box) z++;
-    const stop = z < items.length ? (rtl ? items[z].box!.x1 : items[z].box!.x0) : (rtl ? line.x0 : line.x1), span = Math.max(minW * (z - a), rtl ? from - stop : stop - from);
-    const chars = items.slice(a, z).map((x) => x.text.length + 0.5), total = chars.reduce((s, v) => s + v, 0);
-    let pos = from;
-    for (let q = a; q < z; q++) {
-      const wdt = (span * chars[q - a]) / total, x0 = rtl ? pos - wdt : pos, x1 = rtl ? pos : pos + wdt;
-      res[q] = { text: items[q].text, x0, x1, y0: line.y0, y1: line.y1 }; pos = rtl ? pos - wdt : pos + wdt;
+    if (first < 0) { // nothing matched on this line: all words share its box
+      const total = items.reduce((s, x) => s + chars(x.text), 0), span = Math.max(minW * items.length, line.x1 - line.x0);
+      let pos = rtl ? line.x1 : line.x0;
+      for (let q = 0; q < items.length; q++) { const wdt = (span * chars(items[q].text)) / total; put(q, pos, wdt, line); pos += dir * wdt; }
+      return res;
     }
-    from = pos; a = z;
+    if (a < first) { // before the first matched word: next to it, going outward, the last of them closest
+      let pos = rtl ? items[first].box!.x1 : items[first].box!.x0;
+      for (let q = z - 1; q >= a; q--) { const wdt = Math.max(minW, natural * chars(items[q].text)); res[q] = { text: items[q].text, x0: rtl ? pos : pos - wdt, x1: rtl ? pos + wdt : pos, y0: line.y0, y1: line.y1 }; pos += rtl ? wdt : -wdt; }
+    } else if (z > last) { // after the last matched word: next to it, going on in reading direction
+      let pos = rtl ? items[last].box!.x0 : items[last].box!.x1;
+      for (let q = a; q < z; q++) { const wdt = Math.max(minW, natural * chars(items[q].text)); put(q, pos, wdt, line); pos += dir * wdt; }
+    } else { // between two matched words: the free stretch, shared by letters
+      const from = rtl ? items[a - 1].box!.x0 : items[a - 1].box!.x1, stop = rtl ? items[z].box!.x1 : items[z].box!.x0;
+      const span = Math.max(minW * (z - a), rtl ? from - stop : stop - from), total = items.slice(a, z).reduce((s, x) => s + chars(x.text), 0);
+      let pos = from;
+      for (let q = a; q < z; q++) { const wdt = (span * chars(items[q].text)) / total; put(q, pos, wdt, line); pos += dir * wdt; }
+    }
+    a = z;
   }
   return res;
 }
