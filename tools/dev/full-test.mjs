@@ -534,7 +534,10 @@ groups.support = async () => {
   for (const lang of ['en', 'ar']) {
     const s = await session(lang), P = s.page, t = s.t; await goStart(s);
     await check('support', 'start screen has a "Report a problem" / support link', lang, P, async () => { const l = await P.locator('a[href*=support], a[href*=issues]').count(); const b = await P.getByRole('button', { name: /report|problem|دعم|مشكلة|إبلاغ|الإبلاغ/i }).count(); must(l + b > 0, 'no support link or button on the start screen'); });
-    await check('support', 'copy crash report / open crash log folder buttons exist on the start screen', lang, P, async () => { must((await P.getByRole('button', { name: t('copyCrash') }).count()) + (await P.getByRole('button', { name: t('openCrashFolder') }).count()) > 0, 'neither button is shown on the web start screen'); });
+    // the crash buttons appear on the start screen only once a crash is in the log (and "Open crash log folder" only in the desktop app); "Report a problem" is always there
+    await check('support', 'start screen: Report a problem opens the support page in a new tab with version, system and language', lang, P, async () => { await s.ctx.route('https://www.pwaraq.com/**', (r) => r.fulfill({ status: 200, contentType: 'text/html', body: 'support' })); const [pop] = await Promise.all([P.context().waitForEvent('page'), P.getByRole('button', { name: t('reportProblem') }).click()]); const u = pop.url(); await pop.close(); must(/^https:\/\/www\.pwaraq\.com\/support#v=[^&]+&os=[^&]+&lang=/.test(u), 'opened ' + u); });
+    await openFile(s, fx('small.pdf'));
+    await check('support', 'top row: the ⋯ menu has Report a problem', lang, P, async () => { await P.getByRole('button', { name: t('helpMenu') }).click(); must((await P.getByRole('menuitem', { name: t('reportProblem') }).count()) === 1, 'no menu item'); });
     await s.ctx.close();
   }
 };
