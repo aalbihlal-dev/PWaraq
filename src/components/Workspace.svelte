@@ -17,6 +17,7 @@
   import { setTask } from '../lib/crashlog';
   import FileName from './FileName.svelte';
   import SaveMenu from './SaveMenu.svelte';
+  import HelpMenu from './HelpMenu.svelte';
   import { isDesktop } from '../lib/desktop';
 
   let { pool, sizes, name, bytes, modified, password, onOpen, onClose, onSave, onSaveAs, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; bytes: Uint8Array; modified: boolean; password?: string;
@@ -114,6 +115,7 @@
       <button class="btn" onclick={onOpen} title={t('openShort')} aria-label={t('openShort')}>{@html icon('upload')}<span class="lbl">{t('openShort')}</span></button>
       <button class="btn" onclick={onClose} title={t('close')} aria-label={t('close')}>{@html icon('close')}<span class="lbl">{t('close')}</span></button>
       <ThemeButton />
+      <HelpMenu />
       <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
     </span>
   </header>

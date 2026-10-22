@@ -21,6 +21,11 @@ for (const [lang, theme] of COMBOS) test(`design rules hold on every screen (${l
   await open(page, fixture('three.pdf'));
   await clean(page, 'view');
   await page.screenshot({ path: info.outputPath(`view-${lang}-${theme}.png`) });
+  await page.getByRole('button', { name: lang === 'en' ? 'Help and more' : 'المساعدة والمزيد' }).click(); // the ⋯ menu (Report a problem)
+  await expect(page.getByRole('menuitem')).toHaveCount(1);
+  await clean(page, 'help menu');
+  await page.screenshot({ path: info.outputPath(`help-${lang}-${theme}.png`) });
+  await page.keyboard.press('Escape');
   await page.locator('.task').nth(1).click(); // Organize
   await expect(page.locator('.cell')).toHaveCount(3);
   await page.locator('.cell').first().click();

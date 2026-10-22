@@ -89,10 +89,10 @@ fn vault_reveal(app: tauri::AppHandle, path: String, select: bool) -> Result<Str
     Ok(p.to_string_lossy().into_owned())
 }
 
-/// Opens the mail program or the GitHub issue page for a crash report — only those two targets, only after a click in the page.
+/// Opens the mail program, the GitHub issue page or the website's support page — only those targets, only after a click in the page.
 #[tauri::command]
 fn open_external(url: String) -> Result<(), String> {
-    if !(url.starts_with("mailto:support@pwaraq.com") || url.starts_with("https://github.com/tshi-dev/PWaraq/")) {
+    if !(url.starts_with("mailto:support@pwaraq.com") || url.starts_with("https://github.com/tshi-dev/PWaraq/") || url.starts_with("https://www.pwaraq.com/support")) {
         return Err("not allowed".into());
     }
     #[cfg(windows)]

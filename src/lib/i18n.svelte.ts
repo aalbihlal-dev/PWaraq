@@ -39,6 +39,8 @@ const strings = {
   untitled: ['My course', 'مقرري'],
   missing: ['This file is no longer where it was. Open it again.', 'لم يعد هذا الملف في مكانه. افتحه من جديد.'],
   chooseAgain: ['Choose this file again to reopen it.', 'اختر هذا الملف مرة أخرى لإعادة فتحه.'],
+  reportProblem: ['Report a problem', 'الإبلاغ عن مشكلة'],
+  helpMenu: ['Help and more', 'المساعدة والمزيد'],
   chooseFile: ['Choose the file', 'اختر الملف'],
   // organize
   save: ['Save', 'حفظ'],

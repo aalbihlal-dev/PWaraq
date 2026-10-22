@@ -15,6 +15,7 @@
   import Notice from './components/Notice.svelte';
   import CrashReport from './components/CrashReport.svelte';
   import * as crash from './lib/crashlog';
+  import { reportProblem } from './lib/support';
   import type { Entry } from './lib/crashreport';
   import type { Health } from './lib/engine/pool';
   import { CONVERTIBLE_ACCEPT, isConvertible, toPdf } from './lib/convert';
@@ -303,12 +304,13 @@
         </p>
       </div>
     {/if}
-    {#if crashes}
-      <p class="crashrow">
+    <p class="crashrow">
+      <button class="btn" onclick={reportProblem}>{t('reportProblem')}</button>
+      {#if crashes}
         <button class="btn" onclick={copyReport}>{copied ? t('crashCopied') : t('copyCrash')}</button>
         {#if isDesktop}<button class="btn" onclick={() => crash.openFolder()}>{t('openCrashFolder')}</button>{/if}
-      </p>
-    {/if}
+      {/if}
+    </p>
   </div>
 {/if}
 

@@ -7,6 +7,7 @@
   import type { EnginePool } from '../lib/engine/pool';
   import { i18n, t, toggleLanguage } from '../lib/i18n.svelte';
   import ThemeButton from './ThemeButton.svelte';
+  import HelpMenu from './HelpMenu.svelte';
   import { icon } from '../lib/icons.js';
   import { addFiles, uid, seen, toItems, type Group, type GridItem } from '../lib/pages';
   import { build, plan, manifest, used, fileTitle, sectionsOf, withDefaults, type Portfolio, type Section } from '../lib/portfolio';
@@ -236,6 +237,7 @@
       </span>
       <button class="btn" onclick={async () => { await flush(); onClose(); }}>{@html icon('close')}{t('close')}</button>
       <ThemeButton />
+      <HelpMenu />
       <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
     </span>
   </header>
