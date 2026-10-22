@@ -95,7 +95,7 @@
     {#if modified || pending}<span class="mod" title={t('modified')}><span class="dot"></span><span class="sr">{t('modified')}</span></span>{/if}
     {#if view.phone}
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <nav class="tasks phone" aria-label="Tasks" onfocusout={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) taskOpen = false; }} onkeydown={(e) => { if (e.key === 'Escape') taskOpen = false; }}>
+    <nav class="tasks phone" aria-label={t('tasksMenu')} onfocusout={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) taskOpen = false; }} onkeydown={(e) => { if (e.key === 'Escape') taskOpen = false; }}>
       <button class="task on" aria-expanded={taskOpen} aria-haspopup="menu" disabled={applying} onclick={() => (taskOpen = !taskOpen)}>{t(mode)} ▾</button>
       {#if taskOpen}
         <div class="moremenu" role="menu">
@@ -106,7 +106,7 @@
       {/if}
     </nav>
     {:else}
-    <nav class="tasks" aria-label="Tasks">
+    <nav class="tasks" aria-label={t('tasksMenu')}>
       {#each shown as task}
         <button class="task" class:on={task === mode} disabled={applying} onclick={() => { if (task === 'edit' && mode !== 'edit') editPage = current; task_(task); }}>{t(task)}</button>
       {/each}
