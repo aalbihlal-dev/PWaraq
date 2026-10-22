@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import * as m from '../../engine/mupdf-wasm/dist/mupdf.js';
 import { addTextLayer, layerWords, stripInvisible } from '../../src/lib/engine/ocr.ts';
 import { unturn, countRules, unevenness } from '../../src/lib/ocr-clean.ts';
-import { plausible, upright } from '../../src/lib/ocr.ts';
+import { plausible, upright, readingOrder } from '../../src/lib/ocr.ts';
 
 const scan = fs.readFileSync(new URL('../fixtures/scan.pdf', import.meta.url));
 const font = (f) => new m.Font(f, fs.readFileSync(new URL('../../public/fonts/' + f + '.ttf', import.meta.url)));
@@ -116,4 +116,20 @@ test('numbers in Arabic-Indic digits copy in order: the invisible word is writte
   const out = addTextLayer(m, scan, [{ page: 0, scale: k, lines: [{ words: boxes }] }], fonts);
   assert.equal(open(out).loadPage(0).toStructuredText('').asText().trim(), words.join(' ')); // was: ،٩٠٧ and ،٧٣٣(
   assert.deepEqual(layerWords(m, out, 0).map((w) => w.text), words);
+});
+
+test('reading order: an Arabic page reads its columns right to left, a headline keeps its place, one column and Latin pages are left alone', () => {
+  const line = (text, x0, x1, y) => ({ words: [{ text, x0, x1, y0: y, y1: y + 20 }] });
+  const col = (name, x0, x1) => [0, 1, 2, 3].map((i) => line(name + i, x0, x1, 200 + i * 40));
+  const left = col('ل', 60, 440), right = col('ر', 560, 940), head = line('عنوان', 60, 940, 100);
+  const texts = (ls) => ls.map((l) => l.words[0].text).join(' ');
+  // Tesseract's order: headline, left column, right column
+  assert.equal(texts(readingOrder([head, ...left, ...right], 1000)), 'عنوان ر0 ر1 ر2 ر3 ل0 ل1 ل2 ل3'); // Arabic: the right column first
+  const latin = (name, x0, x1) => [0, 1, 2, 3].map((i) => line(name + i, x0, x1, 200 + i * 40));
+  assert.equal(texts(readingOrder([line('title', 60, 940, 100), ...latin('l', 60, 440), ...latin('r', 560, 940)], 1000)), 'title l0 l1 l2 l3 r0 r1 r2 r3'); // Latin: left column first
+  assert.equal(texts(readingOrder(col('ر', 60, 940), 1000)), 'ر0 ر1 ر2 ر3'); // one column: untouched
+  // rows that alternate between a short left line and a short right line (a bilingual invoice) are no columns: top to bottom
+  const rows = [0, 1, 2, 3, 4, 5].map((i) => (i % 2 ? line('ر' + i, 560, 940, 200 + i * 40) : line('ل' + i, 60, 440, 200 + i * 40)));
+  assert.equal(texts(readingOrder(rows, 1000)), 'ل0 ر1 ل2 ر3 ل4 ر5');
+  assert.equal(texts(readingOrder([...left.slice(0, 2), ...right.slice(0, 2)], 1000)), 'ل0 ر0 ل1 ر1'); // columns of fewer than three lines are no columns (a table's rows): top to bottom
 });

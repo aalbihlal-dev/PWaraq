@@ -49,13 +49,45 @@ export function mergePasses(ara: Line[], eng: Line[]): Line[] {
 /** What a page needs from an engine: a whole-page read. */
 export type PageEngine = { readGray(g: Gray, dpi: number, ruled?: boolean): Promise<Line[]> };
 
+/** The lines in reading order. Tesseract hands over columns left to right; an Arabic page reads its columns (and a book's two
+ *  facing pages) right to left. Lines wider than 60 % of the page (a headline, a title) are bands of their own and keep their
+ *  place from top to bottom; between them a run of lines is split into columns by the overlap of their horizontal extents,
+ *  the columns ordered right to left for an Arabic page and left to right otherwise, each from top to bottom. Fewer than
+ *  two columns of at least three lines that stand side by side: the order is left as it came (a single column, a table,
+ *  rows that alternate between a left and a right half). */
+export function readingOrder(lines: Line[], pageW: number): Line[] {
+  const box = (l: Line) => ({ l, x0: Math.min(...l.words.map((w) => w.x0)), x1: Math.max(...l.words.map((w) => w.x1)), y0: Math.min(...l.words.map((w) => w.y0)), y1: Math.max(...l.words.map((w) => w.y1)) });
+  const items = lines.filter((l) => l.words.length).map(box).sort((a, b) => a.y0 - b.y0);
+  const letters = lines.flatMap((l) => l.words.map((w) => w.text)).join('').replace(/[^\p{L}]/gu, ''), rtl = (letters.match(/[؀-ۿ]/g) ?? []).length > letters.length / 2;
+  const out: Line[] = [];
+  let band: typeof items = [];
+  const flush = () => {
+    const cols: { x0: number; x1: number; items: typeof items }[] = [];
+    for (const it of band) {
+      const hit = cols.filter((c) => Math.min(c.x1, it.x1) - Math.max(c.x0, it.x0) > 0.25 * Math.min(c.x1 - c.x0, it.x1 - it.x0));
+      if (!hit.length) { cols.push({ x0: it.x0, x1: it.x1, items: [it] }); continue; }
+      const first = hit[0]; first.items.push(it); first.x0 = Math.min(first.x0, it.x0); first.x1 = Math.max(first.x1, it.x1);
+      for (const other of hit.slice(1)) { first.items.push(...other.items); first.x0 = Math.min(first.x0, other.x0); first.x1 = Math.max(first.x1, other.x1); cols.splice(cols.indexOf(other), 1); }
+    }
+    // columns stand side by side: most lines of each have a line of another column beside them (rows that alternate left
+    // and right, as in a bilingual invoice, do not)
+    const beside = (c: (typeof cols)[number]) => c.items.filter((a) => cols.some((o) => o !== c && o.items.some((b) => Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0) > 0.5 * Math.min(a.y1 - a.y0, b.y1 - b.y0)))).length / c.items.length;
+    const real = cols.filter((c) => c.items.length >= 3 && beside(c) >= 0.5);
+    const ordered = real.length >= 2 && real.length === cols.length ? cols.sort((a, b) => (rtl ? b.x0 - a.x0 : a.x0 - b.x0)).flatMap((c) => c.items.sort((a, b) => a.y0 - b.y0)) : band;
+    out.push(...ordered.map((i) => i.l)); band = [];
+  };
+  for (const it of items) { if (it.x1 - it.x0 > 0.6 * pageW) { flush(); out.push(it.l); } else band.push(it); }
+  flush();
+  return out;
+}
+
 /** A whole page: the first engine, the others merged in by line. (A second look at weak lines, cut out, enlarged and read as
  *  one line, was measured on 27 + 77 scanned pages and lost: 65.0 -> 61.2 % words, the surer-looking rereads of vowelled
  *  text were wrong more often than right — so it is not here.) */
 export async function readPage(engines: PageEngine[], g: Gray, dpi: number, ruled = false): Promise<Line[]> {
   let lines = await engines[0].readGray(g, dpi, ruled);
   for (const e of engines.slice(1)) lines = mergePasses(lines, await e.readGray(g, dpi, ruled));
-  return lines;
+  return ruled ? lines : readingOrder(lines, g.w);
 }
 
 /** How many words of a reading look like words: Arabic words with the article (ال, وال, بال, لل…) and the commonest short
@@ -71,14 +103,14 @@ export function plausible(lines: Line[]): number {
 /** The picture the right way up: a quick read of a half-size copy at each of the four orientations, counting plausible words.
  *  Tesseract reads a page turned a quarter one way about as well as upright (the other way, and upside down, it does not),
  *  so the counts come as two neighbouring orientations high; the page belongs to the first of the best such pair (ties: the
- *  one with more words of its own). A turn is kept only when that pair has at least 6 words and clearly more (a half
+ *  one with more words of its own). A turn is kept only when that pair has at least 12 words and clearly more (a half
  *  again, +2) than the page as it is; an upright, sparse or tabular page is left alone. */
 export async function upright(read: (g: Gray, dpi: number) => Promise<Line[]>, g: Gray, dpi: number): Promise<{ gray: Gray; quarter: number }> {
   const small = shrink(g, 2), hits: number[] = [];
   for (let q = 0; q < 4; q++) hits.push(plausible(await read(q ? turn(small, q) : small, dpi / 2)));
   const pair = (q: number) => hits[q] + hits[(q + 1) % 4];
   const best = [0, 1, 2, 3].reduce((b, q) => (pair(q) > pair(b) || (pair(q) === pair(b) && hits[q] > hits[b]) ? q : b), 0);
-  return best && pair(best) >= 6 && pair(best) >= 1.4 * pair(0) + 2 ? { gray: turn(g, best), quarter: best } : { gray: g, quarter: 0 };
+  return best && pair(best) >= 12 && pair(best) >= 1.4 * pair(0) + 2 ? { gray: turn(g, best), quarter: best } : { gray: g, quarter: 0 };
 }
 
 function toCanvas(g: Gray): HTMLCanvasElement {
