@@ -92,3 +92,30 @@ test('comment: shapes, arrow and text box; move and recolour a shape; Arabic scr
   await page.getByRole('button', { name: 'عربي' }).click();
   await expect(page.getByRole('button', { name: 'تعليق', exact: true })).toBeVisible();
 });
+
+test('comment: the text typed into a new sticky note is part of making it — one Undo removes the note; a later text change is its own step', async ({ page }) => {
+  test.setTimeout(120_000);
+  await open(page, small);
+  await page.getByRole('button', { name: 'Comment', exact: true }).click();
+  const layer = page.locator('.layer').first();
+  await expect(layer).toBeVisible();
+  const box = (await layer.boundingBox())!, k = box.width / 595;
+  const undo = page.getByRole('button', { name: 'Undo (Ctrl Z)' }), text = page.getByLabel('Text of the comment');
+  await page.getByRole('button', { name: 'Sticky note', exact: true }).click();
+  await page.mouse.click(box.x + 400 * k, box.y + 200 * k);
+  await text.fill('first words');
+  await text.blur();
+  await expect(page.locator('.state')).toHaveText('1 comments');
+  await undo.click(); // one click: the note is gone, not just its text
+  await expect(page.locator('.state')).not.toHaveText('1 comments');
+  await expect(undo).toBeDisabled();
+  await page.getByRole('button', { name: 'Redo (Ctrl Y)' }).click();
+  await expect(page.locator('.state')).toHaveText('1 comments');
+  // changing the text of the existing note later is a separate step
+  await page.mouse.click(box.x + 410 * k, box.y + 210 * k);
+  await text.fill('changed later');
+  await text.blur();
+  await undo.click();
+  await expect(page.locator('.state')).toHaveText('1 comments');
+  await expect(text).toHaveValue('first words');
+});

@@ -19,7 +19,7 @@
 
   let items = $state<Annot[]>([]), doc = $state(-1), error = $state(''), tool = $state<Tool>('select'), color = $state('#f5c518'), selected = $state('');
   let past = $state<Annot[][]>([]), future = $state<Annot[][]>([]), draft = $state<Annot | null>(null);
-  let orig: Annot[] = [], seq = 0, picked = false, noteBox = $state<HTMLTextAreaElement>(), before: Annot[] | null = null;
+  let orig: Annot[] = [], seq = 0, picked = false, noteBox = $state<HTMLTextAreaElement>(), before: Annot[] | null = null, fresh = '';
   const sel = $derived(items.find((a) => a.id === selected));
   const src = (a: Annot) => ({ page: a.page, src: Number(a.id.split(':')[1]) });
   const snap = () => $state.snapshot(items) as Annot[];
@@ -44,6 +44,8 @@
   // ---- undo: one step per action (a snapshot of the list before it)
   function record(prev: Annot[]) { past.push(prev); future = []; changed = true; }
   function edit(fn: () => void) { const prev = snap(); fn(); record(prev); }
+  // the text typed right after a note/text box is made belongs to the step that made it (one Undo removes the whole note)
+  $effect(() => { if (selected !== fresh) fresh = ''; });
   function undo() { if (!past.length) return; future.push(snap()); items = past.pop()!; changed = true; }
   function redo() { if (!future.length) return; past.push(snap()); items = future.pop()!; changed = true; }
   const remove = () => { if (sel) { const id = sel.id; edit(() => { items = items.filter((a) => a.id !== id); }); selected = ''; } };
@@ -131,7 +133,7 @@
   async function add(a: Partial<Annot> & { kind: Kind; rect: Rect }) {
     const item: Annot = { id: 'n' + ++seq, page: g?.page ?? a.page ?? 0, color, note: a.kind === 'text' ? t('cDefaultText') : '', ...a };
     edit(() => { items.push(item); });
-    selected = item.id;
+    selected = item.id; fresh = item.id;
     if (!STICKY.includes(tool)) tool = 'select';
     if (a.kind === 'text' || a.kind === 'note') { await tick(); noteBox?.focus(); noteBox?.select(); }
   }
@@ -198,9 +200,9 @@
     {#if sel}
       <label class="field"><span>{t('cContents')}</span>
         <textarea bind:this={noteBox} rows="4" dir="auto" value={sel.note}
-          onfocus={() => (before = snap())}
+          onfocus={() => (before = fresh === sel.id ? null : snap())}
           oninput={(e) => { sel.note = e.currentTarget.value; }}
-          onchange={() => { if (before && JSON.stringify(before) !== JSON.stringify(snap())) record(before); before = null; }}></textarea></label>
+          onchange={() => { fresh = ''; if (before && JSON.stringify(before) !== JSON.stringify(snap())) record(before); before = null; }}></textarea></label>
       <button class="btn" onclick={remove}>{@html icon('clear')}{t('cDelete')}</button>
     {:else}
       <p class="help">{t('cNone')}</p>
