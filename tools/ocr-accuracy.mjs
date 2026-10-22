@@ -135,15 +135,18 @@ async function live() {
     async page(g, dpi, ruled) {
       const tl = await base.page(g, dpi, ruled), s = Math.min(1, LONG_SIDE / Math.max(g.w, g.h)), small = s < 1 ? enlarge(g, s) : g;
       try {
-        const blocks = await readBlocks(url, new Uint8Array(toPng(small)), small.w, small.h);
-        return alignBlocks(blocks.map((b) => ({ ...b, x0: b.x0 / s, x1: b.x1 / s, y0: b.y0 / s, y1: b.y1 / s })), tl);
+        const blocks = (await readBlocks(url, new Uint8Array(toPng(small)), small.w, small.h)).map((b) => ({ ...b, x0: b.x0 / s, x1: b.x1 / s, y0: b.y0 / s, y1: b.y1 / s }));
+        if (opt.out) { const f = path.join(opt.out, this.name + '.blocks.json'); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, JSON.stringify({ blocks, tess: tl })); } // to debug the alignment without the model
+        return alignBlocks(blocks, tl);
       } catch (e) { console.log('  (strong failed, Tesseract kept:', e.message + ')'); return tl; }
     },
     readGray: base.readGray, read: base.read,
     stop: async () => { server.kill(); await base.stop(); },
   };
 }
-const engine = await (opt.engine === 'surya' ? surya(pages) : opt.engine === 'live' ? live() : tesseract());
+/** `--engine saved --surya-dir DIR`: the blocks and Tesseract lines a `--engine live --out DIR` run saved, aligned again with the current code (no model, no OCR). */
+const saved = () => ({ page: async () => { const j = JSON.parse(fs.readFileSync(path.join(opt.suryaDir, engine.name + '.blocks.json'), 'utf8')); return alignBlocks(j.blocks, j.tess); }, readGray: async () => [], stop: async () => {} });
+const engine = await (opt.engine === 'surya' ? surya(pages) : opt.engine === 'live' ? live() : opt.engine === 'saved' ? saved() : tesseract());
 if (opt.engine === 'strong') { // Surya's text (from --surya-dir, written by an earlier --engine surya --out run) on Tesseract's word boxes
   const base = engine.page;
   engine.page = async (g, dpi, ruled) => { const tl = await base(g, dpi, ruled), j = path.join(opt.suryaDir, engine.name + '.surya.json'); if (!fs.existsSync(j)) return tl; const r = JSON.parse(fs.readFileSync(j, 'utf8')); engine.seconds = r.seconds; return alignBlocks(r.lines.map((l) => ({ text: l.words[0].text, ...l.words[0] })), tl); };

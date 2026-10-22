@@ -110,3 +110,10 @@ test('upright: the sheet belongs to the first of the best pair of neighbouring o
   for (const needs of [0, 1, 2, 3]) assert.equal((await upright(reader(needs), g, 100)).quarter, needs, 'a sheet that needs ' + needs);
   assert.equal((await upright(reader(2, 2), g, 100)).quarter, 0); // a sparse page (a couple of words) is never turned
 });
+
+test('numbers in Arabic-Indic digits copy in order: the invisible word is written so MuPDF reads it back as printed', () => {
+  const k = 3, words = ['كلمة', '٧٠٩،', 'قال', '(٣٣٧،', 'ثم'], boxes = words.map((text, i) => ({ text, x0: (500 - i * 90) * k, x1: (580 - i * 90) * k, y0: 85 * k, y1: 115 * k }));
+  const out = addTextLayer(m, scan, [{ page: 0, scale: k, lines: [{ words: boxes }] }], fonts);
+  assert.equal(open(out).loadPage(0).toStructuredText('').asText().trim(), words.join(' ')); // was: ،٩٠٧ and ،٧٣٣(
+  assert.deepEqual(layerWords(m, out, 0).map((w) => w.text), words);
+});

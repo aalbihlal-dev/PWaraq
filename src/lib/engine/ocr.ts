@@ -12,6 +12,11 @@ export type Layer = { page: number; scale: number; lines: Line[]; tilt?: { angle
 // per point of the page as seen; tilt: the w x h picture was turned by `quarter` quarter turns and straightened by `angle` degrees
 // about its centre before reading
 const RTL = /[֐-ࣿ]/;
+const INDIC = /[٠-٩۰-۹]/;
+/** MuPDF takes Arabic-Indic digits for right-to-left letters and reads a word with them backwards (the page shows digits in
+ *  order, the extraction would give ٧٠٩ as ٩٠٧). The layer is invisible, so such a word is written reversed and copy,
+ *  search and the page's own text read it right. */
+const forLayer = (t: string) => (INDIC.test(t) ? [...t].reverse().join('') : t);
 const num = (v: number) => +v.toFixed(3);
 
 /** The file with every layer's words written, invisible, over its page. */
@@ -42,7 +47,7 @@ export function addTextLayer(m: typeof MuPDF, bytes: Uint8Array, layers: Layer[]
       // the line's horizontal scale makes Tajawal as wide as the printed font, so each word fills about its box
       const widths = words.map((w) => measure(fonts.regular, w.text.trim(), size)), boxes = words.map((w) => (w.x1 - w.x0) / scale);
       const tz = Math.min(2, Math.max(0.5, boxes.reduce((a, b) => a + b, 0) / (widths.reduce((a, b) => a + b, 0) || 1)));
-      const parts = words.map((w, i) => ({ text: w.text.trim(), x: w.x0 / scale + Math.max(0, boxes[i] - widths[i] * tz) / 2 }));
+      const parts = words.map((w, i) => ({ text: forLayer(w.text.trim()), x: w.x0 / scale + Math.max(0, boxes[i] - widths[i] * tz) / 2 }));
       return [{ text: parts.map((p) => p.text).join(' '), parts, tz, size, y: y0 + 0.643 * size, x: parts[0].x }];
     });
     if (!lines.length) continue;

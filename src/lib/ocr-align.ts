@@ -67,7 +67,7 @@ export function alignBlocks(blocks: Block[], lines: Line[]): Line[] {
       if (!idx.length) return;
       const rtl = (idx.map((i) => words[i]).join('').match(ARABIC) ?? []).length > idx.join('').length / 2;
       const placed = idx.map((i) => ({ i, box: anchor.has(i) ? tess[anchor.get(i)!].w : undefined }));
-      out.push({ confidence: 100, words: fill(placed.map((p) => ({ text: words[p.i], box: p.box })), f.b, rtl) });
+      out.push({ confidence: 100, words: fill(placed.map((p) => ({ text: words[p.i], box: p.box })), f.b, rtl, { x0: Math.min(blk.x0, f.b.x0), x1: Math.max(blk.x1, f.b.x1) }) });
     });
   }
   return out;
@@ -77,7 +77,7 @@ export function alignBlocks(blocks: Block[], lines: Line[]): Line[] {
  *  between their neighbours by the number of letters. A run of words before the first (or after the last) matched word, which
  *  Tesseract did not see, is set next to its neighbour at the width letters have on this line, outside the line's box if need
  *  be. Right to left for an Arabic line. */
-function fill(items: { text: string; box?: Word }[], line: { x0: number; x1: number; y0: number; y1: number }, rtl: boolean): Word[] {
+function fill(items: { text: string; box?: Word }[], line: { x0: number; x1: number; y0: number; y1: number }, rtl: boolean, bounds: { x0: number; x1: number }): Word[] {
   const res: Word[] = new Array(items.length), minW = 3, dir = rtl ? -1 : 1;
   const anchored = items.filter((x) => x.box), chars = (t: string) => t.length + 0.5;
   const natural = anchored.length ? anchored.reduce((s, x) => s + (x.box!.x1 - x.box!.x0), 0) / anchored.reduce((s, x) => s + chars(x.text), 0) : (line.x1 - line.x0) / Math.max(1, items.reduce((s, x) => s + chars(x.text), 0));
@@ -94,10 +94,12 @@ function fill(items: { text: string; box?: Word }[], line: { x0: number; x1: num
     }
     if (a < first) { // before the first matched word: next to it, going outward, the last of them closest
       let pos = rtl ? items[first].box!.x1 : items[first].box!.x0;
-      for (let q = z - 1; q >= a; q--) { const wdt = Math.max(minW, natural * chars(items[q].text)); res[q] = { text: items[q].text, x0: rtl ? pos : pos - wdt, x1: rtl ? pos + wdt : pos, y0: line.y0, y1: line.y1 }; pos += rtl ? wdt : -wdt; }
+      const f = shrinkTo(items.slice(a, z), natural, rtl ? bounds.x1 - pos : pos - bounds.x0, minW);
+      for (let q = z - 1; q >= a; q--) { const wdt = Math.max(minW, natural * f * chars(items[q].text)); res[q] = { text: items[q].text, x0: rtl ? pos : pos - wdt, x1: rtl ? pos + wdt : pos, y0: line.y0, y1: line.y1 }; pos += rtl ? wdt : -wdt; }
     } else if (z > last) { // after the last matched word: next to it, going on in reading direction
       let pos = rtl ? items[last].box!.x0 : items[last].box!.x1;
-      for (let q = a; q < z; q++) { const wdt = Math.max(minW, natural * chars(items[q].text)); put(q, pos, wdt, line); pos += dir * wdt; }
+      const f = shrinkTo(items.slice(a, z), natural, rtl ? pos - bounds.x0 : bounds.x1 - pos, minW);
+      for (let q = a; q < z; q++) { const wdt = Math.max(minW, natural * f * chars(items[q].text)); put(q, pos, wdt, line); pos += dir * wdt; }
     } else { // between two matched words: the free stretch, shared by letters
       const from = rtl ? items[a - 1].box!.x0 : items[a - 1].box!.x1, stop = rtl ? items[z].box!.x1 : items[z].box!.x0;
       const span = Math.max(minW * (z - a), rtl ? from - stop : stop - from), total = items.slice(a, z).reduce((s, x) => s + chars(x.text), 0);
@@ -109,8 +111,14 @@ function fill(items: { text: string; box?: Word }[], line: { x0: number; x1: num
   return res;
 }
 
+/** How much to shrink natural widths so a run of words fits the room it has (1 when it fits; the room at least `minW` a word). */
+function shrinkTo(run: { text: string }[], natural: number, room: number, minW: number): number {
+  const need = run.reduce((s, x) => s + natural * (x.text.length + 0.5), 0);
+  return need <= Math.max(room, minW * run.length) ? 1 : Math.max(room, minW * run.length) / need;
+}
+
 /** All the words on one line over `r`, shared out by the number of letters (no Tesseract line to go by). */
 function spread(words: string[], r: { x0: number; x1: number; y0: number; y1: number }): Line {
   const rtl = (words.join('').match(ARABIC) ?? []).length > words.join('').length / 2;
-  return { confidence: 100, words: fill(words.map((text) => ({ text })), r, rtl) };
+  return { confidence: 100, words: fill(words.map((text) => ({ text })), r, rtl, r) };
 }

@@ -52,3 +52,12 @@ test('words the model found before the first and after the last word Tesseract s
   assert.ok(words[0].x0 >= words[1].x1 - 1, '٣٧١ sits to the right of مرحبا');
   assert.ok(words[3].x1 <= 300 + 1 && words[3].x1 - words[3].x0 >= 10, 'جميعا sits to the left of بكم, a real width');
 });
+
+test('words after the last one Tesseract saw stay inside the block: shrunk to the room that is left', () => {
+  // right-to-left line of Tesseract box 300..360, the block ends at x 250: four more words must fit between 300 and 250
+  const out = alignBlocks([{ text: 'بكم واحد اثنان ثلاثة اربعة', x0: 250, y0: 90, x1: 600, y1: 140 }], [{ confidence: 50, words: [w('بكم', 300, 360)] }]);
+  const words = out[0].words, rest = words.slice(1);
+  assert.deepEqual(words.map((x) => x.text), ['بكم', 'واحد', 'اثنان', 'ثلاثة', 'اربعة']);
+  assert.ok(Math.min(...rest.map((x) => x.x0)) >= 250 - 1, 'inside the block: ' + JSON.stringify(rest.map((x) => Math.round(x.x0))));
+  assert.ok(rest.every((x) => x.x1 - x.x0 >= 3));
+});
