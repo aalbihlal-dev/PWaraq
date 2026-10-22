@@ -20,7 +20,8 @@ export type Edit =
   // existing photo number `index` (pageObjects order): moved / resized to the box, replaced by photos[photo], or removed
   | ({ kind: 'image'; index: number; from: Box; photo?: number; removed?: boolean } & Box)
   // redaction: text, photo pixels and lines under the box removed from the page for good, a black box in their place
-  | ({ kind: 'redact' } & Box);
+  // (white: a white box, to write over — a "white-out" for drawings and scans)
+  | ({ kind: 'redact'; white?: boolean } & Box);
 
 /** Text box layout shared with the editor screen: first baseline `BASELINE`·size below the box top, lines `LEADING`·size apart. */
 export const LEADING = 1.3, BASELINE = 1.0;
@@ -247,12 +248,20 @@ export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number,
   };
   redact(redactImages, 1, 1); // remove images there, keep text and lines
   redact(redactText, 0, 0); // remove text there, keep images and lines
-  const hide = edits.filter((e) => e.kind === 'redact');
-  if (hide.length) { for (const b of hide) page.createAnnotation('Redact').setRect([b.x, b.y, b.x + b.w, b.y + b.h]); page.applyRedactions(true, 2, 1, 0); } // before new text and photos, which stay
+  const hide = edits.filter((e): e is Extract<Edit, { kind: 'redact' }> => e.kind === 'redact');
+  for (const white of [false, true]) { // before new text and photos, which stay
+    const boxes = hide.filter((b) => !!b.white === white);
+    if (!boxes.length) continue;
+    for (const b of boxes) page.createAnnotation('Redact').setRect([b.x, b.y, b.x + b.w, b.y + b.h]);
+    page.applyRedactions(!white, 2, 1, 0);
+  }
+  // a white cover: what is under it is removed the same way, then it is filled white, under everything new (also in the editor's background)
+  const covers = hide.filter((b) => b.white).map((b) => `${n(b.x)} ${n(H - b.y - b.h)} ${n(b.w)} ${n(b.h)} re`).join(' ');
+  if (covers) draw.push(`q ${m.Matrix.concat([1, 0, 0, -1, 0, H], inv).map(n).join(' ')} cm 1 1 1 rg ${covers} f Q`);
+  const resources: Record<string, Record<string, MuPDF.PDFObject>> = { XObject: added };
 
   if (!lift) {
     for (const e of edits) if (e.kind === 'photo') { const img = new m.Image(photos[e.photo]); place(out.addImage(img), upright(img, e)); }
-    const resources: Record<string, Record<string, MuPDF.PDFObject>> = { XObject: added };
     if (texts.length) {
       const lines: Line[] = [], shaped = own && writer(m, own, out);
       let ops = '';
@@ -275,8 +284,8 @@ export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number,
       tw?.finish(); shaped?.finish();
       resources.Font = { ...tw?.fonts, ...shaped?.fonts };
     }
-    if (draw.length) { page.destroy(); stamp(out, out.findPage(0), draw.join('\n'), resources); page = out.loadPage(0); }
   }
+  if (draw.length) { page.destroy(); stamp(out, out.findPage(0), draw.join('\n'), resources); page = out.loadPage(0); }
   page.destroy();
   return out;
 }

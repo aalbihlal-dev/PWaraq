@@ -1,6 +1,6 @@
 // Prints the updater manifest for the installer in release/ (Tauri updater format + the installer's SHA-256, which
-// the app checks after the signature). Nothing is uploaded: the owner puts the file at
-// https://www.pwaraq.com/downloads-1.0/manifest.json together with the installer, after the release gate.
+// the app checks after the signature). Nothing is uploaded. The manifest goes to https://www.pwaraq.com/downloads-1.0/manifest.json
+// (waraq-site-1.0's stage.cjs copies it); the installer goes to the GitHub release v<version> (Cloudflare Pages takes files < 25 MiB only).
 //   node tools/dev/update-manifest.mjs [notes] > manifest.json
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
@@ -17,7 +17,7 @@ console.log(JSON.stringify({
   platforms: {
     'windows-x86_64': {
       signature: fs.readFileSync(exe + '.sig', 'utf8').trim(),
-      url: `https://www.pwaraq.com/downloads-1.0/${path.basename(exe)}`,
+      url: `https://github.com/tshi-dev/PWaraq/releases/download/v${version}/${path.basename(exe)}`,
       sha256: createHash('sha256').update(fs.readFileSync(exe)).digest('hex'),
     },
   },

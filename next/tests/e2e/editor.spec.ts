@@ -145,6 +145,30 @@ test('edit: redact an area in the page editor — the heading under it is gone f
   expect(text).toContain('Keep this line');
 });
 
+test('edit: a white cover box (drawings, scans) — what is under it is gone, it saves white, and the next box is white too', async ({ page }) => {
+  await open(page, fixture('edit.pdf'));
+  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  await ready(page);
+  const s = await scale(page), b = (await page.locator('.editor .sheet').boundingBox())!;
+  await page.getByRole('button', { name: 'Redact', exact: true }).last().click();
+  await page.mouse.move(b.x + 66 * s, b.y + 60 * s); await page.mouse.down();
+  await page.mouse.move(b.x + 240 * s, b.y + 95 * s, { steps: 5 }); await page.mouse.up();
+  await page.getByRole('button', { name: 'White', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'White', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Redact', exact: true }).last().click(); // a second box remembers White
+  await page.mouse.move(b.x + 300 * s, b.y + 400 * s); await page.mouse.down();
+  await page.mouse.move(b.x + 340 * s, b.y + 420 * s, { steps: 3 }); await page.mouse.up();
+  await expect(page.getByRole('button', { name: 'White', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Save page' }).click();
+  await expect(page.getByText('Changed — not saved yet')).toBeVisible();
+  const file = await saved(page, () => page.getByRole('button', { name: 'Save' }).first().click());
+  const p = m.Document.openDocument(file.bytes, 'application/pdf').loadPage(0), text = p.toStructuredText().asText();
+  expect(text).not.toContain('Old heading');
+  expect(text).toContain('Keep this line');
+  const pm = p.toPixmap(m.Matrix.identity, m.ColorSpace.DeviceGray, false);
+  expect(pm.getPixels()[75 * pm.getWidth() + 100]).toBeGreaterThan(240); // inside the first box: white, not black
+});
+
 test('page editor: zoom to 200 % and back to fit; the page stays whole and scrollable, text can still be placed', async ({ page }) => {
   test.setTimeout(90_000);
   await page.goto('/');

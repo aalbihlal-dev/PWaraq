@@ -91,7 +91,7 @@
   let canvas = $state<HTMLCanvasElement>(), clean = $state(''); // clean: the untouched page, for pictures of photos being moved
   const lifted = $derived(JSON.stringify(objs.flatMap((o): Edit[] => o.kind === 'image' ? [{ kind: 'image', index: o.index, from: o.from, ...o.from }]
     : o.kind === 'text' && o.from ? [{ kind: 'text', from: o.from, text: '', size: 1, color: [0, 0, 0], bold: false, align: 'left', ...o.from }]
-    : o.kind === 'redact' && o.w > 2 && o.h > 2 ? [{ kind: 'redact', x: o.x, y: o.y, w: o.w, h: o.h }] : [])));
+    : o.kind === 'redact' && o.w > 2 && o.h > 2 ? [{ kind: 'redact', white: o.white, x: o.x, y: o.y, w: o.w, h: o.h }] : [])));
   $effect(() => {
     if (doc < 0 || !s || !canvas) return;
     const edits = JSON.parse(lifted) as Edit[], scale = s * Math.min(devicePixelRatio || 1, 2), c = canvas;
@@ -156,11 +156,12 @@
     e.preventDefault();
     change(() => objs.push(o)); select(o.id); tool = 'select'; focusText(o.id);
   }
+  let coverWhite = $state(false); // the fill the next box gets: the last one chosen
   // Redact: drag a box over what should go; it stays selected (move it, resize it, Delete takes it away)
   function markArea(e: PointerEvent) {
     e.preventDefault();
     const el = e.currentTarget as HTMLElement, r = el.getBoundingClientRect(), x0 = (e.clientX - r.left) / s, y0 = (e.clientY - r.top) / s, before = snap();
-    const o: Obj = { id: uid(), kind: 'redact', x: x0, y: y0, w: 0, h: 0 };
+    const o: Obj = { id: uid(), kind: 'redact', white: coverWhite, x: x0, y: y0, w: 0, h: 0 };
     objs.push(o); select(o.id);
     const box = objs[objs.length - 1];
     el.setPointerCapture(e.pointerId);
@@ -377,6 +378,18 @@
         {:else}
           <p class="note">{@html icon('info')}<span>{t('fontNote')}</span></p>
         {/if}
+        <button class="btn" onclick={remove}>{@html icon('delete')}{t('delete')}</button>
+      {:else if sel?.kind === 'redact'}
+        {@const o = sel}
+        <h2>{t('redactArea')}</h2>
+        <div class="field"><span>{t('coverFill')}</span>
+          <span class="row" role="group" aria-label={t('coverFill')}>
+            {#each [[false, 'coverBlack'], [true, 'coverWhite']] as [white, k]}
+              <button class="btn" class:on={!!o.white === white} aria-pressed={!!o.white === white} onclick={() => change(() => { o.white = white as boolean; coverWhite = white as boolean; })}>{t(k as Key)}</button>
+            {/each}
+          </span>
+        </div>
+        <p class="help">{t(o.white ? 'coverWhiteHelp' : 'placeRedact')}</p>
         <button class="btn" onclick={remove}>{@html icon('delete')}{t('delete')}</button>
       {:else if sel}
         <h2>{t('photoOptions')}</h2>
