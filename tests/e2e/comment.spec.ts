@@ -62,7 +62,6 @@ test('comment: a highlight on real text, a sticky note and a pen stroke are save
 });
 
 test('comment: shapes, arrow and text box; move and recolour a shape; Arabic screen', async ({ page }, info) => {
-  await page.setViewportSize({ width: 1280, height: 820 }); // the title rail takes 36 px; the drawing coordinates below need the page in view
   await open(page, small);
   await page.getByRole('button', { name: 'Comment', exact: true }).click();
   const layer = page.locator('.layer').first();

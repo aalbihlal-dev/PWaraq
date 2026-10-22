@@ -31,12 +31,20 @@ for (const lang of ['en', 'ar']) test(`desktop title bar: paper colour, top-righ
   await page.screenshot({ path: info.outputPath(`desktop-start-${lang}.png`) });
   await open(page, fixture('three.pdf'));
   await expect(page.locator('.page canvas').first()).toBeVisible();
-  await bar(page, '--surface'); // merges with the task bar: one surface, no step
+  { // an open document: no strip any more, the window buttons sit in the top row, which is the drag region
+    await expect(page.locator('.titlebar')).toHaveCount(0);
+    const win = page.locator('.winfloat'), r = (await win.boundingBox())!, row = (await page.locator('.ws .bar').boundingBox())!;
+    expect(r.y).toBe(0); expect(r.x + r.width).toBe(1366); expect(r.height).toBeGreaterThanOrEqual(row.height);
+    for (const b of await win.locator('button').all()) { const q = (await b.boundingBox())!; expect(q.width).toBeGreaterThanOrEqual(36); expect(q.height).toBeGreaterThanOrEqual(36); expect(q.x).toBeGreaterThan(1366 - 160); }
+    expect(await page.locator('.ws .bar').getAttribute('data-tauri-drag-region')).not.toBeNull();
+    for (const el of await page.locator('.ws .bar button, .ws .bar img').all()) { const q = (await el.boundingBox())!; expect(q.x + q.width <= r.x || q.x >= r.x + r.width, 'nothing runs under the window buttons').toBe(true); }
+    expect((await page.evaluate(audit) as { sample: unknown[] }).sample).toEqual([]);
+  }
   await page.screenshot({ path: info.outputPath(`desktop-view-${lang}.png`) });
   const name = lang === 'ar' ? { min: 'تصغير', max: 'تكبير', restore: 'استعادة', close: 'إغلاق' } : { min: 'Minimise', max: 'Maximise', restore: 'Restore', close: 'Close' };
-  await page.locator('.titlebar').getByRole('button', { name: name.min, exact: true }).click();
-  await page.locator('.titlebar').getByRole('button', { name: name.max, exact: true }).click();
-  await page.locator('.titlebar').getByRole('button', { name: name.close, exact: true }).click();
+  await page.locator('.winfloat').getByRole('button', { name: name.min, exact: true }).click();
+  await page.locator('.winfloat').getByRole('button', { name: name.max, exact: true }).click();
+  await page.locator('.winfloat').getByRole('button', { name: name.close, exact: true }).click();
   expect(await page.evaluate(() => (window as any).tauriCalls)).toEqual(['minimize', 'toggleMaximize', 'close']);
 });
 
@@ -70,6 +78,5 @@ test('no update: the row offers a manual check and reports the latest version', 
 test('the web build shows no title bar', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.titlebar')).toHaveCount(0);
-  await expect(page.locator('.rail')).toHaveCount(0); // start screen: no rail
   expect(await page.evaluate(() => 'desktop' in document.documentElement.dataset)).toBe(false);
 });

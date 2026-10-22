@@ -40,6 +40,7 @@ const strings = {
   missing: ['This file is no longer where it was. Open it again.', 'لم يعد هذا الملف في مكانه. افتحه من جديد.'],
   // organize
   save: ['Save', 'حفظ'],
+  saveAsItem: ['Save as…', 'حفظ باسم…'], saveOptions: ['More ways to save', 'خيارات حفظ أخرى'], moreTasks: ['More', 'المزيد'],
   insertFile: ['Insert file', 'إدراج ملف'],
   blankPage: ['Blank page', 'صفحة فارغة'],
   extract: ['Extract', 'استخراج'],

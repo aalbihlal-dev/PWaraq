@@ -12,7 +12,7 @@
   import { build, plan, manifest, used, fileTitle, sectionsOf, withDefaults, type Portfolio, type Section } from '../lib/portfolio';
   import * as vault from '../lib/vault';
   import { setTask } from '../lib/crashlog';
-  import { rail } from '../lib/rail.svelte';
+  import FileName from './FileName.svelte';
   import AutoText from './AutoText.svelte';
   import { pickFiles, saveFile, writePortfolio, readPortfolio, readPortfolioFile, remember } from '../lib/store';
   import { DESIGNS, PAPERS, COLOURS, type Paper } from '../lib/engine/designs';
@@ -73,8 +73,7 @@
   }
   const versionTime = (at: number) => new Date(at).toLocaleString(i18n.lang === 'ar' ? 'ar' : 'en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' });
   function flush() { clearTimeout(timer); const w = waiting; waiting = null; return w?.(); }
-  $effect(() => { rail.name = p.name; rail.modified = false; });
-  onDestroy(() => { flush(); rail.name = ''; });
+  onDestroy(flush);
 
   // files -> engine sources, written once into the portfolio's folder
   async function load(files: File[]) {
@@ -218,9 +217,10 @@
   onchange={(e) => { const f = [...(e.currentTarget.files ?? [])]; e.currentTarget.value = ''; if (f.length) onPicked(f); }} />
 
 <div class="pf">
-  <header class="bar">
+  <header class="bar" data-tauri-drag-region>
     <img src="/brand-mark.svg" alt="" width="28" height="28" />
     <span class="chip">{@html icon('library')}{t('portfolio')}</span>
+    <FileName name={p.name} fill={false} />
     <button class="btn" onclick={() => choose(true, addSections)} disabled={!!busy}>{@html icon('plus')}{t('addSection')}</button>
     <span class="end">
       <button class="btn icon" onclick={undo} disabled={!canUndo} title={t('undo')} aria-label={t('undo')}>{@html icon('undo')}</button>
@@ -447,6 +447,7 @@
 </div>
 
 <style>
+  :global(html[data-desktop]) .bar { padding-right: 156px; } /* room for the window buttons in the corner */
   .pf { height: 100%; display: grid; grid-template-rows: auto 1fr; }
   .bar { display: flex; align-items: center; gap: var(--s-12); padding: var(--s-8) var(--s-16); background: var(--surface); border-bottom: 1px solid var(--line); min-width: 0; }
   .chip { display: inline-flex; align-items: center; gap: var(--s-8); padding: 0 var(--s-12); min-height: 28px; border-radius: 14px; background: var(--green-soft); color: var(--green-deep); font-weight: 600; font-size: var(--fs-12); }

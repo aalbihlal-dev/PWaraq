@@ -69,4 +69,4 @@ html, body { overflow: hidden; }
 ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--muted) 40%, var(--canvas)); border-radius: 8px; border: 2px solid var(--canvas); }
 ::-webkit-scrollbar-thumb:hover { background: var(--green); }
 @supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: var(--muted) var(--canvas); } }
-#app:has(> .rail) { display: grid; grid-template-rows: auto minmax(0, 1fr); } /* the title rail on top (desktop: with the window buttons) */
+html[data-desktop] #app:has(> .titlebar) { display: grid; grid-template-rows: 40px minmax(0, 1fr); } /* desktop start screen: our title strip on top (open documents have the window buttons in the top row) */

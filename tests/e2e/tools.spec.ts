@@ -53,11 +53,14 @@ test('convert: compress a file with a large photo, save pages as PNG images', as
   const bigFile = info.outputPath('photo-report.pdf');
   fs.writeFileSync(bigFile, big);
   await open(page, bigFile);
-  await page.getByRole('button', { name: 'Convert' }).click();
-  const small = await saved(page, () => page.getByRole('button', { name: 'Save a smaller copy' }).click());
+  await page.getByRole('button', { name: 'More ways to save' }).click(); // Save ▾ → Save a smaller copy (Recommended / Smallest)
+  await page.getByRole('menuitem', { name: 'Save a smaller copy' }).click();
+  const small = await saved(page, () => page.getByRole('dialog', { name: 'Save a smaller copy' }).getByRole('button', { name: 'Save', exact: true }).click());
   expect(small.name).toBe('photo-report (smaller).pdf');
   expect(small.bytes.length).toBeLessThan(big.length / 2);
   expect(pdf(small.bytes).countPages()).toBe(2);
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Convert' }).click();
   const images = await saved(page, () => page.getByRole('button', { name: 'Save pages as PNG images' }).click());
   expect(Object.keys(unzip(images.bytes))).toEqual(['photo-report 001.png', 'photo-report 002.png']);
 });

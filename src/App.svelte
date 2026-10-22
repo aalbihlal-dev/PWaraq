@@ -199,13 +199,13 @@
     await show(c.bytes, c.name, c.modified);
   }
   // the file about to be saved must open again, with as many pages as the document has
-  async function save() {
+  async function save(as = false) {
     if (!doc) return;
     const d = doc, check = async (back: Uint8Array) => { if (await pool.tool<number>('verify', { bytes: back, password: d.password }) !== d.sizes.length) throw new Error('VERIFY'); };
     try {
       if (isDesktop) { // straight to the file; "Save as" when there is none or it cannot be written
         let path: string | null = null;
-        if (d.path) path = await writePath(d.path, d.bytes, check).then(() => d.path!, (e) => { if ((e as Error)?.message === 'VERIFY') throw e; return null; });
+        if (d.path && !as) path = await writePath(d.path, d.bytes, check).then(() => d.path!, (e) => { if ((e as Error)?.message === 'VERIFY') throw e; return null; });
         path ??= await saveAs(d.name, d.bytes, check);
         if (path) { openedPath = d.path = path; d.name = baseName(path); d.modified = false; }
       } else { await check(d.bytes); if (await saveFile(d.bytes, d.name)) d.modified = false; }
@@ -222,11 +222,11 @@
   <CrashReport entry={report[0]} restored={restoredWork} onclose={() => { crash.markSeen(report); report = []; }} />
 {/if}
 <Notice message={notice} slow={health?.kind === 'slow'} oncancel={() => pool.cancelAll()} />
-{#if isDesktop || doc || portfolio}<TitleBar flush={!!(doc || portfolio)} />{/if}{#if isDesktop}<PackPrompt />{/if}
+{#if isDesktop}<TitleBar flush={!!(doc || portfolio)} float={!!(doc || portfolio)} /><PackPrompt />{/if}
 <input bind:this={picker} type="file" accept="application/pdf,.pdf,.waraq,{CONVERTIBLE_ACCEPT}" hidden onchange={(e) => { openFile(e.currentTarget.files?.[0]); e.currentTarget.value = ''; }} />
 
 {#if doc}
-  <Workspace {pool} sizes={doc.sizes} name={doc.name} bytes={doc.bytes} modified={doc.modified} password={doc.password} onOpen={pick} onClose={close} onSave={save}
+  <Workspace {pool} sizes={doc.sizes} name={doc.name} bytes={doc.bytes} modified={doc.modified} password={doc.password} onOpen={pick} onClose={close} onSave={() => save()} onSaveAs={() => save(true)}
     onReplace={(bytes) => show(bytes, doc!.name, true)} />
 {:else if portfolio}
   <Portfolio {pool} {portfolio} onClose={close} />

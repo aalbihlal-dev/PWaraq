@@ -1,5 +1,5 @@
 <script lang="ts">
-  // Whole-document tools, one screen per task: page numbers and watermark (Edit → Whole document), compress and pages
+  // Whole-document tools, one screen per task: page numbers and watermark (Edit → Whole document), pages
   // as images (Convert), password protect and unlock (Protect). A preview of page 1 on the left, options on the right.
   // Changes to the document itself go to `onReplace` (then Save as usual); copies (smaller, protected, images) are saved
   // as new files and the open document stays as it is.
@@ -44,13 +44,7 @@
   });
 
   // Convert
-  let level = $state<'recommended' | 'small'>('recommended'), dpi = $state(150);
-  const shrink = () => run(t('compressing'), async () => {
-    const out = await pool.tool('compress', { bytes: bytes.slice(), level, current: password ?? '' });
-    if (out.length >= bytes.length) { note = t('alreadySmall'); return; }
-    note = `${mb(bytes.length)} → ${mb(out.length)}`;
-    await saveFile(out, `${base} (${t('smaller')}).pdf`);
-  });
+  let dpi = $state(150);
   const images = () => run(t('reading'), async () => {
     const files: Record<string, Uint8Array> = {};
     for (let page = 0; page < sizes.length; page++) {
@@ -130,11 +124,6 @@
       <span class="grow"></span>
       <button class="btn primary" onclick={stamp} disabled={!!busy || (!numbersOn && !(markOn && markText.trim()))}>{@html icon('check')}{t('applyAll')}</button>
     {:else if kind === 'convert'}
-      <h2>{t('compress')}</h2>
-      <p class="help">{t('compressHelp')}</p>
-      <label class="choice"><input type="radio" bind:group={level} value="recommended" />{t('compressRecommended')}</label>
-      <label class="choice"><input type="radio" bind:group={level} value="small" />{t('compressSmall')}</label>
-      <button class="btn primary" onclick={shrink} disabled={!!busy}>{@html icon('compress')}{t('compressSave')}</button>
       <h2>{t('images')}</h2>
       <label class="field"><span>{t('resolution')}</span>
         <select bind:value={dpi}><option value={96}>96 dpi</option><option value={150}>150 dpi</option><option value={300}>300 dpi</option></select></label>
@@ -190,7 +179,7 @@
   .field input[type='range'] { accent-color: var(--green); min-height: var(--control); }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-12); align-items: end; }
   .switch, .choice { display: flex; align-items: center; gap: var(--s-8); min-height: var(--control); font-weight: 600; }
-  .switch input, .choice input { flex: none; width: 20px; height: 20px; accent-color: var(--green); }
+  .switch input { flex: none; width: 20px; height: 20px; accent-color: var(--green); }
   .grow { flex: 1; }
   label.btn { cursor: pointer; } label.btn.disabled { opacity: 0.5; cursor: not-allowed; }
   .state { margin: 0; color: var(--muted); font-size: var(--fs-12); min-height: 18px; }
