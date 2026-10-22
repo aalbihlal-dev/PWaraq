@@ -262,7 +262,10 @@ export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number,
         (e.fit || hint ? [e.text.replace(/\s*\n\s*/g, ' ')] : wrap(width, e.text, e.w)).forEach((text, i) => { // a replaced line, or fit: one line, squeezed into the box when wider
           const l = { text, size: e.size, color: e.color, align: e.align, y: e.y + (BASELINE + i * LEADING) * e.size, x: e.align === 'right' ? e.x + e.w : e.align === 'center' ? e.x + e.w / 2 : e.x };
           // a replaced line is written in its own font (or the closest face) run by run; "bold" thickens a face without a bold cut
-          if (hint) ops += shaped!.draw({ ...l, bold: e.bold, hint, fit: e.w }, H); else lines.push({ ...l, bold: e.bold, ...(e.fit ? { max: e.w } : {}) });
+          if (hint) ops += shaped!.draw({ ...l, bold: e.bold, hint, fit: e.w }, H);
+          // new text through the same writer: a second one would embed the same Tajawal (MuPDF keeps one copy) and cut it to only its own letters
+          else if (shaped) ops += shaped.draw({ ...l, bold: e.bold, hint: { name: 'Tajawal' }, ...(e.fit ? { fit: e.w } : {}) }, H);
+          else lines.push({ ...l, bold: e.bold, ...(e.fit ? { max: e.w } : {}) });
         });
       }
       const tw = lines.length ? pageWriter(m, out, fonts!()) : null;
