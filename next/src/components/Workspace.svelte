@@ -15,11 +15,15 @@
   import Ocr from './Ocr.svelte';
   import Comment from './Comment.svelte';
   import { setTask } from '../lib/crashlog';
-  import { rail } from '../lib/rail.svelte';
-  import { onDestroy } from 'svelte';
+  import FileName from './FileName.svelte';
+  import SaveMenu from './SaveMenu.svelte';
+  import HelpMenu from './HelpMenu.svelte';
+  import { isDesktop } from '../lib/desktop';
+  import { view } from '../lib/device.svelte';
+  import MoreMenu from './MoreMenu.svelte';
 
-  let { pool, sizes, name, bytes, modified, password, onOpen, onClose, onSave, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; bytes: Uint8Array; modified: boolean; password?: string;
-    onOpen: () => void; onClose: () => void; onSave: () => void; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
+  let { pool, sizes, name, bytes, modified, password, onOpen, onClose, onSave, onSaveAs, onReplace }: { pool: EnginePool; sizes: { w: number; h: number }[]; name: string; bytes: Uint8Array; modified: boolean; password?: string;
+    onOpen: () => void; onClose: () => void; onSave: () => void; onSaveAs: () => void; onReplace: (bytes: Uint8Array) => Promise<void> } = $props();
   let mode = $state<'view' | 'organize' | 'edit' | 'sign' | 'convert' | 'protect' | 'redact' | 'forms' | 'ocr' | 'comment'>('view'), editScope = $state<'page' | 'document'>('page'), organize = $state<Organize>(), organized = $state(false), comment = $state<Comment>(), commented = $state(false), applying = $state(false);
   // leaving Organize applies its changes: the document is rebuilt and opened again in View
   async function task_(next: Key) {
@@ -37,20 +41,22 @@
     try { await onReplace(await pool.build({ items: sizes.map((_, i) => (i === editPage - 1 ? { doc: r.doc, page: 0 } : { doc: 0, page: i })) })); }
     finally { applying = false; }
   }
-  async function save() {
+  async function save(as = false) {
     if ((mode === 'edit' && editScope === 'page') || mode === 'sign') return; // the editor / signing mode saves its page first (Save page)
     if (mode === 'organize' && organized && organize) { applying = true; try { await onReplace(await organize.build()); } catch { alert(t('toolFailed')); return; } finally { applying = false; } }
     if (mode === 'comment' && commented && comment) { applying = true; try { await onReplace(await comment.build()); } catch { alert(t('toolFailed')); return; } finally { applying = false; } }
-    onSave();
+    if (as) onSaveAs(); else onSave();
   }
-  $effect(() => { rail.name = name; rail.modified = modified || organized || commented; });
-  onDestroy(() => { rail.name = ''; rail.modified = false; });
   let viewer = $state() as Viewer;
   let current = $state(1);
   let showThumbs = $state(true);
   let pageInput = $state('1');
   $effect(() => { pageInput = String(current); });
   const tasks: Key[] = ['view', 'organize', 'edit', 'convert', 'sign', 'protect', 'redact', 'forms', 'ocr', 'comment'];
+  // narrow windows: the four rarest tasks go under "More ▾" (the desktop app needs room for its window buttons)
+  let width = $state(1366), moreOpen = $state(false), taskOpen = $state(false);
+  const compact = $derived(width < (isDesktop ? 1360 : 1240)), shown = $derived(compact ? tasks.slice(0, 6) : tasks), hidden = $derived(compact ? tasks.slice(6) : []);
+  const pending = $derived(organized || commented);
 
   // Find: every page is searched in the background (heavy pages take seconds); matches appear as they come in.
   let findOpen = $state(false), query = $state(''), hits = $state<{ page: number; rects: number[][] }[]>([]), active = $state(0), searching = $state(false);
@@ -81,22 +87,66 @@
   function go() { const n = Math.min(sizes.length, Math.max(1, Number(pageInput) || 1)); viewer.goTo(n); }
 </script>
 
-<svelte:window onkeydown={onKey} />
+<svelte:window onkeydown={onKey} bind:innerWidth={width} />
 <div class="ws">
-  <header class="bar">
+  <header class="bar" data-tauri-drag-region>
     <img src="/brand-mark.svg" alt="" width="28" height="28" />
-    <nav class="tasks" aria-label="Tasks">
-      {#each tasks as task}
+    <FileName {name} fill={false} />
+    {#if modified || pending}<span class="mod" title={t('modified')}><span class="dot"></span><span class="sr">{t('modified')}</span></span>{/if}
+    {#if view.phone}
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+    <nav class="tasks phone" aria-label={t('tasksMenu')} onfocusout={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) taskOpen = false; }} onkeydown={(e) => { if (e.key === 'Escape') taskOpen = false; }}>
+      <button class="task on" aria-expanded={taskOpen} aria-haspopup="menu" disabled={applying} onclick={() => (taskOpen = !taskOpen)}>{t(mode)} ▾</button>
+      {#if taskOpen}
+        <div class="moremenu" role="menu">
+          {#each tasks as task}
+            <button class="task" class:on={task === mode} role="menuitem" disabled={applying} onclick={() => { taskOpen = false; if (task === 'edit' && mode !== 'edit') editPage = current; task_(task); }}>{t(task)}</button>
+          {/each}
+        </div>
+      {/if}
+    </nav>
+    {:else}
+    <nav class="tasks" aria-label={t('tasksMenu')}>
+      {#each shown as task}
         <button class="task" class:on={task === mode} disabled={applying} onclick={() => { if (task === 'edit' && mode !== 'edit') editPage = current; task_(task); }}>{t(task)}</button>
       {/each}
+      {#if hidden.length}
+        <span class="morewrap" onfocusout={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) moreOpen = false; }} onkeydown={(e) => { if (e.key === 'Escape') moreOpen = false; }} role="presentation">
+          <button class="task" class:on={hidden.includes(mode as Key)} aria-expanded={moreOpen} aria-haspopup="menu" disabled={applying} onclick={() => (moreOpen = !moreOpen)}>{t('moreTasks')} ▾</button>
+          {#if moreOpen}
+            <div class="moremenu" role="menu">
+              {#each hidden as task}
+                <button class="task" class:on={task === mode} role="menuitem" disabled={applying} onclick={() => { moreOpen = false; task_(task); }}>{t(task)}</button>
+              {/each}
+            </div>
+          {/if}
+        </span>
+      {/if}
     </nav>
+    {/if}
+    <span class="grow" data-tauri-drag-region></span>
+    {#if view.phone}
     <span class="end">
-      <button class="btn" class:primary={modified} onclick={save} disabled={applying || (mode === 'edit' && editScope === 'page') || mode === 'sign'}>{@html icon('download')}{t('save')}</button>
+      <SaveMenu {pool} {bytes} {name} {password} compact disabled={applying} primary={modified} saveOff={(mode === 'edit' && editScope === 'page') || mode === 'sign'} canShrink={!pending && mode !== 'sign' && !(mode === 'edit' && editScope === 'page')}
+        onSave={() => save()} onSaveAs={() => save(true)} />
+      <MoreMenu>
+        <button class="btn" onclick={onOpen}>{@html icon('upload')}{t('openShort')}</button>
+        <button class="btn" onclick={onClose}>{@html icon('close')}{t('close')}</button>
+        <ThemeButton />
+        <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
+      </MoreMenu>
+    </span>
+    {:else}
+    <span class="end">
+      <SaveMenu {pool} {bytes} {name} {password} disabled={applying} primary={modified} saveOff={(mode === 'edit' && editScope === 'page') || mode === 'sign'} canShrink={!pending && mode !== 'sign' && !(mode === 'edit' && editScope === 'page')}
+        onSave={() => save()} onSaveAs={() => save(true)} />
       <button class="btn" onclick={onOpen} title={t('openShort')} aria-label={t('openShort')}>{@html icon('upload')}<span class="lbl">{t('openShort')}</span></button>
       <button class="btn" onclick={onClose} title={t('close')} aria-label={t('close')}>{@html icon('close')}<span class="lbl">{t('close')}</span></button>
       <ThemeButton />
+      <HelpMenu />
       <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
     </span>
+    {/if}
   </header>
   {#if mode === 'edit' || mode === 'convert' || mode === 'protect'}
   <div class="orgwrap" class:scoped={mode === 'edit'}>
@@ -181,12 +231,19 @@
   .scope button { min-height: var(--control); padding: 0 var(--s-16); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--surface); font-weight: 600; color: var(--muted); }
   .scope button.on { background: var(--green-soft); border-color: var(--green); color: var(--ink); }
   .applying { position: absolute; inset: 0; z-index: 2; margin: 0; display: grid; place-items: center; background: var(--veil); font-size: var(--fs-16); font-weight: 600; }
-  .bar { display: flex; align-items: center; gap: var(--s-12); padding: var(--s-8) var(--s-16); background: var(--surface); border-bottom: 1px solid var(--line); min-width: 0; }
-  .tasks { display: flex; flex: 0 0.001 auto; gap: var(--s-8); margin-inline: auto; overflow-x: auto; }
+  .bar { display: flex; align-items: center; gap: var(--s-8); padding: var(--s-8) var(--s-16); background: var(--surface); border-bottom: 1px solid var(--line); min-width: 0; }
+  :global(html[data-desktop]) .bar { padding-right: 156px; } /* room for the window buttons in the corner */
+  .grow { flex: 1 1 0; min-width: 0; align-self: stretch; }
+  .mod { display: flex; flex: none; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); }
+  .tasks { display: flex; flex: 0 0 auto; gap: var(--s-8); margin-inline-start: var(--s-8); }
+  .morewrap { position: relative; display: flex; }
+  .moremenu { position: absolute; z-index: 30; top: calc(100% + var(--s-8)); inset-inline-start: 0; display: grid; gap: var(--s-8); min-width: 160px; padding: var(--s-8); border: 1px solid var(--line); border-radius: var(--r-12); background: var(--surface); box-shadow: var(--shadow); }
+  .moremenu .task { text-align: start; }
   .task { min-height: var(--control); padding: 0 var(--s-12); border: 0; border-radius: var(--r-8); background: none; color: var(--muted); font-weight: 600; white-space: nowrap; }
   .task.on { background: var(--green-soft); color: var(--ink); box-shadow: inset 0 -2px 0 var(--green); }
   .task:disabled { opacity: .55; cursor: default; }
-  @media (max-width: 1200px) { .bar { gap: var(--s-8); } .task { padding: 0 var(--s-8); } .lbl { display: none; } } /* narrow windows: tighter task buttons, Open and Close as icons (still 36 px high, 8 px apart) */
+  @media (max-width: 1500px) { .task { padding: 0 var(--s-8); } .lbl { display: none; } } /* tighter task buttons, Open and Close as icons (still 36 px, 8 px apart) */
   .end { display: flex; gap: var(--s-8); }
   .tools { display: flex; align-items: center; gap: var(--s-8); padding: var(--s-8) var(--s-16); background: var(--surface); border-bottom: 1px solid var(--line); }
   .sep { width: 1px; height: 24px; background: var(--line); }
@@ -198,5 +255,8 @@
   .body { display: grid; grid-template-columns: 168px 1fr; min-height: 0; }
   .body.nothumbs { grid-template-columns: 1fr; }
   main { min-width: 0; min-height: 0; }
-  @media (max-width: 720px) { .tasks { display: none; } .body { grid-template-columns: 1fr; } .body :global(.thumbs) { display: none; } }
+  @media (max-width: 720px) { .body { grid-template-columns: 1fr; } .body :global(.thumbs) { display: none; } }
+  @media (max-width: 600px) { .bar { gap: var(--s-8); padding-inline: var(--s-12); } .bar > img { flex: none; } .tools { flex-wrap: wrap; gap: var(--s-8); padding-inline: var(--s-12); } .find { margin-inline-start: 0; } .find input { width: 140px; } }
+  .tasks.phone { position: relative; margin-inline-start: 0; }
+  .tasks.phone > .task { background: var(--green-soft); }
 </style>

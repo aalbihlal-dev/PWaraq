@@ -79,3 +79,14 @@ test('replacing a line of a dense Type 1 paragraph takes nothing from the line a
   const out = editPage(m, new m.PDFDocument(bytes), 0, [edit], [], () => withStore(), false, store), after = new Set(pageObjects(m.Document.openDocument(out.saveToBuffer('').asUint8Array().slice(), 'application/pdf').loadPage(0)).lines.map((x) => x.text));
   assert.deepEqual(lines.filter((x) => x !== l && !after.has(x.text)).map((x) => x.text), [], 'every other line reads as before');
 });
+
+test('one save that changes a line and adds new text: each keeps its own font (two writers each cut the one embedded Tajawal to their own letters)', async () => {
+  const fs = await import('node:fs'), { editPage, pageObjects, BASELINE } = await import('../../src/lib/engine/editpage.ts'), { store } = await import('./store.mjs');
+  const bytes = new Uint8Array(fs.readFileSync(new URL('./../fixtures/arabic/edge-arial.pdf', import.meta.url))), l = pageObjects(new m.PDFDocument(bytes).loadPage(0)).lines[0];
+  const changed = { kind: 'text', from: { x: l.x, y: l.y, w: l.w, h: l.h }, text: l.text + ' تجربة', size: l.size, color: [...l.color], bold: l.bold, align: 'right', x: l.x, y: l.base - BASELINE * l.size, w: l.w, h: l.h };
+  const added = { kind: 'text', text: 'مرحبا Waraq 2026', x: 60, y: 700, w: 273, h: 30, size: 16, color: [0, 0, 0], bold: false, align: 'right' };
+  const t = text(bytes_(editPage(m, new m.PDFDocument(bytes), 0, [changed, added], [], () => withStore(), false, store)));
+  assert.ok(t.includes('تجربة'), JSON.stringify(t));
+  for (const w of ['مرحبا', 'Waraq', '2026']) assert.ok(t.includes(w), `${w} missing in ${JSON.stringify(t)}`);
+});
+const bytes_ = (d) => d.saveToBuffer('garbage=compact').asUint8Array().slice();

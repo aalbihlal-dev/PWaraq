@@ -70,3 +70,37 @@ test('heavy CAD drawing: first page drawn with solid lines, zoom tile sharpens',
   await page.keyboard.up('Control');
   await expect(page.locator('canvas.tile:not([hidden])').first()).toBeAttached({ timeout: 30_000 });
 });
+
+// Smoke for the race (the page text still being read when the viewer is replaced). Could not force the null in this harness: passes with and without the guard.
+test('replacing the document while the viewer is still reading page text raises no error', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  // make the engine slow to read page text, so the viewer is replaced while it still waits for the text
+  await page.addInitScript(() => {
+    const post = Worker.prototype.postMessage as (...x: unknown[]) => void;
+    Worker.prototype.postMessage = function (this: Worker, ...a: unknown[]) {
+      if ((a[0] as { op?: string })?.op === 'text') setTimeout(() => post.apply(this, a), 1500); else post.apply(this, a);
+    } as typeof Worker.prototype.postMessage;
+  });
+  await open(page, path.join(import.meta.dirname, '..', 'fixtures', 'three.pdf'));
+  await page.getByRole('button', { name: 'Organize' }).click();
+  await page.locator('.cell').nth(1).click();
+  await page.keyboard.press('Delete');
+  await page.getByRole('button', { name: 'View' }).click(); // the changes are applied: a new viewer replaces the old one
+  await expect(page.locator('.page')).toHaveCount(2);
+  await page.waitForTimeout(4000);
+  expect(errors).toEqual([]);
+});
+
+test('recent: a file chosen through the file chooser asks to be chosen again (EN and AR), and the button opens the chooser', async ({ page }) => {
+  for (const [lang, msg, btn] of [['en', 'Choose this file again to reopen it.', 'Choose the file'], ['ar', 'اختر هذا الملف مرة أخرى لإعادة فتحه.', 'اختر الملف']]) {
+    await page.addInitScript((l) => localStorage.setItem('waraq-lang', l), lang);
+    await open(page, small);
+    await page.getByRole('button', { name: lang === 'en' ? 'Close' : 'إغلاق' }).first().click();
+    await page.locator('.recent .card').first().click();
+    await expect(page.getByRole('alert')).toHaveText(msg);
+    const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.getByRole('button', { name: btn }).click()]);
+    await chooser.setFiles(small);
+    await expect(page.locator('.page').first()).toBeVisible();
+  }
+});

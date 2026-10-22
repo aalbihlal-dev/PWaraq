@@ -5,6 +5,7 @@
   import { onMount, tick } from 'svelte';
   import type { EnginePool } from '../lib/engine/pool';
   import { t } from '../lib/i18n.svelte';
+  import { pinch, ctrlWheel } from '../lib/touch';
   import { cached, remember } from '../lib/engine/page-cache';
 
   let { pool, sizes, current = $bindable(1) }: { pool: EnginePool; sizes: { w: number; h: number }[]; current?: number } = $props();
@@ -79,6 +80,7 @@
     p.textLoaded = true;
     let lines: { x: number; y: number; w: number; h: number; text: string; rtl: boolean }[];
     try { lines = await pool.run({ op: 'text', page: n, priority: 3, key: 'text' + n, args: {} }); } catch { p.textLoaded = false; return; }
+    if (!p.text) return; // the viewer was replaced (another file opened) while the engine was reading
     const frag = document.createDocumentFragment();
     for (const l of lines) {
       const span = document.createElement('span'), size = l.h * 0.85;
@@ -149,11 +151,9 @@
   export function goTo(n: number) { const el = pages[n - 1]?.el; if (el) scroller.scrollTop += el.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 16; }
   export const zoomLabel = () => Math.round(scale * 100) + '%';
 
-  function onWheel(e: WheelEvent) {
-    if (!(e.ctrlKey || e.metaKey)) return;
-    e.preventDefault();
-    zoomTo(scale * Math.exp(-(e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY) * 0.0022), e.clientX, e.clientY);
-  }
+  // two fingers zoom the page around the middle between them (redrawn sharp when they lift); the browser's own zoom is cancelled
+  let scale0 = 1, frame = 0;
+  const pinched = { start: () => (scale0 = scale), change: (ratio: number, x: number, y: number) => { cancelAnimationFrame(frame); frame = requestAnimationFrame(() => zoomTo(scale0 * ratio, x, y)); } };
   // pan with the middle button or Space + drag
   let space = $state(false), drag: { x: number; y: number; l: number; t: number } | null = null;
   function onDown(e: PointerEvent) {
@@ -187,7 +187,7 @@
   });
 </script>
 
-<div class="scroller" bind:this={scroller} onwheel={onWheel} onpointerdown={onDown} onpointermove={onMove}
+<div class="scroller" use:pinch={pinched} style:touch-action={typeof zoom === 'number' ? 'pan-x pan-y' : 'pan-y'} bind:this={scroller} use:ctrlWheel={(f, x, y) => zoomTo(scale * f, x, y)} onpointerdown={onDown} onpointermove={onMove}
   onpointerup={() => (drag = null)} onscroll={() => schedule(120)} class:grab={space} role="document" aria-label={t('pages')}>
   {#each sizes as size, n}
     <div class="page" data-n={n} bind:this={pages[n].el} style:width="{px(size.w * scale)}px" style:height="{px(size.h * scale)}px"

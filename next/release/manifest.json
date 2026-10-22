@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0-dev",
+  "notes": "",
+  "pub_date": "2026-10-22T12:58:51.033Z",
+  "platforms": {
+    "windows-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUd2NrcUVpMEdjZ0ZNcDZwN1JzeWVtdHlhYmRZd0ZwdVpZZ1p2NVNWbTFnKzRWMVJCRWdOOWNQNFcwZGpWTnBja2RnTkZNMlVEZFJEalhkRUJiZnlhLzRkelF6eU9kUEFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkyNjczODEwCWZpbGU6V2FyYXFfMS4wLjAtZGV2X3g2NC1zZXR1cC5leGUJdmVyc2lvbjoxLjAuMC1kZXYKNHlzaFdSMC9SZUNTcEppOTVrdVJRN2ZXN0gyZG1MUFFrVnZvQkcyZ0ZaTTl1MXB1cGdyS3oxQk9UK3loSjZxd2NBSzNqR1dJQnFkU2gzY3h4NGpzRHc9PQo=",
+      "url": "https://www.pwaraq.com/downloads-1.0/Waraq_1.0.0-dev_x64-setup.exe",
+      "sha256": "b42971385608824fb18f89063814a31636428ab29d6fa2b1dfaf70dbf11d7ef3"
+    }
+  }
+}

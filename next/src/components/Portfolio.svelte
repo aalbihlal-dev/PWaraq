@@ -7,12 +7,16 @@
   import type { EnginePool } from '../lib/engine/pool';
   import { i18n, t, toggleLanguage } from '../lib/i18n.svelte';
   import ThemeButton from './ThemeButton.svelte';
+  import HelpMenu from './HelpMenu.svelte';
   import { icon } from '../lib/icons.js';
   import { addFiles, uid, seen, toItems, type Group, type GridItem } from '../lib/pages';
   import { build, plan, manifest, used, fileTitle, sectionsOf, withDefaults, type Portfolio, type Section } from '../lib/portfolio';
   import * as vault from '../lib/vault';
   import { setTask } from '../lib/crashlog';
-  import { rail } from '../lib/rail.svelte';
+  import FileName from './FileName.svelte';
+  import Sheet from './Sheet.svelte';
+  import MoreMenu from './MoreMenu.svelte';
+  import { view } from '../lib/device.svelte';
   import AutoText from './AutoText.svelte';
   import { pickFiles, saveFile, writePortfolio, readPortfolio, readPortfolioFile, remember } from '../lib/store';
   import { DESIGNS, PAPERS, COLOURS, type Paper } from '../lib/engine/designs';
@@ -25,7 +29,7 @@
   // svelte-ignore state_referenced_locally (one screen per opened portfolio)
   let p = $state(portfolio);
   const selected = new SvelteSet<string>();
-  let size = $state(140), busy = $state(''), savedAt = $state(0);
+  let size = $state(140), busy = $state(''), savedAt = $state(0), sheetOpen = $state(false);
   $effect(() => setTask('portfolio', [p.name, ...Object.values(p.files).map((f) => f.name)])); // for the crash log (names are replaced there)
   const layout = $derived(plan(p));
   const groups = $derived<Group[]>(p.sections.map((s) => ({ id: s.id, items: s.items, hidden: s.collapsed, locked: s.locked })));
@@ -73,8 +77,7 @@
   }
   const versionTime = (at: number) => new Date(at).toLocaleString(i18n.lang === 'ar' ? 'ar' : 'en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' });
   function flush() { clearTimeout(timer); const w = waiting; waiting = null; return w?.(); }
-  $effect(() => { rail.name = p.name; rail.modified = false; });
-  onDestroy(() => { flush(); rail.name = ''; });
+  onDestroy(flush);
 
   // files -> engine sources, written once into the portfolio's folder
   async function load(files: File[]) {
@@ -218,13 +221,15 @@
   onchange={(e) => { const f = [...(e.currentTarget.files ?? [])]; e.currentTarget.value = ''; if (f.length) onPicked(f); }} />
 
 <div class="pf">
-  <header class="bar">
+  <header class="bar" data-tauri-drag-region>
     <img src="/brand-mark.svg" alt="" width="28" height="28" />
-    <span class="chip">{@html icon('library')}{t('portfolio')}</span>
-    <button class="btn" onclick={() => choose(true, addSections)} disabled={!!busy}>{@html icon('plus')}{t('addSection')}</button>
+    {#if !view.phone}<span class="chip">{@html icon('library')}{t('portfolio')}</span>{/if}
+    <FileName name={p.name} fill={view.phone} />
+    {#if !view.phone}<button class="btn" onclick={() => choose(true, addSections)} disabled={!!busy}>{@html icon('plus')}{t('addSection')}</button>{/if}
     <span class="end">
       <button class="btn icon" onclick={undo} disabled={!canUndo} title={t('undo')} aria-label={t('undo')}>{@html icon('undo')}</button>
-      <button class="btn icon" onclick={redo} disabled={!canRedo} title={t('redo')} aria-label={t('redo')}><span class="flip">{@html icon('undo')}</span></button>
+      {#snippet redoBtn()}<button class="btn icon" onclick={redo} disabled={!canRedo} title={t('redo')} aria-label={t('redo')}><span class="flip">{@html icon('undo')}</span></button>{/snippet}
+      {#snippet versionsBtn()}
       <span class="versions">
         <button class="btn icon" onclick={openVersions} aria-expanded={showVersions} title={t('previousVersions')} aria-label={t('previousVersions')}>{@html icon('repair')}</button>
         {#if showVersions}
@@ -234,9 +239,17 @@
           </div>
         {/if}
       </span>
-      <button class="btn" onclick={async () => { await flush(); onClose(); }}>{@html icon('close')}{t('close')}</button>
-      <ThemeButton />
-      <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
+      {/snippet}
+      {#snippet closeBtn(label: boolean)}<button class="btn" class:icon={!label} onclick={async () => { await flush(); onClose(); }} title={t('close')} aria-label={t('close')}>{@html icon('close')}{#if label}{t('close')}{/if}</button>{/snippet}
+      {#if view.phone}
+        {@render closeBtn(false)}
+        <MoreMenu>{@render redoBtn()}{@render versionsBtn()}<ThemeButton /><HelpMenu /><button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button></MoreMenu>
+      {:else}
+        {@render redoBtn()}{@render versionsBtn()}{@render closeBtn(true)}
+        <ThemeButton />
+        <HelpMenu />
+        <button class="btn icon" onclick={toggleLanguage} title={t('language')} aria-label={t('language')}>{@html icon('language')}</button>
+      {/if}
     </span>
   </header>
 
@@ -245,7 +258,7 @@
   {:else}
   <div class="body" style="--acc:{p.options.color}">
     {#if p.sections.length}
-      <PageGrid {pool} {groups} {selected} {size} number={label} onchange={gridChange} oninsert={addPages}
+      <PageGrid {pool} {groups} {selected} bind:size min={view.phone ? 64 : 96} number={label} onchange={gridChange} oninsert={addPages}
         onfiles={(files, section, index) => run(() => insertPages(files, section, index))} onopen={(it) => (editing = it)}>
         {#snippet header(g, gi)}
           {@const s = p.sections[gi]}
@@ -290,9 +303,9 @@
             {#if s.collapsed}<span class="hiddenpages num">{s.items.length} {t('pagesCount')} · {t('hiddenPages')}</span>{/if}
             <span class="end">
               {#if !s.locked}
-              <button class="btn" class:on={s.divider} aria-pressed={s.divider} onclick={() => change(() => (s.divider = !s.divider))}>{@html icon('bookmarks')}{t('divider')}</button>
-              <button class="btn" onclick={() => addPages(s.id, s.items.length)} disabled={!!busy}>{@html icon('images')}{t('addPages')}</button>
-              {#if s.file}<button class="btn" onclick={() => replace(s)} disabled={!!busy}>{@html icon('reverse')}{t('replace')}</button>{/if}
+              <button class="btn" class:on={s.divider} aria-pressed={s.divider} onclick={() => change(() => (s.divider = !s.divider))} title={t('divider')}>{@html icon('bookmarks')}<span class="lbl">{t('divider')}</span></button>
+              <button class="btn" onclick={() => addPages(s.id, s.items.length)} disabled={!!busy} title={t('addPages')}>{@html icon('images')}<span class="lbl">{t('addPages')}</span></button>
+              {#if s.file}<button class="btn" onclick={() => replace(s)} disabled={!!busy} title={t('replace')}>{@html icon('reverse')}<span class="lbl">{t('replace')}</span></button>{/if}
               {/if}
               <button class="btn icon" class:on={s.locked} aria-pressed={!!s.locked} onclick={() => (s.locked = !s.locked)} title={s.locked ? t('unlockSection') : t('lockSection')} aria-label={s.locked ? t('unlockSection') : t('lockSection')}>{@html icon(s.locked ? 'lock' : 'unlock')}</button>
               <button class="btn icon" onclick={() => shift(gi, -1)} disabled={gi === 0} title={t('moveUp')} aria-label={t('moveUp')}>{@html icon('chevron-up')}</button>
@@ -331,7 +344,12 @@
       </button>
     {/if}
 
-    <aside class="side" aria-label={t('options')}>
+    <Sheet label={t('options')} bind:open={sheetOpen}>
+      {#snippet bar()}
+        <button class="btn" onclick={() => choose(true, addSections)} disabled={!!busy}>{@html icon('plus')}{t('addFileShort')}</button>
+        <button class="btn primary" onclick={exportPdf} disabled={!!busy || !layout.slots.length}>{@html icon('download')}{t('exportPdf')}</button>
+        <button class="btn icon" onclick={saveCopy} disabled={!!busy} title={t('saveWaraq')} aria-label={t('saveWaraq')}>{@html icon('library')}</button>
+      {/snippet}
       <label class="field"><span>{t('portfolioName')}</span><AutoText maxLines={8} bind:value={p.name} label={t('portfolioName')} /></label>
 
       <section class="group" aria-label={t('page')}>
@@ -437,16 +455,19 @@
         <label class="switch"><input type="checkbox" bind:checked={p.options.bookmarks} />{t('bookmarks')}</label>
       </section>
 
-      <label class="field"><span>{t('thumbSize')}</span><input type="range" min="96" max="240" step="8" bind:value={size} /></label>
+      <label class="field"><span>{t('thumbSize')}</span><input type="range" min={view.phone ? 64 : 96} max="240" step="8" bind:value={size} /></label>
       <p class="state num" aria-live="polite">{busy || (savedAt ? `${t('saved')} · ${layout.slots.length} ${t('pagesCount')}` : '')}</p>
+      {#if !view.narrow}
       <button class="btn primary" onclick={exportPdf} disabled={!!busy || !layout.slots.length}>{@html icon('download')}{t('exportPdf')}</button>
       <button class="btn" onclick={saveCopy} disabled={!!busy}>{@html icon('library')}{t('saveWaraq')}</button>
-    </aside>
+      {/if}
+    </Sheet>
   </div>
   {/if}
 </div>
 
 <style>
+  :global(html[data-desktop]) .bar { padding-right: 156px; } /* room for the window buttons in the corner */
   .pf { height: 100%; display: grid; grid-template-rows: auto 1fr; }
   .bar { display: flex; align-items: center; gap: var(--s-12); padding: var(--s-8) var(--s-16); background: var(--surface); border-bottom: 1px solid var(--line); min-width: 0; }
   .chip { display: inline-flex; align-items: center; gap: var(--s-8); padding: 0 var(--s-12); min-height: 28px; border-radius: 14px; background: var(--green-soft); color: var(--green-deep); font-weight: 600; font-size: var(--fs-12); }
@@ -457,7 +478,6 @@
   .end { display: flex; gap: var(--s-8); margin-inline-start: auto; align-items: center; }
   .flip { display: grid; transform: scaleX(-1); }
   .body { display: grid; grid-template-columns: 1fr 300px; min-height: 0; }
-  .side { display: flex; flex-direction: column; gap: var(--s-16); padding: var(--s-16); background: var(--surface); border-inline-start: 1px solid var(--line); overflow-y: auto; }
   .field { display: grid; gap: var(--s-8); font-weight: 600; }
   .field select { min-height: var(--control); padding: 0 var(--s-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--paper); font-weight: 400; }
   .field input[type='range'] { accent-color: var(--green); min-height: var(--control); }
@@ -580,5 +600,8 @@
   .mini.photo-top strong { margin-top: 150px; } .mini.photo-top::before { display: none; }
   .mini.photo-full { background: linear-gradient(color-mix(in srgb, var(--acc) 62%, transparent), color-mix(in srgb, var(--acc) 62%, transparent)), var(--photo) center / cover; border: 0; }
   .mini.photo-full strong, .mini.photo-full small, .mini.photo-full .names { position: relative; color: #fff; } .mini.photo-full::before { display: none; }
-  @media (max-width: 900px) { .body { grid-template-columns: 1fr; grid-template-rows: 1fr auto; } .side { max-height: 45vh; border-inline-start: 0; border-top: 1px solid var(--line); } }
+  @media (max-width: 820px) { .body { grid-template-columns: 1fr; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); } } /* the options are a bottom sheet here (Sheet.svelte), floating over the pages */
+  @media (max-width: 600px) { .titlebox { flex-basis: 100%; } .sec .end .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } .sec .end .btn:not(.icon) { width: var(--control); padding: 0; } } /* icons only on phones (names stay as tooltips and for screen readers) */
+  @media (max-width: 820px) { .sec .end { flex: 1 1 100%; flex-wrap: wrap; margin-inline-start: 0; } .titlebox { flex-basis: 140px; } }
+  @media (max-width: 600px) { .bar { gap: var(--s-8); padding-inline: var(--s-12); } .bar > img { flex: none; } }
 </style>

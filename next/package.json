@@ -21,6 +21,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "build:site": "vite build --base /app/ --outDir dist-app",
     "build": "vite build && node -e \"require('fs').rmSync('dist/_test',{recursive:true,force:true})\"",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "preview": "vite preview",

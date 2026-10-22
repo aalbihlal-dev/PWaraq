@@ -1,8 +1,8 @@
 Waraq 1.0.0-dev — Windows installer (NSIS, per-user, no administrator rights)
 File:    Waraq_1.0.0-dev_x64-setup.exe
-Size:    29395077 bytes (28.0 MB)
-SHA-256: 4f3e89af6ba7fd355f1d5ebacaf28320993a24a3e1590361f027e5334a48e359
-Built:   2026-10-21T10:29:58.331Z
+Size:    30014671 bytes (28.6 MB)
+SHA-256: b42971385608824fb18f89063814a31636428ab29d6fa2b1dfaf70dbf11d7ef3
+Built:   2026-10-22 15:56 local, from waraq-next cec7ab1, signed for the updater
 
 Silent install:   Waraq_x_y_z_x64-setup.exe /S            (optional: /D=C:\path, last argument, no quotes)
 Silent uninstall: "%LOCALAPPDATA%\Waraq\uninstall.exe" /S

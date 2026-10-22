@@ -23,16 +23,15 @@ for (const [lang, theme] of COMBOS) test(`top bar: a 120-character file name kee
   await page.goto('/');
   await give(page, name, three());
   await expect(page.locator('.page').first()).toBeVisible({ timeout: 60_000 });
-  const bar = page.locator('.bar'), button = page.locator('.rail .name');
+  const bar = page.locator('.bar'), button = page.locator('.bar .name');
   await expect(button).toHaveAttribute('title', name);
-  const [b, n, tail, head] = await Promise.all([bar.boundingBox(), button.boundingBox(), page.locator('.rail .name .tail').boundingBox(), page.locator('.rail .name .head').boundingBox()]);
-  expect(n!.width).toBeLessThanOrEqual(1366); // on its own rail above the logo: the whole width
-  expect(n!.width).toBeGreaterThan(250);
-  expect(n!.y + n!.height).toBeLessThanOrEqual((await bar.boundingBox())!.y + 1); // the rail is above the logo row
-  expect(n!.height).toBeGreaterThanOrEqual(36 - 1);
+  const [b, n, tail, head] = await Promise.all([bar.boundingBox(), button.boundingBox(), page.locator('.bar .name .tail').boundingBox(), page.locator('.bar .name .head').boundingBox()]);
+  expect(n!.width).toBeLessThanOrEqual(242); // the title is at most about 240 px, right after the logo
+  expect(n!.width).toBeGreaterThan(120);
+  expect(n!.height).toBeGreaterThanOrEqual(35.5);
   expect(tail!.x).toBeGreaterThanOrEqual(n!.x - 1); expect(tail!.x + tail!.width).toBeLessThanOrEqual(n!.x + n!.width + 1); // the end is inside the button
-  expect(await page.locator('.rail .name .tail').innerText()).toMatch(/\.pdf$/);
-  expect(n!.x).toBeGreaterThanOrEqual(0); // the name has the whole rail (the middle only gives way when it really does not fit)
+  expect(await page.locator('.bar .name .tail').innerText()).toMatch(/\.pdf$/);
+  expect(await page.locator('.bar .name .head').evaluate((e) => e.scrollWidth > e.clientWidth)).toBe(true); // the middle is what gives way
   expect(head!.width).toBeGreaterThan(40);
   // the whole bar fits: nothing scrolls sideways, all ten tasks and the buttons are in view
   expect(await bar.evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(true);
@@ -50,7 +49,7 @@ for (const [lang, theme] of COMBOS) test(`top bar: a 120-character file name kee
   if (lang === 'en' && theme === 'light') { // a short name is not split
     await page.getByRole('button', { name: 'Close' }).click();
     await give(page, 'short.pdf', three());
-    await expect(page.locator('.rail .name .tail')).toHaveText('');
+    await expect(page.locator('.bar .name .tail')).toHaveText('');
   }
 });
 
@@ -108,9 +107,9 @@ for (const [lang, theme] of COMBOS) test(`portfolio: long names and titles are f
   await page.screenshot({ path: info.outputPath(`portfolio-long-${lang}-${theme}.png`) });
 });
 
-// The title rail shows any name whole somewhere (visible, tooltip, popover); Row 2 stays complete at 1366 and 1024 wide.
+// The top row shows any name whole somewhere (visible, tooltip, popover); Row 2 stays complete at 1366 and 1024 wide.
 const NAMES = [EN120, AR120.slice(0, 90 - 4) + '.pdf', 'تقرير (final) 2026.pdf'];
-for (const [w, h] of [[1366, 768], [1024, 700]]) for (const lang of ['en', 'ar']) test(`title rail: long, Arabic and mixed names; row 2 complete (${w}x${h}, ${lang})`, async ({ page }, info) => {
+for (const [w, h] of [[1366, 768], [1024, 700]]) for (const lang of ['en', 'ar']) test(`top row: long, Arabic and mixed names; every task reachable (${w}x${h}, ${lang})`, async ({ page }, info) => {
   test.setTimeout(180_000);
   await page.setViewportSize({ width: w, height: h });
   await page.addInitScript((l) => localStorage.setItem('waraq-lang', l), lang);
@@ -118,13 +117,15 @@ for (const [w, h] of [[1366, 768], [1024, 700]]) for (const lang of ['en', 'ar']
   for (const name of NAMES) {
     await give(page, name, three());
     await expect(page.locator('.page').first()).toBeVisible({ timeout: 60_000 });
-    await expect(page.locator('.rail .name')).toHaveAttribute('title', name);
-    await page.locator('.rail .name').click();
+    await expect(page.locator('.bar .name')).toHaveAttribute('title', name);
+    await page.locator('.bar .name').click();
     await expect(page.getByRole('dialog')).toContainText(name);
     await page.keyboard.press('Escape');
     for (const btn of await page.locator('.bar button').all()) { const r = (await btn.boundingBox())!; expect(r.height).toBeGreaterThanOrEqual(35.5); expect(r.x).toBeGreaterThanOrEqual(0); expect(r.x + r.width).toBeLessThanOrEqual(w); }
-    expect(await page.locator('.bar .tasks').evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(true); // all ten tasks, no sideways scroll
-    await page.screenshot({ path: info.outputPath(`rail-${w}-${lang}-${NAMES.indexOf(name)}.png`), clip: { x: 0, y: 0, width: w, height: 140 } });
+    expect(await page.locator('.bar').evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(true); // nothing scrolls sideways
+    const tasks = await page.locator('.bar .tasks .task').count(), more = await page.getByRole('button', { name: /^(More|المزيد) ▾$/ }).count();
+    if (more) { expect(tasks).toBe(7); await page.getByRole('button', { name: /^(More|المزيد) ▾$/ }).click(); expect(await page.getByRole('menuitem').count()).toBe(4); await page.keyboard.press('Escape'); } else expect(tasks).toBe(10); // all ten, or six + More with four inside
+    await page.screenshot({ path: info.outputPath(`toprow-${w}-${lang}-${NAMES.indexOf(name)}.png`), clip: { x: 0, y: 0, width: w, height: 140 } });
     await page.getByRole('button', { name: lang === 'ar' ? 'إغلاق' : 'Close' }).click();
   }
 });
