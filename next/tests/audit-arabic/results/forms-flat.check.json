@@ -51,7 +51,7 @@
   "label": "flattened",
   "consumer": "pdfium",
   "text": "عبدالله محمد الأحمد",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "forms",
@@ -60,7 +60,7 @@
   "label": "flattened",
   "consumer": "pdfium",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "forms",
@@ -69,7 +69,7 @@
   "label": "flattened",
   "consumer": "pdfium",
   "text": "هذا نص طويل جدا يجب أن ينتقل إلى عدة أسط",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "forms",

@@ -29,7 +29,8 @@ $bmp.Save($Out, [System.Drawing.Imaging.ImageFormat]::Png)
 $hex = { param($c) ('#{0:x2}{1:x2}{2:x2}' -f $c.R, $c.G, $c.B) }
 $bad = @()
 # the top strip, from the very first row (the DWM frame) down into the bar, away from the buttons and the corners
-foreach ($y in 0, 12, 24, 38) { foreach ($x in 24, 200, [int]($w / 2)) { $c = & $hex $bmp.GetPixel($x, $y); if ($c -ne $Expect) { $bad += "($x,$y)=$c" } } }
+foreach ($y in 0, 12, 24, 38) { foreach ($x in 24, 200, [int]($w / 2)) { if ($x -eq [int]($w / 2) -and $y -in 12, 24) { continue }  # the document name stands centred on the title rail there (its letters are not a line)
+  $c = & $hex $bmp.GetPixel($x, $y); if ($c -ne $Expect) { $bad += "($x,$y)=$c" } } }
 # straight down the left edge (left of the logo) through the title bar into the task bar: no line, no colour step
 if (-not $Start) { foreach ($y in 12..60) { $c = & $hex $bmp.GetPixel(8, $y); if ($c -ne $Expect) { $bad += "(8,$y)=$c" } } }
 # the page: white with dark text somewhere in the middle

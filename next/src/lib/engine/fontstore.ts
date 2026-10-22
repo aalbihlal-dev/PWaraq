@@ -49,6 +49,8 @@ export function createFace(hb: Harfbuzz, name: string, bytes: Uint8Array, o: { b
   try {
     const face = new hb.Face(new hb.Blob(bytes)), font = new hb.Font(face), cmap = new Set(face.collectUnicodes());
     if (!face.upem || !cmap.size) return null;
+    // a subset a producer cut down for its own text can carry only a glyph-index cmap ((1,0): code n = glyph n, no Unicode table): its codes are not letters, and 'W' would draw glyph 87
+    if (o.source === 'pdf') { const t = face.referenceTable('cmap'); if (t && t.length > 4) { const n = (t[2] << 8) | t[3]; let uni = false; for (let i = 0; i < n && 4 + i * 8 + 3 < t.length; i++) { const plat = (t[4 + i * 8] << 8) | t[5 + i * 8], enc = (t[6 + i * 8] << 8) | t[7 + i * 8]; if (plat === 0 || (plat === 3 && (enc === 1 || enc === 10))) uni = true; } if (!uni) return null; } }
     const shapes = face.getTableScriptTags('GSUB').includes('arab');
     return { name, bytes, face, font, upem: face.upem, bold: !!o.bold, italic: !!o.italic, source: o.source, shapes, cmap, has: (cp) => cmap.has(cp) };
   } catch { return null; }
@@ -139,7 +141,10 @@ export function writer(m: typeof MuPDF, store: Store, out: MuPDF.PDFDocument) {
     measure: (l: Line) => pieces(l).reduce((w, p) => w + p.width, 0),
     faceFor(l: Line) { const ps = pieces(l), ar = ps.find((p) => scriptOf(p.run.cs) === 'arab') ?? ps[0]; return ar ? { face: ar.face, missing: ar.missing, reason: ar.reason } : null; },
     draw(l: Line, h: number) {
-      const ps = pieces(l), width = ps.reduce((w, p) => w + p.width, 0), tz = l.fit && width > l.fit ? l.fit / width : 1;
+      let ps = pieces(l), width = ps.reduce((w, p) => w + p.width, 0);
+      // a line wider than its box gets a smaller font first (down to 70 %: letters keep their shape and the word gaps readers look for), horizontal scaling only for what is left
+      if (l.fit && width > l.fit) { l = { ...l, size: l.size * Math.max(0.7, l.fit / width) }; ps = pieces(l); width = ps.reduce((w, p) => w + p.width, 0); }
+      const tz = l.fit && width > l.fit ? l.fit / width : 1;
       let x = l.align === 'right' ? l.x - width * tz : l.align === 'center' ? l.x - (width * tz) / 2 : l.x, ops = '';
       const color = l.color.map(n).join(' ');
       for (const p of ps) {
@@ -171,7 +176,7 @@ export function writer(m: typeof MuPDF, store: Store, out: MuPDF.PDFDocument) {
     /** ToUnicode for every glyph used; the font programs cut down to the glyphs used when a subsetter is at hand. */
     finish() {
       for (const [face, e] of faces) {
-        e.ref.put('ToUnicode', out.addStream(toUnicode(e.used), {}));
+        e.ref.put('ToUnicode', out.addStream(toUnicode(e.used), {})); // Waraq-UCS: a joined pair stored reversed (see textpage.ts toUnicode)
         if (store.subset && face.source !== 'pdf') {
           const cut = store.subset(face.bytes, e.used.keys());
           if (cut?.length) { const fd = e.ref.get('DescendantFonts')?.get(0)?.get('FontDescriptor'); const ff = fd?.get('FontFile2'); if (ff?.isStream?.()) fd.put('FontFile2', out.addStream(cut, { Length1: cut.length })); }

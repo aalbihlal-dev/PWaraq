@@ -34,6 +34,7 @@ export type Own = Store;
  *  ligatures in Arabic; the spaces MuPDF invents before harakat and inside words are dropped, and the pieces MuPDF
  *  makes of one line (a font change, a number) are joined when they share a baseline. Size, colour and font come from
  *  the line's first Arabic letter (else its first letter), not from a leader dot or a digit in another font. */
+const fontKey = (name: string) => name.replace(/^[A-Z]{6}\+/, '').replace(/[-,_ ]?(Regular|Bold|Italic|Medium|Light|Black|Heavy|MT|PSMT)+$/i, '').toLowerCase().replace(/[^a-z]/g, '');
 const SPACE_GAP = 0.12; // of the size: a narrower gap is letter spacing (Noto Naskh in Edge), not a word break
 export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[] } {
   type Ch = { c: number; x0: number; x1: number; y: number; size: number; font: MuPDF.Font; color: number[] };
@@ -48,7 +49,19 @@ export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[
       const xs = [q[0], q[2], q[4], q[6]];
       cur.chars.push({ c: c.codePointAt(0)!, x0: Math.min(...xs), x1: Math.max(...xs), y: origin[1], size, font, color });
     },
-    endLine() { if (cur && flat && cur.chars.some((ch) => ch.c > 0x20)) raws.push(cur); cur = null; },
+    endLine() {
+      if (cur && flat && cur.chars.some((ch) => ch.c > 0x20)) {
+        // MuPDF lists what ends a right-to-left line (a full stop and its mark, at the left end) first: back to the end
+        const ls = cur.chars.filter((ch) => ch.c > 0x20 && !isMark(ch.c) && isRtl(ch.c));
+        if (ls.length > 1 && ls[0].x0 > ls[ls.length - 1].x0) {
+          const left = Math.min(...ls.map((ch) => ch.x0)); let k = 0;
+          while (k < cur.chars.length && (isMark(cur.chars[k].c) || /[\p{P}\p{S}]/u.test(String.fromCodePoint(cur.chars[k].c))) && cur.chars[k].x0 < left + 0.5) k++; // punctuation and marks only
+          if (k) cur.chars.push(...cur.chars.splice(0, k));
+        }
+        raws.push(cur);
+      }
+      cur = null;
+    },
   });
   st.destroy();
   // pieces of one line: same baseline (within a third of the size), no big gap between them
@@ -57,7 +70,10 @@ export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[
   for (const r of raws) {
     const size = r.chars.find((ch) => ch.c > 0x20)?.size ?? 10, last = merged[merged.length - 1];
     if (last && Math.abs(last.base - r.base) < size * 0.34 && (r.box.x - (last.box.x + last.box.w) < size * 0.5 && last.box.x - (r.box.x + r.box.w) < size * 0.5)) {
-      last.chars.push(...r.chars);
+      // pieces of one line are listed in the direction of their letters: right-to-left pieces, the right one first
+      const dirOf = (cs: Ch[]) => { const ls = cs.filter((ch) => ch.c > 0x20 && !isMark(ch.c)); return ls.length > 1 ? (ls[0].x0 > ls[ls.length - 1].x0 ? 'rtl' : 'ltr') : null; };
+      const rtlPieces = (dirOf(last.chars) ?? dirOf(r.chars)) === 'rtl', rightOfLast = r.box.x + r.box.w / 2 > last.box.x + last.box.w / 2; // the baselines differ by a hair: position decides which comes first
+      if (rtlPieces === rightOfLast) last.chars.unshift(...r.chars); else last.chars.push(...r.chars);
       const x0 = Math.min(last.box.x, r.box.x), y0 = Math.min(last.box.y, r.box.y), x1 = Math.max(last.box.x + last.box.w, r.box.x + r.box.w), y1 = Math.max(last.box.y + last.box.h, r.box.y + r.box.h);
       last.box = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
     } else merged.push(r);
@@ -70,39 +86,85 @@ export function pageObjects(page: MuPDF.Page): { lines: PageLine[]; images: Box[
     const full = r.chars.filter((ch) => ch.x1 - ch.x0 >= 0.05 && ch.c > 0x20 && !isMark(ch.c)), spaces = r.chars.filter((ch) => ch.c <= 0x20 && ch.x1 - ch.x0 >= 0.05);
     const zero = r.chars.filter((ch) => ch.x1 - ch.x0 < 0.05 && ch.c > 0x20 && !isMark(ch.c)), marks = r.chars.filter((ch) => isMark(ch.c));
     const members = new Map<Ch, Ch[]>(), tail = new Map<Ch, Ch[]>(), loose: Ch[] = []; // loose: a letter MuPDF gave no box (it stands at its own x)
+    // boxless line: most letters have no width (the advances went to invented spaces) — each letter then stands at its origin
+    const degenerate = zero.length > full.length * 0.4;
     // a ligature's host is a letter that joins to the next one (ح م ل ب…) or the alef of the Allah word; a letter that
     // never joins forward (ا د ذ ر ز و ء ة ى) cannot carry one — a boxless letter next to it stands on its own
     const NO_JOIN = new Set([0x627, 0x623, 0x625, 0x622, 0x62f, 0x630, 0x631, 0x632, 0x648, 0x624, 0x621, 0x629, 0x649, 0x671]);
-    const ligates = (host: number, z: number) => (host === 0x627 && (z === 0x644 || z === 0x647)) || (isRtl(host) && !NO_JOIN.has(host) && isRtl(z));
+    // a boxless letter belongs to the boxed letter it stands beside when the two read as a ligature: lam + alef (ا أ إ آ),
+    // the letters of the Allah word, or two joining letters (a font's own ligature such as حم). Which of the two MuPDF
+    // lists first depends on the producer's ToUnicode, so the pair is judged both ways round
+    const ALEF = new Set([0x627, 0x623, 0x625, 0x622]);
+    const lamAlef = (a: number, b: number) => (a === 0x644 && ALEF.has(b)) || (b === 0x644 && ALEF.has(a));
+    const allahLetter = (c: number) => c === 0x627 || c === 0x644 || c === 0x647;
+    const ligates = (f: Ch, z: Ch) => lamAlef(f.c, z.c) || (allahLetter(f.c) && allahLetter(z.c)) || (isRtl(f.c) && isRtl(z.c) && (!NO_JOIN.has(f.c) || !NO_JOIN.has(z.c)));
     for (const z of zero) {
-      const host = [full.find((f) => Math.abs(f.x1 - z.x0) < 0.06), full.find((f) => Math.abs(f.x0 - z.x0) < 0.06)].find((f) => f && ligates(f.c, z.c));
+      const atEnd = degenerate ? undefined : full.find((f) => Math.abs(f.x1 - z.x0) < 0.06), atStart = degenerate ? undefined : full.find((f) => Math.abs(f.x0 - z.x0) < 0.06);
+      const host = atEnd && ligates(atEnd, z) ? atEnd : atStart && ligates(atStart, z) ? atStart : undefined;
       if (host) members.set(host, [z, ...(members.get(host) ?? [])]); else loose.push(z);
     }
+    // a mark belongs to the Arabic letter it stands on. Producers differ: Word, LibreOffice and Waraq put the mark at its
+    // letter's left edge and list it after the letter (the mark of a kerned letter may lie a little outside its box); Edge
+    // prints Courier-like fonts with the mark at the right edge and lists it before. Adjacent letters share an edge, so the
+    // line's type is voted by the marks that match one edge only, then: type "left edge" → the letter listed before the
+    // mark when the mark lies within its box (a third of an em beyond on the left); type "right edge" → the letter listed
+    // after it, within its box (beyond on the right). On boxless lines (letters at their origins) the origin that matches
+    // exactly is the letter. A mark with no such letter goes to the nearest letter by edge. Punctuation and digits never
+    // carry a mark.
+    const hosts = [...full, ...loose].filter((h) => isRtl(h.c));
+    const index = new Map(r.chars.map((ch, i) => [ch, i])), pool = hosts.length ? hosts : [...full, ...loose];
+    const byList = [...pool].sort((a, b) => index.get(a)! - index.get(b)!);
+    const edge = (h: Ch, x: number) => Math.min(Math.abs(x - h.x0), Math.abs(x - h.x1));
+    let leftVotes = 0, rightVotes = 0;
     for (const mk of marks) {
-      const mid = (mk.x0 + mk.x1) / 2, host = loose.find((z) => Math.abs(z.x0 - mid) < 0.06) ?? full.find((f) => mid >= f.x0 - 0.01 && mid <= f.x1 + 0.01) ?? [...full, ...loose].sort((a, b) => Math.abs((a.x0 + a.x1) / 2 - mid) - Math.abs((b.x0 + b.x1) / 2 - mid))[0];
+      const x = (mk.x0 + mk.x1) / 2, exact = pool.filter((h) => edge(h, x) < 0.05);
+      if (exact.length === 1) { if (Math.abs(x - exact[0].x0) < 0.05) leftVotes++; else rightVotes++; }
+    }
+    const rightType = rightVotes > leftVotes + 1;
+    for (const mk of marks) {
+      const at = index.get(mk)!, x = (mk.x0 + mk.x1) / 2, p = [...byList].reverse().find((h) => index.get(h)! < at), n = byList.find((h) => index.get(h)! > at);
+      const exact = pool.filter((h) => edge(h, x) < 0.05), em = mk.size * 0.33;
+      let host: Ch | undefined;
+      if (degenerate && exact.length) host = exact.sort((a, b) => Math.abs(index.get(a)! - at) - Math.abs(index.get(b)! - at))[0];
+      else if (!rightType && p && x >= p.x0 - em && x <= p.x1 + 0.05) host = p;
+      else if (rightType && n && x >= n.x0 - 0.05 && x <= n.x1 + em) host = n;
+      if (!host) host = [...pool].sort((a, b) => Math.round(edge(a, x) * 4) - Math.round(edge(b, x) * 4) || Math.abs(index.get(a)! - at) - Math.abs(index.get(b)! - at))[0];
       if (host) tail.set(host, [...(tail.get(host) ?? []), mk]);
     }
-    const clusters: Ch[][] = [...[...full, ...loose].map((f) => [f, ...(members.get(f) ?? []), ...(tail.get(f) ?? [])]), ...spaces.map((sp) => [sp])]
-      .sort((a, b) => a[0].x0 - b[0].x0 || r.chars.indexOf(a[0]) - r.chars.indexOf(b[0]));
-    // a space MuPDF invented where letters merely stand apart: its box is the gap; a word break is wider
+    // the letters of one glyph in reading order: lam before its alef, the Allah word as written, otherwise as the producer's map
+    // stores them (the boxed letter first, the boxless ones after it) — Word and Edge list them reversed, which this undoes
+    const stored = (f: Ch) => {
+      const cl = [f, ...(members.get(f) ?? [])], cs = cl.map((ch) => ch.c);
+      if (cl.length === 2 && lamAlef(cs[0], cs[1])) return cs[0] === 0x644 ? cl : [cl[1], cl[0]];
+      if (cl.length === 4 && cs.every(allahLetter) && cs.filter((c) => c === 0x644).length === 2) { const lams = cl.filter((ch) => ch.c === 0x644); return [cl.find((ch) => ch.c === 0x627)!, lams[0], lams[1], cl.find((ch) => ch.c === 0x647)!]; }
+      return cl;
+    };
+    const key = (cl: Ch[]) => Math.min(...cl.filter((ch) => !isMark(ch.c)).map((ch) => ch.x0));
+    const clusters: Ch[][] = [...[...full, ...loose].map((f) => [...stored(f), ...(tail.get(f) ?? [])]), ...spaces.map((sp) => [sp])]
+      .sort((a, b) => (degenerate ? 0 : key(a) - key(b)) || index.get(a[0])! - index.get(b[0])!); // by the glyph's left edge (a cluster may start with a boxless letter); its marks do not count
+    // a space MuPDF invented: on a boxless line it is a letter's advance (its box runs from one letter's origin to the next's);
+    // elsewhere it fills a gap where the neighbours almost touch — a word break is wider
+    const origins = [...full, ...loose].flatMap((ch) => [ch.x0, ch.x1]), near = (a: number, b: number) => Math.abs(a - b) < 0.05; // letters' origins and box edges
     const kept = clusters.filter((cl, k) => {
       if (cl[0].c > 0x20) return true;
       const prev = clusters[k - 1], next = clusters[k + 1];
       if (!prev || !next || prev[0].c <= 0x20) return false;
+      if (degenerate) return !(origins.some((o) => near(o, cl[0].x0)) && origins.some((o) => near(o, cl[0].x1)));
       // the gap between the neighbours' glyphs decides; on an italic font the boxes lean into each other, so the space's own box does
       const gap = prev[0].font.isItalic() ? cl[0].x1 - cl[0].x0 : next[0].x0 - Math.max(...prev.map((ch) => ch.x1));
       return gap > prev[0].size * SPACE_GAP;
     });
-    let cs: number[];
-    if (zero.length > full.length * 0.4) {
-      // boxes MuPDF could not place (harakat lines in some fonts: the letters' advances went to invented spaces): its
-      // own reading order as it is — shortcut: spaces inside marked words stay, fix when MuPDF gives mark boxes
-      cs = r.chars.map((ch) => ch.c);
-    } else {
-      const atoms = kept.map((cl) => cl[0].c), { order } = logicalOrder(atoms, guessDirection(atoms, pageDir));
-      cs = order.flatMap((k) => kept[k].map((ch) => ch.c));
-    }
-    const text = cs.map((c) => String.fromCodePoint(c)).join('').normalize('NFKC').replace(/[​‌‍﻿]/g, '').replace(/\s+/g, ' ').trim(); // invisible joiners: pieces of letters
+    const atoms = kept.map((cl) => cl[0].c);
+    let order: number[];
+    const letterXs = kept.filter((cl) => cl[0].c > 0x20 && isRtl(cl[0].c)).map((cl) => cl[0].x0);
+    const listedLtr = letterXs.filter((x, i) => i && x > letterXs[i - 1]).length > letterXs.length / 2; // LibreOffice lists boxless lines left to right
+    if (degenerate && !listedLtr) {
+      order = [...kept.keys()]; // MuPDF lists boxless right-to-left pieces in reading order (overlapping, kerned glyphs make their positions unreliable)
+    } else order = logicalOrder(atoms, guessDirection(atoms, pageDir)).order;
+    const cs = order.flatMap((k) => kept[k].map((ch) => ch.c));
+    // invisible joiners (pieces of letters) go; kashida (tatweel) is justification, not text — except the Hijri year's هـ
+    const text = cs.map((c) => String.fromCodePoint(c)).join('').normalize('NFKC').replace(/[​‌‍﻿]/g, '')
+      .replace(/ـ+/g, (run, at, s) => (s[at - 1] === 'ه' && (at + run.length >= s.length || /[\s\p{P}]/u.test(s[at + run.length])) ? 'ـ' : '')).replace(/\s+/g, ' ').trim();
     if (!text) continue;
     const letters = r.chars.filter((ch) => ch.c > 0x20), lead = letters.find((ch) => isRtl(ch.c)) ?? letters[0];
     lines.push({ ...r.box, text, size: lead.size, base: lead.y, bold: lead.font.isBold() || /bold|black|heavy/i.test(lead.font.getName()), color: rgb(lead.color), font: fontName(lead.font), rtl: /[\u0590-\u08ff]/.test(text) });
@@ -154,14 +216,28 @@ export function editPage(m: typeof MuPDF, src: MuPDF.PDFDocument, index: number,
       // a band through the letters' middle (every glyph's box crosses it; the next lines' ascenders and descenders do
       // not) plus the harakat's own boxes, which sit above the band
       const from = e.from;
-      redactText.push({ x: from.x, y: from.y + from.h * 0.3, w: from.w, h: from.h * 0.4 });
+      // a little wider than the line's box: MuPDF's box of a glyph follows the font's /W, and a subset that lists a narrower width than the ink leaves the line's first letter
+      // standing just outside it (Edge's Arial Unicode MS, the Arabic 'طب' pair: the old first letter stayed under the new line)
+      const pad = e.size * 0.25;
+      // what is taken away stops short of any glyph of ANOTHER line it would touch (a descender of the line above, an ascender of the line below, a Type 1 mark's full-height box):
+      // those glyphs are the neighbours', so they are hard limits, down to a thin strip that still crosses this line's own letters
+      const base = e.y + BASELINE * e.size, mid = base - e.size * 0.3, above: Box[] = [], below: Box[] = [], marks: Box[] = [];
       const st = page.toStructuredText('preserve-whitespace');
       st.walk({ onChar(c, origin, _f, _s, q) {
-        if (!isMark(c.codePointAt(0)!) || origin[0] < from.x - 1 || origin[0] > from.x + from.w + 1 || origin[1] < from.y - 1 || origin[1] > from.y + from.h + 1) return;
-        const xs = [q[0], q[2], q[4], q[6]], ys = [q[1], q[3], q[5], q[7]];
-        redactText.push({ x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs) || 0.5, h: Math.max(...ys) - Math.min(...ys) || 0.5 });
+        const xs = [q[0], q[2], q[4], q[6]], ys = [q[1], q[3], q[5], q[7]], quad = { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs) || 0.5, h: Math.max(...ys) - Math.min(...ys) || 0.5 };
+        const cy = quad.y + quad.h / 2; // a glyph whose box centre lies outside this line's box belongs to another line (a mark's origin rides above its letter: it is this line's)
+        if ((cy < from.y || cy > from.y + from.h) && !isMark(c.codePointAt(0)!)) { if (c.trim()) (cy < from.y ? above : below).push(quad); return; }
+        if (isMark(c.codePointAt(0)!) && origin[0] >= from.x - 1 && origin[0] <= from.x + from.w + 1 && origin[1] >= from.y - 1 && origin[1] <= from.y + from.h + 1) marks.push(quad);
       } });
       st.destroy();
+      const limit = (b: Box, keep: number): Box => {
+        let top = b.y, bottom = b.y + b.h;
+        for (const n of above) if (n.x + n.w > b.x && n.x < b.x + b.w) top = Math.max(top, Math.min(n.y + n.h + 0.2, keep - 0.5));
+        for (const n of below) if (n.x + n.w > b.x && n.x < b.x + b.w) bottom = Math.min(bottom, Math.max(n.y - 0.2, keep + 0.5));
+        return { x: b.x, w: b.w, y: top, h: Math.max(0.5, bottom - top) };
+      };
+      redactText.push(limit({ x: from.x - pad, y: from.y + from.h * 0.3, w: from.w + 2 * pad, h: from.h * 0.4 }, mid));
+      for (const mk of marks) redactText.push(limit(mk, mk.y + mk.h / 2));
     }
   }
   const redact = (boxes: Box[], imageMethod: number, textMethod: number) => {

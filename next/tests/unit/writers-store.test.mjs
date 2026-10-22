@@ -52,3 +52,30 @@ test('forms: Arabic answers with harakat and Persian letters keep them, filled a
   assert.ok(a > b * 1.1, `${a} vs ${b}`);
   assert.ok(text(fillForm(m, blankForm, { [id]: PERSIAN }, true, withStore())).includes('پ'));
 });
+
+test('a line wider than its box gets a smaller font first (down to 70 %), horizontal scaling only for the rest', async () => {
+  const { writer } = await import('../../src/lib/engine/fontstore.ts');
+  const { store } = await import('./store.mjs'), doc = new m.PDFDocument(), w = writer(m, store, doc);
+  const line = { text: 'هذا نص عربي طويل يجب أن يدخل الصندوق', x: 400, y: 100, size: 20, color: [0, 0, 0], align: 'right' }, width = w.measure(line);
+  const size = (ops) => +/ Tf/.exec(ops).input.slice(0, /Tf/.exec(ops).index).trim().split(' ').pop(), tz = (ops) => +(/([\d.]+) Tz/.exec(ops)?.[1] ?? 100);
+  const mild = w.draw({ ...line, fit: width * 0.85 }, 200), hard = w.draw({ ...line, fit: width * 0.4 }, 200);
+  assert.ok(size(mild) < 20 && size(mild) >= 14 && tz(mild) === 100, 'a mild squeeze only shrinks the font');
+  assert.ok(Math.abs(size(hard) - 14) < 0.01 && tz(hard) < 100, 'a hard squeeze stops at 70 % and scales the rest');
+});
+
+test("a PDF's own subset with only a glyph-index cmap ((1,0), codes are glyph numbers) is not a face: Latin typed into its line would draw the wrong glyphs", async () => {
+  const fs = await import('node:fs'), { createFace } = await import('../../src/lib/engine/fontstore.ts'), { fontAt } = await import('../../src/lib/engine/ownfont.ts'), { pageObjects } = await import('../../src/lib/engine/editpage.ts'), { store } = await import('./store.mjs');
+  const page = new m.PDFDocument(new Uint8Array(fs.readFileSync(new URL('./../fixtures/arabic/libreoffice-sakkal-majalla.pdf', import.meta.url)))).loadPage(0), l = pageObjects(page).lines.find((x) => x.rtl);
+  const f = fontAt(page, { x: l.x, y: l.y, w: l.w, h: l.h });
+  assert.equal(createFace(store.hb, f.getName(), f.getBuffer().asUint8Array().slice(), { source: 'pdf' }), null);
+  assert.ok(createFace(store.hb, 'Tajawal', store.file('Tajawal-Regular.ttf'), { source: 'pdf' }), 'a font with a Unicode cmap is kept');
+});
+
+const realCorpus = (await import('node:fs')).existsSync(new URL('./../fixtures/arabic/real/real-cma-circular-frutiger-type1.pdf', import.meta.url)); // public PDFs, not in git: rebuilt by tools/arabic/make-corpus.mjs real
+test('replacing a line of a dense Type 1 paragraph takes nothing from the line above (its descenders and a mark box reach into the removal band)', { skip: !realCorpus && 'needs the real corpus (node tools/arabic/make-corpus.mjs real)' }, async () => {
+  const fs = await import('node:fs'), { editPage, pageObjects, BASELINE } = await import('../../src/lib/engine/editpage.ts'), { withStore } = await import('./store.mjs'), { store } = await import('./store.mjs');
+  const bytes = new Uint8Array(fs.readFileSync(new URL('./../fixtures/arabic/real/real-cma-circular-frutiger-type1.pdf', import.meta.url))), lines = pageObjects(new m.PDFDocument(bytes).loadPage(0)).lines, l = lines[6];
+  const edit = { kind: 'text', from: { x: l.x, y: l.y, w: l.w, h: l.h }, text: 'x', size: l.size, color: [...l.color], bold: l.bold, align: 'right', x: l.x, y: l.base - BASELINE * l.size, w: l.w, h: l.h };
+  const out = editPage(m, new m.PDFDocument(bytes), 0, [edit], [], () => withStore(), false, store), after = new Set(pageObjects(m.Document.openDocument(out.saveToBuffer('').asUint8Array().slice(), 'application/pdf').loadPage(0)).lines.map((x) => x.text));
+  assert.deepEqual(lines.filter((x) => x !== l && !after.has(x.text)).map((x) => x.text), [], 'every other line reads as before');
+});

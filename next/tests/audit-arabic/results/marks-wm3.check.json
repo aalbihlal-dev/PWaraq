@@ -69,7 +69,7 @@
   "label": "wm3-0",
   "consumer": "pdfium",
   "text": "نسخة ٢٠٢٦",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm3",
@@ -78,7 +78,7 @@
   "label": "wm3-1",
   "consumer": "pdfium",
   "text": "نسخة ٢٠٢٦",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm3",
@@ -87,7 +87,7 @@
   "label": "wm3-2",
   "consumer": "pdfium",
   "text": "نسخة ٢٠٢٦",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm3",
@@ -96,7 +96,7 @@
   "label": "wm3-3",
   "consumer": "pdfium",
   "text": "نسخة ٢٠٢٦",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm3",
@@ -105,7 +105,7 @@
   "label": "wm3-4",
   "consumer": "pdfium",
   "text": "نسخة ٢٠٢٦",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm3",
@@ -114,7 +114,7 @@
   "label": "wm3-5",
   "consumer": "pdfium",
   "text": "نسخة ٢٠٢٦",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm3",
@@ -123,7 +123,7 @@
   "label": "wm3-6",
   "consumer": "pdfium",
   "text": "نسخة ٢٠٢٦",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm3",

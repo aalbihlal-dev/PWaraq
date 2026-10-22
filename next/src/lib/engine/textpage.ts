@@ -160,14 +160,16 @@ export function pageWriter(m: typeof MuPDF, out: MuPDF.PDFDocument, fonts: Fonts
   };
 }
 
-/** A ToUnicode map for a font shown by glyph id: each glyph id back to the letters it was drawn for. */
-export function toUnicode(map: Map<number, number[]>) {
+/** A ToUnicode map for a font shown by glyph id: each glyph id back to the letters it was drawn for. `name`: the map's
+ *  name says which way a ligature's letters are stored — `Waraq-UCS` (this writer) stores a joined pair reversed so
+ *  MuPDF reads it right; `Waraq-Logical` (fontstore.ts) stores reading order; the page editor's lift reads the name. */
+export function toUnicode(map: Map<number, number[]>, name: 'Waraq-UCS' | 'Waraq-Logical' = 'Waraq-UCS') {
   const hex = (n: number) => n.toString(16).padStart(4, '0');
   const utf16 = (cs: number[]) => String.fromCodePoint(...cs).split('').map((c) => hex(c.charCodeAt(0))).join('');
   const rows = [...map].map(([gid, uni]) => `<${hex(gid)}> <${utf16(uni)}>`), blocks: string[] = [];
   for (let i = 0; i < rows.length; i += 100) blocks.push(`${rows.slice(i, i + 100).length} beginbfchar ${rows.slice(i, i + 100).join(' ')} endbfchar`);
   return `/CIDInit /ProcSet findresource begin 12 dict begin begincmap
-/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def /CMapName /Waraq-UCS def /CMapType 2 def
+/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def /CMapName /${name} def /CMapType 2 def
 1 begincodespacerange <0000> <FFFF> endcodespacerange
 ${blocks.join('\n')}
 endcmap CMapName currentdict /CMap defineresource pop end end`;

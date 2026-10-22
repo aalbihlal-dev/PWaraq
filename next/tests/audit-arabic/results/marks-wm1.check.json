@@ -69,7 +69,7 @@
   "label": "wm1-0",
   "consumer": "pdfium",
   "text": "مسودة — Draft 2026",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm1",
@@ -78,7 +78,7 @@
   "label": "wm1-1",
   "consumer": "pdfium",
   "text": "مسودة — Draft 2026",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm1",
@@ -87,7 +87,7 @@
   "label": "wm1-2",
   "consumer": "pdfium",
   "text": "مسودة — Draft 2026",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm1",
@@ -96,7 +96,7 @@
   "label": "wm1-3",
   "consumer": "pdfium",
   "text": "مسودة — Draft 2026",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm1",
@@ -105,7 +105,7 @@
   "label": "wm1-4",
   "consumer": "pdfium",
   "text": "مسودة — Draft 2026",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm1",
@@ -114,7 +114,7 @@
   "label": "wm1-5",
   "consumer": "pdfium",
   "text": "مسودة — Draft 2026",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm1",
@@ -123,7 +123,7 @@
   "label": "wm1-6",
   "consumer": "pdfium",
   "text": "مسودة — Draft 2026",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm1",

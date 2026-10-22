@@ -5,6 +5,7 @@
 // Writes out/results.json (one record per edit), out/<edit>.pdf (the saved page), out/img/<edit>-{before,mupdf}.png
 // (the line box before and after, MuPDF at 4×) and out/fonts/<name> (the font bytes each edit was written with, for the
 // browser's reference rendering in audit-browser.mjs). Nothing in the app is changed.
+import { shown } from '../../src/lib/engine/bidi.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import * as m from '../../engine/mupdf-wasm/dist/mupdf.js';
@@ -52,6 +53,16 @@ function kindOf(line, truth = TRUTH) {
   return score >= 0.8 ? best : null;
 }
 const norm = (s) => s.normalize('NFKC').replace(/\s+/g, ' ').trim();
+// A mixed-direction line cannot be read back uniquely (bidi is not invertible: a bracket's direction and a number's side depend on the
+// pairing chosen), so a lifted line also counts as the typed one when both are DRAWN the same left to right, brackets aside.
+const shownKey = (s) => String.fromCodePoint(...shown([...norm(s)].map((c) => c.codePointAt(0)))).replace(/[()\[\]{}<>«»]/g, '·').replace(/ /g, '');
+const sameLine = (a, b) => norm(a) === norm(b) || shownKey(a) === shownKey(b);
+// Loosely the same: the letters agree (spaces inside words, tatweel, a lam-alef pair's order and U+FFFD, which the source PDF's own text
+// gave for a letter it cannot map, set aside) and the marks agree as a multiset (where a mark stands in a letter's cluster varies by reader).
+const MARK = /[\u064b-\u065f\u0670]/g, skeleton = (s) => norm(s).replace(/[\ufffd\u0640\s]/g, '').replace(MARK, '').replace(/([اأإآ])ل/g, 'ل$1');
+// a mark that follows no letter (the source line's lift left one after a full stop) cannot be drawn on anything: not counted
+const marksOf = (s) => [...(norm(s).replace(/([^\u0621-\u064a\u0671-\u06d3\u064b-\u065f\u0670\u0640])[\u064b-\u065f\u0670]+/g, '$1').match(MARK) ?? [])].sort().join('');
+const looseLine = (a, b) => skeleton(a) === skeleton(b) && marksOf(a) === marksOf(b);
 const marks = /[ً-ٰٟ]/g;
 /** How the text the editor shows differs from the real paragraph. */
 function liftDiff(lifted, truth) {
@@ -176,7 +187,7 @@ for (const f of files) {
       const cand = o2.lines.filter((x) => Math.abs(x.base - l.base) < l.size * 0.6 && x.x < edit.x + edit.w && x.x + x.w > edit.x);
       const newLine = cand.sort((a, b) => b.w - a.w)[0] ?? null;
       r.after = newLine ? lineInfo(newLine) : null;
-      r.extract = { mupdfLine: newLine?.text ?? null, mupdfLineOk: !!newLine && norm(newLine.text) === norm(text), mupdfPageHas: norm(text2).includes(norm(text)), oldGone: !norm(text2).includes(norm(l.text)) || norm(l.text) === norm(text) || norm(text).includes(norm(l.text)) };
+      r.extract = { mupdfLine: newLine?.text ?? null, mupdfLineOk: !!newLine && sameLine(newLine.text, text), mupdfLineLoose: !!newLine && looseLine(newLine.text, text), srcLoose: looseLine(l.text, text) && !sameLine(l.text, text), mupdfPageHas: norm(text2).includes(norm(text)), oldGone: !norm(text2).includes(norm(l.text)) || norm(l.text) === norm(text) || norm(text).includes(norm(l.text)) };
       r.extract.diff = newLine ? liftDiff(newLine.text, text) : ['lost'];
       // (b) what was drawn: glyph 0 (tofu) in the new commands, how many text objects
       const ops = lastContent(p2);
@@ -187,10 +198,33 @@ for (const f of files) {
         r.fidelity = { dEdge: +edge.toFixed(2), dBase: +(newLine.base - l.base).toFixed(2), dSize: +(newLine.size - l.size).toFixed(2), dH: +(newLine.h - l.h).toFixed(2), sameColor: l.color.every((c, j) => Math.abs(c - newLine.color[j]) < 0.02), boldKept: l.bold === newLine.bold, fontKept: fontName({ getName: () => newLine.font }) === l.font, fontAfter: newLine.font, overflowsPage: newLine.x < 0 || newLine.x + newLine.w > pw + 0.5, wrapped: cand.length > 1 || o2.lines.some((x) => x !== newLine && x.base > l.base + l.size * 0.6 && x.base < l.base + l.size * 2 && !objs.lines.some((y) => Math.abs(y.base - x.base) < 0.5 && norm(y.text) === norm(x.text))) };
       }
       // (d) side effects
-      const others = objs.lines.filter((x) => x !== l);
+      // a piece MuPDF split off the edited row (a last letter with a zero-width box: same baseline, narrower than half the size, inside the new box) is part of the line that was replaced
+      const piece = (x) => x.w < l.size * 0.5 && Math.abs(x.base - l.base) < l.size * 0.34 && x.x >= edit.x - 1 && x.x <= edit.x + edit.w;
+      const others = objs.lines.filter((x) => x !== l && !piece(x));
       const kept = others.filter((x) => o2.lines.some((y) => norm(y.text) === norm(x.text) && near(x, y, 0.6)));
       const gone = others.filter((x) => !o2.lines.some((y) => norm(y.text) === norm(x.text)));
       r.side = { othersBefore: others.length, othersKept: kept.length, othersGone: gone.length, othersMoved: others.length - kept.length - gone.length, goneSample: gone.slice(0, 2).map((x) => x.text.slice(0, 40)), imagesBefore: objs.images.length, imagesAfter: o2.images.length, fontsAfter: fontsOf(p2), growth: saved.length - bytes.length };
+      // other text standing inside the editing box (the audit's box runs to the page margin): the new line is drawn over it and readers merge the two, which no writer can undo
+      r.side.crowded = others.filter((x) => { const ox = Math.min(x.x + x.w, edit.x + edit.w) - Math.max(x.x, edit.x), oy = Math.min(x.y + x.h, l.y + l.h) - Math.max(x.y, l.y); return ox > 0 && oy > 0 && ox * oy > 0.2 * x.w * x.h; }).length;
+      // is the rest of the page the same PICTURE? Rendered at 144 dpi; the pixels outside the edited line's band (three lines allowed for a
+      // wrap) that changed: how many (as a share of that area) and the tallest connected blob of them (a neighbour line moved by a point is a blob)
+      {
+        const S = m.Matrix.scale(2, 2), grey = (pg) => { const x = pg.toPixmap(S, m.ColorSpace.DeviceGray, false); return { w: x.getWidth(), h: x.getHeight(), px: x.getPixels().slice() }; };
+        const g1 = grey(page), g2 = grey(p2), x0 = (Math.min(l.x, edit.x) - 6) * 2, x1 = (Math.max(l.x + l.w, edit.x + edit.w) + 6) * 2, y0 = (l.y - 6) * 2, y1 = (Math.max(l.y + l.h, edit.y + edit.h) + 3 * l.h + 6) * 2;
+        if (g1.w === g2.w && g1.h === g2.h) {
+          const { w, h } = g1, ch = new Uint8Array(w * h); let n = 0;
+          for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { if (x >= x0 && x <= x1 && y >= y0 && y <= y1) continue; if (Math.abs(g1.px[y * w + x] - g2.px[y * w + x]) > 60) { ch[y * w + x] = 1; n++; } }
+          let tall = 0; const stack = [];
+          for (let i = 0; i < ch.length; i++) if (ch[i] === 1) { // 8-connected blobs: their tallest bounding box
+            let top = h, bot = 0; ch[i] = 2; stack.push(i);
+            while (stack.length) { const j = stack.pop(), jy = (j / w) | 0, jx = j - jy * w; top = Math.min(top, jy); bot = Math.max(bot, jy);
+              for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const yy = jy + dy, xx = jx + dx; if (yy < 0 || xx < 0 || yy >= h || xx >= w) continue; const k = yy * w + xx; if (ch[k] === 1) { ch[k] = 2; stack.push(k); } } }
+            tall = Math.max(tall, bot - top + 1);
+          }
+          const inside = Math.max(0, Math.min(x1, w) - Math.max(x0, 0)) * Math.max(0, Math.min(y1, h) - Math.max(y0, 0));
+          r.side.outsideDiff = n; r.side.outsideFrac = +(n / Math.max(1, w * h - inside)).toFixed(5); r.side.outsideBlobH = tall;
+        } else r.side.outsideDiff = -1;
+      }
       // the new line and its neighbours, after
       const after = crop(p2, { x: before.box[0] + 4, y: before.box[1] + 4, w: before.box[2] - before.box[0] - 8, h: before.box[3] - before.box[1] - 8 }, 4, 4);
       fs.writeFileSync(path.join(OUT, 'img', id2 + '-mupdf.png'), after.png);

@@ -3,8 +3,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import * as m from '../../engine/mupdf-wasm/dist/mupdf.js';
-import { addTextLayer, layerWords } from '../../src/lib/engine/ocr.ts';
-import { unturn } from '../../src/lib/ocr-clean.ts';
+import { addTextLayer, layerWords, stripInvisible } from '../../src/lib/engine/ocr.ts';
+import { unturn, countRules, unevenness } from '../../src/lib/ocr-clean.ts';
+import { plausible, upright, readingOrder } from '../../src/lib/ocr.ts';
 
 const scan = fs.readFileSync(new URL('../fixtures/scan.pdf', import.meta.url));
 const font = (f) => new m.Font(f, fs.readFileSync(new URL('../../public/fonts/' + f + '.ttf', import.meta.url)));
@@ -53,4 +54,82 @@ test('a layer read on a straightened picture is turned back: each word lands whe
     assert.ok(Math.hypot(dx, dy) < 4, `${g.text} is ${Math.hypot(dx, dy).toFixed(1)} pt off (${dx.toFixed(1)}, ${dy.toFixed(1)})`);
   }
   assert.match(open(out).loadPage(0).toStructuredText().asText(), /Invoice number/);
+});
+
+test('a sheet scanned sideways: read after a quarter turn, the words land where they are printed on the page', () => {
+  const k = 3, w = 595 * k, h = 400 * k; // the picture was turned 90 degrees clockwise to read it: the read picture is h x w
+  const words = [{ text: 'Invoice', x0: 300, y0: 200, x1: 390, y1: 230 }, { text: 'مرحبا', x0: 700, y0: 1200, x1: 790, y1: 1240 }]; // boxes on the turned picture
+  const out = addTextLayer(m, scan, [{ page: 0, scale: k, lines: [{ words: [words[0]] }, { words: [words[1]] }], tilt: { angle: 0, w, h, quarter: 1 } }], fonts);
+  const layer = layerWords(m, out, 0);
+  for (const g of words) {
+    const want = unturn(g, 0, w, h, 1), cx = (want.x0 + want.x1) / 2 / k, cy = (want.y0 + want.y1) / 2 / k, got = layer.find((l) => l.text === g.text);
+    assert.ok(got, g.text);
+    const d = Math.hypot((got.x0 + got.x1) / 2 - cx, (got.y0 + got.y1) / 2 - cy);
+    assert.ok(d < 4, `${g.text} is ${d.toFixed(1)} pt off (want ${cx.toFixed(0)}, ${cy.toFixed(0)}; got ${((got.x0 + got.x1) / 2).toFixed(0)}, ${((got.y0 + got.y1) / 2).toFixed(0)})`);
+    assert.ok(cx > 0 && cx < 595 && cy > 0 && cy < 400, 'on the page');
+  }
+});
+
+test('a hybrid PDF: the wrong invisible layer from before is removed when the page is read again, visible text stays', () => {
+  const k = 3, wrong = addTextLayer(m, scan, [{ page: 0, scale: k, lines: [{ words: [{ text: 'WRONGWORD', x0: 60 * k, y0: 85 * k, x1: 170 * k, y1: 115 * k }] }] }], fonts);
+  assert.match(open(wrong).loadPage(0).toStructuredText().asText(), /WRONGWORD/);
+  const right = addTextLayer(m, wrong, [{ page: 0, scale: k, lines: [{ words: [{ text: 'Invoice', x0: 60 * k, y0: 85 * k, x1: 170 * k, y1: 115 * k }] }] }], fonts);
+  const text = open(right).loadPage(0).toStructuredText().asText();
+  assert.match(text, /Invoice/);
+  assert.doesNotMatch(text, /WRONGWORD/);
+  assert.deepEqual(Buffer.from(pixels(right)), Buffer.from(pixels(scan)));
+  // visible text is kept: a page that has a real heading
+  const three = fs.readFileSync(new URL('../fixtures/three.pdf', import.meta.url)), d = open(three).asPDF();
+  stripInvisible(d.findPage(0));
+  assert.match(d.loadPage(0).toStructuredText().asText(), /Page one/);
+});
+
+test('clean-up helpers: ruled lines are counted, thick bands and short strokes are not; a shaded photo counts as uneven', () => {
+  const w = 400, h = 300, px = new Uint8Array(w * h).fill(255);
+  for (let x = 20; x < 380; x++) px[150 * w + x] = 0; // a table border
+  for (let x = 100; x < 130; x++) px[80 * w + x] = 0; // a short dash
+  for (let y = 20; y < 280; y++) px[y * w + 200] = 0; // a column border
+  assert.deepEqual(countRules({ w, h, px }), { across: 1, down: 1 }); // the border across, the border down; the short dash is neither
+  const text = new Uint8Array(w * h).fill(255); for (let y = 148; y < 160; y++) for (let x = 20; x < 380; x++) text[y * w + x] = 0; // a thick dark band: a line of joined letters, not a rule
+  assert.deepEqual(countRules({ w, h, px: text }), { across: 0, down: 0 });
+  const flat = { w, h, px: new Uint8Array(w * h).fill(240) }, shaded = { w, h, px: new Uint8Array(w * h).map((_, i) => 255 - Math.floor((i % w) / 4)) };
+  assert.ok(unevenness(flat) < 30); assert.ok(unevenness(shaded) > 30);
+});
+
+test('plausible words: Arabic with the article and the commonest short words count, rubbish does not', () => {
+  const lines = [{ words: ['القراءة', 'في', 'المكتبة', 'xqzv', 'والكتب', 'the', 'كتاب'].map((text) => ({ text, x0: 0, x1: 1, y0: 0, y1: 1 })) }];
+  assert.equal(plausible(lines), 5); // القراءة في المكتبة والكتب the
+});
+
+test('upright: the sheet belongs to the first of the best pair of neighbouring orientations, and only a clear win turns it', async () => {
+  // a grey picture whose corner pixel marks how it was turned (1 at the top left when untouched); the fake reader reads the page
+  // well at the right way up and one turn on from it (as Tesseract does), badly elsewhere
+  const g = { w: 8, h: 6, px: new Uint8Array(48) }; for (const i of [0, 1, 8, 9]) g.px[i] = 255; // 2 x 2: it survives the half-size copy
+  const orientation = (x) => { const i = x.px.indexOf(255), cx = i % x.w, cy = Math.floor(i / x.w); return cx < x.w / 2 ? (cy < x.h / 2 ? 0 : 3) : (cy < x.h / 2 ? 1 : 2); };
+  const reader = (needs, words = 20) => async (x) => { const n = [needs, (needs + 1) % 4].includes(orientation(x)) ? words : 1; return [{ confidence: 90, words: Array.from({ length: n }, () => ({ text: 'القراءة', x0: 0, x1: 1, y0: 0, y1: 1 })) }]; };
+  for (const needs of [0, 1, 2, 3]) assert.equal((await upright(reader(needs), g, 100)).quarter, needs, 'a sheet that needs ' + needs);
+  assert.equal((await upright(reader(2, 2), g, 100)).quarter, 0); // a sparse page (a couple of words) is never turned
+});
+
+test('numbers in Arabic-Indic digits copy in order: the invisible word is written so MuPDF reads it back as printed', () => {
+  const k = 3, words = ['كلمة', '٧٠٩،', 'قال', '(٣٣٧،', 'ثم'], boxes = words.map((text, i) => ({ text, x0: (500 - i * 90) * k, x1: (580 - i * 90) * k, y0: 85 * k, y1: 115 * k }));
+  const out = addTextLayer(m, scan, [{ page: 0, scale: k, lines: [{ words: boxes }] }], fonts);
+  assert.equal(open(out).loadPage(0).toStructuredText('').asText().trim(), words.join(' ')); // was: ،٩٠٧ and ،٧٣٣(
+  assert.deepEqual(layerWords(m, out, 0).map((w) => w.text), words);
+});
+
+test('reading order: an Arabic page reads its columns right to left, a headline keeps its place, one column and Latin pages are left alone', () => {
+  const line = (text, x0, x1, y) => ({ words: [{ text, x0, x1, y0: y, y1: y + 20 }] });
+  const col = (name, x0, x1) => [0, 1, 2, 3].map((i) => line(name + i, x0, x1, 200 + i * 40));
+  const left = col('ل', 60, 440), right = col('ر', 560, 940), head = line('عنوان', 60, 940, 100);
+  const texts = (ls) => ls.map((l) => l.words[0].text).join(' ');
+  // Tesseract's order: headline, left column, right column
+  assert.equal(texts(readingOrder([head, ...left, ...right], 1000)), 'عنوان ر0 ر1 ر2 ر3 ل0 ل1 ل2 ل3'); // Arabic: the right column first
+  const latin = (name, x0, x1) => [0, 1, 2, 3].map((i) => line(name + i, x0, x1, 200 + i * 40));
+  assert.equal(texts(readingOrder([line('title', 60, 940, 100), ...latin('l', 60, 440), ...latin('r', 560, 940)], 1000)), 'title l0 l1 l2 l3 r0 r1 r2 r3'); // Latin: left column first
+  assert.equal(texts(readingOrder(col('ر', 60, 940), 1000)), 'ر0 ر1 ر2 ر3'); // one column: untouched
+  // rows that alternate between a short left line and a short right line (a bilingual invoice) are no columns: top to bottom
+  const rows = [0, 1, 2, 3, 4, 5].map((i) => (i % 2 ? line('ر' + i, 560, 940, 200 + i * 40) : line('ل' + i, 60, 440, 200 + i * 40)));
+  assert.equal(texts(readingOrder(rows, 1000)), 'ل0 ر1 ل2 ر3 ل4 ر5');
+  assert.equal(texts(readingOrder([...left.slice(0, 2), ...right.slice(0, 2)], 1000)), 'ل0 ر0 ل1 ر1'); // columns of fewer than three lines are no columns (a table's rows): top to bottom
 });

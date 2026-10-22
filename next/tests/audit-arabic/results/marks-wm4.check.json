@@ -69,7 +69,7 @@
   "label": "wm4-0",
   "consumer": "pdfium",
   "text": "سري للغاية",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm4",
@@ -78,7 +78,7 @@
   "label": "wm4-1",
   "consumer": "pdfium",
   "text": "سري للغاية",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm4",
@@ -87,7 +87,7 @@
   "label": "wm4-2",
   "consumer": "pdfium",
   "text": "سري للغاية",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm4",
@@ -96,7 +96,7 @@
   "label": "wm4-3",
   "consumer": "pdfium",
   "text": "سري للغاية",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm4",
@@ -105,7 +105,7 @@
   "label": "wm4-4",
   "consumer": "pdfium",
   "text": "سري للغاية",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm4",
@@ -114,7 +114,7 @@
   "label": "wm4-5",
   "consumer": "pdfium",
   "text": "سري للغاية",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm4",
@@ -123,7 +123,7 @@
   "label": "wm4-6",
   "consumer": "pdfium",
   "text": "سري للغاية",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "marks-wm4",

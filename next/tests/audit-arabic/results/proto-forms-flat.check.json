@@ -42,7 +42,7 @@
   "label": "proto-forms-flat",
   "consumer": "pdfium",
   "text": "عبدالله محمد الأحمد",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "proto-forms-flat",
@@ -51,7 +51,7 @@
   "label": "proto-forms-flat",
   "consumer": "pdfium",
   "text": "العنوان: الرياض ١٢٣٤٥",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "proto-forms-flat",
@@ -60,7 +60,7 @@
   "label": "proto-forms-flat",
   "consumer": "pdfium",
   "text": "ملاحظات أولى\nملاحظات ثانية",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "proto-forms-flat",

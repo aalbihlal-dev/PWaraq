@@ -1,6 +1,7 @@
 // The Waraq desktop shell: a frameless window (the page draws its own top bar), the files the user asked for
 // (command line, second launch, drop), read/write straight to disk, and the Office/CAD converter command.
 mod convert;
+mod ocrbest;
 mod packs;
 mod safe;
 mod update;
@@ -188,7 +189,12 @@ pub fn run() {
             set_border(win.build()?, 0x00f8fbfa); // paper, until the page reports its title bar colour
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![launch_paths, read_file, save_temp, save_commit, save_discard, vault_put, vault_get, vault_list, vault_remove, vault_reveal, open_external, convert_to_pdf, convert_cancel, packs::pack_status, packs::pack_install, packs::pack_cancel, packs::pack_remove, set_border, update::app_started, update::check_update, update::download_update, update::install_update])
-        .run(context)
-        .expect("error while running Waraq");
+        .invoke_handler(tauri::generate_handler![launch_paths, read_file, save_temp, save_commit, save_discard, vault_put, vault_get, vault_list, vault_remove, vault_reveal, open_external, convert_to_pdf, convert_cancel, packs::pack_status, packs::pack_install, packs::pack_cancel, packs::pack_remove, ocrbest::ocr_best_start, ocrbest::ocr_best_stop, set_border, update::app_started, update::check_update, update::download_update, update::install_update])
+        .build(context)
+        .expect("error while building Waraq")
+        .run(|_app, event| {
+            if let tauri::RunEvent::Exit = event {
+                ocrbest::stop(); // no OCR server left behind
+            }
+        });
 }

@@ -222,7 +222,7 @@
   "label": "ocr-0",
   "consumer": "pdfium",
   "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",
@@ -231,7 +231,7 @@
   "label": "ocr-0",
   "consumer": "pdfium",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",
@@ -240,7 +240,7 @@
   "label": "ocr-0",
   "consumer": "pdfium",
   "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",
@@ -249,7 +249,7 @@
   "label": "ocr-0",
   "consumer": "pdfium",
   "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",
@@ -258,7 +258,7 @@
   "label": "ocr-0",
   "consumer": "pdfium",
   "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",
@@ -294,7 +294,7 @@
   "label": "ocr-1",
   "consumer": "pdfium",
   "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",
@@ -303,7 +303,7 @@
   "label": "ocr-1",
   "consumer": "pdfium",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",
@@ -312,7 +312,7 @@
   "label": "ocr-1",
   "consumer": "pdfium",
   "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",
@@ -321,7 +321,7 @@
   "label": "ocr-1",
   "consumer": "pdfium",
   "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",
@@ -330,7 +330,7 @@
   "label": "ocr-1",
   "consumer": "pdfium",
   "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",
@@ -366,7 +366,7 @@
   "label": "ocr-2",
   "consumer": "pdfium",
   "text": "مرحبا بالعالم، هذا نص عربي للاختبار",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",
@@ -375,7 +375,7 @@
   "label": "ocr-2",
   "consumer": "pdfium",
   "text": "الفاتورة رقم INV-2026 بتاريخ 21/10/2026 ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",
@@ -384,7 +384,7 @@
   "label": "ocr-2",
   "consumer": "pdfium",
   "text": "رقم الهاتف ٠١٢٣٤٥٦٧٨٩ والسنة ١٤٤٨ هـ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",
@@ -393,7 +393,7 @@
   "label": "ocr-2",
   "consumer": "pdfium",
   "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",
@@ -402,7 +402,7 @@
   "label": "ocr-2",
   "consumer": "pdfium",
   "text": "لا إله إلا الله، لأن لإبراهيم لآلئ",
-  "status": "wrong"
+  "status": "word-order"
  },
  {
   "writer": "ocr",

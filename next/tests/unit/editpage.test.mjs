@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import * as m from '../../engine/mupdf-wasm/dist/mupdf.js';
 import * as hb from 'harfbuzzjs';
 import { editPage, pageObjects } from '../../src/lib/engine/editpage.ts';
+import { pageWriter } from '../../src/lib/engine/textpage.ts';
 import { fontAt, pick, shape, shaper } from '../../src/lib/engine/ownfont.ts';
 import { arabicDoc, FULL, SUB } from '../arabic-pdf.mjs';
 
@@ -160,4 +161,13 @@ test('a line in several fonts is one line; table cells stay apart', () => {
   assert.equal(lo.length, 1, lo.join(' | '));
   const rows = corpus('edge-arial.pdf');
   assert.ok(rows.includes('البند') && rows.includes('الكمية') && rows.includes('السعر'), 'cells apart');
+});
+
+test('lines Waraq wrote itself lift as typed: pageWriter (reversed pairs in its map) and the font service (reading order)', () => {
+  const doc = new m.PDFDocument(), w = pageWriter(m, doc, fonts);
+  doc.insertPage(-1, w.add({ w: 595, h: 842, lines: [{ text: 'تم استلام الطلب من الإدارة', x: 523, y: 100, size: 14, align: 'right' }] })); w.finish();
+  const a = pageObjects(new m.PDFDocument(doc.saveToBuffer('garbage=compact').asUint8Array().slice()).loadPage(0)).lines.map((l) => l.text);
+  assert.ok(a.includes('تم استلام الطلب من الإدارة'), 'pageWriter: ' + a.join(' | '));
+  const b = pageObjects(arabicDoc().loadPage(0)).lines.map((l) => l.text); // shapedWriter → fontstore writer
+  assert.ok(b.includes('السلام عليكم'), 'font service: ' + b.join(' | '));
 });

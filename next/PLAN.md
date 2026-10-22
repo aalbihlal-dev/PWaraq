@@ -440,6 +440,195 @@ Original plan:
   faded scans, only if the owner wants a 1.5 GB download and a minute a page — most of its gain is on degraded pages.
   Not integrated into the app; `tools/ocr-surya.py` + `node tools/ocr-accuracy.mjs --engine surya` reproduce the numbers.
 
+### OCR v3 — many kinds of file, 413 real scans, orientation, tables, columns, a stronger model (21–22 Oct 2026)
+Owner: "use different types of files and arrangements of files and scans", "OCR on the same page, same location",
+"strengthen the OCR a lot". Everything below is measured with `node tools/ocr-accuracy.mjs` on one growing set;
+before = the pipeline committed on 21 Oct (63d2dce), after = the final one. Words right / chars right (100 − CER) /
+placed (the text layer's box covers ≥ 60 % of the recognised word's box) in %, seconds a page on this PC under load.
+
+- **Test set** (`tests/fixtures/ocr/README.md`; downloads are git-ignored, `tools/get-ocr-set.mjs --all --wikisource`):
+  8 synthetic pages (committed), 63 synthetic **v3** pages made by `make-ocr-v3.mjs` — 21 document types (letter, invoice,
+  contract, form with boxes, income statement, three-column newspaper, book with footnotes, two-column paper, slide,
+  certificate, poster, menu, timetable, bilingual both ways, full tashkeel, list, small print, receipt, stamp and watermark,
+  coloured background), the arrangements (1–3 columns, tables with right-to-left columns, A4/A5/Letter/80 mm, landscape,
+  /Rotate 90/180/270) and 18 kinds of scan (flatbed 150/200/300, phone photo with perspective and shade, uneven light,
+  curved spine, skew 1/3/5°, faded, photocopy of a photocopy, 1-bit, bleed-through, pen strokes, hard JPEG, sheet turned
+  90/180/270); 8 real PDFs turned into scans; and **413 genuinely scanned pages**: all 400 Misraj-DocOCR pages (Apache-2.0;
+  the Markdown truth is reduced to printed words: tags, pictures and table marks are not words), 8 pages of vocalised
+  books (CC BY-NC-ND, local measurement only), 4 KITAB-Bench historical prints (no data licence stated, local only), 1
+  proofread Arabic Wikisource page (Commons "Public domain"). Not found as public sets with checked text: office forms,
+  phone photos of Arabic pages, handwriting over print. Truth fairness fixed on the way: lam-alef order, Arabic-Indic vs
+  Western digits, a number stuck to a letter, Misraj layout markup.
+- **Totals** (before → after):
+
+  | group | words | before (words / chars / placed %) | after | s / page after |
+  |---|---|---|---|---|
+  | synthetic, committed (8 pages) | 871 | 96.9 / 95.3 / 99.5 | **96.9 / 95.3 / 99.5** | 5.6 |
+  | v3 synthetic, by type / arrangement / scan (63) | 4974 | 78.5 / 75.9 / 94.8 | **92.0 / 93.4 / 98.9** | 3.3 |
+  | real PDFs turned into scans (8) | 2336 | 74.0 / 45.3 / 96.6 | **74.0 / 51.8 / 96.4** | 17.2 |
+  | real scans, first 27 | 6577 | 65.0 / 65.3 / 96.3 | **64.8 / 64.6 / 96.0** | 9.6 |
+  | real scans, Misraj-DocOCR bulk (385) | 84301 | 73.4 / 67.4 / 96.8 | **74.0 / 69.6 / 96.4** | 10.4 |
+  | all 491 pages | 99059 | 73.3 / 68.5 / 96.6 | **74.5 / 72.5 / 96.8** | 9.5 |
+
+- **By document type**, **arrangement** and **kind of scan** (the v3 pages; a page counts once per table):
+
+  | type | words | before (words / chars / placed %) | after |
+  |---|---|---|---|
+  | bilingual_ar_en | 91 | 98.9 / 99.1 / 100.0 | 98.9 / 99.1 / 100.0 |
+  | bilingual_en_ar | 91 | 98.9 / 99.1 / 100.0 | 98.9 / 99.1 / 100.0 |
+  | book | 2150 | 76.7 / 77.7 / 94.2 | 90.9 / 92.4 / 97.7 |
+  | certificate | 23 | 65.2 / 82.2 / 100.0 | 65.2 / 82.2 / 100.0 |
+  | coloured | 60 | 100.0 / 100.0 / 100.0 | 100.0 / 100.0 / 100.0 |
+  | contract | 101 | 99.0 / 99.8 / 100.0 | 99.0 / 99.8 / 100.0 |
+  | financial | 55 | 50.9 / 69.2 / 97.7 | 54.5 / 73.6 / 83.7 |
+  | form | 26 | 53.8 / 58.2 / 100.0 | 100.0 / 100.0 / 100.0 |
+  | invoice | 76 | 90.8 / 85.8 / 95.2 | 85.5 / 88.5 / 95.2 |
+  | letter | 1440 | 73.1 / 74.0 / 91.7 | 96.0 / 98.1 / 100.0 |
+  | list | 56 | 89.3 / 94.8 / 98.2 | 91.1 / 96.6 / 100.0 |
+  | menu | 58 | 41.4 / 46.6 / 100.0 | 69.0 / 85.9 / 98.1 |
+  | newspaper | 156 | 100.0 / 31.1 / 100.0 | 100.0 / 100.0 / 100.0 |
+  | paper | 154 | 98.1 / 42.9 / 100.0 | 98.1 / 97.3 / 100.0 |
+  | poster | 24 | 62.5 / 62.3 / 100.0 | 62.5 / 62.3 / 100.0 |
+  | receipt | 53 | 34.0 / 59.0 / 100.0 | 34.0 / 59.0 / 100.0 |
+  | slide | 32 | 100.0 / 96.5 / 100.0 | 100.0 / 96.5 / 100.0 |
+  | smallprint | 166 | 100.0 / 100.0 / 100.0 | 100.0 / 100.0 / 100.0 |
+  | stamped | 60 | 100.0 / 100.0 / 100.0 | 100.0 / 100.0 / 100.0 |
+  | tashkeel | 53 | 45.3 / 44.0 / 97.0 | 45.3 / 44.0 / 97.0 |
+  | timetable | 49 | 87.8 / 78.7 / 100.0 | 100.0 / 100.0 / 100.0 |
+
+  | arrangement | words | before (words / chars / placed %) | after |
+  |---|---|---|---|
+  | 1 column + footnotes, A5 (19 | 2090 | 76.0 / 76.6 / 93.9 | 90.7 / 92.0 / 97.6 |
+  | 1 column, A4 | 1241 | 79.6 / 80.8 / 95.2 | 95.6 / 98.0 / 100.0 |
+  | 2 columns + footnotes, A4 (1 | 154 | 98.1 / 42.9 / 100.0 | 98.1 / 97.3 / 100.0 |
+  | 3 columns + headline, A4 | 156 | 100.0 / 31.1 / 100.0 | 100.0 / 100.0 / 100.0 |
+  | Arabic then English | 91 | 98.9 / 99.1 / 100.0 | 98.9 / 99.1 / 100.0 |
+  | English then Arabic | 91 | 98.9 / 99.1 / 100.0 | 98.9 / 99.1 / 100.0 |
+  | Letter size | 60 | 95.0 / 94.9 / 100.0 | 95.0 / 94.9 / 100.0 |
+  | Letter size, Tajawal | 60 | 98.3 / 98.9 / 100.0 | 98.3 / 98.9 / 100.0 |
+  | boxes, A4 | 26 | 53.8 / 58.2 / 100.0 | 100.0 / 100.0 / 100.0 |
+  | display font over colour | 24 | 62.5 / 62.3 / 100.0 | 62.5 / 62.3 / 100.0 |
+  | full tashkeel | 53 | 45.3 / 44.0 / 97.0 | 45.3 / 44.0 / 97.0 |
+  | landscape page | 60 | 100.0 / 100.0 / 100.0 | 100.0 / 100.0 / 100.0 |
+  | landscape, centred display ( | 23 | 65.2 / 82.2 / 100.0 | 65.2 / 82.2 / 100.0 |
+  | landscape, dark title band ( | 32 | 100.0 / 96.5 / 100.0 | 100.0 / 96.5 / 100.0 |
+  | long receipt 80 mm | 53 | 34.0 / 59.0 / 100.0 | 34.0 / 59.0 / 100.0 |
+  | numbered Arabic list | 56 | 89.3 / 94.8 / 98.2 | 91.1 / 96.6 / 100.0 |
+  | page /Rotate 180 | 60 | 0.0 / 24.2 / 86.6 | 100.0 / 100.0 / 100.0 |
+  | page /Rotate 270 | 60 | 1.7 / 22.1 / 89.8 | 100.0 / 100.0 / 100.0 |
+  | page /Rotate 90 (content upr | 60 | 78.3 / 19.7 / 21.5 | 100.0 / 100.0 / 100.0 |
+  | small print 6–7 pt | 166 | 100.0 / 100.0 / 100.0 | 100.0 / 100.0 / 100.0 |
+  | stamp + watermark over text | 60 | 100.0 / 100.0 / 100.0 | 100.0 / 100.0 / 100.0 |
+  | table RTL columns, A4 | 55 | 50.9 / 69.2 / 97.7 | 54.5 / 73.6 / 83.7 |
+  | table RTL columns, landscape | 49 | 87.8 / 78.7 / 100.0 | 100.0 / 100.0 / 100.0 |
+  | table, A4 | 76 | 90.8 / 85.8 / 95.2 | 85.5 / 88.5 / 95.2 |
+  | table, A5 | 58 | 41.4 / 46.6 / 100.0 | 69.0 / 85.9 / 98.1 |
+  | text over coloured backgroun | 60 | 100.0 / 100.0 / 100.0 | 100.0 / 100.0 / 100.0 |
+
+  | scan | words | before (words / chars / placed %) | after |
+  |---|---|---|---|
+  | 1-bit black and white | 170 | 98.2 / 98.7 / 99.1 | 98.2 / 98.7 / 99.1 |
+  | bleed-through | 170 | 65.3 / 81.5 / 98.1 | 65.3 / 81.5 / 98.1 |
+  | curved book spine | 170 | 95.9 / 98.4 / 99.1 | 95.9 / 98.4 / 99.1 |
+  | faded | 170 | 97.1 / 98.4 / 99.1 | 97.1 / 98.4 / 99.1 |
+  | flatbed 150 dpi | 170 | 97.1 / 98.5 / 99.1 | 97.1 / 98.5 / 99.1 |
+  | flatbed 200 dpi | 2084 | 84.8 / 76.0 / 95.9 | 92.7 / 92.1 / 99.0 |
+  | flatbed 300 dpi | 170 | 99.4 / 98.6 / 98.6 | 99.4 / 98.6 / 98.6 |
+  | hard JPEG | 170 | 93.5 / 97.2 / 98.6 | 93.5 / 97.2 / 98.6 |
+  | pen strokes over text | 170 | 92.9 / 95.3 / 99.0 | 92.9 / 95.3 / 99.0 |
+  | phone photo (perspective, sh | 170 | 3.5 / 3.6 / 100.0 | 96.5 / 95.8 / 99.1 |
+  | phone photo (uneven light) ( | 170 | 94.1 / 92.4 / 98.6 | 97.1 / 98.7 / 99.1 |
+  | photocopy of a photocopy | 170 | 28.8 / 57.5 / 95.1 | 28.8 / 57.5 / 95.7 |
+  | skew 1° | 170 | 99.4 / 98.5 / 99.1 | 99.4 / 98.5 / 99.1 |
+  | skew 3° | 170 | 99.4 / 98.5 / 99.1 | 99.4 / 98.5 / 99.1 |
+  | skew 5° | 170 | 97.1 / 96.0 / 99.1 | 97.1 / 96.0 / 99.1 |
+  | turned 180° | 170 | 2.4 / 22.8 / 89.6 | 98.2 / 99.0 / 99.1 |
+  | turned 270° | 170 | 2.4 / 22.7 / 90.1 | 99.4 / 98.5 / 99.1 |
+  | turned 90° | 170 | 91.8 / 29.3 / 34.6 | 99.4 / 98.5 / 99.1 |
+
+- **Real pages by kind** (`real/manifest.json` tags):
+
+  | slice | words | before | after |
+  |---|---|---|---|
+  | numbers | 267 | 4.5 / 22.4 / 95.5 | 6.4 / 13.7 / 89.7 |
+  | prose | 79180 | 73.4 / 68.1 / 96.9 | 73.8 / 70.3 / 96.6 |
+  | table | 11629 | 69.7 / 63.2 / 96.1 | 70.9 / 64.0 / 95.7 |
+
+  | slice | words | before | after |
+  |---|---|---|---|
+  | full tashkeel | 3808 | 49.7 / 50.5 / 95.9 | 49.9 / 51.0 / 95.3 |
+  | plain | 80509 | 73.8 / 68.1 / 96.8 | 74.4 / 70.1 / 96.5 |
+  | some tashkeel | 6759 | 72.6 / 68.0 / 97.1 | 72.6 / 71.4 / 96.7 |
+
+  | slice | words | before | after |
+  |---|---|---|---|
+  | Misraj-DocOCR | 88643 | 73.5 / 67.9 / 96.9 | 74.1 / 70.0 / 96.5 |
+  | Wikisource 1931 | 198 | 48.5 / 72.3 / 98.5 | 48.5 / 72.3 / 98.5 |
+  | arocrbench_historicalb | 283 | 1.1 / 14.9 / 93.8 | 1.1 / 15.0 / 94.2 |
+  | ocr_arabic_books | 1952 | 48.8 / 61.0 / 95.7 | 48.8 / 60.9 / 95.8 |
+
+- **Kept** (each measured on the set above; a step stays only if it improves the sliced numbers):
+  1. *Orientation* (`ocr.ts upright`): the page is read at half size at the four orientations and plausible words are counted
+     (Arabic with the article, the commonest short words): Tesseract reads a page turned a quarter one way about as well
+     as upright and its confidence is as high for rubbish as for words, so the page belongs to the first of the best pair
+     of neighbouring orientations, turned only on a clear win (12+ words, +40 %). Pages turned 90/180/270: words 92 / 2 / 2 → 99 / 98 / 99 %,
+     chars 29 / 23 / 23 → 98–99 %, placed 35 / 90 / 90 → 99 %; no upright real page is turned (two earlier tests, ink profile and confidence,
+     turned 7 of 19 upright Misraj pages and lost them: dropped). The text layer is turned back with one matrix, so words
+     sit where printed on the page as shown, including /Rotate pages.
+  2. *Tables and forms as one block* (`countRules` finds ruled lines both ways, psm 4): forms 54 → 100 %, menus 41 → 69 %,
+     timetable 88 → 100 % words; on 38 real pages flagged as tables it is neutral (77.2 → 77.0 %), because tables in books
+     are mostly not ruled boxes. Erasing the rules too was measured and dropped (no gain, lost words on book pages).
+  3. *Local binarisation* (Sauvola) only when the paper's brightness differs by more than 45 across the page (a shaded phone
+     photo): phone photo with perspective and shadow 3.5 → 96.5 %, uneven light 94 → 97 %. Contrast stretch only on grey paper.
+  4. *Reading order by columns* (`readingOrder`): columns read right to left on an Arabic page (a book's two facing pages
+     included), headlines keep their place: three-column newspaper chars 31 → 100 %, two-column paper 43 → 97 %, GASTAT
+     two-column definitions 31 → 88 %. Copy and search now give the text in the order a person reads it.
+  5. *Numbers*: a line of Arabic-Indic numbers is never swapped for the English model's Latin letters; the invisible word
+     is written reversed because MuPDF reads Arabic-Indic digits backwards (copy gave 907 for 709): placement of a
+     number-heavy real scan 86 → 95.7 %.
+  6. *Bilingual page rule*: Latin words on 30 % of the lines (was 10 %) before the English pass is kept whole.
+- **Dropped** (measured): a second look at weak lines (cut the line, enlarge 2×, read it as one line): 65.0 → 61.2 % on
+  the 27 scans, 77.9 → 77.4 % on 77 Misraj pages (rereads of vowelled text were surer and wrong); orientation by ink profile
+  or by confidence; erasing ruled lines; the earlier list: tessdata_best, 300 dpi, psm 6, wider deskew, border crop, merge margin.
+- **Not done, and why**: perspective dewarp (the keystone test photo already reads 96.5 % after local binarisation; a real
+  curved-page or strong-angle photo set does not exist publicly with text); per-region language and page-level tashkeel
+  switch; dictionary correction (no clean Arabic word list with a licence found in the time); bleed-through (65 %), photocopy
+  of a photocopy (29 %) and full tashkeel (45–50 %) stay weak; **Tesseract fine-tuning (tesstrain) was not attempted**: it
+  needs Linux `make` plus Tesseract's training tools, which this Windows PC does not have, and the vowelled-text gap is
+  about the model, which Best quality closes.
+- **Weak spots left** (one line each): full tashkeel and vowelled books 45–50 % (Tesseract's Arabic model; Best reads them
+  at 94–100 %); receipts of small Arabic-Indic digits and operators 34 %; bleed-through 65 %; photocopy of a photocopy
+  29 %; a numbers-only index page (4–6 %); white text on dark cards (r-07).
+- **Best quality** (desktop add-on, `ocr-strong.ts` + `ocr-align.ts` + `ocrbest.rs` + the Quality choice in the OCR task,
+  hidden until a pack is pinned; EN+AR): Surya OCR 2 on llama.cpp's server gives the text of each block; the words are placed
+  on Tesseract's word boxes by sequence alignment (matched words take Tesseract's box, a word only the model found gets the
+  stretch between its neighbours, or sits next to its neighbour at the width of letters inside the block's box). Measured
+  with the app's own code on a 12-page sample (7 real scans, 3 real PDFs turned into scans, 2 v3 pages):
+
+  | 12-page sample | Tesseract pipeline (words / chars / placed %) | Best quality (words / chars / placed %) |
+  |---|---|---|
+  | 7 real scans (books with tashkeel, accounts, a table) | 58.9 / 67.6 / 96.5 | **95.0 / 96.6 / 96.3** |
+  | 3 real PDFs turned into scans (spreads, a photocopy with cards) | 74.9 / 40.3 / 95.4 | **89.2 / 60.4 / 95.0** |
+  | 2 synthetic pages (newspaper, phone photo) | 98.6 / 97.5 / 100 | 100 / 100 / 100 |
+  | **all 12 pages** | 67.6 / 65.8 / 96.8 | **93.1 / 88.1 / 96.6** |
+  | seconds a page, this CPU (under load) | 12 (5–6 when idle) | 64 (59 on the scans, 99 on the spreads; includes the Tesseract pass) |
+
+  Best reads the vowelled books at 91–99 % (Tesseract 34–47 %) and keeps placement above 95 %. The "on ink" check misses
+  white-on-dark card text, which is why one rendered page shows 12 % there.
+
+
+  **Licence — decide before any pack is published.** The Surya OCR 2 model weights are under Datalab's *modified* OpenRAIL-M:
+  free only below USD 5 M revenue and USD 5 M funding, not for a product that competes with Datalab's, and a *share-alike*
+  clause that applies the licence to the model's **output** and its derivatives (the OCR text), plus use restrictions to be
+  passed on to every user, attribution, and a runtime clause (Datalab may restrict or change the model remotely). llama.cpp is
+  MIT, Surya's code GPL-3.0. Redistributing the weights in a Waraq pack, and the output clause, need the owner's (and a
+  lawyer's) decision first. If it is a no, the same alignment and UI work with any model whose answer gives text blocks with
+  boxes; dots.mocr (MIT, 1.7 B) and Qari-OCR are the candidates, each needing its own parser and its own measurement.
+- **Recommendation**: ship the Tesseract pipeline above as the default everywhere (the numbers above), with an honest line in the
+  OCR help: clean office prints read at 95–100 %, scanned books, photocopies and vowelled text less well, English can be
+  unticked for Arabic-only pages (+5 points and 3× faster on books). Keep Best quality gated and off until the licence is
+  decided and a pack is built and pinned (`packs.json`, hosted on the website: not done, needs the owner's yes).
+
 ## Support page (owner, 20 Oct 2026) — replaces the earlier three-way panel
 Owner: "for now link to GitHub; I give you the rest later. In the app it opens a support page on the website, and in
 this page all will be there." So: one website page `/support` (EN+AR, Waraq colours, quiet footer link) with sections
@@ -639,3 +828,13 @@ Scripts do everything; an AI only reads a one-page summary. Orchestrator (~300 l
 
 ## iPhone and iPad (owner, 21 Oct 2026) — LATER, only when every other version (web, Windows, Store) is stable
 Not started. Notes for then: the web app already runs the same engine in the browser, so a first step is an installable PWA for iPad/iPhone Safari (touch UI: bigger targets, pinch zoom, a compact bottom task bar instead of the 10-button row, Files-app open/save through the file picker/share sheet, no right-click, memory limits of iOS Safari for big drawings and OCR — measure); a native app is a second step (Tauri 2 mobile/iOS or a thin WKWebView shell; needs a Mac + Apple developer account, App Store review, no Office/CAD pack there, no Surya). Decide after the Windows release and real users' feedback.
+
+## 1.0 BETA RELEASE GATE (owner chose option B on 21 Oct 2026, target: evening of 22 Oct 2026)
+Go live as "1.0 beta" when ALL of these hold (then ask the owner for the final go; nothing goes live without it):
+1. Arabic editing: stress `edit` majors <= 1 % of edit cases, and every remaining one is listed with its cause in the release notes.
+2. Arabic writing: `write` majors only where an outside reader cannot follow the PDF standard (e.g. no bidi in a reader), each explained; text Waraq writes copies/searches in logical order in Acrobat-like readers (ActualText).
+3. Full verification on a clean checkout: `pnpm check` 0/0, unit all pass, e2e all pass (built app + dev-only specs), design audit green EN+AR on 4 themes, Tauri smoke + installer test green.
+4. The publishing agent's independent test (OTHER-AGENT-TO-DO step 5, incl. 5f–5j) on the final build: no serious problem open.
+5. The website preview (step 9) checked; the site states the known limits honestly (scanned-book OCR, readers that reorder mixed Arabic/Latin on copy).
+6. Backup bundle of all repos made the same day; GitHub synced with the release commit.
+Then: owner's go → Production upload of the 1.0 site, the Windows installer on the downloads page, 0.3.3 kept as "classic"; auto-switch of 0.3.3 users later.
